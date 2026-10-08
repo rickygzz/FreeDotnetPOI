@@ -8,20 +8,20 @@
     <DebugType>portable</DebugType>
     <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
 
-    <VersionPrefix>2.7.6</VersionPrefix>
-    <Title>NPOI</Title>
-    <Authors>Tony Qu,NPOI Contributors</Authors>
-    <Owners>Nissl Lab</Owners>
-    <Description>.NET port of Apache POI</Description>
+    <VersionPrefix>2.7.7</VersionPrefix>
+    <Title>FreeDotnetPOI</Title>
+    <Authors>Tony Qu,NPOI Contributors,FreeDotnetPOI Contributors</Authors>
+    <Owners>FreeDotnetPOI Contributors</Owners>
+    <Description>Community-maintained, Apache-2.0 licensed fork of NPOI 2.7.6 (.NET port of Apache POI). Not affiliated with or endorsed by Nissl Lab or the Apache Software Foundation.</Description>
     <Summary>NPOI can read and write xls (Excel 97-2003), xlsx(Excel 2007+) and docx(Word 2007+). </Summary>
-    <RepositoryUrl>https://github.com/nissl-lab/npoi</RepositoryUrl>
+    <RepositoryUrl>https://github.com/rickygzz/FreeDotnetPOI</RepositoryUrl>
 
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <PackageIcon>logo\60_60.jpg</PackageIcon>
-    <PackageProjectUrl>https://github.com/nissl-lab/npoi</PackageProjectUrl>
-    <PackageReleaseNotes>https://github.com/nissl-lab/npoi/discussions/1636</PackageReleaseNotes>
-    <Copyright>Nissl LLC</Copyright>
-    <PackageTags>xlsx xls Excel Word docx office ole</PackageTags>
+    <PackageProjectUrl>https://github.com/rickygzz/FreeDotnetPOI</PackageProjectUrl>
+    <PackageReleaseNotes>https://github.com/rickygzz/FreeDotnetPOI/releases</PackageReleaseNotes>
+    <Copyright>Copyright Nissl LLC and NPOI contributors; modifications copyright FreeDotnetPOI contributors</Copyright>
+    <PackageTags>dotnetpoi npoi poi xlsx xls Excel Word docx office ole</PackageTags>
 
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
@@ -106,6 +106,7 @@
 
   <ItemGroup>
     <None Include="..\LICENSE" Pack="true" Visible="false" PackagePath="" />
+    <None Include="..\NOTICE" Pack="true" Visible="false" PackagePath="" />
     <None Include="..\build\README.md" Pack="true" Visible="false" PackagePath="" />
     <None Include="..\logo\*.png" Pack="true" Visible="false" PackagePath="logo\" />
     <None Include="..\logo\*.jpg" Pack="true" Visible="false" PackagePath="logo\" />

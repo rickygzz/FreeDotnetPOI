@@ -1,0 +1,14 @@
+FreeDotnetPOI
+Copyright FreeDotnetPOI contributors
+
+This product is a fork of NPOI (https://github.com/nissl-lab/npoi),
+taken at commit a0f50a01a (version 2.7.6), which was licensed under the
+Apache License, Version 2.0.
+Copyright Nissl LLC, Tony Qu and NPOI contributors.
+
+NPOI is a .NET port of Apache POI (https://poi.apache.org/),
+developed by The Apache Software Foundation.
+
+Changes made after the fork point are listed in the git history of this
+repository. FreeDotnetPOI is not affiliated with or endorsed by Nissl Lab,
+the NPOI project, or The Apache Software Foundation.

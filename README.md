@@ -1,3 +1,19 @@
+FreeDotnetPOI
+===================
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg?style=flat-square&logo=Apache)](LICENSE)
+
+**FreeDotnetPOI is a community-maintained fork of [NPOI](https://github.com/nissl-lab/npoi) at version 2.7.6 (commit `a0f50a01a`), the last release published under the Apache License 2.0.** It is maintained to keep dependencies current and address security vulnerabilities. Assembly names and namespaces (`NPOI.*`) are unchanged, so it is a drop-in replacement for `NPOI` 2.7.x:
+
+```
+dotnet add package FreeDotnetPOI
+```
+
+This project is not affiliated with or endorsed by Nissl Lab or The Apache Software Foundation. All credit for the original work goes to Tony Qu and the NPOI contributors. See [NOTICE](NOTICE).
+
+The original NPOI README follows.
+
+---
+
 What's NPOI
 ===================
 [![NuGet](https://img.shields.io/nuget/dt/npoi)](https://www.nuget.org/packages/NPOI)
