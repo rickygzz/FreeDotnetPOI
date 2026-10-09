@@ -8,6 +8,7 @@ It reads and writes xls (Excel 97-2003), xlsx (Excel 2007+) and docx (Word 2007+
 - `System.Security.Cryptography.Xml` is updated to 8.0.4 (security fixes).
 - 2.7.8: fixed data loss when opening an OOXML file that can't be opened as a zip file right away (for example, briefly locked by another process). The fallback path truncated the file to 0 bytes instead of reading it.
 - 2.7.8: temp file names are GUID-based, so processes creating temp files at the same moment no longer collide.
+- 2.7.9: text measurement uses [FreeDotnetFonts](https://www.nuget.org/packages/FreeDotnetFonts) 1.0.2 instead of `SixLabors.Fonts` 1.0.1 (same code, same `SixLabors.Fonts` assembly). FreeDotnetPOI no longer depends on any Six Labors package. **If your project references `SixLabors.Fonts` directly, replace it with `FreeDotnetFonts`.**
 
 Source and issues: https://github.com/rickygzz/FreeDotnetPOI
 

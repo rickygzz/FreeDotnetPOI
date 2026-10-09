@@ -20,7 +20,7 @@
     <PackageVersion Include="NUnit" Version="4.3.2" />
     <PackageVersion Include="NUnit3TestAdapter" Version="5.0.0" />
     <PackageVersion Include="SharpZipLib" Version="1.4.2" />
-    <PackageVersion Include="SixLabors.Fonts" Version="1.0.1" />
+    <PackageVersion Include="FreeDotnetFonts" Version="1.0.2" />
     <PackageVersion Include="FreeDotnetImageSharp" Version="2.1.14" />
     <PackageVersion Include="System.Configuration.ConfigurationManager" Version="8.0.1" />
     <PackageVersion Include="System.Formats.Asn1" Version="8.0.1" />

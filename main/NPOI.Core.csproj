@@ -20,7 +20,7 @@
     <PackageReference Include="Microsoft.IO.RecyclableMemoryStream" />
     <PackageReference Include="BouncyCastle.Cryptography" />
     <PackageReference Include="SharpZipLib" />
-    <PackageReference Include="SixLabors.Fonts" />
+    <PackageReference Include="FreeDotnetFonts" />
     <PackageReference Include="FreeDotnetImageSharp" />
     <PackageReference Include="ZString" />
   </ItemGroup>
