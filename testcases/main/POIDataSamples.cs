@@ -231,7 +231,10 @@ namespace TestCases
             //{
             //    throw new RuntimeException(e);
             //}
-            return new FileStream(path,FileMode.OpenOrCreate);
+            // Open read-only and shareable: test processes for several target frameworks run in parallel and read the
+            // same sample files. A read-write open (previously FileMode.OpenOrCreate) locked the file against the other
+            // processes ("being used by another process") and would have created an empty file if a sample was missing.
+            return new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read);
         }
         public string[] GetFiles()
         {

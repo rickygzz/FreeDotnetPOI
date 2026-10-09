@@ -18,6 +18,9 @@ name: PR
 
 on: [pull_request]
 
+permissions:
+  contents: read
+
 concurrency:
   group: ${{ github.workflow }} @ ${{ github.event.pull_request.head.label || github.head_ref || github.run_id }}
   cancel-in-progress: true
@@ -26,21 +29,21 @@ jobs:
   windows-latest:
     name: windows-latest
     runs-on: windows-latest
-    continue-on-error: true
     timeout-minutes: 20
     steps:
       - uses: actions/setup-dotnet@v5
         with:
           dotnet-version: |
+            8.0
             10.0
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: 'Run: Clean, Test, Pack'
         run: ./build.cmd Clean Test Pack
-      - name: 'Publish: publish'
-        uses: actions/upload-artifact@v4
+      - name: 'Publish: FreeDotnetPOI-nupkg'
+        uses: actions/upload-artifact@v5
         if: runner.os == 'Linux'
         with:
-          name: publish
+          name: FreeDotnetPOI-nupkg
           path: publish
   ubuntu-latest:
     name: ubuntu-latest
@@ -50,13 +53,14 @@ jobs:
       - uses: actions/setup-dotnet@v5
         with:
           dotnet-version: |
+            8.0
             10.0
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: 'Run: Clean, Test, Pack'
         run: ./build.cmd Clean Test Pack
-      - name: 'Publish: publish'
-        uses: actions/upload-artifact@v4
+      - name: 'Publish: FreeDotnetPOI-nupkg'
+        uses: actions/upload-artifact@v5
         if: runner.os == 'Linux'
         with:
-          name: publish
+          name: FreeDotnetPOI-nupkg
           path: publish

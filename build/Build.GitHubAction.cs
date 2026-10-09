@@ -9,10 +9,11 @@ using System.Collections.Generic;
 [CustomGitHubActions("CI",
     GitHubActionsImage.WindowsLatest,
     GitHubActionsImage.UbuntuLatest,
-    OnPushBranches = ["main", "master", "release*", "poi/*"],
+    OnPushBranches = ["main"],
     InvokedTargets = [nameof(Clean), nameof(Test), nameof(Pack)],
     TimeoutMinutes = 20,
     CacheKeyFiles = [],
+    ReadPermissions = [GitHubActionsPermissions.Contents],
     PublishCondition = "runner.os == 'Linux'"
 )]
 [CustomGitHubActions("PR",
@@ -23,6 +24,7 @@ using System.Collections.Generic;
     TimeoutMinutes = 20,
     CacheKeyFiles = [],
     ConcurrencyCancelInProgress = true,
+    ReadPermissions = [GitHubActionsPermissions.Contents],
     PublishCondition = "runner.os == 'Linux'"
 )]
 partial class Build;
@@ -39,13 +41,22 @@ class CustomGitHubActionsAttribute : GitHubActionsAttribute
 
         var newSteps = new List<GitHubActionsStep>(job.Steps);
 
-        newSteps.Insert(0, new GitHubActionsSetupDotNetStep(["10.0"]));
+        newSteps.Insert(0, new GitHubActionsSetupDotNetStep(["8.0", "10.0"]));
+
+        // NUKE names the artifact after the output folder ("publish"); use a descriptive name instead.
+        foreach (var step in newSteps)
+        {
+            if (step is GitHubActionsArtifactStep artifactStep)
+                artifactStep.Name = "FreeDotnetPOI-nupkg";
+        }
 
         job.Steps = newSteps.ToArray();
 
+        // Windows failures used to be ignored (inherited from upstream). They count again since the
+        // shared temp directory issue was fixed in 2.7.8. Set to true for a job to make it non-blocking.
         return new GitHubActionsJobContinueOnError(job)
         {
-            ContinueOnError = image == GitHubActionsImage.WindowsLatest
+            ContinueOnError = false
         };
     }
 }

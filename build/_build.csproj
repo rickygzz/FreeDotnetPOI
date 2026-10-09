@@ -12,7 +12,10 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Nuke.Common" Version="10.0.0" />
+        <PackageReference Include="Nuke.Common" Version="10.1.0" />
+        <!-- Override vulnerable versions that Nuke.Common 10.1.0 pulls in transitively (build tool only, not shipped). -->
+        <PackageReference Include="NuGet.Packaging" Version="6.14.3" />
+        <PackageReference Include="System.Security.Cryptography.Xml" Version="9.0.20" />
     </ItemGroup>
 
 </Project>
