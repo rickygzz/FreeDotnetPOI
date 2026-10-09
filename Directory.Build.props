@@ -17,7 +17,7 @@
     <RepositoryUrl>https://github.com/rickygzz/FreeDotnetPOI</RepositoryUrl>
 
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-    <PackageIcon>logo\60_60.jpg</PackageIcon>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageProjectUrl>https://github.com/rickygzz/FreeDotnetPOI</PackageProjectUrl>
     <PackageReleaseNotes>https://github.com/rickygzz/FreeDotnetPOI/releases</PackageReleaseNotes>
     <Copyright>Copyright Nissl LLC and NPOI contributors; modifications copyright FreeDotnetPOI contributors</Copyright>
@@ -108,8 +108,6 @@
     <None Include="..\LICENSE" Pack="true" Visible="false" PackagePath="" />
     <None Include="..\NOTICE" Pack="true" Visible="false" PackagePath="" />
     <None Include="..\build\README.md" Pack="true" Visible="false" PackagePath="" />
-    <None Include="..\logo\*.png" Pack="true" Visible="false" PackagePath="logo\" />
-    <None Include="..\logo\*.jpg" Pack="true" Visible="false" PackagePath="logo\" />
   </ItemGroup>
 
   <ItemGroup>

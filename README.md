@@ -8,6 +8,13 @@ FreeDotnetPOI
 dotnet add package FreeDotnetPOI
 ```
 
+## Differences from NPOI 2.7.6
+
+| Version | Change |
+|---|---|
+| 2.7.7 | Image handling uses [FreeDotnetImageSharp](https://github.com/rickygzz/FreeDotnetImageSharp) 2.1.14 instead of `SixLabors.ImageSharp` 2.1.11. It fixes GHSA-j9gm-c75j-xc9q, GHSA-jjfr-hcj7-qf5w, GHSA-j3p4-wp97-rph4, GHSA-gwg2-r3hj-4w44 and GHSA-wmxv-xphr-5c9g, and provides the same `SixLabors.ImageSharp` assembly and namespaces. If your project references `SixLabors.ImageSharp` directly, replace it with `FreeDotnetImageSharp`. |
+| 2.7.7 | `System.Security.Cryptography.Xml` updated to 8.0.4 (security fixes). |
+
 This project is not affiliated with or endorsed by Nissl Lab or The Apache Software Foundation. All credit for the original work goes to Tony Qu and the NPOI contributors. See [NOTICE](NOTICE).
 
 The original NPOI README follows.

@@ -21,7 +21,7 @@
     <PackageReference Include="BouncyCastle.Cryptography" />
     <PackageReference Include="SharpZipLib" />
     <PackageReference Include="SixLabors.Fonts" />
-    <PackageReference Include="SixLabors.ImageSharp" />
+    <PackageReference Include="FreeDotnetImageSharp" />
     <PackageReference Include="ZString" />
   </ItemGroup>
 
