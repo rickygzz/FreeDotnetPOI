@@ -3,7 +3,6 @@ namespace NPOI.Util
 {
     using System;
     using System.IO;
-    using System.Threading;
 
     public class TempFile
     {
@@ -50,15 +49,12 @@ namespace NPOI.Util
             if (!Directory.Exists(dir))
                 Directory.CreateDirectory(dir);
 
-            Random rnd = new Random(DateTime.Now.Millisecond);
-            rnd.Next();
-            Thread.Sleep(10);
-            //return prefix + rnd.Next() + suffix;
-            string path = Path.Combine(dir, prefix + rnd.Next() + suffix);
+            // Use a GUID like CreateTempFile. A Random seeded from the current millisecond gives
+            // the same names to processes that call this at the same time.
+            string path = Path.Combine(dir, prefix + Guid.NewGuid().ToString() + suffix);
             while(File.Exists(path))
             {
-                Thread.Sleep(10);
-                path = Path.Combine(dir, prefix + rnd.Next() + suffix);
+                path = Path.Combine(dir, prefix + Guid.NewGuid().ToString() + suffix);
             }
             return path;
         }

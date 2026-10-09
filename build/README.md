@@ -6,6 +6,8 @@ It reads and writes xls (Excel 97-2003), xlsx (Excel 2007+) and docx (Word 2007+
 
 - Image handling uses [FreeDotnetImageSharp](https://www.nuget.org/packages/FreeDotnetImageSharp) 2.1.14 instead of `SixLabors.ImageSharp` 2.1.11. It is an Apache-2.0 fork of ImageSharp 2.1.13 with fixes for GHSA-j9gm-c75j-xc9q, GHSA-jjfr-hcj7-qf5w, GHSA-j3p4-wp97-rph4, GHSA-gwg2-r3hj-4w44 and GHSA-wmxv-xphr-5c9g. It provides the same `SixLabors.ImageSharp` assembly and namespaces. **If your project references `SixLabors.ImageSharp` directly, replace it with `FreeDotnetImageSharp`.**
 - `System.Security.Cryptography.Xml` is updated to 8.0.4 (security fixes).
+- 2.7.8: fixed data loss when opening an OOXML file that can't be opened as a zip file right away (for example, briefly locked by another process). The fallback path truncated the file to 0 bytes instead of reading it.
+- 2.7.8: temp file names are GUID-based, so processes creating temp files at the same moment no longer collide.
 
 Source and issues: https://github.com/rickygzz/FreeDotnetPOI
 
