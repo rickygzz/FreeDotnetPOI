@@ -300,6 +300,20 @@ namespace TestCases.OpenXml4Net.OPC
             }
         }
 
+        // When the zip file can't be opened (IOException), ZipPackage falls back to stream processing.
+        // That fallback used FileInfo.Create(), which truncates an existing file to 0 bytes and creates
+        // a missing one. Opening a package must never create or modify the file.
+        [Test]
+        public void TestOpenMissingFileDoesNotCreateIt([Values(PackageAccess.READ, PackageAccess.READ_WRITE)] PackageAccess access)
+        {
+            string path = Path.Combine(Path.GetTempPath(), "TestZipPackage-missing-" + Guid.NewGuid().ToString("N") + ".xlsx");
+            ClassicAssert.IsFalse(File.Exists(path));
+
+            Assert.That(() => OPCPackage.Open(path, access), Throws.Exception);
+
+            ClassicAssert.IsFalse(File.Exists(path), "Opening a missing package must not create a file");
+        }
+
     }
 
 }
