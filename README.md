@@ -17,6 +17,7 @@ dotnet add package FreeDotnetPOI
 | 2.7.8 | Fixed data loss when opening an OOXML file (`.xlsx`, `.docx`) that can't be opened as a zip file right away (for example, briefly locked by another process): the fallback path truncated the file to 0 bytes instead of reading it. |
 | 2.7.8 | `TempFile.GetTempFilePath` uses GUID-based names, so processes creating temp files at the same moment no longer get the same path. |
 | 2.7.9 | Text measurement uses [FreeDotnetFonts](https://github.com/rickygzz/FreeDotnetFonts) 1.0.2 instead of `SixLabors.Fonts` 1.0.1. It is the same code under Apache-2.0 and provides the same `SixLabors.Fonts` assembly and namespaces. FreeDotnetPOI no longer depends on any Six Labors package. If your project references `SixLabors.Fonts` directly, replace it with `FreeDotnetFonts`. |
+| 2.7.10 | Image handling uses [FreeDotnetImageSharp](https://github.com/rickygzz/FreeDotnetImageSharp) 2.1.15, which hardens ICC profile parsing against untrusted counts (gigabyte-sized allocations from a small malformed profile when reading `IccProfile.Entries`). NPOI itself does not read ICC profiles; the update keeps the dependency on the patched version. |
 
 This project is not affiliated with or endorsed by Nissl Lab or The Apache Software Foundation. All credit for the original work goes to Tony Qu and the NPOI contributors. See [NOTICE](NOTICE).
 

@@ -8,7 +8,7 @@
     <DebugType>portable</DebugType>
     <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
 
-    <VersionPrefix>2.7.9</VersionPrefix>
+    <VersionPrefix>2.7.10</VersionPrefix>
     <Title>FreeDotnetPOI</Title>
     <Authors>Tony Qu,NPOI Contributors,FreeDotnetPOI Contributors</Authors>
     <Owners>FreeDotnetPOI Contributors</Owners>
