@@ -25,7 +25,7 @@ FreeDotnetPOI is a drop-in replacement for the `NPOI` 2.7.x package. Assembly na
 
 ## Supported frameworks
 
-.NET 8 and later, .NET Standard 2.1, .NET Standard 2.0 and .NET Framework 4.7.2 and later (package targets `net8.0`, `netstandard2.1`, `netstandard2.0`, `net472`).
+.NET 8 and later, .NET Standard 2.1, .NET Standard 2.0 and .NET Framework 4.7.2 and later (package targets `net10.0`, `net8.0`, `netstandard2.1`, `netstandard2.0`, `net472`). .NET 10 apps get a build compiled for .NET 10; .NET 9 apps use the `net8.0` build.
 
 ## Differences from NPOI 2.7.6
 
@@ -40,7 +40,7 @@ FreeDotnetPOI is a drop-in replacement for the `NPOI` 2.7.x package. Assembly na
 
 | Version | Change |
 |---|---|
-| 2.7.11 | Security: `System.Security.Cryptography.Xml` 8.0.5 (CVE-2026-96222, CVE-2026-96958, CVE-2026-96959, CVE-2026-96960). Removed the LGPL-3.0 `NSax` dependency; code that uses NSax types with the SAX handlers directly needs a small change (see [Switching from NPOI 2.7.x](#switching-from-npoi-27x)). |
+| 2.7.11 | Security: `System.Security.Cryptography.Xml` 8.0.5 (CVE-2026-96222, CVE-2026-96958, CVE-2026-96959, CVE-2026-96960). Adds a `net10.0` build. Removed the LGPL-3.0 `NSax` dependency; code that uses NSax types with the SAX handlers directly needs a small change (see [Switching from NPOI 2.7.x](#switching-from-npoi-27x)). |
 | 2.7.10 | FreeDotnetImageSharp 2.1.15: hardens ICC profile parsing against untrusted counts (gigabyte-sized allocations from a small malformed profile when reading `IccProfile.Entries`). NPOI itself does not read ICC profiles. |
 | 2.7.9 | FreeDotnetFonts 1.0.2 replaces `SixLabors.Fonts` 1.0.1. |
 | 2.7.8 | OOXML open data-loss fix; GUID-based temp file names. |

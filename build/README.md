@@ -1,6 +1,6 @@
 FreeDotnetPOI is a community-maintained fork of [NPOI](https://github.com/nissl-lab/npoi) 2.7.6, the last release published under the Apache License 2.0. NPOI 2.8.0 and later are released under a different license; this fork continues the Apache-2.0 2.7.x line, keeping dependencies current and fixing security vulnerabilities.
 
-It reads and writes xls (Excel 97-2003), xlsx (Excel 2007+) and docx (Word 2007+) files. Supported frameworks: .NET 8+, .NET Standard 2.0/2.1 and .NET Framework 4.7.2+.
+It reads and writes xls (Excel 97-2003), xlsx (Excel 2007+) and docx (Word 2007+) files. Supported frameworks: .NET 8+ (with a dedicated .NET 10 build), .NET Standard 2.0/2.1 and .NET Framework 4.7.2+.
 
 ## Switching from NPOI 2.7.x
 
