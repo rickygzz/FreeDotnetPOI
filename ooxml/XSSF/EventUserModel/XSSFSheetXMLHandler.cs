@@ -25,15 +25,13 @@ namespace NPOI.XSSF.EventUserModel
 {
     using static NPOI.XSSF.UserModel.XSSFRelation;
 
-
     using NPOI.SS.UserModel;
     using NPOI.SS.Util;
     using NPOI.Util;
     using NPOI.XSSF.Model;
     using NPOI.XSSF.UserModel;
-    using NSAX.Helpers;
+    using NPOI.XSSF.EventUserModel.Sax;
     using NPOI.OpenXmlFormats.Spreadsheet;
-    using NSAX;
 
     /// <summary>
     /// This class handles the processing of a sheet#.xml

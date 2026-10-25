@@ -22,12 +22,10 @@ namespace NPOI.XSSF.EventUserModel
     using System.Collections.Generic;
     using System.IO;
     using System.Text;
-    using NSAX;
-    using NSAX.Helpers;
+    using System.Xml;
+    using NPOI.XSSF.EventUserModel.Sax;
 
     /// <summary>
-    /// <para>
-    /// </para>
     /// <para>
     /// This is a lightweight way to process the Shared Strings
     /// table. Most of the text cells will reference something
@@ -74,7 +72,6 @@ namespace NPOI.XSSF.EventUserModel
     /// </summary>
     public class ReadOnlySharedStringsTable : DefaultHandler
     {
-
         private bool includePhoneticRuns;
         /// <summary>
         /// An integer representing the total count of strings in the workbook. This count does not
@@ -106,7 +103,7 @@ namespace NPOI.XSSF.EventUserModel
         /// </summary>
         /// <param name="pkg">The <see cref="OPCPackage"/> to use as basis for the shared-strings table.</param>
         /// <exception cref="IOException"> If reading the data from the package fails.</exception>
-        /// <exception cref="SAXException"> if parsing the XML data fails.</exception>
+        /// <exception cref="XmlException"> if parsing the XML data fails.</exception>
         public ReadOnlySharedStringsTable(OPCPackage pkg)
             : this(pkg, true)
         {
@@ -117,7 +114,7 @@ namespace NPOI.XSSF.EventUserModel
         /// <param name="pkg">The <see cref="OPCPackage"/> to use as basis for the shared-strings table.</param>
         /// <param name="includePhoneticRuns">whether or not to concatenate phoneticRuns onto the shared string</param>
         /// <exception cref="IOException">IOException If reading the data from the package fails.</exception>
-        /// <exception cref="SAXException">SAXException if parsing the XML data fails.</exception>
+        /// <exception cref="XmlException">XmlException if parsing the XML data fails.</exception>
         /// @since POI 3.14-Beta3
         public ReadOnlySharedStringsTable(OPCPackage pkg, bool includePhoneticRuns)
         {
@@ -165,7 +162,7 @@ namespace NPOI.XSSF.EventUserModel
         /// </summary>
         /// <param name="is1">The input stream containing the XML document.</param>
         /// <exception cref="IOException"> if an error occurs while reading.</exception>
-        /// <exception cref="SAXException"> if parsing the XML data fails.</exception>
+        /// <exception cref="XmlException"> if parsing the XML data fails.</exception>
         public void ReadFrom(Stream is1)
         {
             // test if the file is empty, otherwise parse it
@@ -175,17 +172,7 @@ namespace NPOI.XSSF.EventUserModel
             if(is1.Length > 0)
             {
                 //pis.Unread(emptyTest);
-                InputSource sheetSource = new InputSource(is1);
-                //try
-                {
-                    NSAX.AElfred.SAXDriver sheetParser = new NSAX.AElfred.SAXDriver();
-                    sheetParser.ContentHandler = (this);
-                    sheetParser.Parse(sheetSource);
-                }
-                //catch (ParserConfigurationException e)
-                //{
-                //    throw new RuntimeException("SAX parser appears to be broken - " + e.GetMessage());
-                //}
+                SaxParser.Parse(is1, this);
             }
         }
 
@@ -227,7 +214,6 @@ namespace NPOI.XSSF.EventUserModel
         public override void StartElement(String uri, String localName, String name,
                                  IAttributes attributes)
         {
-
             if (uri != null && !uri.Equals(XSSFRelation.NS_SPREADSHEETML))
             {
                 return;
@@ -264,7 +250,6 @@ namespace NPOI.XSSF.EventUserModel
         }
 
         public override void EndElement(String uri, String localName, String name)
-
         {
 
             if (uri != null && !uri.Equals(XSSFRelation.NS_SPREADSHEETML))

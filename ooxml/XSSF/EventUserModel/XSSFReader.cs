@@ -30,8 +30,7 @@ namespace NPOI.XSSF.EventUserModel
     using NPOI.Util;
     using NPOI.XSSF.Model;
     using NPOI.XSSF.UserModel;
-    using NSAX;
-    using NSAX.Helpers;
+    using NPOI.XSSF.EventUserModel.Sax;
     using System.Xml;
 
     /// <summary>
@@ -121,7 +120,6 @@ namespace NPOI.XSSF.EventUserModel
                 }
                 return styles;
             }
-            
         }
 
 
@@ -157,7 +155,6 @@ namespace NPOI.XSSF.EventUserModel
         /// <param name="relId">The relationId of the sheet, from a r:id on the workbook</param>
         public Stream GetSheet(String relId)
         {
-
             PackageRelationship rel = workbookPart.GetRelationship(relId);
             if (rel == null)
             {
@@ -182,7 +179,6 @@ namespace NPOI.XSSF.EventUserModel
         /// </summary>
         public virtual IEnumerator<Stream> GetSheetsData()
         {
-
             return new SheetIterator(workbookPart);
         }
 
@@ -191,7 +187,6 @@ namespace NPOI.XSSF.EventUserModel
         /// </summary>
         public class SheetIterator : IEnumerator<Stream>
         {
-
             /// <summary>
             ///  Maps relId and the corresponding PackagePart
             /// </summary>
@@ -209,7 +204,6 @@ namespace NPOI.XSSF.EventUserModel
             /// </summary>
             IEnumerator<XSSFSheetRef> sheetIterator;
 
-            
             /// <summary>
             /// Construct a new SheetIterator
             /// </summary>
@@ -247,25 +241,11 @@ namespace NPOI.XSSF.EventUserModel
             public virtual List<XSSFSheetRef> CreateSheetIteratorFromWB(PackagePart wb)
             {
                 XMLSheetRefReader xmlSheetRefReader = new XMLSheetRefReader();
-                NSAX.AElfred.SAXDriver xmlReader;
                 try
                 {
-                    xmlReader = new NSAX.AElfred.SAXDriver();// SAXHelper.newXMLReader();
+                    SaxParser.Parse(wb.GetInputStream(), xmlSheetRefReader);
                 }
-                //catch (ParserConfigurationException e)
-                //{
-                //    throw new POIXMLException(e);
-                //}
-                catch (SAXException e)
-                {
-                    throw new POIXMLException(e);
-                }
-                xmlReader.ContentHandler = (xmlSheetRefReader);
-                try
-                {
-                    xmlReader.Parse(new InputSource(wb.GetInputStream()));
-                }
-                catch (SAXException e)
+                catch (XmlException e)
                 {
                     throw new POIXMLException(e);
                 }

@@ -17,7 +17,7 @@
 
 using NPOI.OpenXml4Net;
 using NPOI.SS.Extractor;
-using NSAX;
+using System.Xml;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -62,13 +62,10 @@ namespace NPOI.XSSF.Extractor
         public XSSFBEventBasedExcelExtractor(OPCPackage container)
         : base(container)
         {
-
-            ;
         }
 
         public static void main(String[] args)
         {
-
             if(args.Length < 1)
             {
                 //System.err.println("Use:");
@@ -177,7 +174,7 @@ namespace NPOI.XSSF.Extractor
                 //LOGGER.log(POILogger.WARN, e);
                 return null;
             }
-            catch(SAXException)
+            catch(XmlException)
             {
                 //LOGGER.log(POILogger.WARN, se);
                 return null;
