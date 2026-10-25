@@ -34,8 +34,8 @@ namespace NPOI.XSSF.Extractor
     using NPOI.XSSF.Model;
     using NPOI.XSSF.UserModel;
     using System.Globalization;
-    using NSAX;
-    using NSAX.AElfred;
+    using NPOI.XSSF.EventUserModel.Sax;
+    using System.Xml;
     using static NPOI.XSSF.EventUserModel.XSSFSheetXMLHandler;
     using NPOI.OpenXml4Net;
 
@@ -66,8 +66,6 @@ namespace NPOI.XSSF.Extractor
         public XSSFEventBasedExcelExtractor(OPCPackage container)
             : base(null)
         {
-
-
             this.container = container;
 
             properties = new POIXMLProperties(container);
@@ -75,7 +73,6 @@ namespace NPOI.XSSF.Extractor
 
         public static void main(String[] args)
         {
-
             if(args.Length < 1)
             {
                 Console.WriteLine("Use:");
@@ -205,8 +202,6 @@ namespace NPOI.XSSF.Extractor
                 Stream sheetInputStream)
 
         {
-
-
             DataFormatter formatter;
             if(locale == null)
             {
@@ -217,16 +212,13 @@ namespace NPOI.XSSF.Extractor
                 formatter = new DataFormatter(locale);
             }
 
-            InputSource sheetSource = new InputSource(sheetInputStream);
             try
             {
-                SAXDriver sheetParser = new SAXDriver();
                 IContentHandler handler = new XSSFSheetXMLHandler(
                 styles, comments, strings, sheetContentsExtractor, formatter, formulasNotResults);
-                sheetParser.ContentHandler = (handler);
-                sheetParser.Parse(sheetSource);
+                SaxParser.Parse(sheetInputStream, handler);
             }
-            catch(SAXException e)
+            catch(XmlException e)
             {
                 throw new RuntimeException("SAX parser appears to be broken - " + e.Message);
             }
@@ -283,7 +275,7 @@ namespace NPOI.XSSF.Extractor
                     //LOGGER.log(POILogger.WARN, e);
                     return null;
                 }
-                catch(SAXException)
+                catch(XmlException)
                 {
                     //LOGGER.log(POILogger.WARN, se);
                     return null;
@@ -420,7 +412,6 @@ namespace NPOI.XSSF.Extractor
                 }
                 return text;
             }
-
 
             /// <summary>
             /// Append the text for each header type in the same order
