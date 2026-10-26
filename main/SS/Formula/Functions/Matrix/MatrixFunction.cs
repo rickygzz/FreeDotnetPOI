@@ -16,6 +16,7 @@
 ==================================================================== */
 
 using NPOI.SS.Formula.Eval;
+using NPOI.SS.Formula.Functions.Numeric;
 using System;
 
 namespace NPOI.SS.Formula.Functions.Matrix;

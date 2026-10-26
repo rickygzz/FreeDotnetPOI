@@ -18,21 +18,20 @@
  * Created on May 6, 2005
  *
  */
-namespace NPOI.SS.Formula.Functions
+namespace NPOI.SS.Formula.Functions.Numeric;
+
+using System;
+using NPOI.SS.Formula.Eval;
+
+/**
+ * @author Amol S. Deshmukh &lt; amolweb at ya hoo dot com &gt;
+ *  
+ */
+public class Rand : Fixed0ArgFunction
 {
-    using System;
-    using NPOI.SS.Formula.Eval;
-
-    /**
-     * @author Amol S. Deshmukh &lt; amolweb at ya hoo dot com &gt;
-     *  
-     */
-    public class Rand : Fixed0ArgFunction
+    public override ValueEval Evaluate(int srcRowIndex, int srcColumnIndex)
     {
-        public override ValueEval Evaluate(int srcRowIndex, int srcColumnIndex)
-        {
-            return new NumberEval(new Random().NextDouble());
-        }
-
+        return new NumberEval(new Random().NextDouble());
     }
+
 }

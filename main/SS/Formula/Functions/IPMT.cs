@@ -20,6 +20,7 @@
 namespace NPOI.SS.Formula.Functions
 {
     using NPOI.SS.Formula.Eval;
+    using NPOI.SS.Formula.Functions.Numeric;
 
     public class IPMT : NumericFunction
     {

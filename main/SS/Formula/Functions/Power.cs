@@ -20,6 +20,7 @@
  */
 namespace NPOI.SS.Formula.Functions
 {
+    using NPOI.SS.Formula.Functions.Numeric;
     using System;
 
     /**

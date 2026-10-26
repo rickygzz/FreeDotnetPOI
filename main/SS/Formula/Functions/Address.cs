@@ -21,11 +21,13 @@ namespace NPOI.SS.Formula.Functions
     using System;
     using NPOI.SS.Util;
     using System.Text;
+    using NPOI.SS.Formula.Functions.Numeric;
+
     /**
-     * Creates a text reference as text, given specified row and column numbers.
-     *
-     * @author Aniket Banerjee (banerjee@google.com)
-     */
+* Creates a text reference as text, given specified row and column numbers.
+*
+* @author Aniket Banerjee (banerjee@google.com)
+*/
     public class Address : Function
     {
         public const int REF_ABSOLUTE = 1;

@@ -18,6 +18,7 @@
  */
 using ExtendedNumerics;
 using NPOI.SS.Formula.Eval;
+using NPOI.SS.Formula.Functions.Numeric;
 using NPOI.SS.Util;
 using System;
 using System.Collections.Generic;

@@ -27,6 +27,7 @@ namespace TestCases.SS.Formula.Functions
     using NPOI.SS.Formula.Functions;
     using System.Numerics;
     using System;
+    using NPOI.SS.Formula.Functions.Numeric;
 
     /**
      * Test cases for ROUND(), ROUNDUP(), ROUNDDOWN()

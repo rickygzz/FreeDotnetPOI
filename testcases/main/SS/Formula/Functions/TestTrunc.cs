@@ -17,9 +17,10 @@
 
 namespace TestCases.SS.Formula.Functions
 {
-    using NUnit.Framework;using NUnit.Framework.Legacy;
     using NPOI.SS.Formula.Eval;
-    using NPOI.SS.Formula.Functions;
+    using NPOI.SS.Formula.Functions.Numeric;
+    using NUnit.Framework;
+    using NUnit.Framework.Legacy;
 
     /**
      * Test case for TRUNC()

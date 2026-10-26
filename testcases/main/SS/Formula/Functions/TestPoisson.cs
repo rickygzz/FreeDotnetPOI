@@ -20,7 +20,7 @@ namespace TestCases.SS.Formula.Functions
 
     using NPOI.SS.Formula.Eval;
     using NUnit.Framework;using NUnit.Framework.Legacy;
-    using NPOI.SS.Formula.Functions;
+    using NPOI.SS.Formula.Functions.Numeric;
 
     /**
      * Tests for Excel function POISSON(x,mean,cumulative)

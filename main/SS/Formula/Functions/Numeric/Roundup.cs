@@ -18,13 +18,12 @@
  * Created on May 15, 2005
  *
  */
-namespace NPOI.SS.Formula.Functions
+namespace NPOI.SS.Formula.Functions.Numeric;
+
+public class Roundup : TwoArg
 {
-    public class Roundup : TwoArg
+    public override double Evaluate(double d0, double d1)
     {
-        public override double Evaluate(double d0, double d1)
-        {
-            return MathX.RoundUp(d0, (int)d1);
-        }
+        return MathX.RoundUp(d0, (int)d1);
     }
 }

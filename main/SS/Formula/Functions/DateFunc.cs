@@ -17,6 +17,7 @@
 namespace NPOI.SS.Formula.Functions
 {
     using NPOI.SS.Formula.Eval;
+    using NPOI.SS.Formula.Functions.Numeric;
     using NPOI.SS.UserModel;
 
     /**

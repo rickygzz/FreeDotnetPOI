@@ -1,5 +1,6 @@
 ﻿using System;
 using NPOI.SS.Formula.Eval;
+using NPOI.SS.Formula.Functions.Numeric;
 
 namespace NPOI.SS.Formula.Functions
 {

@@ -18,6 +18,8 @@
  * Created on May 6, 2005
  *
  */
+using NPOI.SS.Formula.Functions.Numeric;
+
 namespace NPOI.SS.Formula.Functions
 {
     /**

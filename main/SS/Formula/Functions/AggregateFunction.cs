@@ -15,11 +15,11 @@
    limitations under the License.
 ==================================================================== */
 
-using NPOI.SS.Formula.Functions;
 namespace NPOI.SS.Formula.Functions
 {
     using System;
     using NPOI.SS.Formula.Eval;
+    using NPOI.SS.Formula.Functions.Numeric;
 
     public class AVEDEV : AggregateFunction
     {

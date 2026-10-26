@@ -21,6 +21,7 @@ using NPOI.SS.Util;
 using NPOI.SS.UserModel;
 using System.Globalization;
 using System.Collections.Generic;
+using NPOI.SS.Formula.Functions.Numeric;
 
 namespace NPOI.SS.Formula.Functions
 {
