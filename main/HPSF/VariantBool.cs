@@ -22,7 +22,7 @@ internal class VariantBool
 {
     public const int SIZE = 2;
     private bool _value;
-    internal VariantBool() {}
+    internal VariantBool() { }
     internal void Read( LittleEndianByteArrayInputStream lei )
     {
         short value = lei.ReadShort();

@@ -23,9 +23,9 @@ internal class VersionedStream
     private readonly GUID _versionGuid = new GUID();
     private readonly IndirectPropertyName _streamName;
 
-    internal VersionedStream() {}
+    internal VersionedStream() { }
 
-    internal void Read( LittleEndianByteArrayInputStream lei )
+    internal void Read(LittleEndianByteArrayInputStream lei)
     {
         _versionGuid.Read(lei);
         _streamName.Read(lei);

@@ -17,11 +17,10 @@
 
 namespace NPOI.HPSF;
 
-using NPOI.Util;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
+using NPOI.Util;
 
 /// <summary>
 /// <para>
@@ -61,7 +60,7 @@ public class VariantSupport : Variant
     /// </summary>
     private static List<long> unsupportedMessage;
 
-    private static  byte[] paddingBytes = new byte[3];
+    private static byte[] paddingBytes = new byte[3];
 
     /// <summary>
     /// Checks whether logging of unsupported variant types warning is turned
@@ -106,9 +105,9 @@ public class VariantSupport : Variant
     /// <return>true if HPFS supports this type, else
     /// <c>false</c>
     /// </return>
-    public bool IsSupportedType(int variantType)
+    public static bool IsSupportedType(int variantType)
     {
-        foreach(var st in SUPPORTED_TYPES)
+        foreach (var st in SUPPORTED_TYPES)
         {
             if (variantType == st)
             {
@@ -138,31 +137,38 @@ public class VariantSupport : Variant
     /// supported.
     /// </exception>
     /// @see Variant
-    public static Object Read(byte[] src, int offset,
-            int length, long type, int codepage)
+    public static Object Read(
+        byte[] src,
+        int offset,
+        int length,
+        long type,
+        int codepage)
     {
         LittleEndianByteArrayInputStream lei = new LittleEndianByteArrayInputStream(src, offset);
-        return Read( lei, length, type, codepage );
+        return Read(lei, length, type, codepage);
     }
 
-    public static Object Read( LittleEndianByteArrayInputStream lei,
-        int length, long type, int codepage )
+    public static Object Read(
+        LittleEndianByteArrayInputStream lei,
+        int length,
+        long type,
+        int codepage)
     {
         int offset = lei.GetReadIndex();
-        TypedPropertyValue typedPropertyValue = new TypedPropertyValue( (int) type, null );
+        TypedPropertyValue typedPropertyValue = new TypedPropertyValue((int)type, null);
         try
         {
             typedPropertyValue.ReadValue(lei);
         }
         catch (InvalidOperationException exc)
         {
-            int propLength = Math.Min( length, lei.Available() );
+            int propLength = Math.Min(length, lei.Available());
             byte[] v = IOUtils.SafelyAllocate(propLength, MAX_RECORD_LENGTH);
             lei.ReadFully(v, 0, propLength);
             throw new ReadingNotSupportedException(type, v);
         }
 
-        switch ((int) type)
+        switch ((int)type)
         {
             /*
             * we have more property types that can be converted into Java
@@ -190,15 +196,15 @@ public class VariantSupport : Variant
                 return (short)typedPropertyValue.Value;
 
             case Variant.VT_FILETIME:
-                Filetime filetime = (Filetime) typedPropertyValue.Value;
+                Filetime filetime = (Filetime)typedPropertyValue.Value;
                 return filetime.GetJavaValue();
 
             case Variant.VT_LPSTR:
-                CodePageString cpString = (CodePageString) typedPropertyValue.Value;
-                return cpString.GetJavaValue( codepage );
+                CodePageString cpString = (CodePageString)typedPropertyValue.Value;
+                return cpString.GetJavaValue(codepage);
 
             case Variant.VT_LPWSTR:
-                UnicodeString uniString = (UnicodeString) typedPropertyValue.Value;
+                UnicodeString uniString = (UnicodeString)typedPropertyValue.Value;
                 return uniString.ToJavaString();
 
             // if (l1 < 0) {
@@ -220,11 +226,11 @@ public class VariantSupport : Variant
             // value = v;
             // break;
             case Variant.VT_CF:
-                ClipboardData clipboardData = (ClipboardData) typedPropertyValue.Value;
+                ClipboardData clipboardData = (ClipboardData)typedPropertyValue.Value;
                 return clipboardData.ToByteArray();
 
             case Variant.VT_BOOL:
-                VariantBool bool1 = (VariantBool) typedPropertyValue.Value;
+                VariantBool bool1 = (VariantBool)typedPropertyValue.Value;
                 return bool1.Value;
 
             /*
@@ -232,11 +238,11 @@ public class VariantSupport : Variant
             * API? --sergey
             */
             default:
-                int unpadded = lei.GetReadIndex()-offset;
+                int unpadded = lei.GetReadIndex() - offset;
                 lei.SetReadIndex(offset);
                 byte[] v = IOUtils.SafelyAllocate(unpadded, MAX_RECORD_LENGTH);
-                lei.ReadFully( v, 0, unpadded );
-                throw new ReadingNotSupportedException( type, v );
+                lei.ReadFully(v, 0, unpadded);
+                throw new ReadingNotSupportedException(type, v);
         }
     }
 
@@ -266,10 +272,10 @@ public class VariantSupport : Variant
     /// who's variant type HPSF does not yet support
     /// </exception>
     public static int Write(Stream out1, long type,
-                            Object value, int codepage)
+        Object value, int codepage)
     {
         int length = -1;
-        switch((int) type)
+        switch ((int)type)
         {
             case Variant.VT_BOOL:
                 if (value is Boolean bValue)
@@ -282,7 +288,8 @@ public class VariantSupport : Variant
                 break;
 
             case Variant.VT_LPSTR:
-                if (value is String s1) {
+                if (value is String s1)
+                {
                     CodePageString codePageString = new CodePageString();
                     codePageString.SetJavaValue(s1, codepage);
                     length = codePageString.Write(out1);
@@ -292,7 +299,8 @@ public class VariantSupport : Variant
                 break;
 
             case Variant.VT_LPWSTR:
-                if (value is String) {
+                if (value is String)
+                {
                     UnicodeString uniString = new UnicodeString();
                     uniString.SetJavaValue((String)value);
                     length = uniString.Write(out1);
@@ -339,11 +347,12 @@ public class VariantSupport : Variant
                 }
                 break;
             case Variant.VT_UI2:
-                if (Number.IsNumber(value)) {
+                if (Number.IsNumber(value))
+                {
                     LittleEndian.PutUShort((ushort)(int)value, out1);
                     length = LittleEndianConsts.SHORT_SIZE;
                 }
-            break;
+                break;
             case Variant.VT_I4:
                 if (Number.IsNumber(value))
                 {
@@ -367,9 +376,11 @@ public class VariantSupport : Variant
 
                 break;
             case Variant.VT_UI8:
-                if (value is BigInteger || Number.IsNumber(value)) {
+                if (value is BigInteger || Number.IsNumber(value))
+                {
                     BigInteger bi = (value is BigInteger) ? (BigInteger)value : BigInteger.ValueOf((long)value);
-                    if (bi.BitLength() > 64) {
+                    if (bi.BitLength() > 64)
+                    {
                         throw new WritingNotSupportedException(type, value);
                     }
                     byte[] biBytesBE = bi.ToByteArray();
@@ -377,9 +388,9 @@ public class VariantSupport : Variant
                     int i = biBytesBE.Length;
                     foreach (byte b in biBytesBE)
                     {
-                        if (i<=LittleEndianConsts.LONG_SIZE)
+                        if (i <= LittleEndianConsts.LONG_SIZE)
                         {
-                            biBytesLE[i-1] = b;
+                            biBytesLE[i - 1] = b;
                         }
                         i--;
                     }
@@ -419,7 +430,7 @@ public class VariantSupport : Variant
         {
             if (value is byte[])
             {
-                byte[] b = (byte[]) value;
+                byte[] b = (byte[])value;
                 out1.Write(b, 0, b.Length);
                 length = b.Length;
                 WriteUnsupportedTypeMessage(new WritingNotSupportedException(type, value));
@@ -431,7 +442,7 @@ public class VariantSupport : Variant
         }
 
         /* pad values to 4-bytes */
-        int padding = (4-(length & 0x3)) & 0x3;
+        int padding = (4 - (length & 0x3)) & 0x3;
         out1.Write(paddingBytes, 0, padding);
 
         return length + padding;

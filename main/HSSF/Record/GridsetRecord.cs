@@ -1,4 +1,4 @@
-
+﻿
 /* ====================================================================
    Licensed to the Apache Software Foundation (ASF) Under one or more
    contributor license agreements.  See the NOTICE file distributed with
@@ -17,103 +17,102 @@
 ==================================================================== */
 
 
-namespace NPOI.HSSF.Record
+namespace NPOI.HSSF.Record;
+
+using System;
+using System.Text;
+using NPOI.Util;
+
+/**
+ * Title:        GridSet Record.
+ * Description:  flag denoting whether the user specified that gridlines are used when
+ *               printing.
+ * REFERENCE:  PG 320 Microsoft Excel 97 Developer's Kit (ISBN: 1-57231-498-2)
+ *
+ * @author Andrew C. Oliver (acoliver at apache dot org)
+ * @author  Glen Stampoultzis (glens at apache.org)
+ * @author Jason Height (jheight at chariot dot net dot au)
+ *
+ * @version 2.0-pre
+ */
+
+public class GridsetRecord : StandardRecord, ICloneable
 {
-    using System;
-    using System.Text;
-    using NPOI.Util;
+    public const short sid = 0x82;
+    public short field_1_gridset_flag;
+
+    public GridsetRecord()
+    {
+    }
 
     /**
-     * Title:        GridSet Record.
-     * Description:  flag denoting whether the user specified that gridlines are used when
-     *               printing.
-     * REFERENCE:  PG 320 Microsoft Excel 97 Developer's Kit (ISBN: 1-57231-498-2)
-     *
-     * @author Andrew C. Oliver (acoliver at apache dot org)
-     * @author  Glen Stampoultzis (glens at apache.org)
-     * @author Jason Height (jheight at chariot dot net dot au)
-     *
-     * @version 2.0-pre
+     * Constructs a GridSet record and Sets its fields appropriately.
+     * @param in the RecordInputstream to Read the record from
      */
 
-    public class GridsetRecord : StandardRecord, ICloneable
+    public GridsetRecord(RecordInputStream in1)
     {
-        public const short sid = 0x82;
-        public short field_1_gridset_flag;
+        field_1_gridset_flag = in1.ReadShort();
+    }
 
-        public GridsetRecord()
+    /**
+     * Get whether the gridlines are shown during printing.
+     *
+     * @return gridSet - true if gridlines are NOT printed, false if they are.
+     */
+
+    public bool Gridset
+    {
+        get
         {
+            return (field_1_gridset_flag == 1);
         }
-
-        /**
-         * Constructs a GridSet record and Sets its fields appropriately.
-         * @param in the RecordInputstream to Read the record from
-         */
-
-        public GridsetRecord(RecordInputStream in1)
+        set
         {
-            field_1_gridset_flag = in1.ReadShort();
-        }
-
-        /**
-         * Get whether the gridlines are shown during printing.
-         *
-         * @return gridSet - true if gridlines are NOT printed, false if they are.
-         */
-
-        public bool Gridset
-        {
-            get
+            if (value == true)
             {
-                return (field_1_gridset_flag == 1);
+                field_1_gridset_flag = 1;
             }
-            set
+            else
             {
-                if (value == true)
-                {
-                    field_1_gridset_flag = 1;
-                }
-                else
-                {
-                    field_1_gridset_flag = 0;
-                }
+                field_1_gridset_flag = 0;
             }
         }
+    }
 
-        public override String ToString()
+    public override String ToString()
+    {
+        StringBuilder buffer = new StringBuilder();
+
+        buffer.Append("[GRIDSET]\n");
+        buffer.Append("    .gridset        = ").Append(Gridset)
+            .Append("\n");
+        buffer.Append("[/GRIDSET]\n");
+        return buffer.ToString();
+    }
+
+    public override void Serialize(ILittleEndianOutput out1)
+    {
+        out1.WriteShort(field_1_gridset_flag);
+    }
+
+    protected override int DataSize
+    {
+        get
         {
-            StringBuilder buffer = new StringBuilder();
-
-            buffer.Append("[GRIDSET]\n");
-            buffer.Append("    .gridset        = ").Append(Gridset)
-                .Append("\n");
-            buffer.Append("[/GRIDSET]\n");
-            return buffer.ToString();
+            return 2;
         }
+    }
 
-        public override void Serialize(ILittleEndianOutput out1)
-        {
-            out1.WriteShort(field_1_gridset_flag);
-        }
+    public override short Sid
+    {
+        get { return sid; }
+    }
 
-        protected override int DataSize
-        {
-            get
-            {
-                return 2;
-            }
-        }
-
-        public override short Sid
-        {
-            get { return sid; }
-        }
-
-        public override Object Clone()
-        {
-            GridsetRecord rec = new GridsetRecord();
-            rec.field_1_gridset_flag = field_1_gridset_flag;
-            return rec;
-        }
+    public override Object Clone()
+    {
+        GridsetRecord rec = new GridsetRecord();
+        rec.field_1_gridset_flag = field_1_gridset_flag;
+        return rec;
     }
 }

@@ -1,4 +1,4 @@
-/* ====================================================================
+﻿/* ====================================================================
    Licensed to the Apache Software Foundation (ASF) under one or more
    contributor license agreements.  See the NOTICE file distributed with
    this work for Additional information regarding copyright ownership.
@@ -15,33 +15,31 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.HSSF.Record.CF
+namespace NPOI.HSSF.Record.CF;
+
+using NPOI.Util;
+using System;
+
+/**
+ * Data Bar specific Threshold / value (CFVO),
+ *  for Changes in Conditional Formatting
+ */
+public class DataBarThreshold : Threshold, ICloneable
 {
-    using NPOI.Util;
-    using System;
-
-    /**
-     * Data Bar specific Threshold / value (CFVO),
-     *  for Changes in Conditional Formatting
-     */
-    public class DataBarThreshold : Threshold, ICloneable
+    public DataBarThreshold() : base()
     {
-        public DataBarThreshold() : base()
-        {
-        }
-
-        /** Creates new Data Bar Threshold */
-        public DataBarThreshold(ILittleEndianInput in1)
-                : base(in1)
-        {
-        }
-
-        public object Clone()
-        {
-            DataBarThreshold rec = new DataBarThreshold();
-            base.CopyTo(rec);
-            return rec;
-        }
     }
 
+    /** Creates new Data Bar Threshold */
+    public DataBarThreshold(ILittleEndianInput in1)
+            : base(in1)
+    {
+    }
+
+    public object Clone()
+    {
+        DataBarThreshold rec = new DataBarThreshold();
+        base.CopyTo(rec);
+        return rec;
+    }
 }

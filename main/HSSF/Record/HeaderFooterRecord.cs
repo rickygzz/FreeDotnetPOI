@@ -1,4 +1,4 @@
-/* ====================================================================
+﻿/* ====================================================================
    Licensed to the Apache Software Foundation (ASF) under one or more
    contributor license agreements.  See the NOTICE file distributed with
    this work for Additional information regarding copyright ownership.
@@ -15,110 +15,109 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.HSSF.Record
-{
-    using NPOI.Util;
+namespace NPOI.HSSF.Record;
 
-    using System;
-    using System.Text;
+using NPOI.Util;
+
+using System;
+using System.Text;
+
+/**
+ * The HEADERFOOTER record stores information Added in Office Excel 2007 for headers/footers.
+ *
+ * @author Yegor Kozlov
+ */
+public class HeaderFooterRecord : StandardRecord, ICloneable
+{
+
+    private static readonly byte[] BLANK_GUID = new byte[16];
+
+    public const short sid = 0x089C;
+    private readonly byte[] _rawData;
+
+    public HeaderFooterRecord(byte[] data)
+    {
+        _rawData = data;
+    }
 
     /**
-     * The HEADERFOOTER record stores information Added in Office Excel 2007 for headers/footers.
-     *
-     * @author Yegor Kozlov
+     * construct a HeaderFooterRecord record.  No fields are interpreted and the record will
+     * be Serialized in its original form more or less
+     * @param in the RecordInputstream to read the record from
      */
-    public class HeaderFooterRecord : StandardRecord, ICloneable
+    public HeaderFooterRecord(RecordInputStream in1)
     {
+        _rawData = in1.ReadRemainder();
+    }
 
-        private static readonly byte[] BLANK_GUID = new byte[16];
+    /**
+     * spit the record out AS IS. no interpretation or identification
+     */
+    public override void Serialize(ILittleEndianOutput out1)
+    {
+        out1.Write(_rawData);
+    }
 
-        public const short sid = 0x089C;
-        private readonly byte[] _rawData;
-
-        public HeaderFooterRecord(byte[] data)
+    protected override int DataSize
+    {
+        get
         {
-            _rawData = data;
+            return _rawData.Length;
         }
+    }
 
-        /**
-         * construct a HeaderFooterRecord record.  No fields are interpreted and the record will
-         * be Serialized in its original form more or less
-         * @param in the RecordInputstream to read the record from
-         */
-        public HeaderFooterRecord(RecordInputStream in1)
+    public override short Sid
+    {
+        get
         {
-            _rawData = in1.ReadRemainder();
+            return sid;
         }
+    }
 
-        /**
-         * spit the record out AS IS. no interpretation or identification
-         */
-        public override void Serialize(ILittleEndianOutput out1)
+    /**
+     * If this header belongs to a specific sheet view , the sheet view?s GUID will be saved here.
+     * 
+     * If it is zero, it means the current sheet. Otherwise, this field MUST match the guid field
+     * of the preceding {@link UserSViewBegin} record.
+     *
+     * @return the sheet view's GUID
+     */
+    public byte[] Guid
+    {
+        get
         {
-            out1.Write(_rawData);
+            byte[] guid = new byte[16];
+            Array.Copy(_rawData, 12, guid, 0, guid.Length);
+            return guid;
         }
+    }
 
-        protected override int DataSize
+    /**
+     * @return whether this record belongs to the current sheet 
+     */
+    public bool IsCurrentSheet
+    {
+        get
         {
-            get
-            {
-                return _rawData.Length;
-            }
+            return Arrays.Equals(Guid, BLANK_GUID);
         }
+    }
 
-        public override short Sid
-        {
-            get
-            {
-                return sid;
-            }
-        }
+    public override String ToString()
+    {
+        StringBuilder sb = new StringBuilder();
 
-        /**
-         * If this header belongs to a specific sheet view , the sheet view?s GUID will be saved here.
-         * 
-         * If it is zero, it means the current sheet. Otherwise, this field MUST match the guid field
-         * of the preceding {@link UserSViewBegin} record.
-         *
-         * @return the sheet view's GUID
-         */
-        public byte[] Guid
-        {
-            get
-            {
-                byte[] guid = new byte[16];
-                Array.Copy(_rawData, 12, guid, 0, guid.Length);
-                return guid;
-            }
-        }
+        sb.Append("[").Append("HEADERFOOTER").Append("] (0x");
+        sb.Append(StringUtil.ToHexString(sid).ToUpper() + ")\n");
+        sb.Append("  rawData=").Append(HexDump.ToHex(_rawData)).Append("\n");
+        sb.Append("[/").Append("HEADERFOOTER").Append("]\n");
+        return sb.ToString();
+    }
 
-        /**
-         * @return whether this record belongs to the current sheet 
-         */
-        public bool IsCurrentSheet
-        {
-            get
-            {
-                return Arrays.Equals(Guid, BLANK_GUID);
-            }
-        }
-
-        public override String ToString()
-        {
-            StringBuilder sb = new StringBuilder();
-
-            sb.Append("[").Append("HEADERFOOTER").Append("] (0x");
-            sb.Append(StringUtil.ToHexString(sid).ToUpper() + ")\n");
-            sb.Append("  rawData=").Append(HexDump.ToHex(_rawData)).Append("\n");
-            sb.Append("[/").Append("HEADERFOOTER").Append("]\n");
-            return sb.ToString();
-        }
-
-        //HACK: do a "cheat" Clone, see Record.java for more information
-        public override Object Clone()
-        {
-            return CloneViaReserialise();
-        }
+    //HACK: do a "cheat" Clone, see Record.java for more information
+    public override Object Clone()
+    {
+        return CloneViaReserialise();
     }
 }
 

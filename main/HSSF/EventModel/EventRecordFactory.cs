@@ -1,4 +1,4 @@
-/* ====================================================================
+﻿/* ====================================================================
     Licensed to the Apache Software Foundation (ASF) Under one or more
     contributor license agreements.  See the NOTICE file distributed with
     this work for Additional information regarding copyright ownership.
@@ -100,11 +100,14 @@ public class EventRecordFactory
 
         RecordInputStream recStream = new RecordInputStream(in1);
 
-        while (recStream.HasNextRecord) {
+        while (recStream.HasNextRecord)
+        {
             recStream.NextRecord();
             Record[] recs = RecordFactory.CreateRecord(recStream);   // handle MulRK records
-            if (recs.Length > 1) {
-                for (int k = 0; k < recs.Length; k++) {
+            if (recs.Length > 1)
+            {
+                for (int k = 0; k < recs.Length; k++)
+                {
                     if (last_record != null)
                     {
                         if (!ProcessRecord(last_record))
@@ -112,16 +115,19 @@ public class EventRecordFactory
                             return;
                         }
                     }
-                    last_record = recs[ k ]; // do to keep the algorithm homogeneous...you can't
-                }                            // actually continue a number record anyhow.
+                    last_record = recs[k]; // do to keep the algorithm homogeneous...you can't
+                }                          // actually continue a number record anyhow.
             }
             else
             {
-                Record record = recs[ 0 ];
+                Record record = recs[0];
 
-                if (record != null) {
-                    if (last_record != null) {
-                        if (!ProcessRecord(last_record)) {
+                if (record != null)
+                {
+                    if (last_record != null)
+                    {
+                        if (!ProcessRecord(last_record))
+                        {
                             return;
                         }
                     }
@@ -130,7 +136,8 @@ public class EventRecordFactory
             }
         }
 
-        if (last_record != null) {
+        if (last_record != null)
+        {
             ProcessRecord(last_record);
         }
     }

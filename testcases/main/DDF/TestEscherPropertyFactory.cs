@@ -48,8 +48,8 @@ namespace TestCases.DDF
                     "01 02 03 "
                     ;
             byte[] data = HexRead.ReadFromString(dataStr);
-            EscherPropertyFactory f = new EscherPropertyFactory();
-            IList<EscherProperty> props = f.CreateProperties(data, 0, (short)3);
+
+            IList<EscherProperty> props = EscherPropertyFactory.CreateProperties(data, 0, (short)3);
             EscherComplexProperty p1 = (EscherComplexProperty)props[0];
             ClassicAssert.AreEqual(unchecked((short)0xC141), p1.Id);
             ClassicAssert.AreEqual("[01, 02, 03]", HexDump.ToHex(p1.ComplexData));

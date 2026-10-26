@@ -1,4 +1,4 @@
-/* ====================================================================
+﻿/* ====================================================================
     Licensed to the Apache Software Foundation (ASF) under one or more
     contributor license agreements.  See the NOTICE file distributed with
     this work for Additional information regarding copyright ownership.
@@ -41,15 +41,18 @@ public abstract class AbstractEscherOptRecord : EscherRecord
         properties.Add(prop);
     }
 
-    public override int FillFields(byte[] data, int offset,
-            IEscherRecordFactory recordFactory)
+    public override int FillFields(
+        byte[] data,
+        int offset,
+        IEscherRecordFactory recordFactory)
     {
         int bytesRemaining = ReadHeader(data, offset);
         short propertiesCount = ReadInstance(data, offset);
         int pos = offset + 8;
 
-        EscherPropertyFactory f = new EscherPropertyFactory();
-        properties = f.CreateProperties(data, pos, propertiesCount);
+
+        properties = EscherPropertyFactory.CreateProperties(data, pos, propertiesCount);
+
         return bytesRemaining + 8;
     }
 
@@ -107,8 +110,10 @@ public abstract class AbstractEscherOptRecord : EscherRecord
         return null;
     }
 
-    public override int Serialize(int offset, byte[] data,
-            EscherSerializationListener listener)
+    public override int Serialize(
+        int offset,
+        byte[] data,
+        EscherSerializationListener listener)
     {
         listener.BeforeRecordSerialize(offset, RecordId, this);
 
@@ -164,7 +169,9 @@ public abstract class AbstractEscherOptRecord : EscherRecord
             }
         }
         foreach (EscherProperty e in toRemove)
+        {
             EscherProperties.Remove(e);
+        }
         properties.Add(value);
         SortProperties();
     }
@@ -227,8 +234,12 @@ public abstract class AbstractEscherOptRecord : EscherRecord
     public override String ToXml(String tab)
     {
         StringBuilder builder = new StringBuilder();
-        builder.Append(tab).Append(FormatXmlRecordHeader(GetType().Name,
-                HexDump.ToHex(RecordId), HexDump.ToHex(Version), HexDump.ToHex(Instance)));
+        builder.Append(tab)
+            .Append(FormatXmlRecordHeader(
+                GetType().Name,
+                HexDump.ToHex(RecordId),
+                HexDump.ToHex(Version),
+                HexDump.ToHex(Instance)));
         foreach (EscherProperty property in EscherProperties)
         {
             builder.Append(property.ToXml(tab + "\t"));

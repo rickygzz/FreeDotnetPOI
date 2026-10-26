@@ -1,4 +1,4 @@
-/* ====================================================================
+﻿/* ====================================================================
    Licensed to the Apache Software Foundation (ASF) under one or more
    contributor license agreements.  See the NOTICE file distributed with
    this work for additional information regarding copyright ownership.
@@ -15,40 +15,40 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.HSSF.Record.Chart
+namespace NPOI.HSSF.Record.Chart;
+
+
+using System;
+using System.Text;
+using NPOI.HSSF.Record;
+using NPOI.Util;
+
+
+/**
+ * ENDBLOCK - Chart Future Record Type End Block (0x0853)<br/>
+ * 
+ * @author Patrick Cheng
+ */
+public class ChartEndBlockRecord : StandardRecord, ICloneable
 {
+    public const short sid = 0x0853;
 
-    using System;
-    using System.Text;
-    using NPOI.HSSF.Record;
-    using NPOI.Util;
+    private short rt;
+    private short grbitFrt;
+    private short iObjectKind;
+    private byte[] unused;
 
+    public ChartEndBlockRecord()
+    { 
+    
+    }
 
-    /**
-     * ENDBLOCK - Chart Future Record Type End Block (0x0853)<br/>
-     * 
-     * @author Patrick Cheng
-     */
-    public class ChartEndBlockRecord : StandardRecord, ICloneable
+    public ChartEndBlockRecord(RecordInputStream in1)
     {
-        public const short sid = 0x0853;
-
-        private short rt;
-        private short grbitFrt;
-        private short iObjectKind;
-        private byte[] unused;
-
-        public ChartEndBlockRecord()
-        { 
-        
-        }
-
-        public ChartEndBlockRecord(RecordInputStream in1)
-        {
-            rt = in1.ReadShort();
-            grbitFrt = in1.ReadShort();
-            iObjectKind = in1.ReadShort();
-            		// Often, but not always has 6 unused bytes at the end
+        rt = in1.ReadShort();
+        grbitFrt = in1.ReadShort();
+        iObjectKind = in1.ReadShort();
+        		// Often, but not always has 6 unused bytes at the end
 		    if(in1.Available() == 0) {
 			    unused = [];
 		    } else {
@@ -56,59 +56,58 @@ namespace NPOI.HSSF.Record.Chart
 			    in1.ReadFully(unused);
 		    }
 
-        }
+    }
 
 
-        protected override int DataSize
+    protected override int DataSize
+    {
+        get
         {
-            get
-            {
-                return 2 + 2 + 2 + unused.Length;
-            }
+            return 2 + 2 + 2 + unused.Length;
         }
+    }
 
 
-        public override short Sid
+    public override short Sid
+    {
+        get
         {
-            get
-            {
-                return sid;
-            }
+            return sid;
         }
+    }
 
 
-        public override void Serialize(ILittleEndianOutput out1)
-        {
-            out1.WriteShort(rt);
-            out1.WriteShort(grbitFrt);
-            out1.WriteShort(iObjectKind);
-            // 6 bytes unused
-            out1.Write(unused);
-        }
+    public override void Serialize(ILittleEndianOutput out1)
+    {
+        out1.WriteShort(rt);
+        out1.WriteShort(grbitFrt);
+        out1.WriteShort(iObjectKind);
+        // 6 bytes unused
+        out1.Write(unused);
+    }
 
-        public override String ToString()
-        {
-            StringBuilder buffer = new StringBuilder();
+    public override String ToString()
+    {
+        StringBuilder buffer = new StringBuilder();
 
-            buffer.Append("[ENDBLOCK]\n");
-            buffer.Append("    .rt         =").Append(HexDump.ShortToHex(rt)).Append('\n');
-            buffer.Append("    .grbitFrt   =").Append(HexDump.ShortToHex(grbitFrt)).Append('\n');
-            buffer.Append("    .iObjectKind=").Append(HexDump.ShortToHex(iObjectKind)).Append('\n');
-            buffer.Append("    .unused     =").Append(HexDump.ToHex(unused)).Append('\n');
-            buffer.Append("[/ENDBLOCK]\n");
-            return buffer.ToString();
-        }
-        public ChartEndBlockRecord clone()
-        {
-            ChartEndBlockRecord record = new ChartEndBlockRecord();
-            record.rt = rt;
-            record.grbitFrt = grbitFrt;
-            record.iObjectKind = iObjectKind;
-            record.unused = (byte[])unused.Clone();
-            return record;
-
-        }
-
+        buffer.Append("[ENDBLOCK]\n");
+        buffer.Append("    .rt         =").Append(HexDump.ShortToHex(rt)).Append('\n');
+        buffer.Append("    .grbitFrt   =").Append(HexDump.ShortToHex(grbitFrt)).Append('\n');
+        buffer.Append("    .iObjectKind=").Append(HexDump.ShortToHex(iObjectKind)).Append('\n');
+        buffer.Append("    .unused     =").Append(HexDump.ToHex(unused)).Append('\n');
+        buffer.Append("[/ENDBLOCK]\n");
+        return buffer.ToString();
+    }
+    public ChartEndBlockRecord clone()
+    {
+        ChartEndBlockRecord record = new ChartEndBlockRecord();
+        record.rt = rt;
+        record.grbitFrt = grbitFrt;
+        record.iObjectKind = iObjectKind;
+        record.unused = (byte[])unused.Clone();
+        return record;
 
     }
+
+
 }

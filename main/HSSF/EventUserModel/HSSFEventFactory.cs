@@ -1,4 +1,4 @@
-
+﻿
 /* ====================================================================
     Licensed to the Apache Software Foundation (ASF) Under one or more
     contributor license agreements.  See the NOTICE file distributed with
@@ -50,7 +50,7 @@ public class HSSFEventFactory
     {
         Stream in1 = fs.CreateDocumentInputStream("Workbook");
 
-        ProcessEvents(req, in1);
+        HSSFEventFactory.ProcessEvents(req, in1);
     }
 
     /// <summary>
@@ -79,14 +79,14 @@ public class HSSFEventFactory
     /// </summary>
     /// <param name="req">an Instance of HSSFRequest which has your registered listeners</param>
     /// <param name="in1">a DocumentInputStream obtained from POIFS's POIFSFileSystem object</param>
-    public void ProcessEvents(HSSFRequest req, Stream in1)
+    public static void ProcessEvents(HSSFRequest req, Stream in1)
     {
         try
         {
-            GenericProcessEvents(req, new RecordInputStream(in1));
+            HSSFEventFactory.GenericProcessEvents(req, new RecordInputStream(in1));
         }
         catch (HSSFUserException)
-        {/*If an HSSFUserException user exception Is thrown, ignore it.*/ }
+        { /*If an HSSFUserException user exception Is thrown, ignore it.*/ }
     }
 
     /// <summary>
@@ -97,7 +97,7 @@ public class HSSFEventFactory
     /// <returns>numeric user-specified result code.</returns>
     public short AbortableProcessEvents(HSSFRequest req, Stream in1)
     {
-        return GenericProcessEvents(req, new RecordInputStream(in1));
+        return HSSFEventFactory.GenericProcessEvents(req, new RecordInputStream(in1));
     }
 
     /// <summary>
@@ -106,7 +106,7 @@ public class HSSFEventFactory
     /// <param name="req">an Instance of HSSFRequest which has your registered listeners</param>
     /// <param name="in1">a DocumentInputStream obtained from POIFS's POIFSFileSystem object</param>
     /// <returns>numeric user-specified result code.</returns>
-    protected short GenericProcessEvents(HSSFRequest req, RecordInputStream in1)
+    protected static short GenericProcessEvents(HSSFRequest req, RecordInputStream in1)
     {
         bool going = true;
         short userCode = 0;

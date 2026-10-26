@@ -16,48 +16,47 @@
 ==================================================================== */
 using System;
 
-namespace NPOI.HSSF.Record.Chart
+namespace NPOI.HSSF.Record.Chart;
+
+/// <summary>
+/// The LegendException record specifies information about a legend entry which was 
+/// changed from the default legend entry settings, and specifies the beginning of 
+/// a collection of records as defined by the Chart Sheet Substream ABNF. 
+/// The collection of records specifies legend entry formatting. On a chart where 
+/// the legend contains legend entries for the series and trendlines, as defined 
+/// in the legend overview, there MUST be zero instances or one instance of this 
+/// record in the sequence of records that conform to the SERIESFORMAT rule.
+/// </summary>
+/// <remarks>
+/// author: Antony liu (antony.apollo at gmail.com)
+/// </remarks>
+public class LegendExceptionRecord : RowDataRecord
 {
-    /// <summary>
-    /// The LegendException record specifies information about a legend entry which was 
-    /// changed from the default legend entry settings, and specifies the beginning of 
-    /// a collection of records as defined by the Chart Sheet Substream ABNF. 
-    /// The collection of records specifies legend entry formatting. On a chart where 
-    /// the legend contains legend entries for the series and trendlines, as defined 
-    /// in the legend overview, there MUST be zero instances or one instance of this 
-    /// record in the sequence of records that conform to the SERIESFORMAT rule.
-    /// </summary>
-    /// <remarks>
-    /// author: Antony liu (antony.apollo at gmail.com)
-    /// </remarks>
-    public class LegendExceptionRecord : RowDataRecord
+    public const short sid = 0x1043;
+    public LegendExceptionRecord(RecordInputStream ris)
+        : base(ris)
     {
-        public const short sid = 0x1043;
-        public LegendExceptionRecord(RecordInputStream ris)
-            : base(ris)
-        {
-        }
+    }
 
-        protected override int DataSize
+    protected override int DataSize
+    {
+        get
         {
-            get
-            {
-                return base.DataSize;
-            }
+            return base.DataSize;
         }
-        public override void Serialize(NPOI.Util.ILittleEndianOutput out1)
-        {
-            base.Serialize(out1);
-        }
+    }
+    public override void Serialize(NPOI.Util.ILittleEndianOutput out1)
+    {
+        base.Serialize(out1);
+    }
 
-        public override short Sid
-        {
-            get { return sid; }
-        }
-        public short LegendEntry
-        {
-            get { throw new NotImplementedException(); }
-            set { throw new NotImplementedException(); }
-        }
+    public override short Sid
+    {
+        get { return sid; }
+    }
+    public short LegendEntry
+    {
+        get { throw new NotImplementedException(); }
+        set { throw new NotImplementedException(); }
     }
 }

@@ -25,7 +25,7 @@ internal sealed class Date
 
     private readonly byte[] _value = new byte[SIZE];
 
-    internal Date() {}
+    internal Date() { }
 
     internal void Read( LittleEndianByteArrayInputStream lei )
     {

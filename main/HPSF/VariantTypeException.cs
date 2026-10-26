@@ -1,4 +1,4 @@
-/* ====================================================================
+﻿/* ====================================================================
     Licensed To the Apache Software Foundation (ASF) under one or more
     contributor license agreements.  See the NOTICE file distributed with
     this work for Additional information regarding copyright ownership.
@@ -48,8 +48,11 @@ public abstract class VariantTypeException : HPSFException
     /// <param name="variantType">The variant type causing the problem</param>
     /// <param name="value">The value who's variant type causes the problem</param>
     /// <param name="msg">A message text describing the problem</param>
-    public VariantTypeException(long variantType, Object value,
-                                String msg):base(msg)
+    public VariantTypeException(
+        long variantType,
+        Object value,
+        String msg)
+        : base(msg)
     {
 
         this.variantType = variantType;
@@ -71,6 +74,6 @@ public abstract class VariantTypeException : HPSFException
     /// <value>the value who's variant type caused the problem.</value>
     public Object Value
     {
-        get{return value;}
+        get { return value; }
     }
 }

@@ -1,4 +1,4 @@
-/* ====================================================================
+﻿/* ====================================================================
    Licensed to the Apache Software Foundation (ASF) under one or more
    contributor license agreements.  See the NOTICE file distributed with
    this work for additional information regarding copyright ownership.
@@ -15,64 +15,63 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.HSSF.Record.PivotTable
+namespace NPOI.HSSF.Record.PivotTable;
+
+using System.Text;
+using NPOI.HSSF.Record;
+using NPOI.Util;
+
+
+
+/**
+ * SXVS - View Source (0x00E3)<br/>
+ * 
+ * @author Patrick Cheng
+ */
+public class ViewSourceRecord : StandardRecord
 {
-    using System.Text;
-    using NPOI.HSSF.Record;
-    using NPOI.Util;
+    public const short sid = 0x00E3;
 
+    private int vs;
 
-
-    /**
-     * SXVS - View Source (0x00E3)<br/>
-     * 
-     * @author Patrick Cheng
-     */
-    public class ViewSourceRecord : StandardRecord
+    public ViewSourceRecord(RecordInputStream in1)
     {
-        public const short sid = 0x00E3;
+        vs = in1.ReadShort();
+    }
 
-        private int vs;
 
-        public ViewSourceRecord(RecordInputStream in1)
+    public override void Serialize(ILittleEndianOutput out1)
+    {
+        out1.WriteShort(vs);
+    }
+
+
+    protected override int DataSize
+    {
+        get
         {
-            vs = in1.ReadShort();
+            return 2;
         }
+    }
 
 
-        public override void Serialize(ILittleEndianOutput out1)
+    public override short Sid
+    {
+        get
         {
-            out1.WriteShort(vs);
+            return sid;
         }
+    }
 
 
-        protected override int DataSize
-        {
-            get
-            {
-                return 2;
-            }
-        }
+    public override string ToString()
+    {
+        StringBuilder buffer = new StringBuilder();
 
+        buffer.Append("[SXVS]\n");
+        buffer.Append("    .vs      =").Append(HexDump.ShortToHex(vs)).Append('\n');
 
-        public override short Sid
-        {
-            get
-            {
-                return sid;
-            }
-        }
-
-
-        public override string ToString()
-        {
-            StringBuilder buffer = new StringBuilder();
-
-            buffer.Append("[SXVS]\n");
-            buffer.Append("    .vs      =").Append(HexDump.ShortToHex(vs)).Append('\n');
-
-            buffer.Append("[/SXVS]\n");
-            return buffer.ToString();
-        }
+        buffer.Append("[/SXVS]\n");
+        return buffer.ToString();
     }
 }

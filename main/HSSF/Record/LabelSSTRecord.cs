@@ -1,4 +1,4 @@
-
+﻿
 /* ====================================================================
    Licensed to the Apache Software Foundation (ASF) Under one or more
    contributor license agreements.  See the NOTICE file distributed with
@@ -17,95 +17,94 @@
 ==================================================================== */
 
 
-namespace NPOI.HSSF.Record
+namespace NPOI.HSSF.Record;
+
+using System;
+using System.Text;
+using NPOI.Util;
+
+
+
+/**
+ * Title:        Label SST Record
+ * Description:  Refers to a string in the shared string table and Is a column
+ *               value.  
+ * REFERENCE:  PG 325 Microsoft Excel 97 Developer's Kit (ISBN: 1-57231-498-2)
+ * @author Andrew C. Oliver (acoliver at apache dot org)
+ * @author Jason Height (jheight at chariot dot net dot au)
+ * @version 2.0-pre
+ */
+[Serializable]
+public class LabelSSTRecord : CellRecord, ICloneable
 {
-    using System;
-    using System.Text;
-    using NPOI.Util;
+    public const short sid = 0xfd;
+    private int field_4_sst_index;
 
-
+    public LabelSSTRecord()
+    {
+    }
 
     /**
-     * Title:        Label SST Record
-     * Description:  Refers to a string in the shared string table and Is a column
-     *               value.  
-     * REFERENCE:  PG 325 Microsoft Excel 97 Developer's Kit (ISBN: 1-57231-498-2)
-     * @author Andrew C. Oliver (acoliver at apache dot org)
-     * @author Jason Height (jheight at chariot dot net dot au)
-     * @version 2.0-pre
+     * Constructs an LabelSST record and Sets its fields appropriately.
+     * @param in the RecordInputstream to Read the record from
      */
-    [Serializable]
-    public class LabelSSTRecord : CellRecord, ICloneable
+
+    public LabelSSTRecord(RecordInputStream in1)
+        : base(in1)
     {
-        public const short sid = 0xfd;
-        private int field_4_sst_index;
+        field_4_sst_index = in1.ReadInt();
+    }
 
-        public LabelSSTRecord()
+    protected override String RecordName
+    {
+        get
         {
+            return "LABELSST";
         }
+    }
 
-        /**
-         * Constructs an LabelSST record and Sets its fields appropriately.
-         * @param in the RecordInputstream to Read the record from
-         */
+    /**
+     * Get the index to the string in the SSTRecord
+     *
+     * @return index of string in the SST Table
+     * @see org.apache.poi.hssf.record.SSTRecord
+     */
 
-        public LabelSSTRecord(RecordInputStream in1)
-            : base(in1)
+    public int SSTIndex
+    {
+        get { return field_4_sst_index; }
+        set { field_4_sst_index = value; }
+    }
+    protected override void AppendValueText(StringBuilder sb)
+    {
+        sb.Append("  .sstIndex = ");
+        sb.Append(HexDump.ShortToHex(SSTIndex));
+    }
+
+    protected override void SerializeValue(ILittleEndianOutput out1)
+    {
+        out1.WriteInt(SSTIndex);
+    }
+
+
+    protected override int ValueDataSize
+    {
+        get
         {
-            field_4_sst_index = in1.ReadInt();
+            return 4;
         }
+    }
 
-        protected override String RecordName
-        {
-            get
-            {
-                return "LABELSST";
-            }
-        }
+    public override short Sid
+    {
+        get { return sid; }
+    }
 
-        /**
-         * Get the index to the string in the SSTRecord
-         *
-         * @return index of string in the SST Table
-         * @see org.apache.poi.hssf.record.SSTRecord
-         */
-
-        public int SSTIndex
-        {
-            get { return field_4_sst_index; }
-            set { field_4_sst_index = value; }
-        }
-        protected override void AppendValueText(StringBuilder sb)
-        {
-            sb.Append("  .sstIndex = ");
-            sb.Append(HexDump.ShortToHex(SSTIndex));
-        }
-
-        protected override void SerializeValue(ILittleEndianOutput out1)
-        {
-            out1.WriteInt(SSTIndex);
-        }
-
-
-        protected override int ValueDataSize
-        {
-            get
-            {
-                return 4;
-            }
-        }
-
-        public override short Sid
-        {
-            get { return sid; }
-        }
-
-        public override Object Clone()
-        {
-            LabelSSTRecord rec = new LabelSSTRecord();
-            CopyBaseFields(rec);
-            rec.field_4_sst_index = field_4_sst_index;
-            return rec;
-        }
+    public override Object Clone()
+    {
+        LabelSSTRecord rec = new LabelSSTRecord();
+        CopyBaseFields(rec);
+        rec.field_4_sst_index = field_4_sst_index;
+        return rec;
     }
 }

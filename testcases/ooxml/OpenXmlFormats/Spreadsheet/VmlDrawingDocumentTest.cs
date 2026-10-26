@@ -2,62 +2,62 @@
 using NUnit.Framework;
 using NPOI.OpenXmlFormats.Dml;
 
-namespace ooxml.Testcases
+namespace ooxml.Testcases;
+
+/// <summary>
+///This is a test class for VmlDrawingDocumentTest and is intended
+///to contain all VmlDrawingDocumentTest Unit Tests
+///</summary>
+[TestFixture]
+public class VmlDrawingDocumentTest
 {
+    private TestContext testContextInstance;
+
     /// <summary>
-    ///This is a test class for VmlDrawingDocumentTest and is intended
-    ///to contain all VmlDrawingDocumentTest Unit Tests
+    ///Gets or sets the test context which provides
+    ///information about and functionality for the current test run.
     ///</summary>
-    [TestFixture]
-    public class VmlDrawingDocumentTest
+    public TestContext TestContext
     {
-        private TestContext testContextInstance;
-
-        /// <summary>
-        ///Gets or sets the test context which provides
-        ///information about and functionality for the current test run.
-        ///</summary>
-        public TestContext TestContext
+        get
         {
-            get
-            {
-                return testContextInstance;
-            }
-            set
-            {
-                testContextInstance = value;
-            }
+            return testContextInstance;
         }
+        set
+        {
+            testContextInstance = value;
+        }
+    }
 
-        #region Additional test attributes
-        // 
-        //You can use the following additional attributes as you write your tests:
-        //
-        //Use ClassInitialize to run code before running the first test in the class
-        //[ClassInitialize()]
-        //public static void MyClassInitialize(TestContext testContext)
-        //{
-        //}
-        //
-        //Use ClassCleanup to run code after all tests in a class have run
-        //[ClassCleanup()]
-        //public static void MyClassCleanup()
-        //{
-        //}
-        //
-        //Use TestInitialize to run code before running each test
-        //[TestInitialize()]
-        //public void MyTestInitialize()
-        //{
-        //}
-        //
-        //Use TestCleanup to run code after each test has run
-        //[TestCleanup()]
-        //public void MyTestCleanup()
-        //{
-        //}
-        //
-        #endregion
+    #region Additional test attributes
+    // 
+    //You can use the following additional attributes as you write your tests:
+    //
+    //Use ClassInitialize to run code before running the first test in the class
+    //[ClassInitialize()]
+    //public static void MyClassInitialize(TestContext testContext)
+    //{
+    //}
+    //
+    //Use ClassCleanup to run code after all tests in a class have run
+    //[ClassCleanup()]
+    //public static void MyClassCleanup()
+    //{
+    //}
+    //
+    //Use TestInitialize to run code before running each test
+    //[TestInitialize()]
+    //public void MyTestInitialize()
+    //{
+    //}
+    //
+    //Use TestCleanup to run code after each test has run
+    //[TestCleanup()]
+    //public void MyTestCleanup()
+    //{
+    //}
+    //
+    #endregion
 
 
 //        /// <summary>
@@ -81,14 +81,14 @@ namespace ooxml.Testcases
 //            }
 //        }
 
-        /// <summary>
-        ///A test for Deserialize
-        ///</summary>
-        [Test]
-        public void DeserializeVmlDrawingDocumentTest()
-        {
-            // The following is the excerpt of an Excel file.
-            string input =
+    /// <summary>
+    ///A test for Deserialize
+    ///</summary>
+    [Test]
+    public void DeserializeVmlDrawingDocumentTest()
+    {
+        // The following is the excerpt of an Excel file.
+        string input =
 @"<xml xmlns:v=""urn:schemas-microsoft-com:vml""
  xmlns:o=""urn:schemas-microsoft-com:office:office""
  xmlns:x=""urn:schemas-microsoft-com:office:excel"">
@@ -198,34 +198,34 @@ namespace ooxml.Testcases
    <x:Visible/>
   </x:ClientData>
  </v:shape></xml>";
-            //NPOI.OpenXmlFormats.Dml.Spreadsheet.CT_Drawing result;
-            ////{
-            ////    StringReader stream = new StringReader(input);
-            ////    result = (CT_Drawing)CommentsDocument_Accessor.serializer.Deserialize(stream); // instantiate source code to enable debugging the serialization code
-            ////}
-            //{
-            //    using (StringReader stream = new StringReader(input))
-            //    {
-            //        result = (NPOI.OpenXmlFormats.Dml.Spreadsheet.CT_Drawing)NPOI.OpenXmlFormats.Dml.Spreadsheet.CT_Drawing_Accessor.serializer.Deserialize(stream);
-            //    }
-            //}
-            //Assert.IsNotNull(result.TwoCellAnchors);
-            //Assert.AreEqual(1, result.TwoCellAnchors.Count);
-            //Assert.AreEqual(1, result.SizeOfTwoCellAnchorArray());
-            //var anchor = result.TwoCellAnchors[0];
-            //Assert.AreEqual(0, anchor.from.col);
-        }
+        //NPOI.OpenXmlFormats.Dml.Spreadsheet.CT_Drawing result;
+        ////{
+        ////    StringReader stream = new StringReader(input);
+        ////    result = (CT_Drawing)CommentsDocument_Accessor.serializer.Deserialize(stream); // instantiate source code to enable debugging the serialization code
+        ////}
+        //{
+        //    using (StringReader stream = new StringReader(input))
+        //    {
+        //        result = (NPOI.OpenXmlFormats.Dml.Spreadsheet.CT_Drawing)NPOI.OpenXmlFormats.Dml.Spreadsheet.CT_Drawing_Accessor.serializer.Deserialize(stream);
+        //    }
+        //}
+        //Assert.IsNotNull(result.TwoCellAnchors);
+        //Assert.AreEqual(1, result.TwoCellAnchors.Count);
+        //Assert.AreEqual(1, result.SizeOfTwoCellAnchorArray());
+        //var anchor = result.TwoCellAnchors[0];
+        //Assert.AreEqual(0, anchor.from.col);
+    }
 
 
 
-        /// <summary>
-        ///A test for Deserialize
-        ///</summary>
-        [Test]
-        public void DeserializeVmlDrawingDocumentWithPicturesTest()
-        {
-            // The following is the excerpt of an Excel file.
-            string input =
+    /// <summary>
+    ///A test for Deserialize
+    ///</summary>
+    [Test]
+    public void DeserializeVmlDrawingDocumentWithPicturesTest()
+    {
+        // The following is the excerpt of an Excel file.
+        string input =
 @"<?xml version=""1.0"" encoding=""utf-8""?>
 <xdr:wsDr xmlns:fo=""urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0"" xmlns:xdr=""http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing"">
    <xdr:twoCellAnchor>
@@ -268,24 +268,23 @@ namespace ooxml.Testcases
       <xdr:clientData />
    </xdr:twoCellAnchor>
 </xdr:wsDr>";
-            NPOI.OpenXmlFormats.Dml.Spreadsheet.CT_Drawing result;
-            //{
-            //    StringReader stream = new StringReader(input);
-            //    result = (CT_Drawing)CommentsDocument_Accessor.serializer.Deserialize(stream); // instantiate source code to enable debugging the serialization code
-            //}
+        NPOI.OpenXmlFormats.Dml.Spreadsheet.CT_Drawing result;
+        //{
+        //    StringReader stream = new StringReader(input);
+        //    result = (CT_Drawing)CommentsDocument_Accessor.serializer.Deserialize(stream); // instantiate source code to enable debugging the serialization code
+        //}
+        {
+            using (StringReader stream = new StringReader(input))
             {
-                using (StringReader stream = new StringReader(input))
-                {
-                    result = (NPOI.OpenXmlFormats.Dml.Spreadsheet.CT_Drawing)NPOI.OpenXmlFormats.Dml.Spreadsheet.CT_Drawing_Accessor.serializer.Deserialize(stream);
-                }
+                result = (NPOI.OpenXmlFormats.Dml.Spreadsheet.CT_Drawing)NPOI.OpenXmlFormats.Dml.Spreadsheet.CT_Drawing_Accessor.serializer.Deserialize(stream);
             }
-            Assert.IsNotNull(result.TwoCellAnchors);
-            Assert.AreEqual(1, result.TwoCellAnchors.Count);
-            Assert.AreEqual(1, result.SizeOfTwoCellAnchorArray());
-            var anchor = result.TwoCellAnchors[0];
-            Assert.AreEqual(2, anchor.from.col);
         }
-
-
+        Assert.IsNotNull(result.TwoCellAnchors);
+        Assert.AreEqual(1, result.TwoCellAnchors.Count);
+        Assert.AreEqual(1, result.SizeOfTwoCellAnchorArray());
+        var anchor = result.TwoCellAnchors[0];
+        Assert.AreEqual(2, anchor.from.col);
     }
+
+
 }

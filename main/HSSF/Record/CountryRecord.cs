@@ -1,4 +1,4 @@
-
+﻿
 /* ====================================================================
    Licensed to the Apache Software Foundation (ASF) Under one or more
    contributor license agreements.  See the NOTICE file distributed with
@@ -17,104 +17,103 @@
 ==================================================================== */
 
 
-namespace NPOI.HSSF.Record
+namespace NPOI.HSSF.Record;
+
+
+using System;
+using System.Text;
+using NPOI.Util;
+
+
+/**
+ * Title:        Country Record (aka WIN.INI country)
+ * Description:  used for localization.  Currently HSSF always Sets this to 1
+ * and it seems to work fine even in Germany.  (es geht's auch fuer Deutschland)
+ *
+ * REFERENCE:  PG 298 Microsoft Excel 97 Developer's Kit (ISBN: 1-57231-498-2)
+ * @author Andrew C. Oliver (acoliver at apache dot org)
+ * @version 2.0-pre
+ */
+
+public class CountryRecord : StandardRecord
 {
+    public const short sid = 0x8c;
 
-    using System;
-    using System.Text;
-    using NPOI.Util;
+    // 1 for US
+    private short field_1_default_country;
+    private short field_2_current_country;
 
+    public CountryRecord()
+    {
+    }
 
     /**
-     * Title:        Country Record (aka WIN.INI country)
-     * Description:  used for localization.  Currently HSSF always Sets this to 1
-     * and it seems to work fine even in Germany.  (es geht's auch fuer Deutschland)
-     *
-     * REFERENCE:  PG 298 Microsoft Excel 97 Developer's Kit (ISBN: 1-57231-498-2)
-     * @author Andrew C. Oliver (acoliver at apache dot org)
-     * @version 2.0-pre
+     * Constructs a CountryRecord and Sets its fields appropriately
+     * @param in the RecordInputstream to Read the record from
      */
 
-    public class CountryRecord : StandardRecord
+    public CountryRecord(RecordInputStream in1)
     {
-        public const short sid = 0x8c;
+        field_1_default_country = in1.ReadShort();
+        field_2_current_country = in1.ReadShort();
+    }
 
-        // 1 for US
-        private short field_1_default_country;
-        private short field_2_current_country;
+    /**
+     * Gets the default country
+     *
+     * @return country ID (1 = US)
+     */
 
-        public CountryRecord()
+    public short DefaultCountry
+    {
+        get
         {
+            return field_1_default_country;
         }
+        set { field_1_default_country = value; }
+    }
 
-        /**
-         * Constructs a CountryRecord and Sets its fields appropriately
-         * @param in the RecordInputstream to Read the record from
-         */
+    /**
+     * Gets the current country
+     *
+     * @return country ID (1 = US)
+     */
 
-        public CountryRecord(RecordInputStream in1)
+    public short CurrentCountry
+    {
+        get
         {
-            field_1_default_country = in1.ReadShort();
-            field_2_current_country = in1.ReadShort();
+            return field_2_current_country;
         }
+        set { field_2_current_country = value; }
+    }
 
-        /**
-         * Gets the default country
-         *
-         * @return country ID (1 = US)
-         */
+    public override String ToString()
+    {
+        StringBuilder buffer = new StringBuilder();
 
-        public short DefaultCountry
-        {
-            get
-            {
-                return field_1_default_country;
-            }
-            set { field_1_default_country = value; }
-        }
+        buffer.Append("[COUNTRY]\n");
+        buffer.Append("    .defaultcountry  = ")
+            .Append(StringUtil.ToHexString(DefaultCountry)).Append("\n");
+        buffer.Append("    .currentcountry  = ")
+            .Append(StringUtil.ToHexString(CurrentCountry)).Append("\n");
+        buffer.Append("[/COUNTRY]\n");
+        return buffer.ToString();
+    }
 
-        /**
-         * Gets the current country
-         *
-         * @return country ID (1 = US)
-         */
+    public override void Serialize(ILittleEndianOutput out1)
+    {
+        out1.WriteShort(DefaultCountry);
+        out1.WriteShort(CurrentCountry);
+    }
 
-        public short CurrentCountry
-        {
-            get
-            {
-                return field_2_current_country;
-            }
-            set { field_2_current_country = value; }
-        }
+    protected override int DataSize
+    {
+        get { return 4; }
+    }
 
-        public override String ToString()
-        {
-            StringBuilder buffer = new StringBuilder();
-
-            buffer.Append("[COUNTRY]\n");
-            buffer.Append("    .defaultcountry  = ")
-                .Append(StringUtil.ToHexString(DefaultCountry)).Append("\n");
-            buffer.Append("    .currentcountry  = ")
-                .Append(StringUtil.ToHexString(CurrentCountry)).Append("\n");
-            buffer.Append("[/COUNTRY]\n");
-            return buffer.ToString();
-        }
-
-        public override void Serialize(ILittleEndianOutput out1)
-        {
-            out1.WriteShort(DefaultCountry);
-            out1.WriteShort(CurrentCountry);
-        }
-
-        protected override int DataSize
-        {
-            get { return 4; }
-        }
-
-        public override short Sid
-        {
-            get { return sid; }
-        }
+    public override short Sid
+    {
+        get { return sid; }
     }
 }

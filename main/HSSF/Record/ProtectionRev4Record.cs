@@ -18,90 +18,88 @@
 
 
 
-namespace NPOI.HSSF.Record
+namespace NPOI.HSSF.Record;
+
+using System;
+using System.Text;
+using NPOI.Util;
+
+
+
+/**
+ * Title:        Protection Revision 4 Record
+ * Description:  describes whether this is a protected shared/tracked workbook
+ *  ( HSSF does not support encryption because we don't feel like going to jail ) 
+ * REFERENCE:  PG 373 Microsoft Excel 97 Developer's Kit (ISBN: 1-57231-498-2)
+ * @author Andrew C. Oliver (acoliver at apache dot org)
+ * @version 2.0-pre
+ */
+
+public class ProtectionRev4Record
+   : StandardRecord
 {
-    using System;
-    using System.Text;
-    using NPOI.Util;
+    public const short sid = 0x1af;
 
+    private static BitField protectedFlag = BitFieldFactory.GetInstance(0x0001);
+    private short _options;
 
-
+    public ProtectionRev4Record(short options)
+    {
+        _options = options;
+    }
+    public ProtectionRev4Record(bool protect):this(0)
+    {
+        Protect = protect;
+    }
+   
     /**
-     * Title:        Protection Revision 4 Record
-     * Description:  describes whether this is a protected shared/tracked workbook
-     *  ( HSSF does not support encryption because we don't feel like going to jail ) 
-     * REFERENCE:  PG 373 Microsoft Excel 97 Developer's Kit (ISBN: 1-57231-498-2)
-     * @author Andrew C. Oliver (acoliver at apache dot org)
-     * @version 2.0-pre
+     * Constructs a ProtectionRev4 record and Sets its fields appropriately.
+     * @param in the RecordInputstream to Read the record from
      */
 
-    public class ProtectionRev4Record
-       : StandardRecord
+    public ProtectionRev4Record(RecordInputStream in1):
+        this(in1.ReadShort())
     {
-        public const short sid = 0x1af;
+        
+    }
 
-        private static BitField protectedFlag = BitFieldFactory.GetInstance(0x0001);
-        private short _options;
+    /**
+     * Get whether the this is protected shared/tracked workbook or not
+     * @return whether to protect the workbook or not
+     */
 
-        public ProtectionRev4Record(short options)
+    public bool Protect
+    {
+        get { return protectedFlag.IsSet(_options); }
+        set
         {
-            _options = options;
-        }
-        public ProtectionRev4Record(bool protect):this(0)
-        {
-            Protect = protect;
-        }
-       
-        /**
-         * Constructs a ProtectionRev4 record and Sets its fields appropriately.
-         * @param in the RecordInputstream to Read the record from
-         */
-
-        public ProtectionRev4Record(RecordInputStream in1):
-            this(in1.ReadShort())
-        {
-            
-        }
-
-        /**
-         * Get whether the this is protected shared/tracked workbook or not
-         * @return whether to protect the workbook or not
-         */
-
-        public bool Protect
-        {
-            get { return protectedFlag.IsSet(_options); }
-            set
-            {
-                _options=(short)protectedFlag.SetBoolean(_options, value);
-            }
-        }
-
-        public override String ToString()
-        {
-            StringBuilder buffer = new StringBuilder();
-
-            buffer.Append("[PROT4REV]\n");
-            buffer.Append("    .protect         = ").Append(Protect)
-                .Append("\n");
-            buffer.Append("[/PROT4REV]\n");
-            return buffer.ToString();
-        }
-
-        public override void Serialize(ILittleEndianOutput out1) 
-        {
-            out1.WriteShort(_options);
-        }
-
-        protected override int DataSize
-        {
-            get { return 2; }
-        }
-
-        public override short Sid
-        {
-            get { return sid; }
+            _options=(short)protectedFlag.SetBoolean(_options, value);
         }
     }
 
+    public override String ToString()
+    {
+        StringBuilder buffer = new StringBuilder();
+
+        buffer.Append("[PROT4REV]\n");
+        buffer.Append("    .protect         = ").Append(Protect)
+            .Append("\n");
+        buffer.Append("[/PROT4REV]\n");
+        return buffer.ToString();
+    }
+
+    public override void Serialize(ILittleEndianOutput out1) 
+    {
+        out1.WriteShort(_options);
+    }
+
+    protected override int DataSize
+    {
+        get { return 2; }
+    }
+
+    public override short Sid
+    {
+        get { return sid; }
+    }
 }

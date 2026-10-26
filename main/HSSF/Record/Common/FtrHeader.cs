@@ -1,4 +1,4 @@
-/* ====================================================================
+﻿/* ====================================================================
    Licensed to the Apache Software Foundation (ASF) under one or more
    contributor license agreements.  See the NOTICE file distributed with
    this work for Additional information regarding copyright ownership.
@@ -15,112 +15,111 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.HSSF.Record.Common
+namespace NPOI.HSSF.Record.Common;
+
+using System;
+
+using NPOI.HSSF.Record;
+using NPOI.Util;
+using System.Text;
+using NPOI.SS.Util;
+
+/**
+ * Title: FtrHeader (Future Record Header) common record part
+ * 
+ * This record part specifies a header for a Ftr (Future)
+ *  style record, which includes extra attributes above and
+ *  beyond those of a traditional record. 
+ */
+public class FtrHeader : ICloneable
 {
-    using System;
+    /** This MUST match the type on the Containing record */
+    private short recordType;
+    /** This is a FrtFlags */
+    private short grbitFrt;
 
-    using NPOI.HSSF.Record;
-    using NPOI.Util;
-    using System.Text;
-    using NPOI.SS.Util;
-
-    /**
-     * Title: FtrHeader (Future Record Header) common record part
-     * 
-     * This record part specifies a header for a Ftr (Future)
-     *  style record, which includes extra attributes above and
-     *  beyond those of a traditional record. 
-     */
-    public class FtrHeader : ICloneable
+    /** The range of cells the parent record applies to, or 0 if N/A */
+    private CellRangeAddress associatedRange;
+    public FtrHeader()
     {
-        /** This MUST match the type on the Containing record */
-        private short recordType;
-        /** This is a FrtFlags */
-        private short grbitFrt;
+        associatedRange = new CellRangeAddress(0, 0, 0, 0);
+    }
 
-        /** The range of cells the parent record applies to, or 0 if N/A */
-        private CellRangeAddress associatedRange;
-        public FtrHeader()
+    public FtrHeader(RecordInputStream in1)
+    {
+        recordType = in1.ReadShort();
+        grbitFrt = in1.ReadShort();
+
+        associatedRange = new CellRangeAddress(in1);
+    }
+
+    public override String ToString()
+    {
+        StringBuilder buffer = new StringBuilder();
+        buffer.Append(" [FUTURE HEADER]\n");
+        buffer.Append("   type " + recordType);
+        buffer.Append("   flags " + grbitFrt);
+        buffer.Append(" [/FUTURE HEADER]\n");
+        return buffer.ToString();
+    }
+
+    public void Serialize(ILittleEndianOutput out1)
+    {
+        out1.WriteShort(recordType);
+        out1.WriteShort(grbitFrt);
+        associatedRange.Serialize(out1);
+    }
+
+    public static int GetDataSize()
+    {
+        return 12;
+    }
+
+    public short RecordType
+    {
+        get
         {
-            associatedRange = new CellRangeAddress(0, 0, 0, 0);
+            return recordType;
         }
-
-        public FtrHeader(RecordInputStream in1)
+        set
         {
-            recordType = in1.ReadShort();
-            grbitFrt = in1.ReadShort();
-
-            associatedRange = new CellRangeAddress(in1);
+            recordType = value;
         }
+    }
 
-        public override String ToString()
+    public short GrbitFrt
+    {
+        get
         {
-            StringBuilder buffer = new StringBuilder();
-            buffer.Append(" [FUTURE HEADER]\n");
-            buffer.Append("   type " + recordType);
-            buffer.Append("   flags " + grbitFrt);
-            buffer.Append(" [/FUTURE HEADER]\n");
-            return buffer.ToString();
+            return grbitFrt;
         }
-
-        public void Serialize(ILittleEndianOutput out1)
+        set
         {
-            out1.WriteShort(recordType);
-            out1.WriteShort(grbitFrt);
-            associatedRange.Serialize(out1);
+            grbitFrt = value;
         }
+    }
 
-        public static int GetDataSize()
-        {
-            return 12;
-        }
 
-        public short RecordType
+    public CellRangeAddress AssociatedRange
+    {
+        get
         {
-            get
-            {
-                return recordType;
-            }
-            set
-            {
-                recordType = value;
-            }
+            return associatedRange;
         }
+        set
+        {
+            this.associatedRange = value;
+        }
+    }
 
-        public short GrbitFrt
+    public object Clone()
+    {
+        FtrHeader result = new FtrHeader
         {
-            get
-            {
-                return grbitFrt;
-            }
-            set
-            {
-                grbitFrt = value;
-            }
-        }
-
- 
-        public CellRangeAddress AssociatedRange
-        {
-            get
-            {
-                return associatedRange;
-            }
-            set
-            {
-                this.associatedRange = value;
-            }
-        }
-
-        public object Clone()
-        {
-            FtrHeader result = new FtrHeader
-            {
-                recordType = recordType,
-                grbitFrt = grbitFrt,
-                associatedRange = associatedRange.Copy()
-            };
-            return result;
-        }
+            recordType = recordType,
+            grbitFrt = grbitFrt,
+            associatedRange = associatedRange.Copy()
+        };
+        return result;
     }
 }

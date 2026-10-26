@@ -1,18 +1,18 @@
 ﻿/* ====================================================================
-   Licensed to the Apache Software Foundation (ASF) Under one or more
-   contributor license agreements.  See the NOTICE file distributed with
-   this work for Additional information regarding copyright ownership.
-   The ASF licenses this file to You Under the Apache License, Version 2.0
-   (the "License"); you may not use this file except in compliance with
-   the License.  You may obtain a copy of the License at
+    Licensed to the Apache Software Foundation (ASF) Under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for Additional information regarding copyright ownership.
+    The ASF licenses this file to You Under the Apache License, Version 2.0
+    (the "License"); you may not use this file except in compliance with
+    the License.  You may obtain a copy of the License at
 
-       http://www.apache.org/licenses/LICENSE-2.0
+        http://www.apache.org/licenses/LICENSE-2.0
 
-   Unless required by applicable law or agreed to in writing, software
-   distributed Under the License is distributed on an "AS Is" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations Under the License.
+    Unless required by applicable law or agreed to in writing, software
+    distributed Under the License is distributed on an "AS Is" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations Under the License.
 ==================================================================== */
 
 namespace NPOI.HSSF.Model;
@@ -31,7 +31,7 @@ using NPOI.Util;
 /// Low level model implementation of a Sheet (one workbook Contains many sheets)
 /// This file Contains the low level binary records starting at the sheets BOF and
 /// ending with the sheets EOF.  Use HSSFSheet for a high level representation.
-/// 
+///
 /// The structures of the highlevel API use references to this to perform most of their
 /// operations.  Its probably Unwise to use these low level structures directly Unless you
 /// really know what you're doing.  I recommend you Read the Microsoft Excel 97 Developer's
@@ -84,12 +84,12 @@ public class InternalSheet
     [NonSerialized]
     private PageSettingsBlock _psBlock;
     protected IMargin[] margins = null;
-    //protected IList mergedRecords = new ArrayList();
+    // protected IList mergedRecords = new ArrayList();
 
     [NonSerialized]
     protected SelectionRecord _selection = null;
-    //protected ColumnInfoRecordsAggregate columns = null;
-    //protected ValueRecordsAggregate cells = null;
+    // protected ColumnInfoRecordsAggregate columns = null;
+    // protected ValueRecordsAggregate cells = null;
     /*package*/
     [NonSerialized]
     internal ColumnInfoRecordsAggregate _columnInfos;
@@ -98,7 +98,7 @@ public class InternalSheet
     private DimensionsRecord _dimensions;
     [NonSerialized]
     private DataValidityTable _dataValidityTable = null;
-    //private IEnumerator valueRecEnumerator = null;
+    // private IEnumerator valueRecEnumerator = null;
     private IEnumerator rowRecEnumerator = null;
     protected int eofLoc = 0;
     [NonSerialized]
@@ -116,11 +116,10 @@ public class InternalSheet
     /** Add an UncalcedRecord if not true indicating formulas have not been calculated */
     protected bool _isUncalced = false;
 
-    //public const byte PANE_LOWER_RIGHT = (byte)0;
-    //public const byte PANE_UPPER_RIGHT = (byte)1;
-    //public const byte PANE_LOWER_LEFT = (byte)2;
-    //public const byte PANE_UPPER_LEFT = (byte)3;
-
+    // public const byte PANE_LOWER_RIGHT = (byte)0;
+    // public const byte PANE_UPPER_RIGHT = (byte)1;
+    // public const byte PANE_LOWER_LEFT = (byte)2;
+    // public const byte PANE_UPPER_LEFT = (byte)3;
 
     /// <summary>
     /// Clones the low level records of this sheet and returns the new sheet instance.
@@ -129,7 +128,6 @@ public class InternalSheet
     /// When Adding a new record, implement a public Clone method if and only if the record
     /// belongs to a sheet.
     /// </summary>
-    /// <returns></returns>
     public InternalSheet CloneSheet()
     {
         List<Record> clonedRecords = new List<Record>(this.records.Count);
@@ -145,8 +143,8 @@ public class InternalSheet
             if (rb is EscherAggregate)
             {
                 /*
-                 * this record will be removed after reading actual data from EscherAggregate
-                 */
+                * this record will be removed after reading actual data from EscherAggregate
+                */
                 rb = new DrawingRecord();
             }
             try
@@ -158,7 +156,6 @@ public class InternalSheet
             {
                 throw new RecordFormatException(e);
             }
-
         }
         return CreateSheet(new RecordStream(clonedRecords, 0));
     }
@@ -171,7 +168,6 @@ public class InternalSheet
     /// Creates the sheet.
     /// </summary>
     /// <param name="rs">The stream.</param>
-    /// <returns></returns>
     public static InternalSheet CreateSheet(RecordStream rs)
     {
         return new InternalSheet(rs);
@@ -209,7 +205,7 @@ public class InternalSheet
 
         records = new List<RecordBase>(128);
         // TODO - take chart streams off into separate java objects
-        //int bofEofNestingLevel = 0;  // nesting level can only get to 2 (when charts are present)
+        // int bofEofNestingLevel = 0;  // nesting level can only get to 2 (when charts are present)
         int dimsloc = -1;
 
         if (rs.PeekNextSid() != BOFRecord.sid)
@@ -221,8 +217,8 @@ public class InternalSheet
         {
             // Good, well supported
         }
-        else if (bof.Type == BOFRecordType.Chart ||
-                 bof.Type == BOFRecordType.Excel4Macro)
+        else if (bof.Type == BOFRecordType.Chart
+            || bof.Type == BOFRecordType.Excel4Macro)
         {
             // These aren't really typical sheets... Let it go though,
             //  we can handle them roughly well enough as a "normal" one
@@ -269,7 +265,7 @@ public class InternalSheet
 
             if (RecordOrderer.IsRowBlockRecord(recSid))
             {
-                //only Add the aggregate once
+                // only Add the aggregate once
                 if (rra != null)
                 {
                     throw new InvalidOperationException("row/cell records found in the wrong place");
@@ -277,7 +273,7 @@ public class InternalSheet
                 RowBlocksReader rbr = new RowBlocksReader(rs);
                 _mergedCellsTable.AddRecords(rbr.LooseMergedCells);
                 rra = new RowRecordsAggregate(rbr.PlainRecordStream, rbr.SharedFormulaManager);
-                records.Add(rra); //only Add the aggregate once
+                records.Add(rra); // only Add the aggregate once
                 continue;
             }
 
@@ -286,7 +282,7 @@ public class InternalSheet
                 // This happens three times in test sample file "29982.xls"
                 // Also several times in bugzilla samples 46840-23373 and 46840-23374
                 records.Add(new CustomViewSettingsRecordAggregate(rs));
-                continue;                    
+                continue;
             }
 
             if (PageSettingsBlock.IsComponentRecord(recSid))
@@ -318,20 +314,20 @@ public class InternalSheet
                 _mergedCellsTable.Read(rs);
                 continue;
             }
-            
+
             if (recSid == BOFRecord.sid)
             {
                 ChartSubstreamRecordAggregate chartAgg = new ChartSubstreamRecordAggregate(rs);
-                //ChartSheetAggregate chartAgg = new ChartSheetAggregate(rs, null);
-                //if (false)
-                //{
+                // ChartSheetAggregate chartAgg = new ChartSheetAggregate(rs, null);
+                // if (false)
+                // {
                 // TODO - would like to keep the chart aggregate packed, but one unit test needs attention
                 //    records.Add(chartAgg);
-                //}
-                //else
-                //{
+                // }
+                // else
+                // {
                 SpillAggregate(chartAgg, records);
-                //}
+                // }
                 continue;
             }
             Record rec = rs.GetNext();
@@ -342,7 +338,6 @@ public class InternalSheet
                 continue;
             }
 
-            
             if (recSid == UncalcedRecord.sid)
             {
                 // don't Add UncalcedRecord to the list
@@ -350,8 +345,8 @@ public class InternalSheet
                 continue;
             }
 
-            if (recSid == FeatRecord.sid ||
-                recSid == FeatHdrRecord.sid)
+            if (recSid == FeatRecord.sid
+                || recSid == FeatHdrRecord.sid)
             {
                 records.Add(rec);
                 continue;
@@ -429,12 +424,12 @@ public class InternalSheet
             }
             else
             {
-                //log.log(POILogger.WARN, "DIMENSION record not found even though row/cells present");
+                // log.log(POILogger.WARN, "DIMENSION record not found even though row/cells present");
                 // Not sure if any tools write files like this, but Excel reads them OK
             }
             dimsloc = FindFirstRecordLocBySid(WindowTwoRecord.sid);
             _dimensions = rra.CreateDimensions();
-            records.Insert(dimsloc, _dimensions);                
+            records.Insert(dimsloc, _dimensions);
         }
         if (rra == null)
         {
@@ -445,18 +440,18 @@ public class InternalSheet
         // put merged cells table in the right place (regardless of where the first MergedCellsRecord was found */
         RecordOrderer.AddNewSheetRecord(records, _mergedCellsTable);
         RecordOrderer.AddNewSheetRecord(records, _protectionBlock);
-        //if (log.Check(POILogger.DEBUG))
+        // if (log.Check(POILogger.DEBUG))
         //    log.Log(POILogger.DEBUG, "sheet createSheet (existing file) exited");
-
     }
-    private sealed class RecordVisitor1:RecordVisitor
+    private sealed class RecordVisitor1 : RecordVisitor
     {
         readonly List<RecordBase> _records;
         public RecordVisitor1(List<RecordBase> recs)
         {
-            _records=recs;
+            _records = recs;
         }
-        public void VisitRecord(Record r) {
+        public void VisitRecord(Record r)
+        {
             _records.Add(r);
         }
     }
@@ -482,7 +477,7 @@ public class InternalSheet
         _mergedCellsTable = new MergedCellsTable();
         records = new List<RecordBase>(32);
 
-        //if (log.Check(POILogger.DEBUG))
+        // if (log.Check(POILogger.DEBUG))
         //    log.Log(POILogger.DEBUG, "Sheet Createsheet from scratch called");
 
         records.Add(CreateBOF());
@@ -531,7 +526,7 @@ public class InternalSheet
         records.Add(sheetext);
         records.Add(EOFRecord.instance);
 
-        //if (log.Check(POILogger.DEBUG))
+        // if (log.Check(POILogger.DEBUG))
         //    log.Log(POILogger.DEBUG, "Sheet Createsheet from scratch exit");
     }
 
@@ -542,19 +537,18 @@ public class InternalSheet
     /// <param name="colFrom">The column index From.</param>
     /// <param name="rowTo">The row index To</param>
     /// <param name="colTo">The column To.</param>
-    /// <returns></returns>
     public int AddMergedRegion(int rowFrom, int colFrom, int rowTo, int colTo)
     {
         // Validate input
         if (rowTo < rowFrom)
         {
-            throw new ArgumentException("The 'to' row (" + rowTo
-                    + ") must not be less than the 'from' row (" + rowFrom + ")");
+            throw new ArgumentException(
+                "The 'to' row (" + rowTo + ") must not be less than the 'from' row (" + rowFrom + ")");
         }
         if (colTo < colFrom)
         {
-            throw new ArgumentException("The 'to' col (" + colTo
-                    + ") must not be less than the 'from' col (" + colFrom + ")");
+            throw new ArgumentException(
+                "The 'to' col (" + colTo + ") must not be less than the 'from' col (" + colFrom + ")");
         }
 
         MergedCellsTable mrt = MergedRecords;
@@ -568,7 +562,7 @@ public class InternalSheet
     /// <param name="index">The index.</param>
     public void RemoveMergedRegion(int index)
     {
-        //safety checks
+        // safety checks
         MergedCellsTable mrt = MergedRecords;
         if (index >= mrt.NumberOfMergedRegions)
         {
@@ -593,15 +587,13 @@ public class InternalSheet
         }
     }
 
-
     /// <summary>
     /// Gets the merged region at.
     /// </summary>
     /// <param name="index">The index.</param>
-    /// <returns></returns>
     public CellRangeAddress GetMergedRegionAt(int index)
     {
-        //safety checks
+        // safety checks
         MergedCellsTable mrt = MergedRecords;
         if (index >= mrt.NumberOfMergedRegions)
         {
@@ -625,8 +617,8 @@ public class InternalSheet
     ///// Find correct position to Add new CF record
     ///// </summary>
     ///// <returns></returns>
-    //private int FindConditionalFormattingPosition()
-    //{
+    // private int FindConditionalFormattingPosition()
+    // {
     //    // This is default.
     //    // If the algorithm does not Find the right position,
     //    // this one will be used (this is a position before EOF record)
@@ -651,8 +643,7 @@ public class InternalSheet
     //    }
 
     //    return index;
-    //}
-
+    // }
 
     /// <summary>
     /// Gets the number of conditional formattings.
@@ -675,23 +666,26 @@ public class InternalSheet
     /// <param name="firstcol">The first column.</param>
     /// <param name="lastrow">The last row.</param>
     /// <param name="lastcol">The last column.</param>
-    public void SetDimensions(int firstrow, short firstcol, int lastrow,
-                              short lastcol)
+    public void SetDimensions(
+        int firstrow,
+        short firstcol,
+        int lastrow,
+        short lastcol)
     {
-        //if (log.Check(POILogger.DEBUG))
-        //{
+        // if (log.Check(POILogger.DEBUG))
+        // {
         //    log.Log(POILogger.DEBUG, "Sheet.SetDimensions");
         //    log.Log(POILogger.DEBUG,
         //            (new StringBuilder("firstrow")).Append(firstrow)
         //                .Append("firstcol").Append(firstcol).Append("lastrow")
         //                .Append(lastrow).Append("lastcol").Append(lastcol)
         //                .ToString());
-        //}
+        // }
         dims.FirstCol = firstcol;
         dims.FirstRow = firstrow;
         dims.LastCol = lastcol;
         dims.LastRow = lastrow;
-        //if (log.Check(POILogger.DEBUG))
+        // if (log.Check(POILogger.DEBUG))
         //    log.Log(POILogger.DEBUG, "Sheet.SetDimensions exiting");
     }
 
@@ -716,7 +710,7 @@ public class InternalSheet
     /// </summary>
     /// <param name="row">row number</param>
     /// <returns>RowRecord Created for the passed in row number</returns>
-    public RowRecord CreateRow(int row)
+    public static RowRecord CreateRow(int row)
     {
         return RowRecordsAggregate.CreateRow(row);
     }
@@ -728,13 +722,13 @@ public class InternalSheet
     /// <param name="col">the column the LabelSST defines</param>
     /// <param name="index">the index of the string within the SST (use workbook AddSSTString method)</param>
     /// <returns>LabelSSTRecord newly Created containing your SST Index, row,col.</returns>
-    public LabelSSTRecord CreateLabelSST(int row, short col, int index)
+    public static LabelSSTRecord CreateLabelSST(int row, short col, int index)
     {
         //    log.LogFormatted(POILogger.DEBUG, "Create labelsst row,col,index %,%,%",
         //                     new int[]
-        //{
+        // {
         //    row, col, index
-        //});
+        // });
         LabelSSTRecord rec = new LabelSSTRecord();
 
         rec.Row = (row);
@@ -753,11 +747,11 @@ public class InternalSheet
     /// <returns>NumberRecord for that row, col containing that value as Added to the sheet</returns>
     public NumberRecord CreateNumber(int row, short col, double value)
     {
-        //log.LogFormatted(POILogger.DEBUG, "Create number row,col,value %,%,%",
+        // log.LogFormatted(POILogger.DEBUG, "Create number row,col,value %,%,%",
         //                 new double[]
-        //{
+        // {
         //    row, col, value
-        //});
+        // });
         NumberRecord rec = new NumberRecord();
 
         rec.Row = row;
@@ -772,13 +766,12 @@ public class InternalSheet
     /// </summary>
     /// <param name="row">the row the BlankRecord is a member of</param>
     /// <param name="col">the column the BlankRecord is a member of</param>
-    /// <returns></returns>
-    public BlankRecord CreateBlank(int row, short col)
+    public static BlankRecord CreateBlank(int row, short col)
     {
-        //log.LogFormatted(POILogger.DEBUG, "Create blank row,col %,%", new int[]
-        //{
+        // log.LogFormatted(POILogger.DEBUG, "Create blank row,col %,%", new int[]
+        // {
         //    row, col
-        //});
+        // });
         BlankRecord rec = new BlankRecord();
 
         rec.Row = row;
@@ -799,10 +792,10 @@ public class InternalSheet
     /// <param name="col">the cell value record itself.</param>
     public void AddValueRecord(int row, CellValueRecordInterface col)
     {
-        //if (log.Check(POILogger.DEBUG))
-        //{
+        // if (log.Check(POILogger.DEBUG))
+        // {
         //    log.Log(POILogger.DEBUG, "Add value record  row" + row);
-        //}
+        // }
         DimensionsRecord d = _dimensions;
 
         if (col.Column >= d.LastCol)
@@ -837,13 +830,13 @@ public class InternalSheet
     /// be Added.</param>
     public void ReplaceValueRecord(CellValueRecordInterface newval)
     {
-        //if (log.Check(POILogger.DEBUG))
+        // if (log.Check(POILogger.DEBUG))
         //    log.Log(POILogger.DEBUG, "ReplaceValueRecord ");
-        //The ValueRecordsAggregate use a tree map Underneath.
-        //The tree Map uses the CellValueRecordInterface as both the
-        //key and the value, if we dont do a Remove, then
-        //the previous instance of the key is retained, effectively using
-        //double the memory
+        // The ValueRecordsAggregate use a tree map Underneath.
+        // The tree Map uses the CellValueRecordInterface as both the
+        // key and the value, if we dont do a Remove, then
+        // the previous instance of the key is retained, effectively using
+        // double the memory
         _rowsAggregate.RemoveCell(newval);
         _rowsAggregate.InsertCell(newval);
     }
@@ -858,7 +851,7 @@ public class InternalSheet
     /// <param name="row">the row record to be Added</param>
     public void AddRow(RowRecord row)
     {
-        //if (log.Check(POILogger.DEBUG))
+        // if (log.Check(POILogger.DEBUG))
         //    log.Log(POILogger.DEBUG, "AddRow ");
         DimensionsRecord d = _dimensions;
 
@@ -870,8 +863,8 @@ public class InternalSheet
         {
             d.FirstRow = (row.RowNumber);
         }
-        //IndexRecord index = null;
-        //If the row exists Remove it, so that any cells attached to the row are Removed
+        // IndexRecord index = null;
+        // If the row exists Remove it, so that any cells attached to the row are Removed
         RowRecord existingRow = _rowsAggregate.GetRow(row.RowNumber);
         if (existingRow != null)
         {
@@ -880,7 +873,7 @@ public class InternalSheet
 
         _rowsAggregate.InsertRow(row);
 
-        //if (log.Check(POILogger.DEBUG))
+        // if (log.Check(POILogger.DEBUG))
         //    log.Log(POILogger.DEBUG, "exit AddRow");
     }
 
@@ -895,17 +888,17 @@ public class InternalSheet
     }
 
     /**
-     * Get all the value records (from LOC). Records will be returned from the first
-     *  record (starting at LOC) which is a value record.
-     *
-     * This method is "loc" sensitive.  Meaning you need to set LOC to where you
-     * want it to start searching.  If you don't know do this: setLoc(getDimsLoc).
-     * When adding several rows you can just start at the last one by leaving loc
-     * at what this sets it to.  For this method, set loc to dimsloc to start with,
-     * subsequent calls will return values in (physical) sequence or NULL when you get to the end.
-     *
-     * @return Iterator of CellValueRecordInterface representing the value records
-     */
+    * Get all the value records (from LOC). Records will be returned from the first
+    *  record (starting at LOC) which is a value record.
+    *
+    * This method is "loc" sensitive.  Meaning you need to set LOC to where you
+    * want it to start searching.  If you don't know do this: setLoc(getDimsLoc).
+    * When adding several rows you can just start at the last one by leaving loc
+    * at what this sets it to.  For this method, set loc to dimsloc to start with,
+    * subsequent calls will return values in (physical) sequence or NULL when you get to the end.
+    *
+    * @return Iterator of CellValueRecordInterface representing the value records
+    */
     public IEnumerator<CellValueRecordInterface> GetCellValueIterator()
     {
         return _rowsAggregate.GetCellValueEnumerator();
@@ -955,7 +948,6 @@ public class InternalSheet
     /// <summary>
     /// Gets the page settings.
     /// </summary>
-    /// <returns></returns>
     public PageSettingsBlock PageSettings
     {
         get
@@ -1050,7 +1042,7 @@ public class InternalSheet
     /// <returns>record containing a DeltaRecord</returns>
     private static DeltaRecord CreateDelta()
     {
-        return new DeltaRecord(DeltaRecord.DEFAULT_VALUE);            
+        return new DeltaRecord(DeltaRecord.DEFAULT_VALUE);
     }
 
     /// <summary>
@@ -1132,11 +1124,11 @@ public class InternalSheet
     }
 
     /**
-     * Creates the WSBoolRecord and Sets its values to defaults
-     * @see org.apache.poi.hssf.record.WSBoolRecord
-     * @see org.apache.poi.hssf.record.Record
-     * @return record containing a WSBoolRecord
-     */
+    * Creates the WSBoolRecord and Sets its values to defaults
+    * @see org.apache.poi.hssf.record.WSBoolRecord
+    * @see org.apache.poi.hssf.record.Record
+    * @return record containing a WSBoolRecord
+    */
 
     private static WSBoolRecord CreateWSBool()
     {
@@ -1148,11 +1140,11 @@ public class InternalSheet
     }
 
     /**
-     * Creates the HCenter Record and Sets it to false (don't horizontally center)
-     * @see org.apache.poi.hssf.record.HCenterRecord
-     * @see org.apache.poi.hssf.record.Record
-     * @return record containing a HCenterRecord
-     */
+    * Creates the HCenter Record and Sets it to false (don't horizontally center)
+    * @see org.apache.poi.hssf.record.HCenterRecord
+    * @see org.apache.poi.hssf.record.Record
+    * @return record containing a HCenterRecord
+    */
 
     private static HCenterRecord CreateHCenter()
     {
@@ -1163,11 +1155,11 @@ public class InternalSheet
     }
 
     /**
-     * Creates the VCenter Record and Sets it to false (don't horizontally center)
-     * @see org.apache.poi.hssf.record.VCenterRecord
-     * @see org.apache.poi.hssf.record.Record
-     * @return record containing a VCenterRecord
-     */
+    * Creates the VCenter Record and Sets it to false (don't horizontally center)
+    * @see org.apache.poi.hssf.record.VCenterRecord
+    * @see org.apache.poi.hssf.record.Record
+    * @return record containing a VCenterRecord
+    */
 
     private static VCenterRecord CreateVCenter()
     {
@@ -1178,11 +1170,11 @@ public class InternalSheet
     }
 
     /**
-     * Creates the PrintSetup Record and Sets it to defaults and marks it invalid
-     * @see org.apache.poi.hssf.record.PrintSetupRecord
-     * @see org.apache.poi.hssf.record.Record
-     * @return record containing a PrintSetupRecord
-     */
+    * Creates the PrintSetup Record and Sets it to defaults and marks it invalid
+    * @see org.apache.poi.hssf.record.PrintSetupRecord
+    * @see org.apache.poi.hssf.record.Record
+    * @return record containing a PrintSetupRecord
+    */
 
     private static PrintSetupRecord CreatePrintSetup()
     {
@@ -1203,11 +1195,11 @@ public class InternalSheet
     }
 
     /**
-     * Creates the DefaultColWidth Record and Sets it to 8
-     * @see org.apache.poi.hssf.record.DefaultColWidthRecord
-     * @see org.apache.poi.hssf.record.Record
-     * @return record containing a DefaultColWidthRecord
-     */
+    * Creates the DefaultColWidth Record and Sets it to 8
+    * @see org.apache.poi.hssf.record.DefaultColWidthRecord
+    * @see org.apache.poi.hssf.record.Record
+    * @return record containing a DefaultColWidthRecord
+    */
 
     private static DefaultColWidthRecord CreateDefaultColWidth()
     {
@@ -1218,9 +1210,9 @@ public class InternalSheet
     }
 
     /**
-     * Get the default column width for the sheet (if the columns do not define their own width)
-     * @return default column width
-     */
+    * Get the default column width for the sheet (if the columns do not define their own width)
+    * @return default column width
+    */
 
     public double DefaultColumnWidth
     {
@@ -1229,15 +1221,15 @@ public class InternalSheet
     }
 
     /**
-     * Get the default row height for the sheet (if the rows do not define their own height)
-     * @return  default row height
-     */
+    * Get the default row height for the sheet (if the rows do not define their own height)
+    * @return  default row height
+    */
 
     public short DefaultRowHeight
     {
         get { return defaultrowheight.RowHeight; }
-        set 
-        { 
+        set
+        {
             defaultrowheight.RowHeight = (value);
             // set the bit that specifies that the default settings for the row height have been changed.
             defaultrowheight.OptionFlags = (short)1;
@@ -1245,13 +1237,13 @@ public class InternalSheet
     }
 
     /**
-     * Get the width of a given column in Units of 1/256th of a Char width
-     * @param column index
-     * @see org.apache.poi.hssf.record.DefaultColWidthRecord
-     * @see org.apache.poi.hssf.record.ColumnInfoRecord
-     * @see #SetColumnWidth(short,short)
-     * @return column width in Units of 1/256th of a Char width
-     */
+    * Get the width of a given column in Units of 1/256th of a Char width
+    * @param column index
+    * @see org.apache.poi.hssf.record.DefaultColWidthRecord
+    * @see org.apache.poi.hssf.record.ColumnInfoRecord
+    * @see #SetColumnWidth(short,short)
+    * @return column width in Units of 1/256th of a Char width
+    */
 
     public int GetColumnWidth(int columnIndex)
     {
@@ -1260,25 +1252,25 @@ public class InternalSheet
         {
             return ci.ColumnWidth;
         }
-        //default column width is measured in characters
-        //multiply
+        // default column width is measured in characters
+        // multiply
         return (256 * defaultcolwidth.ColWidth);
     }
 
     /**
-     * Get the index to the ExtendedFormatRecord "associated" with
-     * the column at specified 0-based index. (In this case, an
-     * ExtendedFormatRecord index is actually associated with a
-     * ColumnInfoRecord which spans 1 or more columns)
-     * <br/>
-     * Returns the index to the default ExtendedFormatRecord (0xF)
-     * if no ColumnInfoRecord exists that includes the column
-     * index specified.
-     * @param column
-     * @return index of ExtendedFormatRecord associated with
-     * ColumnInfoRecord that includes the column index or the
-     * index of the default ExtendedFormatRecord (0xF)
-     */
+    * Get the index to the ExtendedFormatRecord "associated" with
+    * the column at specified 0-based index. (In this case, an
+    * ExtendedFormatRecord index is actually associated with a
+    * ColumnInfoRecord which spans 1 or more columns)
+    * <br/>
+    * Returns the index to the default ExtendedFormatRecord (0xF)
+    * if no ColumnInfoRecord exists that includes the column
+    * index specified.
+    * @param column
+    * @return index of ExtendedFormatRecord associated with
+    * ColumnInfoRecord that includes the column index or the
+    * index of the default ExtendedFormatRecord (0xF)
+    */
     public short GetXFIndexForColAt(short columnIndex)
     {
         ColumnInfoRecord ci = _columnInfos.FindColumnInfo(columnIndex);
@@ -1290,25 +1282,27 @@ public class InternalSheet
     }
 
     /**
-     * Set the width for a given column in 1/256th of a Char width Units
-     * @param column - the column number
-     * @param width (in Units of 1/256th of a Char width)
-     */
+    * Set the width for a given column in 1/256th of a Char width Units
+    * @param column - the column number
+    * @param width (in Units of 1/256th of a Char width)
+    */
     public void SetColumnWidth(int column, double width)
     {
-        if (width > 255 * 256) 
-               throw new ArgumentException("The maximum column width for an individual cell is 255 characters.");
+        if (width > 255 * 256)
+        {
+            throw new ArgumentException("The maximum column width for an individual cell is 255 characters.");
+        }
         SetColumn(column, null, width, null, null, null);
     }
 
     /**
-     * Get the hidden property for a given column.
-     * @param column index
-     * @see org.apache.poi.hssf.record.DefaultColWidthRecord
-     * @see org.apache.poi.hssf.record.ColumnInfoRecord
-     * @see #SetColumnHidden(short,bool)
-     * @return whether the column is hidden or not.
-     */
+    * Get the hidden property for a given column.
+    * @param column index
+    * @see org.apache.poi.hssf.record.DefaultColWidthRecord
+    * @see org.apache.poi.hssf.record.ColumnInfoRecord
+    * @see #SetColumnHidden(short,bool)
+    * @return whether the column is hidden or not.
+    */
 
     public bool IsColumnHidden(int columnIndex)
     {
@@ -1321,10 +1315,10 @@ public class InternalSheet
     }
 
     /**
-     * Get the hidden property for a given column.
-     * @param column - the column number
-     * @param hidden - whether the column is hidden or not
-     */
+    * Get the hidden property for a given column.
+    * @param column - the column number
+    * @param hidden - whether the column is hidden or not
+    */
     public void SetColumnHidden(int column, bool hidden)
     {
         SetColumn(column, null, null, null, hidden, null);
@@ -1357,12 +1351,12 @@ public class InternalSheet
     }
 
     /**
-     * Creates an outline Group for the specified columns.
-     * @param fromColumn    Group from this column (inclusive)
-     * @param toColumn      Group to this column (inclusive)
-     * @param indent        if true the Group will be indented by one level,
-     *                      if false indenting will be Removed by one level.
-     */
+    * Creates an outline Group for the specified columns.
+    * @param fromColumn    Group from this column (inclusive)
+    * @param toColumn      Group to this column (inclusive)
+    * @param indent        if true the Group will be indented by one level,
+    *                      if false indenting will be Removed by one level.
+    */
     public void GroupColumnRange(int fromColumn, int toColumn, bool indent)
     {
 
@@ -1375,18 +1369,22 @@ public class InternalSheet
         GutsRecord guts = GetGutsRecord();
         guts.ColLevelMax = (short)(maxLevel + 1);
         if (maxLevel == 0)
+        {
             guts.TopColGutter = ((short)0);
+        }
         else
+        {
             guts.TopColGutter = ((short)(29 + (12 * (maxLevel - 1))));
+        }
     }
 
     /**
-     * Creates the Dimensions Record and Sets it to bogus values (you should Set this yourself
-     * or let the high level API do it for you)
-     * @see org.apache.poi.hssf.record.DimensionsRecord
-     * @see org.apache.poi.hssf.record.Record
-     * @return record containing a DimensionsRecord
-     */
+    * Creates the Dimensions Record and Sets it to bogus values (you should Set this yourself
+    * or let the high level API do it for you)
+    * @see org.apache.poi.hssf.record.DimensionsRecord
+    * @see org.apache.poi.hssf.record.Record
+    * @return record containing a DimensionsRecord
+    */
 
     private static DimensionsRecord CreateDimensions()
     {
@@ -1400,17 +1398,17 @@ public class InternalSheet
     }
 
     /**
-     * Creates the WindowTwo Record and Sets it to:  
-     * options        = 0x6b6 
-     * toprow         = 0 
-     * leftcol        = 0 
-     * headercolor    = 0x40 
-     * pagebreakzoom  = 0x0 
-     * normalzoom     = 0x0 
-     * @see org.apache.poi.hssf.record.WindowTwoRecord
-     * @see org.apache.poi.hssf.record.Record
-     * @return record containing a WindowTwoRecord
-     */
+    * Creates the WindowTwo Record and Sets it to:
+    * options        = 0x6b6
+    * toprow         = 0
+    * leftcol        = 0
+    * headercolor    = 0x40
+    * pagebreakzoom  = 0x0
+    * normalzoom     = 0x0
+    * @see org.apache.poi.hssf.record.WindowTwoRecord
+    * @see org.apache.poi.hssf.record.Record
+    * @return record containing a WindowTwoRecord
+    */
 
     private static WindowTwoRecord CreateWindowTwo()
     {
@@ -1507,7 +1505,6 @@ public class InternalSheet
         this._selection.ActiveCellRow = activeRow;
         this._selection.ActiveCellRef = activeRange;
         this._selection.CellReferences = cellranges.ToArray();
-
     }
 
     /// <summary>
@@ -1527,14 +1524,13 @@ public class InternalSheet
         }
         set
         {
-            //shouldn't have a sheet w/o a SelectionRecord, but best to guard anyway
+            // shouldn't have a sheet w/o a SelectionRecord, but best to guard anyway
             if (_selection != null)
             {
                 _selection.ActiveCellRow = value;
             }
         }
     }
-
 
     /// <summary>
     /// Gets the active cell col.
@@ -1553,7 +1549,7 @@ public class InternalSheet
         }
         set
         {
-            //shouldn't have a sheet w/o a SelectionRecord, but best to guard anyway
+            // shouldn't have a sheet w/o a SelectionRecord, but best to guard anyway
             if (_selection != null)
             {
                 _selection.ActiveCellCol = value;
@@ -1565,7 +1561,7 @@ public class InternalSheet
     /// Creates the EOF record
     /// </summary>
     /// <returns>record containing a EOFRecord</returns>
-    protected Record CreateEOF()
+    protected static Record CreateEOF()
     {
         return new EOFRecord();
     }
@@ -1601,12 +1597,10 @@ public class InternalSheet
         }
     }
 
-
     /// <summary>
     /// Returns the first occurance of a record matching a particular sid.
     /// </summary>
     /// <param name="sid">The sid.</param>
-    /// <returns></returns>
     public Record FindFirstRecordBySid(short sid)
     {
         int ix = FindFirstRecordLocBySid(sid);
@@ -1635,15 +1629,14 @@ public class InternalSheet
         {
             records[oldRecordLoc] = sclRecord;
         }
-
     }
     /**
-     * Finds the first occurance of a record matching a particular sid and
-     * returns it's position.
-     * @param sid   the sid to search for
-     * @return  the record position of the matching record or -1 if no match
-     *          is made.
-     */
+    * Finds the first occurance of a record matching a particular sid and
+    * returns it's position.
+    * @param sid   the sid to search for
+    * @return  the record position of the matching record or -1 if no match
+    *          is made.
+    */
     public int FindFirstRecordLocBySid(short sid)
     {
         int max = records.Count;
@@ -1715,11 +1708,10 @@ public class InternalSheet
         set { footer = value; }
     }
 
-
     /**
-     * Returns the PrintSetupRecord.
-     * @return PrintSetupRecord for the sheet.
-     */
+    * Returns the PrintSetupRecord.
+    * @return PrintSetupRecord for the sheet.
+    */
     public PrintSetupRecord PrintSetup
     {
         get { return printSetup; }
@@ -1736,22 +1728,22 @@ public class InternalSheet
             if (gridset == null)
             {
                 gridset = CreateGridset();
-                //Insert the newlycreated Gridset record at the end of the record (just before the EOF)
+                // Insert the newlycreated Gridset record at the end of the record (just before the EOF)
                 int loc = FindFirstRecordLocBySid(EOFRecord.sid);
                 records.Insert(loc, gridset);
             }
             return !gridset.Gridset;
         }
-        set 
+        set
         {
             gridset.Gridset = !value;
         }
     }
 
     /**
-     * Returns the PrintGridlinesRecord.
-     * @return PrintGridlinesRecord for the sheet.
-     */
+    * Returns the PrintGridlinesRecord.
+    * @return PrintGridlinesRecord for the sheet.
+    */
     public PrintGridlinesRecord PrintGridlines
     {
         get { return printGridlines; }
@@ -1759,9 +1751,9 @@ public class InternalSheet
     }
 
     /**
-     * Returns the PrintHeadersRecord.
-     * @return PrintHeadersRecord for the sheet.
-     */
+    * Returns the PrintHeadersRecord.
+    * @return PrintHeadersRecord for the sheet.
+    */
     public PrintHeadersRecord PrintHeaders
     {
         get { return printHeaders; }
@@ -1769,27 +1761,28 @@ public class InternalSheet
     }
 
     /**
-     * Sets whether the sheet is selected
-     * @param sel True to select the sheet, false otherwise.
-     */
+    * Sets whether the sheet is selected
+    * @param sel True to select the sheet, false otherwise.
+    */
     public void SetSelected(bool sel)
     {
         windowTwo.IsSelected = (sel);
     }
 
-
     /**
-     * Creates a split (freezepane). Any existing freezepane or split pane Is overwritten.
-     * @param colSplit      Horizonatal position of split.
-     * @param rowSplit      Vertical position of split.
-     * @param topRow        Top row visible in bottom pane
-     * @param leftmostColumn   Left column visible in right pane.
-     */
+    * Creates a split (freezepane). Any existing freezepane or split pane Is overwritten.
+    * @param colSplit      Horizonatal position of split.
+    * @param rowSplit      Vertical position of split.
+    * @param topRow        Top row visible in bottom pane
+    * @param leftmostColumn   Left column visible in right pane.
+    */
     public void CreateFreezePane(int colSplit, int rowSplit, int topRow, int leftmostColumn)
     {
         int paneLoc = FindFirstRecordLocBySid(PaneRecord.sid);
         if (paneLoc != -1)
+        {
             records.RemoveAt(paneLoc);
+        }
 
         // If both colSplit and rowSplit are zero then the existing freeze pane is removed
         if (colSplit == 0 && rowSplit == 0)
@@ -1828,27 +1821,28 @@ public class InternalSheet
 
         SelectionRecord sel1 = (SelectionRecord)FindFirstRecordBySid(SelectionRecord.sid);
         sel1.Pane = ((byte)pane.ActivePane);
-
     }
 
     /**
-     * Creates a split pane. Any existing freezepane or split pane is overwritten.
-     * @param xSplitPos      Horizonatal position of split (in 1/20th of a point).
-     * @param ySplitPos      Vertical position of split (in 1/20th of a point).
-     * @param topRow        Top row visible in bottom pane
-     * @param leftmostColumn   Left column visible in right pane.
-     * @param activePane    Active pane.  One of: PANE_LOWER_RIGHT,
-     *                      PANE_UPPER_RIGHT, PANE_LOWER_LEFT, PANE_UPPER_LEFT
-     * @see #PANE_LOWER_LEFT
-     * @see #PANE_LOWER_RIGHT
-     * @see #PANE_UPPER_LEFT
-     * @see #PANE_UPPER_RIGHT
-     */
+    * Creates a split pane. Any existing freezepane or split pane is overwritten.
+    * @param xSplitPos      Horizonatal position of split (in 1/20th of a point).
+    * @param ySplitPos      Vertical position of split (in 1/20th of a point).
+    * @param topRow        Top row visible in bottom pane
+    * @param leftmostColumn   Left column visible in right pane.
+    * @param activePane    Active pane.  One of: PANE_LOWER_RIGHT,
+    *                      PANE_UPPER_RIGHT, PANE_LOWER_LEFT, PANE_UPPER_LEFT
+    * @see #PANE_LOWER_LEFT
+    * @see #PANE_LOWER_RIGHT
+    * @see #PANE_UPPER_LEFT
+    * @see #PANE_UPPER_RIGHT
+    */
     public void CreateSplitPane(int xSplitPos, int ySplitPos, int topRow, int leftmostColumn, NPOI.SS.UserModel.PanePosition activePane)
     {
         int paneLoc = FindFirstRecordLocBySid(PaneRecord.sid);
         if (paneLoc != -1)
+        {
             records.RemoveAt(paneLoc);
+        }
 
         int loc = FindFirstRecordLocBySid(WindowTwoRecord.sid);
         PaneRecord r = new PaneRecord();
@@ -1864,23 +1858,27 @@ public class InternalSheet
 
         SelectionRecord sel = (SelectionRecord)FindFirstRecordBySid(SelectionRecord.sid);
         sel.Pane = (byte)NPOI.SS.UserModel.PanePosition.LowerRight;
-
     }
 
     /**
-     * Returns the information regarding the currently configured pane (split or freeze).
-     * @return null if no pane configured, or the pane information.
-     */
+    * Returns the information regarding the currently configured pane (split or freeze).
+    * @return null if no pane configured, or the pane information.
+    */
     public PaneInformation PaneInformation
     {
         get
         {
             PaneRecord rec = (PaneRecord)FindFirstRecordBySid(PaneRecord.sid);
             if (rec == null)
+            {
                 return null;
+            }
 
-            return new NPOI.SS.Util.PaneInformation(rec.X, rec.Y, rec.TopRow,
-                                       rec.LeftColumn, (byte)rec.ActivePane, windowTwo.FreezePanes);
+            return new NPOI.SS.Util.PaneInformation(
+                rec.X,
+                rec.Y,
+                rec.TopRow,
+                rec.LeftColumn, (byte)rec.ActivePane, windowTwo.FreezePanes);
         }
     }
 
@@ -1897,7 +1895,7 @@ public class InternalSheet
 */
     protected static PasswordRecord CreatePassword()
     {
-        //if (log.check(POILogger.DEBUG))
+        // if (log.check(POILogger.DEBUG))
         //    log.log(POILogger.DEBUG, "create password record with 00 password");
         PasswordRecord retval = new PasswordRecord((short)00);
         return retval;
@@ -1905,7 +1903,7 @@ public class InternalSheet
     /**
 * creates a Protect record with protect set to false.
 */
-    protected ProtectRecord CreateProtect()
+    protected static ProtectRecord CreateProtect()
     {
         /*if (log.check(POILogger.DEBUG))
         {
@@ -1914,15 +1912,16 @@ public class InternalSheet
         ProtectRecord retval = new ProtectRecord(false);
         return retval;
     }
+
     /**
-     * Creates an ObjectProtect record with protect Set to false.
-     * @see org.apache.poi.hssf.record.ObjectProtectRecord
-     * @see org.apache.poi.hssf.record.Record
-     * @return an ObjectProtectRecord
-     */
-    protected ObjectProtectRecord CreateObjectProtect()
+    * Creates an ObjectProtect record with protect Set to false.
+    * @see org.apache.poi.hssf.record.ObjectProtectRecord
+    * @see org.apache.poi.hssf.record.Record
+    * @return an ObjectProtectRecord
+    */
+    protected static ObjectProtectRecord CreateObjectProtect()
     {
-        //if (log.Check(POILogger.DEBUG))
+        // if (log.Check(POILogger.DEBUG))
         //    log.Log(POILogger.DEBUG, "Create protect record with protection disabled");
         ObjectProtectRecord retval = new ObjectProtectRecord();
 
@@ -1931,27 +1930,26 @@ public class InternalSheet
     }
 
     /**
-     * Creates a ScenarioProtect record with protect Set to false.
-     * @see org.apache.poi.hssf.record.ScenarioProtectRecord
-     * @see org.apache.poi.hssf.record.Record
-     * @return a ScenarioProtectRecord
-     */
-    
-    protected ScenarioProtectRecord CreateScenarioProtect()
+    * Creates a ScenarioProtect record with protect Set to false.
+    * @see org.apache.poi.hssf.record.ScenarioProtectRecord
+    * @see org.apache.poi.hssf.record.Record
+    * @return a ScenarioProtectRecord
+    */
+    protected static ScenarioProtectRecord CreateScenarioProtect()
     {
-        //if (log.Check(POILogger.DEBUG))
+        // if (log.Check(POILogger.DEBUG))
         //    log.Log(POILogger.DEBUG, "Create protect record with protection disabled");
         ScenarioProtectRecord retval = new ScenarioProtectRecord();
 
         retval.Protect = (false);
         return retval;
     }
-    
-    //'Worksheet Protection Block'<br/>
-    //Aggregate object is always present, but possibly empty.
+
+    // 'Worksheet Protection Block'<br/>
+    // Aggregate object is always present, but possibly empty.
     [NonSerialized]
     private WorksheetProtectionBlock _protectionBlock = new WorksheetProtectionBlock();
-    
+
     public WorksheetProtectionBlock ProtectionBlock
     {
         get
@@ -1961,9 +1959,9 @@ public class InternalSheet
     }
 
     /**
-     * Returns if gridlines are Displayed.
-     * @return whether gridlines are Displayed
-     */
+    * Returns if gridlines are Displayed.
+    * @return whether gridlines are Displayed
+    */
     public bool DisplayGridlines
     {
         get
@@ -1974,9 +1972,9 @@ public class InternalSheet
     }
 
     /**
-     * Returns if formulas are Displayed.
-     * @return whether formulas are Displayed
-     */
+    * Returns if formulas are Displayed.
+    * @return whether formulas are Displayed
+    */
     public bool DisplayFormulas
     {
         get { return windowTwo.DisplayFormulas; }
@@ -1984,9 +1982,9 @@ public class InternalSheet
     }
 
     /**
-     * Returns if RowColHeadings are Displayed.
-     * @return whether RowColHeadings are Displayed
-     */
+    * Returns if RowColHeadings are Displayed.
+    * @return whether RowColHeadings are Displayed
+    */
     public bool DisplayRowColHeadings
     {
         get
@@ -2000,9 +1998,9 @@ public class InternalSheet
     }
 
     /**
-     * Returns if RowColHeadings are displayed.
-     * @return whether RowColHeadings are displayed
-     */
+    * Returns if RowColHeadings are displayed.
+    * @return whether RowColHeadings are displayed
+    */
     public bool IsPrintRowColHeadings
     {
         get { return windowTwo.DisplayRowColHeadings; }
@@ -2010,8 +2008,8 @@ public class InternalSheet
     }
 
     /**
-     * @return whether an Uncalced record must be Inserted or not at generation
-     */
+    * @return whether an Uncalced record must be Inserted or not at generation
+    */
     public bool IsUncalced
     {
         get { return _isUncalced; }
@@ -2056,10 +2054,10 @@ public class InternalSheet
     }
 
     /**
-     * Perform any work necessary before the sheet is about to be Serialized.
-     * For instance the escher aggregates size needs to be calculated before
-     * serialization so that the dgg record (which occurs first) can be written.
-     */
+    * Perform any work necessary before the sheet is about to be Serialized.
+    * For instance the escher aggregates size needs to be calculated before
+    * serialization so that the dgg record (which occurs first) can be written.
+    */
     public void Preserialize()
     {
         for (IEnumerator iterator = Records.GetEnumerator(); iterator.MoveNext();)
@@ -2073,12 +2071,12 @@ public class InternalSheet
     }
 
     /**
-     * Shifts all the page breaks in the range "count" number of rows/columns
-     * @param breaks The page record to be Shifted
-     * @param start Starting "main" value to Shift breaks
-     * @param stop Ending "main" value to Shift breaks
-     * @param count number of Units (rows/columns) to Shift by
-     */
+    * Shifts all the page breaks in the range "count" number of rows/columns
+    * @param breaks The page record to be Shifted
+    * @param start Starting "main" value to Shift breaks
+    * @param stop Ending "main" value to Shift breaks
+    * @param count number of Units (rows/columns) to Shift by
+    */
     public void ShiftBreaks(PageBreakRecord breaks, short start, short stop, int count)
     {
         if (rowBreaks == null)
@@ -2095,7 +2093,9 @@ public class InternalSheet
             bool inStart = (breakLocation >= start);
             bool inEnd = (breakLocation <= stop);
             if (inStart && inEnd)
+            {
                 ShiftedBreak.Add(breakItem);
+            }
         }
 
         iterator = ShiftedBreak.GetEnumerator();
@@ -2107,29 +2107,27 @@ public class InternalSheet
         }
     }
 
-
     /**
-     * Shifts the horizontal page breaks for the indicated count
-     * @param startingRow
-     * @param endingRow
-     * @param count
-     */
+    * Shifts the horizontal page breaks for the indicated count
+    * @param startingRow
+    * @param endingRow
+    * @param count
+    */
     public void ShiftRowBreaks(int startingRow, int endingRow, int count)
     {
         ShiftBreaks(rowBreaks, (short)startingRow, (short)endingRow, (short)count);
     }
 
     /**
-     * Shifts the vertical page breaks for the indicated count
-     * @param startingCol
-     * @param endingCol
-     * @param count
-     */
+    * Shifts the vertical page breaks for the indicated count
+    * @param startingCol
+    * @param endingCol
+    * @param count
+    */
     public void ShiftColumnBreaks(short startingCol, short endingCol, short count)
     {
         ShiftBreaks(colBreaks, startingCol, endingCol, count);
     }
-
 
     public void SetColumnGroupCollapsed(int columnNumber, bool collapsed)
     {
@@ -2149,10 +2147,11 @@ public class InternalSheet
             return _rowsAggregate;
         }
     }
+
     /**
-* Updates formulas in cells and conditional formats due to moving of cells
-* @param externSheetIndex the externSheet index of this sheet
-*/
+    * Updates formulas in cells and conditional formats due to moving of cells
+    * @param externSheetIndex the externSheet index of this sheet
+    */
     public void UpdateFormulasAfterCellShift(FormulaShifter shifter, int externSheetIndex)
     {
         RowsAggregate.UpdateFormulasAfterRowShift(shifter, externSheetIndex);
@@ -2217,8 +2216,8 @@ public class InternalSheet
                         ptv.VisitRecord(rec);
                         sheetOffset += rec.RecordSize;
                     }
-                    //Can there be more than one BOF for a sheet? If not then we can
-                    //remove this guard. So be safe it is left here.
+                    // Can there be more than one BOF for a sheet? If not then we can
+                    // remove this guard. So be safe it is left here.
                     if (_rowsAggregate != null)
                     {
                         // find forward distance to first RowRecord
@@ -2234,10 +2233,10 @@ public class InternalSheet
     }
 
     /**
-* 'initial sheet records' are between INDEX and the 'Row Blocks'
-* @param bofRecordIndex index of record after which INDEX record is to be placed
-* @return count of bytes from end of INDEX record to first ROW record.
-*/
+    * 'initial sheet records' are between INDEX and the 'Row Blocks'
+    * @param bofRecordIndex index of record after which INDEX record is to be placed
+    * @return count of bytes from end of INDEX record to first ROW record.
+    */
     private int GetSizeOfInitialSheetRecords(int bofRecordIndex)
     {
 
@@ -2246,6 +2245,7 @@ public class InternalSheet
         for (int j = bofRecordIndex + 1; j < records.Count; j++)
         {
             RecordBase tmpRec = records[j];
+
             if (tmpRec is RowRecordsAggregate)
             {
                 break;
@@ -2266,11 +2266,18 @@ public class InternalSheet
             RowRecord row = GetRow(rowNum);
             if (row == null)
             {
-                row = CreateRow(rowNum);
+                row = InternalSheet.CreateRow(rowNum);
                 AddRow(row);
             }
             int level = row.OutlineLevel;
-            if (indent) level++; else level--;
+            if (indent)
+            {
+                level++;
+            }
+            else
+            {
+                level--;
+            }
             level = Math.Max(0, level);
             level = Math.Min(7, level);
             row.OutlineLevel = ((short)(level));
@@ -2310,9 +2317,9 @@ public class InternalSheet
         return _dataValidityTable;
     }
     /**
-     * Get the {@link NoteRecord}s (related to cell comments) for this sheet
-     * @return never <code>null</code>, typically empty array
-     */
+    * Get the {@link NoteRecord}s (related to cell comments) for this sheet
+    * @return never <code>null</code>, typically empty array
+    */
     public NoteRecord[] GetNoteRecords()
     {
         List<NoteRecord> temp = new List<NoteRecord>();

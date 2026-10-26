@@ -1,4 +1,4 @@
-/* ====================================================================
+﻿/* ====================================================================
    Licensed to the Apache Software Foundation (ASF) under one or more
    contributor license agreements.  See the NOTICE file distributed with
    this work for additional information regarding copyright ownership.
@@ -15,87 +15,86 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.HSSF.Record.Chart
+namespace NPOI.HSSF.Record.Chart;
+
+
+using System;
+using System.Text;
+using NPOI.HSSF.Record;
+using NPOI.Util;
+
+
+/**
+ * ENDOBJECT - Chart Future Record Type End Object (0x0855)<br/>
+ * 
+ * @author Patrick Cheng
+ */
+public class ChartEndObjectRecord : StandardRecord
 {
+    public const short sid = 0x0855;
 
-    using System;
-    using System.Text;
-    using NPOI.HSSF.Record;
-    using NPOI.Util;
+    private short rt;
+    private short grbitFrt;
+    private short iObjectKind;
+    private byte[] reserved;
 
-
-    /**
-     * ENDOBJECT - Chart Future Record Type End Object (0x0855)<br/>
-     * 
-     * @author Patrick Cheng
-     */
-    public class ChartEndObjectRecord : StandardRecord
+    public ChartEndObjectRecord(RecordInputStream in1)
     {
-        public const short sid = 0x0855;
+        rt = in1.ReadShort();
+        grbitFrt = in1.ReadShort();
+        iObjectKind = in1.ReadShort();
 
-        private short rt;
-        private short grbitFrt;
-        private short iObjectKind;
-        private byte[] reserved;
-
-        public ChartEndObjectRecord(RecordInputStream in1)
+        // The spec says that there should be 6 bytes at the
+        //  end, which must be there and must be zero
+        // However, sometimes Excel forgets them...
+        reserved = new byte[6];
+        if (in1.Available() == 0)
         {
-            rt = in1.ReadShort();
-            grbitFrt = in1.ReadShort();
-            iObjectKind = in1.ReadShort();
-
-            // The spec says that there should be 6 bytes at the
-            //  end, which must be there and must be zero
-            // However, sometimes Excel forgets them...
-            reserved = new byte[6];
-            if (in1.Available() == 0)
-            {
-                // They've gone missing...
-            }
-            else
-            {
-                // Read the reserved bytes 
-                in1.ReadFully(reserved);
-            }
+            // They've gone missing...
         }
-
-
-        protected override int DataSize
+        else
         {
-            get
-            {
-                return 2 + 2 + 2 + 6;
-            }
+            // Read the reserved bytes 
+            in1.ReadFully(reserved);
         }
+    }
 
-        public override short Sid
+
+    protected override int DataSize
+    {
+        get
         {
-            get
-            {
-                return sid;
-            }
+            return 2 + 2 + 2 + 6;
         }
+    }
 
-        public override void Serialize(ILittleEndianOutput out1)
+    public override short Sid
+    {
+        get
         {
-            out1.WriteShort(rt);
-            out1.WriteShort(grbitFrt);
-            out1.WriteShort(iObjectKind);
-            // 6 bytes unused
-            out1.Write(reserved);
+            return sid;
         }
+    }
 
-        public override String ToString()
-        {
-            StringBuilder buffer = new StringBuilder();
+    public override void Serialize(ILittleEndianOutput out1)
+    {
+        out1.WriteShort(rt);
+        out1.WriteShort(grbitFrt);
+        out1.WriteShort(iObjectKind);
+        // 6 bytes unused
+        out1.Write(reserved);
+    }
 
-            buffer.Append("[ENDOBJECT]\n");
-            buffer.Append("    .rt         =").Append(HexDump.ShortToHex(rt)).Append('\n');
-            buffer.Append("    .grbitFrt   =").Append(HexDump.ShortToHex(grbitFrt)).Append('\n');
-            buffer.Append("    .iObjectKind=").Append(HexDump.ShortToHex(iObjectKind)).Append('\n');
-            buffer.Append("    .unused     =").Append(HexDump.ToHex(reserved)).Append('\n');
-            buffer.Append("[/ENDOBJECT]\n");
-            return buffer.ToString();
-        }
+    public override String ToString()
+    {
+        StringBuilder buffer = new StringBuilder();
+
+        buffer.Append("[ENDOBJECT]\n");
+        buffer.Append("    .rt         =").Append(HexDump.ShortToHex(rt)).Append('\n');
+        buffer.Append("    .grbitFrt   =").Append(HexDump.ShortToHex(grbitFrt)).Append('\n');
+        buffer.Append("    .iObjectKind=").Append(HexDump.ShortToHex(iObjectKind)).Append('\n');
+        buffer.Append("    .unused     =").Append(HexDump.ToHex(reserved)).Append('\n');
+        buffer.Append("[/ENDOBJECT]\n");
+        return buffer.ToString();
     }
 }

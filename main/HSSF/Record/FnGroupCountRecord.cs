@@ -1,4 +1,4 @@
-
+﻿
 /* ====================================================================
    Licensed to the Apache Software Foundation (ASF) Under one or more
    contributor license agreements.  See the NOTICE file distributed with
@@ -17,85 +17,84 @@
 ==================================================================== */
 
 
-namespace NPOI.HSSF.Record
+namespace NPOI.HSSF.Record;
+
+using System;
+using System.Text;
+using NPOI.Util;
+
+/**
+ * Title: Function Group Count Record
+ * Description:  Number of built in function Groups in the current version of the
+ *               SpReadsheet (probably only used on Windoze)
+ * REFERENCE:  PG 315 Microsoft Excel 97 Developer's Kit (ISBN: 1-57231-498-2)
+ * @author Andrew C. Oliver (acoliver at apache dot org)
+ * @version 2.0-pre
+ */
+
+public class FnGroupCountRecord
+   : StandardRecord
 {
-    using System;
-    using System.Text;
-    using NPOI.Util;
+    public const short sid = 0x9c;
 
     /**
-     * Title: Function Group Count Record
-     * Description:  Number of built in function Groups in the current version of the
-     *               SpReadsheet (probably only used on Windoze)
-     * REFERENCE:  PG 315 Microsoft Excel 97 Developer's Kit (ISBN: 1-57231-498-2)
-     * @author Andrew C. Oliver (acoliver at apache dot org)
-     * @version 2.0-pre
+     * suggested default (14 dec)
      */
 
-    public class FnGroupCountRecord
-       : StandardRecord
+    public const short COUNT = 14;
+    private short field_1_count;
+
+    public FnGroupCountRecord()
     {
-        public const short sid = 0x9c;
+    }
 
-        /**
-         * suggested default (14 dec)
-         */
+    /**
+     * Constructs a FnGroupCount record and Sets its fields appropriately.
+     * @param in the RecordInputstream to Read the record from
+     */
 
-        public const short COUNT = 14;
-        private short field_1_count;
+    public FnGroupCountRecord(RecordInputStream in1)
+    {
+        field_1_count = in1.ReadShort();
+    }
+    /**
+     * Get the number of built-in functions
+     *
+     * @return number of built-in functions
+     */
 
-        public FnGroupCountRecord()
+    public short Count
+    {
+        get { return field_1_count; }
+        set { field_1_count = value; }
+    }
+
+    public override String ToString()
+    {
+        StringBuilder buffer = new StringBuilder();
+
+        buffer.Append("[FNGROUPCOUNT]\n");
+        buffer.Append("    .count            = ").Append(this.Count)
+            .Append("\n");
+        buffer.Append("[/FNGROUPCOUNT]\n");
+        return buffer.ToString();
+    }
+
+    public override void Serialize(ILittleEndianOutput out1)
+    {
+        out1.WriteShort(Count);
+    }
+
+    protected override int DataSize
+    {
+        get
         {
+            return 2;
         }
+    }
 
-        /**
-         * Constructs a FnGroupCount record and Sets its fields appropriately.
-         * @param in the RecordInputstream to Read the record from
-         */
-
-        public FnGroupCountRecord(RecordInputStream in1)
-        {
-            field_1_count = in1.ReadShort();
-        }
-        /**
-         * Get the number of built-in functions
-         *
-         * @return number of built-in functions
-         */
-
-        public short Count
-        {
-            get { return field_1_count; }
-            set { field_1_count = value; }
-        }
-
-        public override String ToString()
-        {
-            StringBuilder buffer = new StringBuilder();
-
-            buffer.Append("[FNGROUPCOUNT]\n");
-            buffer.Append("    .count            = ").Append(this.Count)
-                .Append("\n");
-            buffer.Append("[/FNGROUPCOUNT]\n");
-            return buffer.ToString();
-        }
-
-        public override void Serialize(ILittleEndianOutput out1)
-        {
-            out1.WriteShort(Count);
-        }
-
-        protected override int DataSize
-        {
-            get
-            {
-                return 2;
-            }
-        }
-
-        public override short Sid
-        {
-            get { return sid; }
-        }
+    public override short Sid
+    {
+        get { return sid; }
     }
 }

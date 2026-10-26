@@ -1,4 +1,4 @@
-/* ====================================================================
+﻿/* ====================================================================
    Licensed to the Apache Software Foundation (ASF) Under one or more
    contributor license agreements.  See the NOTICE file distributed with
    this work for Additional information regarding copyright ownership.
@@ -15,20 +15,19 @@
    limitations Under the License.
 ==================================================================== */
 
-namespace NPOI.HSSF.Record
+namespace NPOI.HSSF.Record;
+
+/**
+ * The margin interface Is a parent used to define left, right, top and bottom margins.
+ * This allows much of the code to be generic when it comes to handling margins.
+ * NOTE: This source wass automatically generated.
+ *
+ * @author Shawn Laubach (slaubach at apache dot org)
+ */
+public interface IMargin
 {
     /**
-     * The margin interface Is a parent used to define left, right, top and bottom margins.
-     * This allows much of the code to be generic when it comes to handling margins.
-     * NOTE: This source wass automatically generated.
-     *
-     * @author Shawn Laubach (slaubach at apache dot org)
+     * Get the margin field for the Margin.
      */
-    public interface IMargin
-    {
-        /**
-         * Get the margin field for the Margin.
-         */
-        double Margin { get; set; }
-    }
+    double Margin { get; set; }
 }

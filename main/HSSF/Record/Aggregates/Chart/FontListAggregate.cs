@@ -19,55 +19,54 @@ using System.Collections.Generic;
 using NPOI.HSSF.Model;
 using NPOI.HSSF.Record.Chart;
 
-namespace NPOI.HSSF.Record.Aggregates.Chart
+namespace NPOI.HSSF.Record.Aggregates.Chart;
+
+/// <summary>
+/// FONTLIST = FrtFontList StartObject *(Font [Fbi]) EndObject
+/// </summary>
+public class FontListAggregate : ChartRecordAggregate
 {
-    /// <summary>
-    /// FONTLIST = FrtFontList StartObject *(Font [Fbi]) EndObject
-    /// </summary>
-    public class FontListAggregate : ChartRecordAggregate
+    private FrtFontListRecord frtFontList = null;
+    private ChartStartObjectRecord startObject = null;
+    private Dictionary<FontRecord, FbiRecord> dicFonts = new Dictionary<FontRecord, FbiRecord>();
+    private ChartEndObjectRecord endObject = null;
+    public FontListAggregate(RecordStream rs, ChartRecordAggregate container)
+        : base(RuleName_FONTLIST, container)
     {
-        private FrtFontListRecord frtFontList = null;
-        private ChartStartObjectRecord startObject = null;
-        private Dictionary<FontRecord, FbiRecord> dicFonts = new Dictionary<FontRecord, FbiRecord>();
-        private ChartEndObjectRecord endObject = null;
-        public FontListAggregate(RecordStream rs, ChartRecordAggregate container)
-            : base(RuleName_FONTLIST, container)
+        frtFontList = (FrtFontListRecord)rs.GetNext();
+        startObject = (ChartStartObjectRecord)rs.GetNext();
+        FontRecord f = null;
+        FbiRecord fbi = null;
+        while (rs.PeekNextChartSid() == FontRecord.sid)
         {
-            frtFontList = (FrtFontListRecord)rs.GetNext();
-            startObject = (ChartStartObjectRecord)rs.GetNext();
-            FontRecord f = null;
-            FbiRecord fbi = null;
-            while (rs.PeekNextChartSid() == FontRecord.sid)
+            f = (FontRecord)rs.GetNext();
+            if (rs.PeekNextChartSid() == FbiRecord.sid)
             {
-                f = (FontRecord)rs.GetNext();
-                if (rs.PeekNextChartSid() == FbiRecord.sid)
-                {
-                    fbi = (FbiRecord)rs.GetNext();
-                }
-                else
-                {
-                    fbi = null;
-                }
-                dicFonts.Add(f, fbi);
+                fbi = (FbiRecord)rs.GetNext();
             }
-
-            endObject = (ChartEndObjectRecord)rs.GetNext();
+            else
+            {
+                fbi = null;
+            }
+            dicFonts.Add(f, fbi);
         }
 
-        public override void VisitContainedRecords(RecordVisitor rv)
+        endObject = (ChartEndObjectRecord)rs.GetNext();
+    }
+
+    public override void VisitContainedRecords(RecordVisitor rv)
+    {
+        WriteStartBlock(rv);//??
+        rv.VisitRecord(frtFontList);
+        rv.VisitRecord(startObject);
+        IsInStartObject = true;
+        foreach (KeyValuePair<FontRecord, FbiRecord> kv in dicFonts)
         {
-            WriteStartBlock(rv);//??
-            rv.VisitRecord(frtFontList);
-            rv.VisitRecord(startObject);
-            IsInStartObject = true;
-            foreach (KeyValuePair<FontRecord, FbiRecord> kv in dicFonts)
-            {
-                rv.VisitRecord(kv.Key);
-                if (kv.Value != null)
-                    rv.VisitRecord(kv.Value);
-            }
-            IsInStartObject = false;
-            rv.VisitRecord(endObject);
+            rv.VisitRecord(kv.Key);
+            if (kv.Value != null)
+                rv.VisitRecord(kv.Value);
         }
+        IsInStartObject = false;
+        rv.VisitRecord(endObject);
     }
 }

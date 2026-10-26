@@ -1,4 +1,4 @@
-/* ====================================================================
+﻿/* ====================================================================
    Licensed to the Apache Software Foundation (ASF) under one or more
    contributor license agreements.  See the NOTICE file distributed with
    this work for additional information regarding copyright ownership.
@@ -15,107 +15,106 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.HSSF.Record.Aggregates
+namespace NPOI.HSSF.Record.Aggregates;
+
+
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using NPOI.HSSF.Model;
+using NPOI.HSSF.Record;
+using NPOI.SS.Formula;
+using NPOI.SS.Formula.PTG;
+
+/**
+ * Holds all the conditional formatting for a workbook sheet.<p/>
+ * 
+ * See OOO exelfileformat.pdf sec 4.12 'Conditional Formatting Table'
+ * 
+ * @author Josh Micich
+ */
+public class ConditionalFormattingTable : RecordAggregate
 {
 
-    using System;
-    using System.Collections;
-    using System.Collections.Generic;
-    using NPOI.HSSF.Model;
-    using NPOI.HSSF.Record;
-    using NPOI.SS.Formula;
-    using NPOI.SS.Formula.PTG;
+    private readonly List<CFRecordsAggregate> _cfHeaders;
 
     /**
-     * Holds all the conditional formatting for a workbook sheet.<p/>
-     * 
-     * See OOO exelfileformat.pdf sec 4.12 'Conditional Formatting Table'
-     * 
-     * @author Josh Micich
+     * Creates an empty ConditionalFormattingTable
      */
-    public class ConditionalFormattingTable : RecordAggregate
+    public ConditionalFormattingTable()
+    {
+        _cfHeaders = new List<CFRecordsAggregate>();
+    }
+
+    public ConditionalFormattingTable(RecordStream rs)
     {
 
-        private readonly List<CFRecordsAggregate> _cfHeaders;
-
-        /**
-         * Creates an empty ConditionalFormattingTable
-         */
-        public ConditionalFormattingTable()
+        List<CFRecordsAggregate> temp = new List<CFRecordsAggregate>();
+        while (rs.PeekNextClass() == typeof(CFHeaderRecord)||
+            rs.PeekNextClass() == typeof(CFHeader12Record))
         {
-            _cfHeaders = new List<CFRecordsAggregate>();
+            temp.Add(CFRecordsAggregate.CreateCFAggregate(rs));
         }
+        _cfHeaders = temp;
+    }
 
-        public ConditionalFormattingTable(RecordStream rs)
+    public override void VisitContainedRecords(RecordVisitor rv)
+    {
+        foreach (CFRecordsAggregate subAgg in _cfHeaders)
         {
+            subAgg.VisitContainedRecords(rv);
+        }
+    }
 
-            List<CFRecordsAggregate> temp = new List<CFRecordsAggregate>();
-            while (rs.PeekNextClass() == typeof(CFHeaderRecord)||
-                rs.PeekNextClass() == typeof(CFHeader12Record))
+    /**
+     * @return index of the newly added CF header aggregate
+     */
+    public int Add(CFRecordsAggregate cfAggregate)
+    {
+        cfAggregate.Header.ID = (_cfHeaders.Count);
+        _cfHeaders.Add(cfAggregate);
+        return _cfHeaders.Count - 1;
+    }
+
+    public int Count
+    {
+        get
+        {
+            return _cfHeaders.Count;
+        }
+    }
+
+    public CFRecordsAggregate Get(int index)
+    {
+        CheckIndex(index);
+        return _cfHeaders[index];
+    }
+
+    public void Remove(int index)
+    {
+        CheckIndex(index);
+        _cfHeaders.RemoveAt(index);
+    }
+
+    private void CheckIndex(int index)
+    {
+        if (index < 0 || index >= _cfHeaders.Count)
+        {
+            throw new ArgumentException("Specified CF index " + index
+                    + " is outside the allowable range (0.." + (_cfHeaders.Count - 1) + ")");
+        }
+    }
+
+    public void UpdateFormulasAfterCellShift(FormulaShifter shifter, int externSheetIndex)
+    {
+        for (int i = 0; i < _cfHeaders.Count; i++)
+        {
+            CFRecordsAggregate subAgg = _cfHeaders[i];
+            bool shouldKeep = subAgg.UpdateFormulasAfterCellShift(shifter, externSheetIndex);
+            if (!shouldKeep)
             {
-                temp.Add(CFRecordsAggregate.CreateCFAggregate(rs));
-            }
-            _cfHeaders = temp;
-        }
-
-        public override void VisitContainedRecords(RecordVisitor rv)
-        {
-            foreach (CFRecordsAggregate subAgg in _cfHeaders)
-            {
-                subAgg.VisitContainedRecords(rv);
-            }
-        }
-
-        /**
-         * @return index of the newly added CF header aggregate
-         */
-        public int Add(CFRecordsAggregate cfAggregate)
-        {
-            cfAggregate.Header.ID = (_cfHeaders.Count);
-            _cfHeaders.Add(cfAggregate);
-            return _cfHeaders.Count - 1;
-        }
-
-        public int Count
-        {
-            get
-            {
-                return _cfHeaders.Count;
-            }
-        }
-
-        public CFRecordsAggregate Get(int index)
-        {
-            CheckIndex(index);
-            return _cfHeaders[index];
-        }
-
-        public void Remove(int index)
-        {
-            CheckIndex(index);
-            _cfHeaders.RemoveAt(index);
-        }
-
-        private void CheckIndex(int index)
-        {
-            if (index < 0 || index >= _cfHeaders.Count)
-            {
-                throw new ArgumentException("Specified CF index " + index
-                        + " is outside the allowable range (0.." + (_cfHeaders.Count - 1) + ")");
-            }
-        }
-
-        public void UpdateFormulasAfterCellShift(FormulaShifter shifter, int externSheetIndex)
-        {
-            for (int i = 0; i < _cfHeaders.Count; i++)
-            {
-                CFRecordsAggregate subAgg = _cfHeaders[i];
-                bool shouldKeep = subAgg.UpdateFormulasAfterCellShift(shifter, externSheetIndex);
-                if (!shouldKeep)
-                {
-                    _cfHeaders.RemoveAt(i);
-                    i--;
-                }
+                _cfHeaders.RemoveAt(i);
+                i--;
             }
         }
     }

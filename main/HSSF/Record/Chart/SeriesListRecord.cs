@@ -1,4 +1,4 @@
-
+﻿
 /* ====================================================================
    Licensed to the Apache Software Foundation (ASF) Under one or more
    contributor license agreements.  See the NOTICE file distributed with
@@ -17,100 +17,99 @@
 ==================================================================== */
 
 
-namespace NPOI.HSSF.Record.Chart
-{
-    using System;
-    using System.Text;
-    using NPOI.Util;
+namespace NPOI.HSSF.Record.Chart;
 
+using System;
+using System.Text;
+using NPOI.Util;
+
+
+/**
+ * The series list record defines the series Displayed as an overlay to the main chart record.
+ * NOTE: This source is automatically generated please do not modify this file.  Either subclass or
+ *       Remove the record in src/records/definitions.
+
+ * @author Glen Stampoultzis (glens at apache.org)
+ */
+public class SeriesListRecord
+   : StandardRecord
+{
+    public const short sid = 0x1016;
+    private short[] field_1_seriesNumbers;
+
+
+    public SeriesListRecord(short[] seriesNumbers)
+    {
+        field_1_seriesNumbers = (seriesNumbers == null) ? null : (short[])seriesNumbers.Clone();
+    }
 
     /**
-     * The series list record defines the series Displayed as an overlay to the main chart record.
-     * NOTE: This source is automatically generated please do not modify this file.  Either subclass or
-     *       Remove the record in src/records/definitions.
-
-     * @author Glen Stampoultzis (glens at apache.org)
+     * Constructs a SeriesList record and Sets its fields appropriately.
+     *
+     * @param in the RecordInputstream to Read the record from
      */
-    public class SeriesListRecord
-       : StandardRecord
+
+    public SeriesListRecord(RecordInputStream in1)
     {
-        public const short sid = 0x1016;
-        private short[] field_1_seriesNumbers;
-
-
-        public SeriesListRecord(short[] seriesNumbers)
-        {
-            field_1_seriesNumbers = (seriesNumbers == null) ? null : (short[])seriesNumbers.Clone();
-        }
-
-        /**
-         * Constructs a SeriesList record and Sets its fields appropriately.
-         *
-         * @param in the RecordInputstream to Read the record from
-         */
-
-        public SeriesListRecord(RecordInputStream in1)
-        {
-            int nItems = in1.ReadUShort();
-    	    short[] ss = new short[nItems];
-    	    for (int i = 0; i < nItems; i++) {
+        int nItems = in1.ReadUShort();
+	    short[] ss = new short[nItems];
+	    for (int i = 0; i < nItems; i++) {
 			    ss[i] = in1.ReadShort();
-    			
+			
 		    }
-            field_1_seriesNumbers = ss;
-
-        }
-
-        public override String ToString()
-        {
-            StringBuilder buffer = new StringBuilder();
-
-            buffer.Append("[SERIESLIST]\n");
-            buffer.Append("    .seriesNumbers        = ")
-                .Append(" (").Append(SeriesNumbers).Append(" )");
-            buffer.Append(Environment.NewLine);
-
-            buffer.Append("[/SERIESLIST]\n");
-            return buffer.ToString();
-        }
-
-        public override void Serialize(ILittleEndianOutput out1)
-        {
-            int nItems = field_1_seriesNumbers.Length;
-            out1.WriteShort(nItems);
-            for (int i = 0; i < nItems; i++)
-            {
-                out1.WriteShort(field_1_seriesNumbers[i]);
-            }
-        }
-
-        /**
-         * Size of record (exluding 4 byte header)
-         */
-        protected override int DataSize
-        {
-            get { return field_1_seriesNumbers.Length * 2 + 2; }
-        }
-
-        public override short Sid
-        {
-            get { return sid; }
-        }
-
-        public override Object Clone()
-        {
-            return new SeriesListRecord(field_1_seriesNumbers);
-        }
-
-        /**
-         * Get the series numbers field for the SeriesList record.
-         */
-        public short[] SeriesNumbers
-        {
-            get { return field_1_seriesNumbers; }
-            set { this.field_1_seriesNumbers = value; }
-        }
-
+        field_1_seriesNumbers = ss;
 
     }
+
+    public override String ToString()
+    {
+        StringBuilder buffer = new StringBuilder();
+
+        buffer.Append("[SERIESLIST]\n");
+        buffer.Append("    .seriesNumbers        = ")
+            .Append(" (").Append(SeriesNumbers).Append(" )");
+        buffer.Append(Environment.NewLine);
+
+        buffer.Append("[/SERIESLIST]\n");
+        return buffer.ToString();
+    }
+
+    public override void Serialize(ILittleEndianOutput out1)
+    {
+        int nItems = field_1_seriesNumbers.Length;
+        out1.WriteShort(nItems);
+        for (int i = 0; i < nItems; i++)
+        {
+            out1.WriteShort(field_1_seriesNumbers[i]);
+        }
+    }
+
+    /**
+     * Size of record (exluding 4 byte header)
+     */
+    protected override int DataSize
+    {
+        get { return field_1_seriesNumbers.Length * 2 + 2; }
+    }
+
+    public override short Sid
+    {
+        get { return sid; }
+    }
+
+    public override Object Clone()
+    {
+        return new SeriesListRecord(field_1_seriesNumbers);
+    }
+
+    /**
+     * Get the series numbers field for the SeriesList record.
+     */
+    public short[] SeriesNumbers
+    {
+        get { return field_1_seriesNumbers; }
+        set { this.field_1_seriesNumbers = value; }
+    }
+
+
 }

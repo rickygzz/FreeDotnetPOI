@@ -17,95 +17,94 @@
 ==================================================================== */
 
 
-namespace NPOI.HSSF.Record
-{
-    using System;
-    using System.Text;
-    using NPOI.Util;
+namespace NPOI.HSSF.Record;
 
+using System;
+using System.Text;
+using NPOI.Util;
+
+
+/**
+ * Title:        Print Gridlines Record
+ * Description:  whether to print the gridlines when you enjoy you spReadsheet on paper.
+ * REFERENCE:  PG 373 Microsoft Excel 97 Developer's Kit (ISBN: 1-57231-498-2)
+ * @author Andrew C. Oliver (acoliver at apache dot org)
+ * @author Jason Height (jheight at chariot dot net dot au)
+ * @version 2.0-pre
+ */
+
+public class PrintGridlinesRecord
+   : StandardRecord
+{
+    public const short sid = 0x2b;
+    private short field_1_print_gridlines;
+
+    public PrintGridlinesRecord()
+    {
+    }
 
     /**
-     * Title:        Print Gridlines Record
-     * Description:  whether to print the gridlines when you enjoy you spReadsheet on paper.
-     * REFERENCE:  PG 373 Microsoft Excel 97 Developer's Kit (ISBN: 1-57231-498-2)
-     * @author Andrew C. Oliver (acoliver at apache dot org)
-     * @author Jason Height (jheight at chariot dot net dot au)
-     * @version 2.0-pre
+     * Constructs a PrintGridlines record and Sets its fields appropriately.
+     * @param in the RecordInputstream to Read the record from
      */
 
-    public class PrintGridlinesRecord
-       : StandardRecord
+    public PrintGridlinesRecord(RecordInputStream in1)
     {
-        public const short sid = 0x2b;
-        private short field_1_print_gridlines;
+        field_1_print_gridlines = in1.ReadShort();
+    }
 
-        public PrintGridlinesRecord()
+    /**
+     * Get whether or not to print the gridlines (and make your spReadsheet ugly)
+     *
+     * @return make spReadsheet ugly - Y/N
+     */
+
+    public bool PrintGridlines
+    {
+        get { return (field_1_print_gridlines == 1); }
+        set
         {
-        }
-
-        /**
-         * Constructs a PrintGridlines record and Sets its fields appropriately.
-         * @param in the RecordInputstream to Read the record from
-         */
-
-        public PrintGridlinesRecord(RecordInputStream in1)
-        {
-            field_1_print_gridlines = in1.ReadShort();
-        }
-
-        /**
-         * Get whether or not to print the gridlines (and make your spReadsheet ugly)
-         *
-         * @return make spReadsheet ugly - Y/N
-         */
-
-        public bool PrintGridlines
-        {
-            get { return (field_1_print_gridlines == 1); }
-            set
+            if (value)
             {
-                if (value)
-                {
-                    field_1_print_gridlines = 1;
-                }
-                else
-                {
-                    field_1_print_gridlines = 0;
-                }
+                field_1_print_gridlines = 1;
+            }
+            else
+            {
+                field_1_print_gridlines = 0;
             }
         }
+    }
 
-        public override String ToString()
-        {
-            StringBuilder buffer = new StringBuilder();
+    public override String ToString()
+    {
+        StringBuilder buffer = new StringBuilder();
 
-            buffer.Append("[PRINTGRIDLINES]\n");
-            buffer.Append("    .printgridlines = ").Append(PrintGridlines)
-                .Append("\n");
-            buffer.Append("[/PRINTGRIDLINES]\n");
-            return buffer.ToString();
-        }
+        buffer.Append("[PRINTGRIDLINES]\n");
+        buffer.Append("    .printgridlines = ").Append(PrintGridlines)
+            .Append("\n");
+        buffer.Append("[/PRINTGRIDLINES]\n");
+        return buffer.ToString();
+    }
 
-        public override void Serialize(ILittleEndianOutput out1)
-        {
-            out1.WriteShort(field_1_print_gridlines);
-        }
+    public override void Serialize(ILittleEndianOutput out1)
+    {
+        out1.WriteShort(field_1_print_gridlines);
+    }
 
-        protected override int DataSize
-        {
-            get { return 2; }
-        }
+    protected override int DataSize
+    {
+        get { return 2; }
+    }
 
-        public override short Sid
-        {
-            get { return sid; }
-        }
+    public override short Sid
+    {
+        get { return sid; }
+    }
 
-        public override Object Clone()
-        {
-            PrintGridlinesRecord rec = new PrintGridlinesRecord();
-            rec.field_1_print_gridlines = field_1_print_gridlines;
-            return rec;
-        }
+    public override Object Clone()
+    {
+        PrintGridlinesRecord rec = new PrintGridlinesRecord();
+        rec.field_1_print_gridlines = field_1_print_gridlines;
+        return rec;
     }
 }

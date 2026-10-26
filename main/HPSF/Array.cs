@@ -67,7 +67,9 @@ public class Array
             {
                 long result = 1;
                 foreach (ArrayDimension dimension in _dimensions)
+                {
                     result *= dimension._size;
+                }
                 return result;
             }
         }

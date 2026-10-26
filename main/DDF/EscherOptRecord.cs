@@ -1,4 +1,4 @@
-
+﻿
 /* ====================================================================
     Licensed to the Apache Software Foundation (ASF) under one or more
     contributor license agreements.  See the NOTICE file distributed with
@@ -78,7 +78,7 @@ public class EscherOptRecord : AbstractEscherOptRecord
             if (value != 0x3)
             {
                 throw new ArgumentException(RECORD_DESCRIPTION
-                        + " can have only '0x3' version");
+                    + " can have only '0x3' version");
             }
 
             base.Version = (value);
@@ -88,7 +88,12 @@ public class EscherOptRecord : AbstractEscherOptRecord
     public override String ToXml(String tab)
     {
         StringBuilder builder = new StringBuilder();
-        builder.Append(tab).Append(FormatXmlRecordHeader(GetType().Name, HexDump.ToHex(RecordId), HexDump.ToHex(Version), HexDump.ToHex(Instance)));
+        builder.Append(tab)
+            .Append(FormatXmlRecordHeader(
+                GetType().Name,
+                HexDump.ToHex(RecordId),
+                HexDump.ToHex(Version),
+                HexDump.ToHex(Instance)));
         foreach (EscherProperty property in EscherProperties)
         {
             builder.Append(property.ToXml(tab + "\t"));

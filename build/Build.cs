@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using System.Runtime.InteropServices;
 using Nuke.Common;
@@ -87,9 +87,7 @@ partial class Build : NukeBuild
     Target Restore => _ => _
         .Executes(() =>
         {
-            DotNetRestore(_ => _
-                .SetProjectFile(Solution)
-            );
+            DotNetRestore(_ => _.SetProjectFile(Solution));
         });
 
     Target Compile => _ => _
@@ -106,8 +104,7 @@ partial class Build : NukeBuild
                 // ensure we don't generate too much output in CI run
                 // 0  Turns off emission of all warning messages
                 // 1  Displays severe warning messages
-                .SetWarningLevel(IsServerBuild ? 0 : 1)
-            );
+                .SetWarningLevel(IsServerBuild ? 0 : 1));
 
             // copy files from projects in order to get them to be part of pack
         });
@@ -121,9 +118,14 @@ partial class Build : NukeBuild
                 .EnableNoRestore()
                 .SetConfiguration(Configuration)
                 .SetProjectFile(Solution)
-                .When(_ => Host is GitHubActions, settings => settings.SetLoggers("GitHubActions"))
-                .When(_ => !RuntimeInformation.IsOSPlatform(OSPlatform.Windows), settings => settings.SetFramework("net10.0"))
-            );
+                .When(
+                    _ => Host is GitHubActions,
+                    settings => settings.SetLoggers("GitHubActions"))
+                .When(
+                    _ =>
+                    !RuntimeInformation.IsOSPlatform(OSPlatform.Windows),
+                    settings =>
+                    settings.SetFramework("net10.0")));
         });
 
     Target InstallFonts => _ => _

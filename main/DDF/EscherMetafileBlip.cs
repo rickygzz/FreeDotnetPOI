@@ -16,14 +16,14 @@
 */
 namespace NPOI.DDF;
 
+using System;
+using System.IO;
+using System.Text;
 using ICSharpCode.SharpZipLib.Zip.Compression;
 using ICSharpCode.SharpZipLib.Zip.Compression.Streams;
 using NPOI.HSSF.UserModel;
 using NPOI.Util;
 using SixLabors.ImageSharp;
-using System;
-using System.IO;
-using System.Text;
 
 /// <summary>
 /// @author Daniel Noll
@@ -369,7 +369,7 @@ public class EscherMetafileBlip : EscherBlipRecord
                 HexDump.ToHex(Version),
                 HexDump.ToHex(Instance)))
             .Append(tab).Append("\t").Append("<UID>0x").Append(HexDump.ToHex(field_1_UID) + '\n'
-                            + (field_2_UID == null ? "" : ("  UID2: 0x" + HexDump.ToHex(field_2_UID) + '\n'))).Append("</UID>\n")
+                + (field_2_UID == null ? "" : ("  UID2: 0x" + HexDump.ToHex(field_2_UID) + '\n'))).Append("</UID>\n")
             .Append(tab).Append("\t").Append("<UncompressedSize>0x").Append(HexDump.ToHex(field_2_cb)).Append("</UncompressedSize>\n")
             .Append(tab).Append("\t").Append("<Bounds>").Append(Bounds).Append("</Bounds>\n")
             .Append(tab).Append("\t").Append("<SizeInEMU>").Append(SizeEMU).Append("</SizeInEMU>\n")

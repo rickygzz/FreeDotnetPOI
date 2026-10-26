@@ -1,4 +1,4 @@
-/* ====================================================================
+﻿/* ====================================================================
    Licensed to the Apache Software Foundation (ASF) Under one or more
    contributor license agreements.  See the NOTICE file distributed with
    this work for Additional information regarding copyright ownership.
@@ -15,32 +15,31 @@
    limitations Under the License.
 ==================================================================== */
 
-namespace NPOI.HSSF.Record
+namespace NPOI.HSSF.Record;
+
+using System;
+
+public class DrawingSelectionRecord : AbstractEscherHolderRecord
 {
-    using System;
+    public const short sid = 0xED;
 
-    public class DrawingSelectionRecord : AbstractEscherHolderRecord
+    public DrawingSelectionRecord()
     {
-        public const short sid = 0xED;
+    }
 
-        public DrawingSelectionRecord()
-        {
-        }
+    public DrawingSelectionRecord(RecordInputStream in1)
+        : base(in1)
+    {
 
-        public DrawingSelectionRecord(RecordInputStream in1)
-            : base(in1)
-        {
+    }
 
-        }
+    protected override String RecordName
+    {
+        get { return "MSODRAWINGSELECTION"; }
+    }
 
-        protected override String RecordName
-        {
-            get { return "MSODRAWINGSELECTION"; }
-        }
-
-        public override short Sid
-        {
-            get { return sid; }
-        }
+    public override short Sid
+    {
+        get { return sid; }
     }
 }

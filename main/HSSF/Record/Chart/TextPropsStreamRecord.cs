@@ -15,42 +15,41 @@
    limitations Under the License.
 ==================================================================== */
 
-namespace NPOI.HSSF.Record.Chart
+namespace NPOI.HSSF.Record.Chart;
+
+/// <summary>
+/// The RichTextStream record specifies additional text properties for the text 
+/// in the entire chart, text in the current legend, text in the current legend 
+/// entry, or text in the attached label. These text properties are a superset 
+/// of the properties stored in the Text, Font, FontX, BRAI, and ObjectLink records
+/// based on the following table, as specified by the Chart Sheet Substream ABNF. 
+/// In each case, the associated Font record is specified by the associated FontX record.
+/// </summary>
+/// <remarks>
+/// author: Antony liu (antony.apollo at gmail.com)
+/// </remarks>
+public class TextPropsStreamRecord : RowDataRecord
 {
-    /// <summary>
-    /// The RichTextStream record specifies additional text properties for the text 
-    /// in the entire chart, text in the current legend, text in the current legend 
-    /// entry, or text in the attached label. These text properties are a superset 
-    /// of the properties stored in the Text, Font, FontX, BRAI, and ObjectLink records
-    /// based on the following table, as specified by the Chart Sheet Substream ABNF. 
-    /// In each case, the associated Font record is specified by the associated FontX record.
-    /// </summary>
-    /// <remarks>
-    /// author: Antony liu (antony.apollo at gmail.com)
-    /// </remarks>
-    public class TextPropsStreamRecord : RowDataRecord
+    public const short sid = 0x8a5;
+    public TextPropsStreamRecord(RecordInputStream ris)
+        : base(ris)
     {
-        public const short sid = 0x8a5;
-        public TextPropsStreamRecord(RecordInputStream ris)
-            : base(ris)
-        {
-        }
+    }
 
-        protected override int DataSize
+    protected override int DataSize
+    {
+        get
         {
-            get
-            {
-                return base.DataSize;
-            }
+            return base.DataSize;
         }
-        public override void Serialize(NPOI.Util.ILittleEndianOutput out1)
-        {
-            base.Serialize(out1);
-        }
+    }
+    public override void Serialize(NPOI.Util.ILittleEndianOutput out1)
+    {
+        base.Serialize(out1);
+    }
 
-        public override short Sid
-        {
-            get { return sid; }
-        }
+    public override short Sid
+    {
+        get { return sid; }
     }
 }

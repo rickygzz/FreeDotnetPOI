@@ -186,8 +186,8 @@ public class EscherComplexProperty : EscherProperty
         String dataStr = HexDump.ToHex(_complexData, 32);
         StringBuilder builder = new StringBuilder();
         builder.Append(tab).Append("<").Append(GetType().Name).Append(" id=\"0x").Append(HexDump.ToHex(Id))
-                .Append("\" name=\"").Append(Name).Append("\" blipId=\"")
-                .Append(IsBlipId).Append("\">\n");
+            .Append("\" name=\"").Append(Name).Append("\" blipId=\"")
+            .Append(IsBlipId).Append("\">\n");
         // builder.Append("\t").Append(tab).Append(dataStr);
         builder.Append(tab).Append("</").Append(GetType().Name).Append(">\n");
         return builder.ToString();

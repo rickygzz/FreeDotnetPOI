@@ -1,4 +1,4 @@
-/* ====================================================================
+﻿/* ====================================================================
     Licensed To the Apache Software Foundation (ASF) under one or more
     contributor license agreements.  See the NOTICE file distributed with
     this work for Additional information regarding copyright ownership.
@@ -166,8 +166,9 @@ public class Thumbnail
     {
         get
         {
-            long clipboardFormatTag = LittleEndian.GetInt(this.ThumbnailData,
-                                                            OFFSet_CFTAG);
+            long clipboardFormatTag = LittleEndian.GetInt(
+                this.ThumbnailData,
+                OFFSet_CFTAG);
             return clipboardFormatTag;
         }
     }
@@ -216,24 +217,23 @@ public class Thumbnail
     {
         if (!(ClipboardFormatTag == CFTAG_WINDOWS))
         {
-            throw new HPSFException("Clipboard Format Tag of Thumbnail must "
-                                    + "be CFTAG_WINDOWS.");
+            throw new HPSFException("Clipboard Format Tag of Thumbnail must be CFTAG_WINDOWS.");
         }
         if (!(GetClipboardFormat() == CF_METAFILEPICT))
         {
-            throw new HPSFException("Clipboard Format of Thumbnail must "
-                                    + "be CF_METAFILEPICT.");
+            throw new HPSFException("Clipboard Format of Thumbnail must be CF_METAFILEPICT.");
         }
         else
         {
             byte[] thumbnail = this.ThumbnailData;
             int wmfImageLength = thumbnail.Length - OFFSet_WMFDATA;
             byte[] wmfImage = new byte[wmfImageLength];
-            System.Array.Copy(thumbnail,
-                            OFFSet_WMFDATA,
-                            wmfImage,
-                            0,
-                            wmfImageLength);
+            System.Array.Copy(
+                thumbnail,
+                OFFSet_WMFDATA,
+                wmfImage,
+                0,
+                wmfImageLength);
             return wmfImage;
         }
     }

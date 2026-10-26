@@ -1,4 +1,4 @@
-
+﻿
 /* ====================================================================
    Licensed to the Apache Software Foundation (ASF) Under one or more
    contributor license agreements.  See the NOTICE file distributed with
@@ -17,70 +17,69 @@
 ==================================================================== */
 
 
-namespace NPOI.HSSF.Record.Chart
+namespace NPOI.HSSF.Record.Chart;
+
+
+using System;
+using System.Text;
+using NPOI.Util;
+
+
+
+/**
+ * The begin record defines the start of a block of records for a (grpahing
+ * data object. This record is matched with a corresponding EndRecord.
+ *
+ * @see EndRecord
+ *
+ * @author Glen Stampoultzis (glens at apache.org)
+ */
+
+public class BeginRecord : StandardRecord, ICloneable
 {
-
-    using System;
-    using System.Text;
-    using NPOI.Util;
-
-
+    public const short sid = 0x1033;
+    public static BeginRecord instance = new BeginRecord();
+    public BeginRecord()
+    {
+    }
 
     /**
-     * The begin record defines the start of a block of records for a (grpahing
-     * data object. This record is matched with a corresponding EndRecord.
-     *
-     * @see EndRecord
-     *
-     * @author Glen Stampoultzis (glens at apache.org)
+     * Constructs a BeginRecord record and Sets its fields appropriately.
+     * @param in the RecordInputstream to Read the record from
      */
 
-    public class BeginRecord : StandardRecord, ICloneable
+    public BeginRecord(RecordInputStream in1)
     {
-        public const short sid = 0x1033;
-        public static BeginRecord instance = new BeginRecord();
-        public BeginRecord()
-        {
-        }
 
-        /**
-         * Constructs a BeginRecord record and Sets its fields appropriately.
-         * @param in the RecordInputstream to Read the record from
-         */
-
-        public BeginRecord(RecordInputStream in1)
-        {
-
-        }
+    }
 
 
-        public override String ToString()
-        {
-            StringBuilder buffer = new StringBuilder();
+    public override String ToString()
+    {
+        StringBuilder buffer = new StringBuilder();
 
-            buffer.Append("[BEGIN]\n");
-            buffer.Append("[/BEGIN]\n");
-            return buffer.ToString();
-        }
+        buffer.Append("[BEGIN]\n");
+        buffer.Append("[/BEGIN]\n");
+        return buffer.ToString();
+    }
 
-        public override void Serialize(ILittleEndianOutput out1)
-        {
-        }
+    public override void Serialize(ILittleEndianOutput out1)
+    {
+    }
 
-        protected override int DataSize
-        {
-            get { return 0; }
-        }
+    protected override int DataSize
+    {
+        get { return 0; }
+    }
 
-        public override short Sid
-        {
-            get { return sid; }
-        }
-        public override Object Clone()
-        {
-            BeginRecord br = new BeginRecord();
-            // No data so nothing to copy
-            return br;
-        }
+    public override short Sid
+    {
+        get { return sid; }
+    }
+    public override Object Clone()
+    {
+        BeginRecord br = new BeginRecord();
+        // No data so nothing to copy
+        return br;
     }
 }

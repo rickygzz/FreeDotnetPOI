@@ -1,4 +1,4 @@
-/* ====================================================================
+﻿/* ====================================================================
     Licensed to the Apache Software Foundation (ASF) Under one or more
     contributor license agreements.  See the NOTICE file distributed with
     this work for Additional information regarding copyright ownership.
@@ -14,6 +14,7 @@
     See the License for the specific language governing permissions and
     limitations Under the License.
 ==================================================================== */
+
 namespace NPOI.HSSF.EventUserModel;
 
 using System.Collections;

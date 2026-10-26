@@ -1,4 +1,4 @@
-/* ====================================================================
+﻿/* ====================================================================
     Licensed To the Apache Software Foundation (ASF) under one or more
     contributor license agreements.  See the NOTICE file distributed with
     this work for Additional information regarding copyright ownership.
@@ -185,7 +185,7 @@ public class PropertyIDMap : IDictionary<long, string>
     /// <summary>
     /// The entry denotes a code page.
     /// </summary>
-    public const  int PID_CODEPAGE = 1;
+    public const int PID_CODEPAGE = 1;
 
     /// <summary>
     /// The entry is a string denoting the category the file belongs
@@ -341,7 +341,7 @@ public class PropertyIDMap : IDictionary<long, string>
     /// If present, its value MUST be a valid language code identifier as specified in [MS-LCID].
     /// Its value is selected in an implementation-specific manner.
     /// </summary>
-    public const  int PID_LOCALE = unchecked((int) 0x80000000);
+    public const int PID_LOCALE = unchecked((int)0x80000000);
 
     /// <summary>
     /// <para>
@@ -461,7 +461,7 @@ public class PropertyIDMap : IDictionary<long, string>
     /// <param name="map">The instance to be created is backed by this map.</param>
     private PropertyIDMap(object[][] idValues)
     {
-        Dictionary<long,String> m = new Dictionary<long,String>(idValues.Length);
+        Dictionary<long, String> m = new Dictionary<long, String>(idValues.Length);
         foreach (object[] idValue in idValues)
         {
             m.Add((long)idValue[0], (String)idValue[1]);
@@ -479,7 +479,7 @@ public class PropertyIDMap : IDictionary<long, string>
     /// returns the previous value associated with the specified id</returns>
     public Object Put(long id, String idString)
     {
-        return idMap[id]=idString;
+        return idMap[id] = idString;
     }
 
     /// <summary>
@@ -559,7 +559,7 @@ public class PropertyIDMap : IDictionary<long, string>
     {
         get
         {
-            lock(summaryInformationIdValues)
+            lock (summaryInformationIdValues)
             {
                 if (summaryInformationProperties == null)
                 {
@@ -580,7 +580,7 @@ public class PropertyIDMap : IDictionary<long, string>
     {
         get
         {
-            lock(documentSummaryInformationIdValues)
+            lock (documentSummaryInformationIdValues)
             {
                 if (documentSummaryInformationProperties == null)
                 {
@@ -600,7 +600,7 @@ public class PropertyIDMap : IDictionary<long, string>
     {
         get
         {
-            lock(fallbackIdValues)
+            lock (fallbackIdValues)
             {
                 if (fallbackProperties == null)
                 {

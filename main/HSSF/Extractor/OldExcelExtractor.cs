@@ -1,4 +1,4 @@
-/* ====================================================================
+﻿/* ====================================================================
     Licensed to the Apache Software Foundation (ASF) under one or more
     contributor license agreements.  See the NOTICE file distributed with
     this work for Additional information regarding copyright ownership.
@@ -17,15 +17,15 @@
 
 namespace NPOI.HSSF.Extractor;
 
+using System;
+using System.IO;
+using System.Text;
 using NPOI.HSSF;
 using NPOI.HSSF.Model;
 using NPOI.HSSF.Record;
 using NPOI.POIFS.FileSystem;
 using NPOI.SS.UserModel;
 using NPOI.Util;
-using System;
-using System.IO;
-using System.Text;
 
 /**
 * A text extractor for old Excel files, which are too old for

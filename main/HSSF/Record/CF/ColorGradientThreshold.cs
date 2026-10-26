@@ -1,4 +1,4 @@
-/* ====================================================================
+﻿/* ====================================================================
    Licensed to the Apache Software Foundation (ASF) under one or more
    contributor license agreements.  See the NOTICE file distributed with
    this work for Additional information regarding copyright ownership.
@@ -15,56 +15,54 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.HSSF.Record.CF
+namespace NPOI.HSSF.Record.CF;
+
+using System;
+using NPOI.Util;
+
+/**
+ * Color Gradient / Color Scale specific Threshold / value (CFVO),
+ *  for Changes in Conditional Formatting
+ */
+public class ColorGradientThreshold : Threshold, ICloneable
 {
-    using System;
-    using NPOI.Util;
+    private double position;
 
-    /**
-     * Color Gradient / Color Scale specific Threshold / value (CFVO),
-     *  for Changes in Conditional Formatting
-     */
-    public class ColorGradientThreshold : Threshold, ICloneable
+    public ColorGradientThreshold() : base()
     {
-        private double position;
 
-        public ColorGradientThreshold() : base()
-        {
-
-            position = 0d;
-        }
-
-        /** Creates new Color Gradient Threshold */
-        public ColorGradientThreshold(ILittleEndianInput in1) : base(in1)
-        {
-
-            position = in1.ReadDouble();
-        }
-
-        public double Position
-        {
-            get { return position; }
-            set { this.position = value; }
-        }
-
-        public override int DataLength
-        {
-            get { return base.DataLength + 8; }
-        }
-
-        public Object Clone()
-        {
-            ColorGradientThreshold rec = new ColorGradientThreshold();
-            base.CopyTo(rec);
-            rec.position = position;
-            return rec;
-        }
-
-        public override void Serialize(ILittleEndianOutput out1)
-        {
-            base.Serialize(out1);
-            out1.WriteDouble(position);
-        }
+        position = 0d;
     }
 
+    /** Creates new Color Gradient Threshold */
+    public ColorGradientThreshold(ILittleEndianInput in1) : base(in1)
+    {
+
+        position = in1.ReadDouble();
+    }
+
+    public double Position
+    {
+        get { return position; }
+        set { this.position = value; }
+    }
+
+    public override int DataLength
+    {
+        get { return base.DataLength + 8; }
+    }
+
+    public Object Clone()
+    {
+        ColorGradientThreshold rec = new ColorGradientThreshold();
+        base.CopyTo(rec);
+        rec.position = position;
+        return rec;
+    }
+
+    public override void Serialize(ILittleEndianOutput out1)
+    {
+        base.Serialize(out1);
+        out1.WriteDouble(position);
+    }
 }

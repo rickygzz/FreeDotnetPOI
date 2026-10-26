@@ -1,4 +1,4 @@
-
+﻿
 /* ====================================================================
    Licensed to the Apache Software Foundation (ASF) Under one or more
    contributor license agreements.  See the NOTICE file distributed with
@@ -17,59 +17,58 @@
 ==================================================================== */
 
 
-namespace NPOI.HSSF.Record
-{
+namespace NPOI.HSSF.Record;
 
-    using System;
-    using System.Text;
+
+using System;
+using System.Text;
+
+/**
+ * Title:        Header Record
+ * Description:  Specifies a header for a sheet
+ * REFERENCE:  PG 321 Microsoft Excel 97 Developer's Kit (ISBN: 1-57231-498-2)
+ * @author Andrew C. Oliver (acoliver at apache dot org)
+ * @author Shawn Laubach (slaubach at apache dot org) Modified 3/14/02
+ * @author Jason Height (jheight at chariot dot net dot au)
+ * @version 2.0-pre
+ */
+
+public class HeaderRecord : HeaderFooterBase, ICloneable
+{
+    public const short sid = 0x14;
+
+    public HeaderRecord(String text):base(text)
+    {
+        
+    }
 
     /**
-     * Title:        Header Record
-     * Description:  Specifies a header for a sheet
-     * REFERENCE:  PG 321 Microsoft Excel 97 Developer's Kit (ISBN: 1-57231-498-2)
-     * @author Andrew C. Oliver (acoliver at apache dot org)
-     * @author Shawn Laubach (slaubach at apache dot org) Modified 3/14/02
-     * @author Jason Height (jheight at chariot dot net dot au)
-     * @version 2.0-pre
+     * Constructs an Header record and Sets its fields appropriately.
+     * @param in the RecordInputstream to Read the record from
      */
 
-    public class HeaderRecord : HeaderFooterBase, ICloneable
+    public HeaderRecord(RecordInputStream in1):base(in1)
     {
-        public const short sid = 0x14;
+    }
 
-        public HeaderRecord(String text):base(text)
-        {
-            
-        }
+    public override String ToString()
+    {
+        StringBuilder buffer = new StringBuilder();
 
-        /**
-         * Constructs an Header record and Sets its fields appropriately.
-         * @param in the RecordInputstream to Read the record from
-         */
+        buffer.Append("[HEADER]\n");
+        buffer.Append("    .header = ").Append(Text)
+            .Append("\n");
+        buffer.Append("[/HEADER]\n");
+        return buffer.ToString();
+    }
 
-        public HeaderRecord(RecordInputStream in1):base(in1)
-        {
-        }
+    public override short Sid
+    {
+        get { return sid; }
+    }
 
-        public override String ToString()
-        {
-            StringBuilder buffer = new StringBuilder();
-
-            buffer.Append("[HEADER]\n");
-            buffer.Append("    .header = ").Append(Text)
-                .Append("\n");
-            buffer.Append("[/HEADER]\n");
-            return buffer.ToString();
-        }
-
-        public override short Sid
-        {
-            get { return sid; }
-        }
-
-        public override Object Clone()
-        {
-            return new HeaderRecord(this.Text);
-        }
+    public override Object Clone()
+    {
+        return new HeaderRecord(this.Text);
     }
 }

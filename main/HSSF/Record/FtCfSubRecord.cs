@@ -15,118 +15,117 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.HSSF.Record
-{
-    using System;
-    using NPOI.Util;
-    using System.Text;
+namespace NPOI.HSSF.Record;
 
+using System;
+using NPOI.Util;
+using System.Text;
+
+
+/**
+ * The FtCf structure specifies the clipboard format of the picture-type Obj record Containing this FtCf.
+ */
+public class FtCfSubRecord : SubRecord, ICloneable
+{
+    public const short sid = 0x07;
+    public const short length = 0x02;
 
     /**
-     * The FtCf structure specifies the clipboard format of the picture-type Obj record Containing this FtCf.
+     * Specifies the format of the picture is an enhanced metafile.
      */
-    public class FtCfSubRecord : SubRecord, ICloneable
+    public static short METAFILE_BIT = (short)0x0002;
+
+    /**
+     * Specifies the format of the picture is a bitmap.
+     */
+    public static short BITMAP_BIT = (short)0x0009;
+
+    /**
+     * Specifies the picture is in an unspecified format that is
+     * neither and enhanced metafile nor a bitmap.
+     */
+    public static short UNSPECIFIED_BIT = unchecked((short)0xFFFF);
+
+    private short flags = 0;
+
+    /**
+     * Construct a new <code>FtPioGrbitSubRecord</code> and
+     * fill its data with the default values
+     */
+    public FtCfSubRecord()
     {
-        public const short sid = 0x07;
-        public const short length = 0x02;
+    }
 
-        /**
-         * Specifies the format of the picture is an enhanced metafile.
-         */
-        public static short METAFILE_BIT = (short)0x0002;
-
-        /**
-         * Specifies the format of the picture is a bitmap.
-         */
-        public static short BITMAP_BIT = (short)0x0009;
-
-        /**
-         * Specifies the picture is in an unspecified format that is
-         * neither and enhanced metafile nor a bitmap.
-         */
-        public static short UNSPECIFIED_BIT = unchecked((short)0xFFFF);
-
-        private short flags = 0;
-
-        /**
-         * Construct a new <code>FtPioGrbitSubRecord</code> and
-         * fill its data with the default values
-         */
-        public FtCfSubRecord()
+    public FtCfSubRecord(ILittleEndianInput in1, int size)
+    {
+        if (size != length)
         {
+            throw new RecordFormatException("Unexpected size (" + size + ")");
         }
+        flags = in1.ReadShort();
+    }
 
-        public FtCfSubRecord(ILittleEndianInput in1, int size)
+    /**
+     * Convert this record to string.
+     * Used by BiffViewer and other utilities.
+     */
+    public override String ToString()
+    {
+        StringBuilder buffer = new StringBuilder();
+        buffer.Append("[FtCf ]\n");
+        buffer.Append("  size     = ").Append(length).Append("\n");
+        buffer.Append("  flags    = ").Append(HexDump.ToHex(flags)).Append("\n");
+        buffer.Append("[/FtCf ]\n");
+        return buffer.ToString();
+    }
+
+    /**
+     * Serialize the record data into the supplied array of bytes
+     *
+     * @param out the stream to serialize into
+     */
+    public override void Serialize(ILittleEndianOutput out1)
+    {
+        out1.WriteShort(sid);
+        out1.WriteShort(length);
+        out1.WriteShort(flags);
+    }
+
+    public override int DataSize
+    {
+        get
         {
-            if (size != length)
-            {
-                throw new RecordFormatException("Unexpected size (" + size + ")");
-            }
-            flags = in1.ReadShort();
+            return length;
         }
+    }
 
-        /**
-         * Convert this record to string.
-         * Used by BiffViewer and other utilities.
-         */
-        public override String ToString()
+    /**
+     * @return id of this record.
+     */
+    public override short Sid
+    {
+        get
         {
-            StringBuilder buffer = new StringBuilder();
-            buffer.Append("[FtCf ]\n");
-            buffer.Append("  size     = ").Append(length).Append("\n");
-            buffer.Append("  flags    = ").Append(HexDump.ToHex(flags)).Append("\n");
-            buffer.Append("[/FtCf ]\n");
-            return buffer.ToString();
+            return sid;
         }
+    }
 
-        /**
-         * Serialize the record data into the supplied array of bytes
-         *
-         * @param out the stream to serialize into
-         */
-        public override void Serialize(ILittleEndianOutput out1)
+    public override Object Clone()
+    {
+        FtCfSubRecord rec = new FtCfSubRecord();
+        rec.flags = this.flags;
+        return rec;
+    }
+
+    public short Flags
+    {
+        get
         {
-            out1.WriteShort(sid);
-            out1.WriteShort(length);
-            out1.WriteShort(flags);
+            return flags;
         }
-
-        public override int DataSize
+        set
         {
-            get
-            {
-                return length;
-            }
-        }
-
-        /**
-         * @return id of this record.
-         */
-        public override short Sid
-        {
-            get
-            {
-                return sid;
-            }
-        }
-
-        public override Object Clone()
-        {
-            FtCfSubRecord rec = new FtCfSubRecord();
-            rec.flags = this.flags;
-            return rec;
-        }
-
-        public short Flags
-        {
-            get
-            {
-                return flags;
-            }
-            set
-            {
-                this.flags = value;
-            }
+            this.flags = value;
         }
     }
 }

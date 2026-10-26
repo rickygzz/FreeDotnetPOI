@@ -1,4 +1,4 @@
-
+﻿
 /* ====================================================================
    Licensed to the Apache Software Foundation (ASF) Under one or more
    contributor license agreements.  See the NOTICE file distributed with
@@ -17,99 +17,98 @@
 ==================================================================== */
 
 
-namespace NPOI.HSSF.Record
-{
-    using System;
-    using System.Text;
-    using NPOI.Util;
+namespace NPOI.HSSF.Record;
 
+using System;
+using System.Text;
+using NPOI.Util;
+
+
+/**
+ * Title:        HCenter record
+ * Description:  whether to center between horizontal margins
+ * REFERENCE:  PG 320 Microsoft Excel 97 Developer's Kit (ISBN: 1-57231-498-2)
+ * @author Andrew C. Oliver (acoliver at apache dot org)
+ * @author Jason Height (jheight at chariot dot net dot au)
+ * @version 2.0-pre
+ */
+
+public class HCenterRecord : StandardRecord, ICloneable
+{
+    public const short sid = 0x83;
+    private short field_1_hcenter;
+
+    public HCenterRecord()
+    {
+    }
 
     /**
-     * Title:        HCenter record
-     * Description:  whether to center between horizontal margins
-     * REFERENCE:  PG 320 Microsoft Excel 97 Developer's Kit (ISBN: 1-57231-498-2)
-     * @author Andrew C. Oliver (acoliver at apache dot org)
-     * @author Jason Height (jheight at chariot dot net dot au)
-     * @version 2.0-pre
+     * Constructs an HCenter record and Sets its fields appropriately.
+     * @param in the RecordInputstream to Read the record from
      */
 
-    public class HCenterRecord : StandardRecord, ICloneable
+    public HCenterRecord(RecordInputStream in1)
     {
-        public const short sid = 0x83;
-        private short field_1_hcenter;
+        field_1_hcenter = in1.ReadShort();
+    }
 
-        public HCenterRecord()
+    /**
+     * Get whether or not to horizonatally center this sheet.
+     * @return center - t/f
+     */
+
+    public bool HCenter
+    {
+        get
         {
+            return (field_1_hcenter == 1);
         }
-
-        /**
-         * Constructs an HCenter record and Sets its fields appropriately.
-         * @param in the RecordInputstream to Read the record from
-         */
-
-        public HCenterRecord(RecordInputStream in1)
+        set
         {
-            field_1_hcenter = in1.ReadShort();
-        }
-
-        /**
-         * Get whether or not to horizonatally center this sheet.
-         * @return center - t/f
-         */
-
-        public bool HCenter
-        {
-            get
+            if (value == true)
             {
-                return (field_1_hcenter == 1);
+                field_1_hcenter = 1;
             }
-            set
+            else
             {
-                if (value == true)
-                {
-                    field_1_hcenter = 1;
-                }
-                else
-                {
-                    field_1_hcenter = 0;
-                }
+                field_1_hcenter = 0;
             }
         }
+    }
 
-        public override String ToString()
+    public override String ToString()
+    {
+        StringBuilder buffer = new StringBuilder();
+
+        buffer.Append("[HCENTER]\n");
+        buffer.Append("    .hcenter        = ").Append(HCenter)
+            .Append("\n");
+        buffer.Append("[/HCENTER]\n");
+        return buffer.ToString();
+    }
+
+    public override void Serialize(ILittleEndianOutput out1)
+    {
+        out1.WriteShort(field_1_hcenter);
+    }
+
+    protected override int DataSize
+    {
+        get
         {
-            StringBuilder buffer = new StringBuilder();
-
-            buffer.Append("[HCENTER]\n");
-            buffer.Append("    .hcenter        = ").Append(HCenter)
-                .Append("\n");
-            buffer.Append("[/HCENTER]\n");
-            return buffer.ToString();
+            return 2;
         }
+    }
 
-        public override void Serialize(ILittleEndianOutput out1)
-        {
-            out1.WriteShort(field_1_hcenter);
-        }
+    public override short Sid
+    {
+        get { return sid; }
+    }
 
-        protected override int DataSize
-        {
-            get
-            {
-                return 2;
-            }
-        }
-
-        public override short Sid
-        {
-            get { return sid; }
-        }
-
-        public override Object Clone()
-        {
-            HCenterRecord rec = new HCenterRecord();
-            rec.field_1_hcenter = field_1_hcenter;
-            return rec;
-        }
+    public override Object Clone()
+    {
+        HCenterRecord rec = new HCenterRecord();
+        rec.field_1_hcenter = field_1_hcenter;
+        return rec;
     }
 }

@@ -15,14 +15,12 @@
     limitations under the License.
 ==================================================================== */
 
-using NPOI.HPSF.Wellknown;
-using NPOI.Util;
 using System;
 using System.Collections.Generic;
+using NPOI.HPSF.Wellknown;
+using NPOI.Util;
 
 namespace NPOI.HPSF;
-
-
 
 /// <summary>
 /// <para>
@@ -339,8 +337,9 @@ public class CustomProperties : Dictionary<string, object>
     {
         // key is long
 
-        return (key is long l && dictionary.ContainsKey(l))
-                || dictionary.ContainsValue(key.ToString());
+        return (key is long l
+            && dictionary.ContainsKey(l))
+            || dictionary.ContainsValue(key.ToString());
     }
 
     /// <summary>

@@ -118,14 +118,14 @@ abstract public class EscherProperty
     {
         StringBuilder builder = new StringBuilder();
         builder.Append(tab)
-                .Append("<")
-                .Append(GetType().Name)
-                .Append(" id=\"")
-                .Append(Id)
-                .Append("\" name=\"")
-                .Append(Name)
-                .Append("\" blipId=\"")
-                .Append(IsBlipId).Append("\"/>\n");
+            .Append("<")
+            .Append(GetType().Name)
+            .Append(" id=\"")
+            .Append(Id)
+            .Append("\" name=\"")
+            .Append(Name)
+            .Append("\" blipId=\"")
+            .Append(IsBlipId).Append("\"/>\n");
         return builder.ToString();
     }
 
@@ -136,6 +136,7 @@ abstract public class EscherProperty
     /// <param name="data">The data.</param>
     /// <param name="pos">The pos.</param>
     abstract public int SerializeSimplePart(byte[] data, int pos);
+
     /// <summary>
     /// Escher properties consist of a simple fixed Length part and a complex variable Length part.
     /// The fixed Length part is Serialized first.

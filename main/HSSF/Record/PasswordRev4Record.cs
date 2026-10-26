@@ -16,78 +16,77 @@
    limitations Under the License.
 ==================================================================== */
 
-namespace NPOI.HSSF.Record
+namespace NPOI.HSSF.Record;
+
+using System;
+using System.Text;
+using NPOI.Util;
+
+
+/**
+ * Title:        Protection Revision 4 password Record
+ * Description:  Stores the (2 byte??!!) encrypted password for a shared
+ *               workbook
+ * REFERENCE:  PG 374 Microsoft Excel 97 Developer's Kit (ISBN: 1-57231-498-2)
+ * @author Andrew C. Oliver (acoliver at apache dot org)
+ * @version 2.0-pre
+ */
+
+public class PasswordRev4Record
+   : StandardRecord
 {
-    using System;
-    using System.Text;
-    using NPOI.Util;
+    public const short sid = 0x1BC;
+    private int field_1_password;
+
+    public PasswordRev4Record(int pw)
+    {
+        field_1_password = pw;
+    }
+
+    /**
+     * Constructs a PasswordRev4 (PROT4REVPASS) record and Sets its fields appropriately.
+     * @param in the RecordInputstream to Read the record from
+     */
+
+    public PasswordRev4Record(RecordInputStream in1)
+    {
+        field_1_password = in1.ReadShort();
+    }
 
 
     /**
-     * Title:        Protection Revision 4 password Record
-     * Description:  Stores the (2 byte??!!) encrypted password for a shared
-     *               workbook
-     * REFERENCE:  PG 374 Microsoft Excel 97 Developer's Kit (ISBN: 1-57231-498-2)
-     * @author Andrew C. Oliver (acoliver at apache dot org)
-     * @version 2.0-pre
+     * set the password
+     *
+     * @param pw  representing the password
      */
-
-    public class PasswordRev4Record
-       : StandardRecord
+    public void SetPassword(short pw)
     {
-        public const short sid = 0x1BC;
-        private int field_1_password;
+        field_1_password = pw;
+    }
 
-        public PasswordRev4Record(int pw)
-        {
-            field_1_password = pw;
-        }
+    public override String ToString()
+    {
+        StringBuilder buffer = new StringBuilder();
 
-        /**
-         * Constructs a PasswordRev4 (PROT4REVPASS) record and Sets its fields appropriately.
-         * @param in the RecordInputstream to Read the record from
-         */
+        buffer.Append("[PROT4REVPASSWORD]\n");
+        buffer.Append("    .password       = ")
+            .Append(StringUtil.ToHexString(field_1_password)).Append("\n");
+        buffer.Append("[/PROT4REVPASSWORD]\n");
+        return buffer.ToString();
+    }
 
-        public PasswordRev4Record(RecordInputStream in1)
-        {
-            field_1_password = in1.ReadShort();
-        }
+    public override void Serialize(ILittleEndianOutput out1)
+    {
+        out1.WriteShort(field_1_password);
+    }
 
+    protected override int DataSize
+    {
+        get { return 2; }
+    }
 
-        /**
-         * set the password
-         *
-         * @param pw  representing the password
-         */
-        public void SetPassword(short pw)
-        {
-            field_1_password = pw;
-        }
-
-        public override String ToString()
-        {
-            StringBuilder buffer = new StringBuilder();
-
-            buffer.Append("[PROT4REVPASSWORD]\n");
-            buffer.Append("    .password       = ")
-                .Append(StringUtil.ToHexString(field_1_password)).Append("\n");
-            buffer.Append("[/PROT4REVPASSWORD]\n");
-            return buffer.ToString();
-        }
-
-        public override void Serialize(ILittleEndianOutput out1)
-        {
-            out1.WriteShort(field_1_password);
-        }
-
-        protected override int DataSize
-        {
-            get { return 2; }
-        }
-
-        public override short Sid
-        {
-            get { return sid; }
-        }
+    public override short Sid
+    {
+        get { return sid; }
     }
 }

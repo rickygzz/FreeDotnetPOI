@@ -1,4 +1,4 @@
-/* ====================================================================
+﻿/* ====================================================================
     Licensed to the Apache Software Foundation (ASF) Under one or more
     contributor license agreements.  See the NOTICE file distributed with
     this work for Additional information regarding copyright ownership.
@@ -16,9 +16,8 @@
 ==================================================================== */
 namespace NPOI.HSSF.EventUserModel;
 
-using NPOI.HSSF.Record;
-using NPOI.HSSF.EventUserModel;
 using NPOI.HSSF.EventUserModel.DummyRecord;
+using NPOI.HSSF.Record;
 
 /// <summary>
 /// A HSSFListener which tracks rows and columns, and will

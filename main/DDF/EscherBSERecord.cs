@@ -1,4 +1,4 @@
-
+﻿
 /* ====================================================================
     Licensed to the Apache Software Foundation (ASF) under one or more
     contributor license agreements.  See the NOTICE file distributed with
@@ -70,8 +70,7 @@ public class EscherBSERecord : EscherRecord
     /// <param name="recordFactory">May be null since this is not a container record.</param>
     /// <returns>The number of bytes Read from the byte array.</returns>
     public override int FillFields(byte[] data, int offset,
-                                IEscherRecordFactory recordFactory
-                                )
+        IEscherRecordFactory recordFactory)
     {
         int bytesRemaining = ReadHeader(data, offset);
         int pos = offset + 8;
@@ -129,7 +128,9 @@ public class EscherBSERecord : EscherRecord
         data[offset + 8] = field_1_blipTypeWin32;
         data[offset + 9] = field_2_blipTypeMacOS;
         for (int i = 0; i < 16; i++)
+        {
             data[offset + 10 + i] = field_3_uid[i];
+        }
         LittleEndian.PutShort(data, offset + 26, field_4_tag);
         LittleEndian.PutInt(data, offset + 28, field_5_size);
         LittleEndian.PutInt(data, offset + 32, field_6_ref);
@@ -148,6 +149,7 @@ public class EscherBSERecord : EscherRecord
         int pos = offset + 8 + 36 + _remainingData.Length + bytesWritten;
 
         listener.AfterRecordSerialize(pos, RecordId, pos - offset, this);
+
         return pos - offset;
     }
 
@@ -169,6 +171,7 @@ public class EscherBSERecord : EscherRecord
             {
                 remaining_size = _remainingData.Length;
             }
+
             return 8 + 1 + 1 + 16 + 2 + 4 + 4 + 4 + 1 + 1
                 + 1 + 1 + field_12_size + remaining_size;
         }
@@ -379,18 +382,23 @@ public class EscherBSERecord : EscherRecord
     public override String ToXml(String tab)
     {
         StringBuilder builder = new StringBuilder();
-        builder.Append(tab).Append(FormatXmlRecordHeader(GetType().Name, HexDump.ToHex(RecordId), HexDump.ToHex(Version), HexDump.ToHex(Instance)))
-                .Append(tab).Append("\t").Append("<BlipTypeWin32>").Append(field_1_blipTypeWin32).Append("</BlipTypeWin32>\n")
-                .Append(tab).Append("\t").Append("<BlipTypeMacOS>").Append(field_2_blipTypeMacOS).Append("</BlipTypeMacOS>\n")
-                .Append(tab).Append("\t").Append("<SUID>").Append(field_3_uid == null ? "" : HexDump.ToHex(field_3_uid)).Append("</SUID>\n")
-                .Append(tab).Append("\t").Append("<Tag>").Append(field_4_tag).Append("</Tag>\n")
-                .Append(tab).Append("\t").Append("<Size>").Append(field_5_size).Append("</Size>\n")
-                .Append(tab).Append("\t").Append("<Ref>").Append(field_6_ref).Append("</Ref>\n")
-                .Append(tab).Append("\t").Append("<Offset>").Append(field_7_offset).Append("</Offset>\n")
-                .Append(tab).Append("\t").Append("<Usage>").Append(field_8_usage).Append("</Usage>\n")
-                .Append(tab).Append("\t").Append("<Name>").Append(field_9_name).Append("</Name>\n")
-                .Append(tab).Append("\t").Append("<Unused2>").Append(field_10_unused2).Append("</Unused2>\n")
-                .Append(tab).Append("\t").Append("<Unused3>").Append(field_11_unused3).Append("</Unused3>\n");
+        builder.Append(tab)
+            .Append(FormatXmlRecordHeader(
+                GetType().Name,
+                HexDump.ToHex(RecordId),
+                HexDump.ToHex(Version),
+                HexDump.ToHex(Instance)))
+            .Append(tab).Append("\t").Append("<BlipTypeWin32>").Append(field_1_blipTypeWin32).Append("</BlipTypeWin32>\n")
+            .Append(tab).Append("\t").Append("<BlipTypeMacOS>").Append(field_2_blipTypeMacOS).Append("</BlipTypeMacOS>\n")
+            .Append(tab).Append("\t").Append("<SUID>").Append(field_3_uid == null ? "" : HexDump.ToHex(field_3_uid)).Append("</SUID>\n")
+            .Append(tab).Append("\t").Append("<Tag>").Append(field_4_tag).Append("</Tag>\n")
+            .Append(tab).Append("\t").Append("<Size>").Append(field_5_size).Append("</Size>\n")
+            .Append(tab).Append("\t").Append("<Ref>").Append(field_6_ref).Append("</Ref>\n")
+            .Append(tab).Append("\t").Append("<Offset>").Append(field_7_offset).Append("</Offset>\n")
+            .Append(tab).Append("\t").Append("<Usage>").Append(field_8_usage).Append("</Usage>\n")
+            .Append(tab).Append("\t").Append("<Name>").Append(field_9_name).Append("</Name>\n")
+            .Append(tab).Append("\t").Append("<Unused2>").Append(field_10_unused2).Append("</Unused2>\n")
+            .Append(tab).Append("\t").Append("<Unused3>").Append(field_11_unused3).Append("</Unused3>\n");
         builder.Append(tab).Append("</").Append(GetType().Name).Append(">\n");
         return builder.ToString();
     }
@@ -398,7 +406,7 @@ public class EscherBSERecord : EscherRecord
     /// Retrieve the string representation given a blip id.
     /// </summary>
     /// <param name="b">The b.</param>
-    public String GetBlipType(byte b)
+    public static string GetBlipType(byte b)
     {
         switch (b)
         {

@@ -15,42 +15,41 @@
    limitations Under the License.
 ==================================================================== */
 
-namespace NPOI.HSSF.Record.Chart
+namespace NPOI.HSSF.Record.Chart;
+
+/// <summary>
+/// The DropBar record specifies the attributes of the up bars or the down bars between multiple 
+/// series of a line chart group and specifies the beginning of a collection of records as 
+/// defined by the Chart Sheet Substream ABNF. The first of these collections in the line chart 
+/// group specifies the attributes of the up bars. The second specifies the attributes of the 
+/// down bars. If this record exists, then the chart group type MUST be line and the field cSer 
+/// in the record SeriesList MUST be greater than 1.
+/// </summary>
+/// <remarks>
+/// author: Antony liu (antony.apollo at gmail.com)
+/// </remarks>
+public class DropBarRecord : RowDataRecord
 {
-    /// <summary>
-    /// The DropBar record specifies the attributes of the up bars or the down bars between multiple 
-    /// series of a line chart group and specifies the beginning of a collection of records as 
-    /// defined by the Chart Sheet Substream ABNF. The first of these collections in the line chart 
-    /// group specifies the attributes of the up bars. The second specifies the attributes of the 
-    /// down bars. If this record exists, then the chart group type MUST be line and the field cSer 
-    /// in the record SeriesList MUST be greater than 1.
-    /// </summary>
-    /// <remarks>
-    /// author: Antony liu (antony.apollo at gmail.com)
-    /// </remarks>
-    public class DropBarRecord : RowDataRecord
+    public const short sid = 0x103D;
+    public DropBarRecord(RecordInputStream ris)
+        : base(ris)
     {
-        public const short sid = 0x103D;
-        public DropBarRecord(RecordInputStream ris)
-            : base(ris)
-        {
-        }
+    }
 
-        protected override int DataSize
+    protected override int DataSize
+    {
+        get
         {
-            get
-            {
-                return base.DataSize;
-            }
+            return base.DataSize;
         }
-        public override void Serialize(NPOI.Util.ILittleEndianOutput out1)
-        {
-            base.Serialize(out1);
-        }
+    }
+    public override void Serialize(NPOI.Util.ILittleEndianOutput out1)
+    {
+        base.Serialize(out1);
+    }
 
-        public override short Sid
-        {
-            get { return sid; }
-        }
+    public override short Sid
+    {
+        get { return sid; }
     }
 }

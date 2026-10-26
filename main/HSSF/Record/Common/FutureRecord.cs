@@ -1,4 +1,4 @@
-/* ====================================================================
+﻿/* ====================================================================
    Licensed to the Apache Software Foundation (ASF) under one or more
    contributor license agreements.  See the NOTICE file distributed with
    this work for Additional information regarding copyright ownership.
@@ -15,20 +15,19 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.HSSF.Record.Common
+namespace NPOI.HSSF.Record.Common;
+
+using System;
+
+using NPOI.SS.Util;
+
+/**
+ * Title: Future Record, a newer (largely Excel 2007+) record
+ *  which Contains a Future Record Header ({@link FtrHeader})
+ */
+public interface IFutureRecord
 {
-    using System;
-
-    using NPOI.SS.Util;
-
-    /**
-     * Title: Future Record, a newer (largely Excel 2007+) record
-     *  which Contains a Future Record Header ({@link FtrHeader})
-     */
-    public interface IFutureRecord
-    {
-        short GetFutureRecordType();
-        FtrHeader GetFutureHeader();
-        CellRangeAddress GetAssociatedRange();
-    }
+    short GetFutureRecordType();
+    FtrHeader GetFutureHeader();
+    CellRangeAddress GetAssociatedRange();
 }

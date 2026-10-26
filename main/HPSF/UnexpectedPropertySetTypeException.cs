@@ -1,4 +1,4 @@
-/* ====================================================================
+﻿/* ====================================================================
     Licensed To the Apache Software Foundation (ASF) under one or more
     contributor license agreements.  See the NOTICE file distributed with
     this work for Additional information regarding copyright ownership.
@@ -45,7 +45,8 @@ public class UnexpectedPropertySetTypeException : HPSFException
     /// <summary>
     /// Initializes a new instance of the <see cref="UnexpectedPropertySetTypeException"/> class.
     /// </summary>
-    public UnexpectedPropertySetTypeException():base()
+    public UnexpectedPropertySetTypeException()
+        : base()
     {
     }
 
@@ -53,7 +54,8 @@ public class UnexpectedPropertySetTypeException : HPSFException
     /// Initializes a new instance of the <see cref="UnexpectedPropertySetTypeException"/> class.
     /// </summary>
     /// <param name="msg">The message string.</param>
-    public UnexpectedPropertySetTypeException(String msg):base(msg)
+    public UnexpectedPropertySetTypeException(String msg)
+        : base(msg)
     {
     }
 
@@ -62,7 +64,8 @@ public class UnexpectedPropertySetTypeException : HPSFException
     /// </summary>
     /// <param name="reason">The reason, i.e. a throwable that indirectly
     /// caused this exception.</param>
-    public UnexpectedPropertySetTypeException(Exception reason):base(reason)
+    public UnexpectedPropertySetTypeException(Exception reason)
+        : base(reason)
     {
     }
 
@@ -72,8 +75,10 @@ public class UnexpectedPropertySetTypeException : HPSFException
     /// <param name="msg">The message string.</param>
     /// <param name="reason">The reason, i.e. a throwable that indirectly
     /// caused this exception.</param>
-    public UnexpectedPropertySetTypeException(String msg,
-                                                Exception reason):base(msg, reason)
+    public UnexpectedPropertySetTypeException(
+        string msg,
+        Exception reason)
+        : base(msg, reason)
     {
     }
 }

@@ -1,4 +1,4 @@
-
+﻿
 /* ====================================================================
    Licensed to the Apache Software Foundation (ASF) Under one or more
    contributor license agreements.  See the NOTICE file distributed with
@@ -17,113 +17,112 @@
 ==================================================================== */
 
 
-namespace NPOI.HSSF.Record
-{
-    using NPOI.Util;
-    using System;
-    using System.Text;
+namespace NPOI.HSSF.Record;
 
+using NPOI.Util;
+using System;
+using System.Text;
+
+
+/**
+ * Title: MMS Record
+ * Description: defines how many Add menu and del menu options are stored
+ *                    in the file. Should always be Set to 0 for HSSF workbooks
+ * REFERENCE:  PG 328 Microsoft Excel 97 Developer's Kit (ISBN: 1-57231-498-2)
+ * @author Andrew C. Oliver (acoliver at apache dot org)
+ * @version 2.0-pre
+ */
+
+public class MMSRecord
+   : StandardRecord
+{
+    public const short sid = 0xC1;
+    private byte field_1_AddMenuCount;   // = 0;
+    private byte field_2_delMenuCount;   // = 0;
+
+    public MMSRecord()
+    {
+    }
 
     /**
-     * Title: MMS Record
-     * Description: defines how many Add menu and del menu options are stored
-     *                    in the file. Should always be Set to 0 for HSSF workbooks
-     * REFERENCE:  PG 328 Microsoft Excel 97 Developer's Kit (ISBN: 1-57231-498-2)
-     * @author Andrew C. Oliver (acoliver at apache dot org)
-     * @version 2.0-pre
+     * Constructs a MMS record and Sets its fields appropriately.
+     * @param in the RecordInputstream to Read the record from
      */
 
-    public class MMSRecord
-       : StandardRecord
+    public MMSRecord(RecordInputStream in1)
     {
-        public const short sid = 0xC1;
-        private byte field_1_AddMenuCount;   // = 0;
-        private byte field_2_delMenuCount;   // = 0;
-
-        public MMSRecord()
+        if (in1.Remaining == 0)
         {
+            return;
         }
+        field_1_AddMenuCount = (byte)in1.ReadByte();
+        field_2_delMenuCount = (byte)in1.ReadByte();
+    }
 
-        /**
-         * Constructs a MMS record and Sets its fields appropriately.
-         * @param in the RecordInputstream to Read the record from
-         */
+    /**
+     * Set number of Add menu options (Set to 0)
+     * @param am  number of Add menu options
+     */
 
-        public MMSRecord(RecordInputStream in1)
+    public byte AddMenuCount
+    {
+        get
         {
-            if (in1.Remaining == 0)
-            {
-                return;
-            }
-            field_1_AddMenuCount = (byte)in1.ReadByte();
-            field_2_delMenuCount = (byte)in1.ReadByte();
+            return field_1_AddMenuCount;
         }
-
-        /**
-         * Set number of Add menu options (Set to 0)
-         * @param am  number of Add menu options
-         */
-
-        public byte AddMenuCount
+        set
         {
-            get
-            {
-                return field_1_AddMenuCount;
-            }
-            set
-            {
-                field_1_AddMenuCount = value;
-            }
+            field_1_AddMenuCount = value;
         }
+    }
 
-        /**
-         * Set number of del menu options (Set to 0)
-         * @param dm  number of del menu options
-         */
+    /**
+     * Set number of del menu options (Set to 0)
+     * @param dm  number of del menu options
+     */
 
-        public byte DelMenuCount
+    public byte DelMenuCount
+    {
+        get
         {
-            get
-            {
-                return field_2_delMenuCount;
-            }
-            set
-            {
-                field_2_delMenuCount = value;
-            }
+            return field_2_delMenuCount;
         }
-
-
-        public override String ToString()
+        set
         {
-            StringBuilder buffer = new StringBuilder();
-
-            buffer.Append("[MMS]\n");
-            buffer.Append("    .addMenu        = ")
-                .Append(StringUtil.ToHexString(AddMenuCount)).Append("\n");
-            buffer.Append("    .delMenu        = ")
-                .Append(StringUtil.ToHexString(DelMenuCount)).Append("\n");
-            buffer.Append("[/MMS]\n");
-            return buffer.ToString();
+            field_2_delMenuCount = value;
         }
+    }
 
-        public override void Serialize(ILittleEndianOutput out1)
+
+    public override String ToString()
+    {
+        StringBuilder buffer = new StringBuilder();
+
+        buffer.Append("[MMS]\n");
+        buffer.Append("    .addMenu        = ")
+            .Append(StringUtil.ToHexString(AddMenuCount)).Append("\n");
+        buffer.Append("    .delMenu        = ")
+            .Append(StringUtil.ToHexString(DelMenuCount)).Append("\n");
+        buffer.Append("[/MMS]\n");
+        return buffer.ToString();
+    }
+
+    public override void Serialize(ILittleEndianOutput out1)
+    {
+        out1.WriteByte(AddMenuCount);
+        out1.WriteByte(DelMenuCount);
+    }
+
+    protected override int DataSize
+    {
+        get
         {
-            out1.WriteByte(AddMenuCount);
-            out1.WriteByte(DelMenuCount);
+            return 2;
         }
+    }
 
-        protected override int DataSize
-        {
-            get
-            {
-                return 2;
-            }
-        }
-
-        public override short Sid
-        {
-            get { return sid; }
-        }
+    public override short Sid
+    {
+        get { return sid; }
     }
 }

@@ -1,4 +1,4 @@
-
+﻿
 /* ====================================================================
    Licensed to the Apache Software Foundation (ASF) Under one or more
    contributor license agreements.  See the NOTICE file distributed with
@@ -16,58 +16,57 @@
    limitations Under the License.
 ==================================================================== */
 
-namespace NPOI.HSSF.Record
+namespace NPOI.HSSF.Record;
+
+using System;
+using System.Collections.Generic;
+
+/**
+ * HorizontalPageBreak record that stores page breaks at rows
+ * 
+ * This class Is just used so that SID Compares work properly in the RecordFactory
+ * @see PageBreakRecord
+ * @author Danny Mui (dmui at apache dot org) 
+ */
+public class HorizontalPageBreakRecord : PageBreakRecord, ICloneable
 {
-    using System;
-    using System.Collections.Generic;
+
+    public new const short sid = 0x001B;
 
     /**
-     * HorizontalPageBreak record that stores page breaks at rows
      * 
-     * This class Is just used so that SID Compares work properly in the RecordFactory
-     * @see PageBreakRecord
-     * @author Danny Mui (dmui at apache dot org) 
      */
-    public class HorizontalPageBreakRecord : PageBreakRecord, ICloneable
+    public HorizontalPageBreakRecord()
+    {
+        
+    }
+
+    /**
+      * @param in the RecordInputstream to Read the record from
+      */
+    public HorizontalPageBreakRecord(RecordInputStream in1)
+        : base(in1)
     {
 
-        public new const short sid = 0x001B;
+    }
 
-        /**
-         * 
-         */
-        public HorizontalPageBreakRecord()
+    /* (non-Javadoc)
+     * @see org.apache.poi.hssf.record.Record#Sid
+     */
+    public override short Sid
+    {
+        get { return sid; }
+    }
+
+    public override Object Clone()
+    {
+        PageBreakRecord result = new HorizontalPageBreakRecord();
+        IEnumerator<Break> iterator = GetBreaksEnumerator();
+        while (iterator.MoveNext())
         {
-            
+            Break original = iterator.Current;
+            result.AddBreak(original.main, original.subFrom, original.subTo);
         }
-
-        /**
-          * @param in the RecordInputstream to Read the record from
-          */
-        public HorizontalPageBreakRecord(RecordInputStream in1)
-            : base(in1)
-        {
-
-        }
-
-        /* (non-Javadoc)
-         * @see org.apache.poi.hssf.record.Record#Sid
-         */
-        public override short Sid
-        {
-            get { return sid; }
-        }
-
-        public override Object Clone()
-        {
-            PageBreakRecord result = new HorizontalPageBreakRecord();
-            IEnumerator<Break> iterator = GetBreaksEnumerator();
-            while (iterator.MoveNext())
-            {
-                Break original = iterator.Current;
-                result.AddBreak(original.main, original.subFrom, original.subTo);
-            }
-            return result;
-        }
+        return result;
     }
 }

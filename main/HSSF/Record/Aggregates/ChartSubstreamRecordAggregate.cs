@@ -1,4 +1,4 @@
-/* ====================================================================
+﻿/* ====================================================================
    Licensed to the Apache Software Foundation (ASF) under one or more
    contributor license agreements.  See the NOTICE file distributed with
    this work for Additional information regarding copyright ownership.
@@ -15,88 +15,87 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.HSSF.Record.Aggregates
+namespace NPOI.HSSF.Record.Aggregates;
+
+using System;
+
+
+using NPOI.HSSF.Model;
+using System.Collections.Generic;
+using System.IO;
+
+/**
+ * Manages the all the records associated with a chart sub-stream.<br/>
+ * Includes the Initial {@link BOFRecord} and {@link EOFRecord}.
+ *
+ * @author Josh Micich
+ */
+public class ChartSubstreamRecordAggregate : RecordAggregate
 {
-    using System;
 
-
-    using NPOI.HSSF.Model;
-    using System.Collections.Generic;
-    using System.IO;
-
+    private readonly BOFRecord _bofRec;
     /**
-     * Manages the all the records associated with a chart sub-stream.<br/>
-     * Includes the Initial {@link BOFRecord} and {@link EOFRecord}.
-     *
-     * @author Josh Micich
+     * All the records between BOF and EOF
      */
-    public class ChartSubstreamRecordAggregate : RecordAggregate
+    private readonly List<RecordBase> _recs;
+    private readonly PageSettingsBlock _psBlock;
+
+    public ChartSubstreamRecordAggregate(RecordStream rs)
     {
-
-        private readonly BOFRecord _bofRec;
-        /**
-         * All the records between BOF and EOF
-         */
-        private readonly List<RecordBase> _recs;
-        private readonly PageSettingsBlock _psBlock;
-
-        public ChartSubstreamRecordAggregate(RecordStream rs)
+        _bofRec = (BOFRecord)rs.GetNext();
+        List<RecordBase> temp = new List<RecordBase>();
+        while (rs.PeekNextClass() != typeof(EOFRecord))
         {
-            _bofRec = (BOFRecord)rs.GetNext();
-            List<RecordBase> temp = new List<RecordBase>();
-            while (rs.PeekNextClass() != typeof(EOFRecord))
+            Type a = rs.PeekNextClass();
+            if (PageSettingsBlock.IsComponentRecord(rs.PeekNextSid()))
             {
-                Type a = rs.PeekNextClass();
-                if (PageSettingsBlock.IsComponentRecord(rs.PeekNextSid()))
+                if (_psBlock != null)
                 {
-                    if (_psBlock != null)
+                    if (rs.PeekNextSid() == HeaderFooterRecord.sid)
                     {
-                        if (rs.PeekNextSid() == HeaderFooterRecord.sid)
-                        {
-                            // test samples: 45538_classic_Footer.xls, 45538_classic_Header.xls
-                            _psBlock.AddLateHeaderFooter((HeaderFooterRecord)rs.GetNext());
-                            continue;
-                        }
-                        throw new InvalidDataException(
-                                "Found more than one PageSettingsBlock in chart sub-stream, had sid: " + rs.PeekNextSid());
+                        // test samples: 45538_classic_Footer.xls, 45538_classic_Header.xls
+                        _psBlock.AddLateHeaderFooter((HeaderFooterRecord)rs.GetNext());
+                        continue;
                     }
-                    _psBlock = new PageSettingsBlock(rs);
-                    temp.Add(_psBlock);
-                    continue;
+                    throw new InvalidDataException(
+                            "Found more than one PageSettingsBlock in chart sub-stream, had sid: " + rs.PeekNextSid());
                 }
-                temp.Add(rs.GetNext());
+                _psBlock = new PageSettingsBlock(rs);
+                temp.Add(_psBlock);
+                continue;
             }
-            _recs = temp;
-            Record eof = rs.GetNext(); // no need to save EOF in field
-            if (eof is not EOFRecord)
-            {
-                throw new InvalidOperationException("Bad chart EOF");
-            }
+            temp.Add(rs.GetNext());
         }
-
-        public override void VisitContainedRecords(RecordVisitor rv)
+        _recs = temp;
+        Record eof = rs.GetNext(); // no need to save EOF in field
+        if (eof is not EOFRecord)
         {
-            if (_recs.Count==0)
-            {
-                return;
-            }
-            rv.VisitRecord(_bofRec);
-            for (int i = 0; i < _recs.Count; i++)
-            {
-                RecordBase rb = _recs[i];
-                if (rb is RecordAggregate aggregate)
-                {
-                    aggregate.VisitContainedRecords(rv);
-                }
-                else
-                {
-                    rv.VisitRecord((Record)rb);
-                }
-            }
-            rv.VisitRecord(EOFRecord.instance);
+            throw new InvalidOperationException("Bad chart EOF");
         }
-
     }
+
+    public override void VisitContainedRecords(RecordVisitor rv)
+    {
+        if (_recs.Count==0)
+        {
+            return;
+        }
+        rv.VisitRecord(_bofRec);
+        for (int i = 0; i < _recs.Count; i++)
+        {
+            RecordBase rb = _recs[i];
+            if (rb is RecordAggregate aggregate)
+            {
+                aggregate.VisitContainedRecords(rv);
+            }
+            else
+            {
+                rv.VisitRecord((Record)rb);
+            }
+        }
+        rv.VisitRecord(EOFRecord.instance);
+    }
+
 }
 
 

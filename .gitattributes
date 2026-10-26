@@ -1,5 +1,9 @@
 # Auto detect text files and perform LF normalization
-* text=auto
+* text=auto eol=lf
+
+# VBA modules use CRLF. TestVBAMacroReader compares macros read from the sample
+# files with these, so they must be checked out with CRLF on every platform.
+*.vba    text eol=crlf
 
 # Custom for Visual Studio
 *.cs     diff=csharp

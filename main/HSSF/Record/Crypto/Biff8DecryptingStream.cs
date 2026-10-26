@@ -1,4 +1,4 @@
-/* ====================================================================
+﻿/* ====================================================================
    Licensed to the Apache Software Foundation (ASF) under one or more
    contributor license agreements.  See the NOTICE file distributed with
    this work for Additional information regarding copyright ownership.
@@ -15,202 +15,201 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.HSSF.Record.Crypto
-{
-    using System;
-    using System.IO;
-    using NPOI.Util;
+namespace NPOI.HSSF.Record.Crypto;
 
-    using NPOI.HSSF.Record;
-    using NPOI.POIFS.Crypt;
+using System;
+using System.IO;
+using NPOI.Util;
+
+using NPOI.HSSF.Record;
+using NPOI.POIFS.Crypt;
+
+/**
+ *
+ * @author Josh Micich
+ */
+public class Biff8DecryptingStream : BiffHeaderInput, ILittleEndianInput
+{
+    public const int RC4_REKEYING_INTERVAL = 1024; // BIFF8 block size
+
+    private readonly ChunkedCipherInputStream ccis;
+    private readonly byte[] buffer = new byte[LittleEndianConsts.LONG_SIZE];
+    private bool shouldSkipEncryptionOnCurrentRecord; // true => do not decrypt payload
+
+    public Biff8DecryptingStream(InputStream input, int initialOffset, EncryptionInfo info)
+    {
+        try
+        {
+            byte[] initialBuf = IOUtils.SafelyAllocate(initialOffset, CryptoFunctions.MAX_RECORD_LENGTH);
+            InputStream stream = input;
+            if (initialOffset == 0)
+            {
+                stream = input;
+            }
+            else
+            {
+                stream = new PushbackInputStream(input, initialOffset);
+                ((PushbackInputStream)stream).Unread(initialBuf);
+            }
+
+            var dec = info.Decryptor;
+            dec.SetChunkSize(RC4_REKEYING_INTERVAL);
+            ccis = (ChunkedCipherInputStream)dec.GetDataStream(stream, int.MaxValue, 0);
+
+            if (initialOffset > 0)
+            {
+                // Advance cipher state across initial bytes (as plain header bytes)
+                ccis.ReadFully(initialBuf);
+            }
+        }
+        catch (Exception ex)
+        {
+            throw new RecordFormatException("Failed to initialise decrypting stream: " + ex.Message, ex);
+        }
+    }
+
+    public int Available() => ccis.Available();
 
     /**
-     *
-     * @author Josh Micich
+     * Reads an unsigned short value without decrypting
      */
-    public class Biff8DecryptingStream : BiffHeaderInput, ILittleEndianInput
+    public int ReadRecordSID()
     {
-        public const int RC4_REKEYING_INTERVAL = 1024; // BIFF8 block size
+        ReadPlain(buffer, 0, LittleEndianConsts.SHORT_SIZE);
+        int sid = LittleEndian.GetUShort(buffer, 0);
+        shouldSkipEncryptionOnCurrentRecord = IsNeverEncryptedRecord(sid);
+        return sid;
+    }
 
-        private readonly ChunkedCipherInputStream ccis;
-        private readonly byte[] buffer = new byte[LittleEndianConsts.LONG_SIZE];
-        private bool shouldSkipEncryptionOnCurrentRecord; // true => do not decrypt payload
+    /**
+     * Reads an unsigned short value without decrypting
+     */
+    public int ReadDataSize()
+    {
+        ReadPlain(buffer, 0, LittleEndianConsts.SHORT_SIZE);
+        int size = LittleEndian.GetUShort(buffer, 0);
+        ccis.SetNextRecordSize(size);
+        return size;
+    }
 
-        public Biff8DecryptingStream(InputStream input, int initialOffset, EncryptionInfo info)
+    public double ReadDouble()
+    {
+        long bits = ReadLong();
+        double d = BitConverter.Int64BitsToDouble(bits);
+        if (double.IsNaN(d)) throw new InvalidOperationException("Unexpected NaN");
+        return d;
+    }
+
+    public void ReadFully(byte[] buf)
+    {
+        ReadFully(buf, 0, buf.Length);
+    }
+
+    public void ReadFully(byte[] buf, int off, int len)
+    {
+        if (shouldSkipEncryptionOnCurrentRecord)
         {
-            try
-            {
-                byte[] initialBuf = IOUtils.SafelyAllocate(initialOffset, CryptoFunctions.MAX_RECORD_LENGTH);
-                InputStream stream = input;
-                if (initialOffset == 0)
-                {
-                    stream = input;
-                }
-                else
-                {
-                    stream = new PushbackInputStream(input, initialOffset);
-                    ((PushbackInputStream)stream).Unread(initialBuf);
-                }
-
-                var dec = info.Decryptor;
-                dec.SetChunkSize(RC4_REKEYING_INTERVAL);
-                ccis = (ChunkedCipherInputStream)dec.GetDataStream(stream, int.MaxValue, 0);
-
-                if (initialOffset > 0)
-                {
-                    // Advance cipher state across initial bytes (as plain header bytes)
-                    ccis.ReadFully(initialBuf);
-                }
-            }
-            catch (Exception ex)
-            {
-                throw new RecordFormatException("Failed to initialise decrypting stream: " + ex.Message, ex);
-            }
+            ccis.ReadPlain(buf, off, buf.Length);
         }
+        else
+        {
+            ccis.Read(buf, off, len);
+        }
+    }
 
-        public int Available() => ccis.Available();
+    public byte ReadByte()
+    {
+        if (shouldSkipEncryptionOnCurrentRecord)
+        {
+            ReadPlain(buffer, 0, LittleEndianConsts.BYTE_SIZE);
+            return buffer[0];
+        }
+        else
+        {
+            return (byte)ccis.ReadByte();
+        }
+    }
 
-        /**
-         * Reads an unsigned short value without decrypting
-         */
-        public int ReadRecordSID()
+    int ILittleEndianInput.ReadByte() => ReadByte();
+
+    public int ReadUByte() => ReadByte() & 0xFF;
+
+    public short ReadShort()
+    {
+        if(shouldSkipEncryptionOnCurrentRecord)
         {
             ReadPlain(buffer, 0, LittleEndianConsts.SHORT_SIZE);
-            int sid = LittleEndian.GetUShort(buffer, 0);
-            shouldSkipEncryptionOnCurrentRecord = IsNeverEncryptedRecord(sid);
-            return sid;
+            return LittleEndian.GetShort(buffer);
         }
-
-        /**
-         * Reads an unsigned short value without decrypting
-         */
-        public int ReadDataSize()
+        else
         {
-            ReadPlain(buffer, 0, LittleEndianConsts.SHORT_SIZE);
-            int size = LittleEndian.GetUShort(buffer, 0);
-            ccis.SetNextRecordSize(size);
-            return size;
+            return ccis.ReadShort();
         }
+    }
 
-        public double ReadDouble()
+    public int ReadUShort() => ReadShort() & 0xFFFF;
+
+    public int ReadInt()
+    {
+        if (shouldSkipEncryptionOnCurrentRecord)
         {
-            long bits = ReadLong();
-            double d = BitConverter.Int64BitsToDouble(bits);
-            if (double.IsNaN(d)) throw new InvalidOperationException("Unexpected NaN");
-            return d;
+            ReadPlain(buffer, 0, LittleEndianConsts.INT_SIZE);
+            return LittleEndian.GetInt(buffer);
         }
-
-        public void ReadFully(byte[] buf)
+        else
         {
-            ReadFully(buf, 0, buf.Length);
+            return ccis.ReadInt();
         }
+    }
 
-        public void ReadFully(byte[] buf, int off, int len)
+    public long ReadLong()
+    {
+        if (shouldSkipEncryptionOnCurrentRecord)
         {
-            if (shouldSkipEncryptionOnCurrentRecord)
-            {
-                ccis.ReadPlain(buf, off, buf.Length);
-            }
-            else
-            {
-                ccis.Read(buf, off, len);
-            }
+            ReadPlain(buffer, 0, LittleEndianConsts.LONG_SIZE);
+            return LittleEndian.GetLong(buffer);
         }
-
-        public byte ReadByte()
+        else
         {
-            if (shouldSkipEncryptionOnCurrentRecord)
-            {
-                ReadPlain(buffer, 0, LittleEndianConsts.BYTE_SIZE);
-                return buffer[0];
-            }
-            else
-            {
-                return (byte)ccis.ReadByte();
-            }
+            return ccis.ReadLong();
         }
+    }
 
-        int ILittleEndianInput.ReadByte() => ReadByte();
+    public void ReadPlain(byte[] b, int off, int len)
+    {
+        ccis.ReadPlain(b, off, len);
+    }
 
-        public int ReadUByte() => ReadByte() & 0xFF;
+    public bool IsCurrentRecordEncrypted() => !shouldSkipEncryptionOnCurrentRecord;
 
-        public short ReadShort()
+    public long GetPosition()
+    {
+        return ccis.GetPos();
+    }
+
+    public static bool IsNeverEncryptedRecord(int sid)
+    {
+        switch(sid)
         {
-            if(shouldSkipEncryptionOnCurrentRecord)
-            {
-                ReadPlain(buffer, 0, LittleEndianConsts.SHORT_SIZE);
-                return LittleEndian.GetShort(buffer);
-            }
-            else
-            {
-                return ccis.ReadShort();
-            }
-        }
+            case BOFRecord.sid:
+            // sheet BOFs for sure
+            // TODO - find out about chart BOFs
 
-        public int ReadUShort() => ReadShort() & 0xFFFF;
+            case InterfaceHdrRecord.sid:
+            // don't know why this record doesn't seem to get encrypted
 
-        public int ReadInt()
-        {
-            if (shouldSkipEncryptionOnCurrentRecord)
-            {
-                ReadPlain(buffer, 0, LittleEndianConsts.INT_SIZE);
-                return LittleEndian.GetInt(buffer);
-            }
-            else
-            {
-                return ccis.ReadInt();
-            }
-        }
+            case FilePassRecord.sid:
+                // this only really counts when writing because FILEPASS is read early
 
-        public long ReadLong()
-        {
-            if (shouldSkipEncryptionOnCurrentRecord)
-            {
-                ReadPlain(buffer, 0, LittleEndianConsts.LONG_SIZE);
-                return LittleEndian.GetLong(buffer);
-            }
-            else
-            {
-                return ccis.ReadLong();
-            }
-        }
+                // UsrExcl(0x0194)
+                // FileLock
+                // RRDInfo(0x0196)
+                // RRDHead(0x0138)
 
-        public void ReadPlain(byte[] b, int off, int len)
-        {
-            ccis.ReadPlain(b, off, len);
-        }
+                return true;
 
-        public bool IsCurrentRecordEncrypted() => !shouldSkipEncryptionOnCurrentRecord;
-
-        public long GetPosition()
-        {
-            return ccis.GetPos();
-        }
-
-        public static bool IsNeverEncryptedRecord(int sid)
-        {
-            switch(sid)
-            {
-                case BOFRecord.sid:
-                // sheet BOFs for sure
-                // TODO - find out about chart BOFs
-
-                case InterfaceHdrRecord.sid:
-                // don't know why this record doesn't seem to get encrypted
-
-                case FilePassRecord.sid:
-                    // this only really counts when writing because FILEPASS is read early
-
-                    // UsrExcl(0x0194)
-                    // FileLock
-                    // RRDInfo(0x0196)
-                    // RRDHead(0x0138)
-
-                    return true;
-
-                default:
-                    return false;
-            }
+            default:
+                return false;
         }
     }
 }

@@ -23,7 +23,7 @@ namespace NPOI.HPSF;
 public class TypedPropertyValue
 {
     private static POILogger logger = POILogFactory
-            .GetLogger(typeof(TypedPropertyValue));
+        .GetLogger(typeof(TypedPropertyValue));
 
     private int _type;
 
@@ -44,7 +44,8 @@ public class TypedPropertyValue
     {
         _type = lei.ReadShort();
         short padding = lei.ReadShort();
-        if (padding != 0) {
+        if (padding != 0)
+        {
             // LOG.log( POILogger.WARN, "TypedPropertyValue padding at offset "
             //        + lei.getReadIndex() + " MUST be 0, but it's value is " + padding );
         }
@@ -65,7 +66,7 @@ public class TypedPropertyValue
                 break;
 
             case Variant.VT_UI1:
-                _value =  lei.ReadUByte();
+                _value = lei.ReadUByte();
                 break;
 
             case Variant.VT_I2:

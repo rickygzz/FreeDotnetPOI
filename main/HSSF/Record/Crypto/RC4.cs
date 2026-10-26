@@ -1,4 +1,4 @@
-/* ====================================================================
+﻿/* ====================================================================
    Licensed to the Apache Software Foundation (ASF) under one or more
    contributor license agreements.  See the NOTICE file distributed with
    this work for Additional information regarding copyright ownership.
@@ -15,93 +15,89 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.HSSF.Record.Crypto
-{
-    using System;
-    using System.Text; 
+namespace NPOI.HSSF.Record.Crypto;
+
+using System;
 using Cysharp.Text;
-    using NPOI.Util;
+using NPOI.Util;
 
-    /**
-     * Simple implementation of the alleged RC4 algorithm.
-     *
-     * Inspired by <A HREF="http://en.wikipedia.org/wiki/RC4">wikipedia's RC4 article</A>
-     *
-     * @author Josh Micich
-     */
-    internal sealed class RC4
+/**
+ * Simple implementation of the alleged RC4 algorithm.
+ *
+ * Inspired by <A HREF="http://en.wikipedia.org/wiki/RC4">wikipedia's RC4 article</A>
+ *
+ * @author Josh Micich
+ */
+internal sealed class RC4
+{
+
+    private int _i, _j;
+    private readonly byte[] _s = new byte[256];
+
+    public RC4(byte[] key)
     {
+        int key_length = key.Length;
 
-        private int _i, _j;
-        private readonly byte[] _s = new byte[256];
+        for (int i = 0; i < 256; i++)
+            _s[i] = (byte)i;
 
-        public RC4(byte[] key)
-        {
-            int key_length = key.Length;
-
-            for (int i = 0; i < 256; i++)
-                _s[i] = (byte)i;
-
-            for (int i = 0, j = 0; i < 256; i++)
-            {
-                byte temp;
-
-                j = (j + key[i % key_length] + _s[i]) & 255;
-                temp = _s[i];
-                _s[i] = _s[j];
-                _s[j] = temp;
-            }
-
-            _i = 0;
-            _j = 0;
-        }
-
-        public byte Output()
+        for (int i = 0, j = 0; i < 256; i++)
         {
             byte temp;
-            _i = (_i + 1) & 255;
-            _j = (_j + _s[_i]) & 255;
 
-            temp = _s[_i];
-            _s[_i] = _s[_j];
-            _s[_j] = temp;
-
-            return _s[(_s[_i] + _s[_j]) & 255];
+            j = (j + key[i % key_length] + _s[i]) & 255;
+            temp = _s[i];
+            _s[i] = _s[j];
+            _s[j] = temp;
         }
 
-        public void Encrypt(byte[] in1)
-        {
-            for (int i = 0; i < in1.Length; i++)
-            {
-                in1[i] = (byte)(in1[i] ^ Output());
-            }
-        }
-        public void Encrypt(byte[] in1, int OffSet, int len)
-        {
-            int end = OffSet + len;
-            for (int i = OffSet; i < end; i++)
-            {
-                in1[i] = (byte)(in1[i] ^ Output());
-            }
-
-        }
-        public override String ToString()
-        {
-            using var sb = ZString.CreateStringBuilder();
-
-            sb.Append(GetType().Name);
-            sb.Append(" [");
-            sb.Append("i=");
-            sb.Append(_i);
-            sb.Append(" j=");
-            sb.Append(_j);
-            sb.Append("]");
-            sb.Append("\n");
-            sb.Append(HexDump.Dump(_s, 0, 0));
-
-            return sb.ToString();
-        }
+        _i = 0;
+        _j = 0;
     }
 
+    public byte Output()
+    {
+        byte temp;
+        _i = (_i + 1) & 255;
+        _j = (_j + _s[_i]) & 255;
 
+        temp = _s[_i];
+        _s[_i] = _s[_j];
+        _s[_j] = temp;
+
+        return _s[(_s[_i] + _s[_j]) & 255];
+    }
+
+    public void Encrypt(byte[] in1)
+    {
+        for (int i = 0; i < in1.Length; i++)
+        {
+            in1[i] = (byte)(in1[i] ^ Output());
+        }
+    }
+    public void Encrypt(byte[] in1, int OffSet, int len)
+    {
+        int end = OffSet + len;
+        for (int i = OffSet; i < end; i++)
+        {
+            in1[i] = (byte)(in1[i] ^ Output());
+        }
+
+    }
+    public override String ToString()
+    {
+        using var sb = ZString.CreateStringBuilder();
+
+        sb.Append(GetType().Name);
+        sb.Append(" [");
+        sb.Append("i=");
+        sb.Append(_i);
+        sb.Append(" j=");
+        sb.Append(_j);
+        sb.Append("]");
+        sb.Append("\n");
+        sb.Append(HexDump.Dump(_s, 0, 0));
+
+        return sb.ToString();
+    }
 }

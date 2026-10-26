@@ -1,4 +1,4 @@
-/* ====================================================================
+﻿/* ====================================================================
    Licensed to the Apache Software Foundation (ASF) Under one or more
    contributor license agreements.  See the NOTICE file distributed with
    this work for Additional information regarding copyright ownership.
@@ -16,83 +16,82 @@
 ==================================================================== */
 
 
-namespace NPOI.HSSF.Record
+namespace NPOI.HSSF.Record;
+
+
+using System;
+using System.Text;
+using NPOI.Util;
+
+
+/**
+ * Record for the bottom margin.
+ * NOTE: This source was automatically generated.
+ *
+ * @author Shawn Laubach (slaubach at apache dot org)
+ */
+public class BottomMarginRecord : StandardRecord, IMargin, ICloneable
 {
+    public const short sid = 0x29;
+    private double field_1_margin;
 
-    using System;
-    using System.Text;
-    using NPOI.Util;
-
-
-    /**
-     * Record for the bottom margin.
-     * NOTE: This source was automatically generated.
-     *
-     * @author Shawn Laubach (slaubach at apache dot org)
-     */
-    public class BottomMarginRecord : StandardRecord, IMargin, ICloneable
+    public BottomMarginRecord()
     {
-        public const short sid = 0x29;
-        private double field_1_margin;
-
-        public BottomMarginRecord()
-        {
-
-        }
-
-        /**
-         * Constructs a BottomMargin record and Sets its fields appropriately.
-         *
-         * @param in the RecordInputstream to Read the record from
-         */
-        public BottomMarginRecord(RecordInputStream in1)
-        {
-            field_1_margin = in1.ReadDouble();
-        }
-
-        public override String ToString()
-        {
-            StringBuilder buffer = new StringBuilder();
-            buffer.Append("[BottomMargin]\n");
-            buffer.Append("    .margin               = ")
-                    .Append(" (").Append(Margin).Append(" )\n");
-            buffer.Append("[/BottomMargin]\n");
-            return buffer.ToString();
-        }
-
-        public override void Serialize(ILittleEndianOutput out1)
-        {
-            out1.WriteDouble(field_1_margin);
-        }
-
-        protected override int DataSize
-        {
-            get
-            {
-                return 8;
-            }
-        }
-
-        public override short Sid
-        {
-            get { return sid; }
-        }
-
-        /**
-         * Get the margin field for the BottomMargin record.
-         */
-        public double Margin
-        {
-            get { return field_1_margin; }
-            set { this.field_1_margin = value; }
-        }
-
-        public override Object Clone()
-        {
-            BottomMarginRecord rec = new BottomMarginRecord();
-            rec.field_1_margin = this.field_1_margin;
-            return rec;
-        }
 
     }
+
+    /**
+     * Constructs a BottomMargin record and Sets its fields appropriately.
+     *
+     * @param in the RecordInputstream to Read the record from
+     */
+    public BottomMarginRecord(RecordInputStream in1)
+    {
+        field_1_margin = in1.ReadDouble();
+    }
+
+    public override String ToString()
+    {
+        StringBuilder buffer = new StringBuilder();
+        buffer.Append("[BottomMargin]\n");
+        buffer.Append("    .margin               = ")
+                .Append(" (").Append(Margin).Append(" )\n");
+        buffer.Append("[/BottomMargin]\n");
+        return buffer.ToString();
+    }
+
+    public override void Serialize(ILittleEndianOutput out1)
+    {
+        out1.WriteDouble(field_1_margin);
+    }
+
+    protected override int DataSize
+    {
+        get
+        {
+            return 8;
+        }
+    }
+
+    public override short Sid
+    {
+        get { return sid; }
+    }
+
+    /**
+     * Get the margin field for the BottomMargin record.
+     */
+    public double Margin
+    {
+        get { return field_1_margin; }
+        set { this.field_1_margin = value; }
+    }
+
+    public override Object Clone()
+    {
+        BottomMarginRecord rec = new BottomMarginRecord();
+        rec.field_1_margin = this.field_1_margin;
+        return rec;
+    }
+
 }

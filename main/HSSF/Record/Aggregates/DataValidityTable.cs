@@ -1,4 +1,4 @@
-/* ====================================================================
+﻿/* ====================================================================
    Licensed to the Apache Software Foundation (ASF) under one or more
    contributor license agreements.  See the NOTICE file distributed with
    this work for Additional information regarding copyright ownership.
@@ -19,63 +19,62 @@ using System.Collections.Generic;
 
 using NPOI.HSSF.Model;
 
-namespace NPOI.HSSF.Record.Aggregates
+namespace NPOI.HSSF.Record.Aggregates;
+
+/// <summary>
+/// Manages the DVALRecord and DVRecords for a single sheet
+/// See OOO excelfileformat.pdf section 4.14
+/// @author Josh Micich
+/// </summary>
+public class DataValidityTable : RecordAggregate
 {
-    /// <summary>
-    /// Manages the DVALRecord and DVRecords for a single sheet
-    /// See OOO excelfileformat.pdf section 4.14
-    /// @author Josh Micich
-    /// </summary>
-    public class DataValidityTable : RecordAggregate
+
+    private readonly DVALRecord _headerRec;
+    /**
+     * The list of data validations for the current sheet.
+     * Note - this may be empty (contrary to OOO documentation)
+     */
+    private readonly List<DVRecord> _validationList;
+
+    public DataValidityTable(RecordStream rs)
     {
-
-        private readonly DVALRecord _headerRec;
-        /**
-         * The list of data validations for the current sheet.
-         * Note - this may be empty (contrary to OOO documentation)
-         */
-        private readonly List<DVRecord> _validationList;
-
-        public DataValidityTable(RecordStream rs)
+        _headerRec = (DVALRecord)rs.GetNext();
+        List<DVRecord> temp = new();
+        while (rs.PeekNextClass() == typeof(DVRecord))
         {
-            _headerRec = (DVALRecord)rs.GetNext();
-            List<DVRecord> temp = new();
-            while (rs.PeekNextClass() == typeof(DVRecord))
-            {
-                temp.Add((DVRecord) rs.GetNext());
-            }
-            _validationList = temp;
+            temp.Add((DVRecord) rs.GetNext());
         }
+        _validationList = temp;
+    }
 
-        public DataValidityTable()
-        {
-            _headerRec = new DVALRecord();
-            _validationList = new List<DVRecord>();
-        }
+    public DataValidityTable()
+    {
+        _headerRec = new DVALRecord();
+        _validationList = new List<DVRecord>();
+    }
 
-        public override void VisitContainedRecords(RecordVisitor rv)
+    public override void VisitContainedRecords(RecordVisitor rv)
+    {
+        if (_validationList.Count == 0)
         {
-            if (_validationList.Count == 0)
-            {
-                return;
-            }
-            rv.VisitRecord(_headerRec);
-            for (int i = 0; i < _validationList.Count; i++)
-            {
-                rv.VisitRecord((Record)_validationList[i]);
-            }
+            return;
         }
+        rv.VisitRecord(_headerRec);
+        for (int i = 0; i < _validationList.Count; i++)
+        {
+            rv.VisitRecord((Record)_validationList[i]);
+        }
+    }
 
-        public void AddDataValidation(DVRecord dvRecord)
-        {
-            _validationList.Add(dvRecord);
-            _headerRec.DVRecNo = (_validationList.Count);
-        }
+    public void AddDataValidation(DVRecord dvRecord)
+    {
+        _validationList.Add(dvRecord);
+        _headerRec.DVRecNo = (_validationList.Count);
+    }
 
-        public void RemoveDataValidation(DVRecord dvRecord)
-        {
-            _validationList.Remove(dvRecord);
-            _headerRec.DVRecNo = _validationList.Count;
-        }
+    public void RemoveDataValidation(DVRecord dvRecord)
+    {
+        _validationList.Remove(dvRecord);
+        _headerRec.DVRecNo = _validationList.Count;
     }
 }

@@ -1,4 +1,4 @@
-/* ====================================================================
+﻿/* ====================================================================
     Licensed To the Apache Software Foundation (ASF) under one or more
     contributor license agreements.  See the NOTICE file distributed with
     this work for Additional information regarding copyright ownership.
@@ -163,9 +163,10 @@ public class TypeWriter
     * @throws UnsupportedVariantTypeException if HPSF does not support some
     *         variant type.
     */
-    public static void WriteToStream(Stream out1,
-                                    Property[] properties,
-                                    int codepage)
+    public static void WriteToStream(
+        Stream out1,
+        Property[] properties,
+        int codepage)
     {
         /* If there are no properties don't Write anything. */
         if (properties == null)
@@ -178,8 +179,8 @@ public class TypeWriter
         for (int i = 0; i < properties.Length; i++)
         {
             Property p = properties[i];
-            WriteUIntToStream(out1, (uint) p.ID);
-            WriteUIntToStream(out1, (uint) p.GetSize());
+            WriteUIntToStream(out1, (uint)p.ID);
+            WriteUIntToStream(out1, (uint)p.GetSize());
         }
 
         /* Write the properties themselves. */
@@ -187,8 +188,8 @@ public class TypeWriter
         {
             Property p = properties[i];
             long type = p.Type;
-            WriteUIntToStream(out1, (uint) type);
-            VariantSupport.Write(out1, (int) type, p.Value, codepage);
+            WriteUIntToStream(out1, (uint)type);
+            VariantSupport.Write(out1, (int)type, p.Value, codepage);
         }
     }
 

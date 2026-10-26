@@ -20,156 +20,155 @@ using NPOI.HSSF.Model;
 using NPOI.HSSF.Record.Chart;
 using System.Diagnostics;
 
-namespace NPOI.HSSF.Record.Aggregates.Chart
+namespace NPOI.HSSF.Record.Aggregates.Chart;
+
+/// <summary>
+/// SERIESFORMAT = Series Begin 4AI *SS (SerToCrt / (SerParent (SerAuxTrend / SerAuxErrBar)))
+/// *(LegendException [Begin ATTACHEDLABEL [TEXTPROPS] End]) End
+/// </summary>
+public class SeriesFormatAggregate : ChartRecordAggregate
 {
-    /// <summary>
-    /// SERIESFORMAT = Series Begin 4AI *SS (SerToCrt / (SerParent (SerAuxTrend / SerAuxErrBar)))
-    /// *(LegendException [Begin ATTACHEDLABEL [TEXTPROPS] End]) End
-    /// </summary>
-    public class SeriesFormatAggregate : ChartRecordAggregate
+    private SeriesRecord series = null;
+    private Dictionary<LinkedDataRecord, SeriesTextRecord> dic4AI = new Dictionary<LinkedDataRecord, SeriesTextRecord>();
+    private List<SSAggregate> ssList = new List<SSAggregate>();
+    private SerToCrtRecord serToCrt = null;
+    private SerParentRecord serParent = null;
+    private SerAuxTrendRecord serAuxTrend = null;
+    private SerAuxErrBarRecord serAuxErrBar = null;
+    private List<LegendExceptionAggregate> leList = new List<LegendExceptionAggregate>();
+    public SeriesFormatAggregate(RecordStream rs, ChartRecordAggregate container)
+        : base(RuleName_SERIESFORMAT, container)
     {
-        private SeriesRecord series = null;
-        private Dictionary<LinkedDataRecord, SeriesTextRecord> dic4AI = new Dictionary<LinkedDataRecord, SeriesTextRecord>();
-        private List<SSAggregate> ssList = new List<SSAggregate>();
-        private SerToCrtRecord serToCrt = null;
-        private SerParentRecord serParent = null;
-        private SerAuxTrendRecord serAuxTrend = null;
-        private SerAuxErrBarRecord serAuxErrBar = null;
-        private List<LegendExceptionAggregate> leList = new List<LegendExceptionAggregate>();
-        public SeriesFormatAggregate(RecordStream rs, ChartRecordAggregate container)
-            : base(RuleName_SERIESFORMAT, container)
+        series = (SeriesRecord)rs.GetNext();
+        rs.GetNext();
+        LinkedDataRecord ai;
+        SeriesTextRecord sText;
+        while (rs.PeekNextChartSid() == LinkedDataRecord.sid)
         {
-            series = (SeriesRecord)rs.GetNext();
-            rs.GetNext();
-            LinkedDataRecord ai;
-            SeriesTextRecord sText;
-            while (rs.PeekNextChartSid() == LinkedDataRecord.sid)
+            sText = null;
+            ai = (LinkedDataRecord)rs.GetNext();
+            if (rs.PeekNextChartSid() == SeriesTextRecord.sid)
+                sText = (SeriesTextRecord)rs.GetNext();
+            dic4AI.Add(ai, sText);
+        }
+        if (rs.PeekNextChartSid() == DataFormatRecord.sid)
+        {
+            while (rs.PeekNextChartSid() == DataFormatRecord.sid)
+                ssList.Add(new SSAggregate(rs, this));
+        }
+        if (rs.PeekNextChartSid() == SerToCrtRecord.sid)
+        {
+            serToCrt = (SerToCrtRecord)rs.GetNext();
+        }
+        else
+        {
+            if (rs.PeekNextChartSid() == SerParentRecord.sid)
             {
-                sText = null;
-                ai = (LinkedDataRecord)rs.GetNext();
-                if (rs.PeekNextChartSid() == SeriesTextRecord.sid)
-                    sText = (SeriesTextRecord)rs.GetNext();
-                dic4AI.Add(ai, sText);
-            }
-            if (rs.PeekNextChartSid() == DataFormatRecord.sid)
-            {
-                while (rs.PeekNextChartSid() == DataFormatRecord.sid)
-                    ssList.Add(new SSAggregate(rs, this));
-            }
-            if (rs.PeekNextChartSid() == SerToCrtRecord.sid)
-            {
-                serToCrt = (SerToCrtRecord)rs.GetNext();
-            }
-            else
-            {
-                if (rs.PeekNextChartSid() == SerParentRecord.sid)
+                serParent = (SerParentRecord)rs.GetNext();
+                if (rs.PeekNextChartSid() == SerAuxTrendRecord.sid)
                 {
-                    serParent = (SerParentRecord)rs.GetNext();
-                    if (rs.PeekNextChartSid() == SerAuxTrendRecord.sid)
-                    {
-                        serAuxTrend = (SerAuxTrendRecord)rs.GetNext();
-                    }
-                    else
-                    {
-                        serAuxErrBar = (SerAuxErrBarRecord)rs.GetNext();
-                    }
+                    serAuxTrend = (SerAuxTrendRecord)rs.GetNext();
+                }
+                else
+                {
+                    serAuxErrBar = (SerAuxErrBarRecord)rs.GetNext();
                 }
             }
-
-            if (rs.PeekNextChartSid() == LegendExceptionRecord.sid)
-            {
-                while (rs.PeekNextChartSid() == LegendExceptionRecord.sid)
-                {
-                    leList.Add(new LegendExceptionAggregate(rs, this));
-                }
-            }
-
-            Record r = rs.GetNext();//EndRecord
-            Debug.Assert(r.GetType() == typeof(EndRecord));
         }
 
+        if (rs.PeekNextChartSid() == LegendExceptionRecord.sid)
+        {
+            while (rs.PeekNextChartSid() == LegendExceptionRecord.sid)
+            {
+                leList.Add(new LegendExceptionAggregate(rs, this));
+            }
+        }
+
+        Record r = rs.GetNext();//EndRecord
+        Debug.Assert(r.GetType() == typeof(EndRecord));
+    }
+
+    public override void VisitContainedRecords(RecordVisitor rv)
+    {
+        rv.VisitRecord(series);
+        rv.VisitRecord(BeginRecord.instance);
+
+        foreach(KeyValuePair<LinkedDataRecord, SeriesTextRecord> kv in dic4AI)
+        {
+            rv.VisitRecord(kv.Key);
+            if (kv.Value != null)
+                rv.VisitRecord(kv.Value);
+        }
+        foreach (SSAggregate ss in ssList)
+            ss.VisitContainedRecords(rv);
+        if (serToCrt != null)
+        {
+            rv.VisitRecord(serToCrt);
+        }
+        else
+        {
+            if (serParent != null)
+                rv.VisitRecord(serParent);
+            if (serAuxTrend != null)
+                rv.VisitRecord(serAuxTrend);
+            else
+                rv.VisitRecord(serAuxErrBar);
+        }
+        foreach (LegendExceptionAggregate le in leList)
+        {
+            le.VisitContainedRecords(rv);
+        }
+        WriteEndBlock(rv);
+        rv.VisitRecord(EndRecord.instance);
+    }
+
+    short _seriesIndex;
+    public short SeriesIndex
+    {
+        get { return _seriesIndex; }
+        set { _seriesIndex = value; }
+    }
+    /// <summary>
+    /// LegendException [Begin ATTACHEDLABEL [TEXTPROPS] End]
+    /// </summary>
+    public class LegendExceptionAggregate : ChartRecordAggregate
+    {
+        private LegendExceptionRecord legendException = null;
+        private AttachedLabelAggregate attachedLabel = null;
+        private TextPropsAggregate textProps = null;
+        public LegendExceptionRecord LegendException
+        {
+            get { return legendException; }
+        }
+        public LegendExceptionAggregate(RecordStream rs, ChartRecordAggregate container)
+            : base(RuleName_LEGENDEXCEPTION, container)
+        {
+            legendException = (LegendExceptionRecord)rs.GetNext();
+            if (rs.PeekNextChartSid() == BeginRecord.sid)
+            {
+                rs.GetNext();
+                attachedLabel = new AttachedLabelAggregate(rs, this);
+                if (rs.PeekNextChartSid() == TextPropsStreamRecord.sid || 
+                    rs.PeekNextChartSid() == RichTextStreamRecord.sid)
+                {
+                    textProps = new TextPropsAggregate(rs, this);
+                }
+                Record r = rs.GetNext();//EndRecord
+                Debug.Assert(r.GetType() == typeof(EndRecord));
+            }
+        }
         public override void VisitContainedRecords(RecordVisitor rv)
         {
-            rv.VisitRecord(series);
-            rv.VisitRecord(BeginRecord.instance);
+            rv.VisitRecord(legendException);
+            if (attachedLabel != null)
+            {
+                rv.VisitRecord(BeginRecord.instance);
+                attachedLabel.VisitContainedRecords(rv);
+                if (textProps != null)
+                    textProps.VisitContainedRecords(rv);
 
-            foreach(KeyValuePair<LinkedDataRecord, SeriesTextRecord> kv in dic4AI)
-            {
-                rv.VisitRecord(kv.Key);
-                if (kv.Value != null)
-                    rv.VisitRecord(kv.Value);
-            }
-            foreach (SSAggregate ss in ssList)
-                ss.VisitContainedRecords(rv);
-            if (serToCrt != null)
-            {
-                rv.VisitRecord(serToCrt);
-            }
-            else
-            {
-                if (serParent != null)
-                    rv.VisitRecord(serParent);
-                if (serAuxTrend != null)
-                    rv.VisitRecord(serAuxTrend);
-                else
-                    rv.VisitRecord(serAuxErrBar);
-            }
-            foreach (LegendExceptionAggregate le in leList)
-            {
-                le.VisitContainedRecords(rv);
-            }
-            WriteEndBlock(rv);
-            rv.VisitRecord(EndRecord.instance);
-        }
-
-        short _seriesIndex;
-        public short SeriesIndex
-        {
-            get { return _seriesIndex; }
-            set { _seriesIndex = value; }
-        }
-        /// <summary>
-        /// LegendException [Begin ATTACHEDLABEL [TEXTPROPS] End]
-        /// </summary>
-        public class LegendExceptionAggregate : ChartRecordAggregate
-        {
-            private LegendExceptionRecord legendException = null;
-            private AttachedLabelAggregate attachedLabel = null;
-            private TextPropsAggregate textProps = null;
-            public LegendExceptionRecord LegendException
-            {
-                get { return legendException; }
-            }
-            public LegendExceptionAggregate(RecordStream rs, ChartRecordAggregate container)
-                : base(RuleName_LEGENDEXCEPTION, container)
-            {
-                legendException = (LegendExceptionRecord)rs.GetNext();
-                if (rs.PeekNextChartSid() == BeginRecord.sid)
-                {
-                    rs.GetNext();
-                    attachedLabel = new AttachedLabelAggregate(rs, this);
-                    if (rs.PeekNextChartSid() == TextPropsStreamRecord.sid || 
-                        rs.PeekNextChartSid() == RichTextStreamRecord.sid)
-                    {
-                        textProps = new TextPropsAggregate(rs, this);
-                    }
-                    Record r = rs.GetNext();//EndRecord
-                    Debug.Assert(r.GetType() == typeof(EndRecord));
-                }
-            }
-            public override void VisitContainedRecords(RecordVisitor rv)
-            {
-                rv.VisitRecord(legendException);
-                if (attachedLabel != null)
-                {
-                    rv.VisitRecord(BeginRecord.instance);
-                    attachedLabel.VisitContainedRecords(rv);
-                    if (textProps != null)
-                        textProps.VisitContainedRecords(rv);
-
-                    WriteEndBlock(rv);
-                    rv.VisitRecord(EndRecord.instance);
-                }
+                WriteEndBlock(rv);
+                rv.VisitRecord(EndRecord.instance);
             }
         }
     }
