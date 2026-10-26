@@ -15,11 +15,9 @@
    limitations under the License.
 ==================================================================== */
 
-using System;
-using NPOI.SS.Formula;
-using NPOI.SS.Formula.Eval;
 using NPOI.SS.UserModel;
 using NPOI.SS.Util;
+using System;
 
 namespace NPOI.SS.Formula.Eval.Forked;
 

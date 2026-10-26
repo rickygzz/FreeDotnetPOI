@@ -17,10 +17,10 @@
 
 namespace NPOI.SS.Formula.Atp;
 
-using System;
+using NPOI.SS.Formula;
 using NPOI.SS.Formula.Eval;
 using NPOI.SS.Formula.Functions;
-using NPOI.SS.Formula;
+using System;
 
 /**
  * Implementation of Excel 'Analysis ToolPak' function YEARFRAC()<br/>

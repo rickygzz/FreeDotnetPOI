@@ -15,12 +15,11 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.SS.Formula.Atp;
-
-
 using NPOI.SS.Formula.Functions;
 using NPOI.SS.Formula.Eval;
 using System;
+
+namespace NPOI.SS.Formula.Atp;
 
 /**
  * Implementation of Excel 'Analysis ToolPak' function RANDBETWEEN()<br/>

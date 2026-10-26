@@ -15,11 +15,10 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.SS.Formula.Atp;
-
 using System;
 using NPOI.SS.Formula.Eval;
 
+namespace NPOI.SS.Formula.Atp;
 
 /// <summary>
 /// Internal calculation methods for Excel 'Analysis ToolPak' function YEARFRAC()
