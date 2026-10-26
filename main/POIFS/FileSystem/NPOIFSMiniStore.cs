@@ -24,287 +24,286 @@ using System.Collections.Generic;
 using System;
 using NPOI.Util;
 
-namespace NPOI.POIFS.FileSystem
+namespace NPOI.POIFS.FileSystem;
+
+
+/**
+ * This class handles the MiniStream (small block store)
+ *  in the NIO case for {@link NPOIFSFileSystem}
+ */
+public class NPOIFSMiniStore : BlockStore
 {
+    private readonly NPOIFSFileSystem _filesystem;
+    private NPOIFSStream _mini_stream;
+    private readonly List<BATBlock> _sbat_blocks;
+    private readonly HeaderBlock _header;
+    private readonly RootProperty _root;
+
+    public NPOIFSMiniStore(NPOIFSFileSystem filesystem, RootProperty root,
+         List<BATBlock> sbats, HeaderBlock header)
+    {
+        this._filesystem = filesystem;
+        this._sbat_blocks = sbats;
+        this._header = header;
+        this._root = root;
+
+        this._mini_stream = new NPOIFSStream(filesystem, root.StartBlock);
+    }
 
     /**
-     * This class handles the MiniStream (small block store)
-     *  in the NIO case for {@link NPOIFSFileSystem}
+     * Load the block at the given offset, optionally throwing an exception if the offset is beyond the limit of the buffer.
      */
-    public class NPOIFSMiniStore : BlockStore
+    private ByteBuffer GetBlockAt(int offset, bool throwIfNotFound)
     {
-        private readonly NPOIFSFileSystem _filesystem;
-        private NPOIFSStream _mini_stream;
-        private readonly List<BATBlock> _sbat_blocks;
-        private readonly HeaderBlock _header;
-        private readonly RootProperty _root;
+        // Which big block is this?
+        int byteOffset = offset * POIFSConstants.SMALL_BLOCK_SIZE;
+        int bigBlockNumber = byteOffset / _filesystem.GetBigBlockSize();
+        int bigBlockOffset = byteOffset % _filesystem.GetBigBlockSize();
 
-        public NPOIFSMiniStore(NPOIFSFileSystem filesystem, RootProperty root,
-             List<BATBlock> sbats, HeaderBlock header)
+        // Now locate the data block for it
+        NPOIFSStream.StreamBlockByteBufferIterator it = _mini_stream.GetBlockIterator() as NPOIFSStream.StreamBlockByteBufferIterator;
+
+        for (int i = 0; i < bigBlockNumber; i++)
         {
-            this._filesystem = filesystem;
-            this._sbat_blocks = sbats;
-            this._header = header;
-            this._root = root;
-
-            this._mini_stream = new NPOIFSStream(filesystem, root.StartBlock);
+            it.Next();
+        }
+        
+        if (!it.HasNext())
+        {
+            if(throwIfNotFound)
+                throw new IndexOutOfRangeException("Big block " + bigBlockNumber + " outside stream");
+            return null;
         }
 
-        /**
-         * Load the block at the given offset, optionally throwing an exception if the offset is beyond the limit of the buffer.
-         */
-        private ByteBuffer GetBlockAt(int offset, bool throwIfNotFound)
+        // Position ourselves, and take a slice 
+        ByteBuffer dataBlock = it.Next();
+        dataBlock.Position = dataBlock.Position + bigBlockOffset;
+        ByteBuffer miniBuffer = dataBlock.Slice();
+        miniBuffer.Limit = POIFSConstants.SMALL_BLOCK_SIZE;
+        return miniBuffer;
+    }
+
+    /**
+     * Load the block at the given offset.
+     */
+    public override ByteBuffer GetBlockAt(int offset)
+    {
+        return GetBlockAt(offset, true);
+    }
+
+
+    /**
+     * Try to load the block at the given offset, and if the offset is beyond the end of the buffer, return false.
+     */
+    public override bool TryGetBlockAt(int offset, out ByteBuffer byteBuffer)
+    {
+        byteBuffer = null;
+        try
         {
-            // Which big block is this?
-            int byteOffset = offset * POIFSConstants.SMALL_BLOCK_SIZE;
-            int bigBlockNumber = byteOffset / _filesystem.GetBigBlockSize();
-            int bigBlockOffset = byteOffset % _filesystem.GetBigBlockSize();
-
-            // Now locate the data block for it
-            NPOIFSStream.StreamBlockByteBufferIterator it = _mini_stream.GetBlockIterator() as NPOIFSStream.StreamBlockByteBufferIterator;
-
-            for (int i = 0; i < bigBlockNumber; i++)
-            {
-                it.Next();
-            }
-            
-            if (!it.HasNext())
-            {
-                if(throwIfNotFound)
-                    throw new IndexOutOfRangeException("Big block " + bigBlockNumber + " outside stream");
-                return null;
-            }
-
-            // Position ourselves, and take a slice 
-            ByteBuffer dataBlock = it.Next();
-            dataBlock.Position = dataBlock.Position + bigBlockOffset;
-            ByteBuffer miniBuffer = dataBlock.Slice();
-            miniBuffer.Limit = POIFSConstants.SMALL_BLOCK_SIZE;
-            return miniBuffer;
+            byteBuffer = GetBlockAt(offset, false);
+            return byteBuffer!=null;
+        }
+        catch(IndexOutOfRangeException)
+        {
+            // Try to avoid getting here. A point of having this TryDoSomething is to avoid the expense of exception handling.
+            return false;
+        }
+    }
+    /**
+     * Load the block, extending the underlying stream if needed
+     */
+    public override ByteBuffer CreateBlockIfNeeded(int offset)
+    {
+        bool firstInStore = false;
+        // If we are the first block to be allocated, initialise the stream
+        if (_mini_stream.GetStartBlock() == POIFSConstants.END_OF_CHAIN)
+        {
+            firstInStore = true;
         }
 
-        /**
-         * Load the block at the given offset.
-         */
-        public override ByteBuffer GetBlockAt(int offset)
+        // Try to Get it without extending the stream
+        if (!firstInStore && TryGetBlockAt(offset, out var result))
+            return result;             
+        
+        // Need to extend the stream
+        // TODO Replace this with proper append support
+        // For now, do the extending by hand...
+
+        // Ask for another block
+        int newBigBlock = _filesystem.GetFreeBlock();
+        _filesystem.CreateBlockIfNeeded(newBigBlock);
+        // If we are the first block to be allocated, initialise the stream
+        if (firstInStore)
         {
-            return GetBlockAt(offset, true);
+            _filesystem.PropertyTable.Root.StartBlock = (newBigBlock);
+            _mini_stream = new NPOIFSStream(_filesystem, newBigBlock);
+        }
+        else
+        {
+            // Tack it onto the end of our chain
+            ChainLoopDetector loopDetector = _filesystem.GetChainLoopDetector();
+            int block = _mini_stream.GetStartBlock();
+            while (true)
+            {
+                loopDetector.Claim(block);
+                int next = _filesystem.GetNextBlock(block);
+                if (next == POIFSConstants.END_OF_CHAIN)
+                {
+                    break;
+                }
+                block = next;
+            }
+            _filesystem.SetNextBlock(block, newBigBlock);
+        }
+        _filesystem.SetNextBlock(newBigBlock, POIFSConstants.END_OF_CHAIN);
+
+        // Now try again, to get the real small block
+        return CreateBlockIfNeeded(offset);
+        
+    }
+
+    /**
+     * Returns the BATBlock that handles the specified offset,
+     *  and the relative index within it
+     */
+    public override BATBlockAndIndex GetBATBlockAndIndex(int offset)
+    {
+        return BATBlock.GetSBATBlockAndIndex(
+              offset, _header, _sbat_blocks);
+    }
+
+    /**
+     * Works out what block follows the specified one.
+     */
+    public override int GetNextBlock(int offset)
+    {
+        BATBlockAndIndex bai = GetBATBlockAndIndex(offset);
+        return bai.Block.GetValueAt(bai.Index);
+    }
+
+    /**
+     * Changes the record of what block follows the specified one.
+     */
+    public override void SetNextBlock(int offset, int nextBlock)
+    {
+        BATBlockAndIndex bai = GetBATBlockAndIndex(offset);
+        bai.Block.SetValueAt(bai.Index, nextBlock);
+    }
+
+    /**
+     * Finds a free block, and returns its offset.
+     * This method will extend the file if needed, and if doing
+     *  so, allocate new FAT blocks to Address the extra space.
+     */
+    public override int GetFreeBlock()
+    {
+        int sectorsPerSBAT = _filesystem.GetBigBlockSizeDetails().GetBATEntriesPerBlock();
+
+        // First up, do we have any spare ones?
+        int offset = 0;
+        for (int i = 0; i < _sbat_blocks.Count; i++)
+        {
+            // Check this one
+            BATBlock sbat = _sbat_blocks[i];
+            if (sbat.HasFreeSectors)
+            {
+                // Claim one of them and return it
+                for (int j = 0; j < sectorsPerSBAT; j++)
+                {
+                    int sbatValue = sbat.GetValueAt(j);
+                    if (sbatValue == POIFSConstants.UNUSED_BLOCK)
+                    {
+                        // Bingo
+                        return offset + j;
+                    }
+                }
+            }
+
+            // Move onto the next SBAT
+            offset += sectorsPerSBAT;
         }
 
+        // If we Get here, then there aren't any
+        //  free sectors in any of the SBATs
+        // So, we need to extend the chain and add another
 
-        /**
-         * Try to load the block at the given offset, and if the offset is beyond the end of the buffer, return false.
-         */
-        public override bool TryGetBlockAt(int offset, out ByteBuffer byteBuffer)
+        // Create a new BATBlock
+        BATBlock newSBAT = BATBlock.CreateEmptyBATBlock(_filesystem.GetBigBlockSizeDetails(), false);
+        int batForSBAT = _filesystem.GetFreeBlock();
+        newSBAT.OurBlockIndex = batForSBAT;
+
+        // Are we the first SBAT?
+        if (_header.SBATCount == 0)
         {
-            byteBuffer = null;
-            try
-            {
-                byteBuffer = GetBlockAt(offset, false);
-                return byteBuffer!=null;
-            }
-            catch(IndexOutOfRangeException)
-            {
-                // Try to avoid getting here. A point of having this TryDoSomething is to avoid the expense of exception handling.
-                return false;
-            }
+            // Tell the header that we've got our first SBAT there
+            _header.SBATStart = batForSBAT;
+            _header.SBATBlockCount = 1;
         }
-        /**
-         * Load the block, extending the underlying stream if needed
-         */
-        public override ByteBuffer CreateBlockIfNeeded(int offset)
+        else
         {
-            bool firstInStore = false;
-            // If we are the first block to be allocated, initialise the stream
-            if (_mini_stream.GetStartBlock() == POIFSConstants.END_OF_CHAIN)
+            // Find the end of the SBAT stream, and add the sbat in there
+            ChainLoopDetector loopDetector = _filesystem.GetChainLoopDetector();
+            int batOffset = _header.SBATStart;
+            while (true)
             {
-                firstInStore = true;
+                loopDetector.Claim(batOffset);
+                int nextBat = _filesystem.GetNextBlock(batOffset);
+                if (nextBat == POIFSConstants.END_OF_CHAIN)
+                {
+                    break;
+                }
+                batOffset = nextBat;
             }
 
-            // Try to Get it without extending the stream
-            if (!firstInStore && TryGetBlockAt(offset, out var result))
-                return result;             
-            
-            // Need to extend the stream
-            // TODO Replace this with proper append support
-            // For now, do the extending by hand...
+            // Add it in at the end
+            _filesystem.SetNextBlock(batOffset, batForSBAT);
 
-            // Ask for another block
-            int newBigBlock = _filesystem.GetFreeBlock();
-            _filesystem.CreateBlockIfNeeded(newBigBlock);
-            // If we are the first block to be allocated, initialise the stream
-            if (firstInStore)
+            // And update the count
+            _header.SBATBlockCount = _header.SBATCount + 1;
+        }
+
+        // Finish allocating
+        _filesystem.SetNextBlock(batForSBAT, POIFSConstants.END_OF_CHAIN);
+        _sbat_blocks.Add(newSBAT);
+
+        // Return our first spot
+        return offset;
+    }
+
+
+    public override ChainLoopDetector GetChainLoopDetector()
+    {
+        return new ChainLoopDetector(_root.Size, this);
+    }
+
+    public override int GetBlockStoreBlockSize()
+    {
+        return POIFSConstants.SMALL_BLOCK_SIZE;
+    }
+
+    /// <summary>
+    /// Writes the SBATs to their backing blocks, and updates 
+    /// the mini-stream size in the properties. Stream size is
+    /// based on full blocks used, not the data within the streams
+    /// </summary>
+    public void SyncWithDataSource()
+    {
+        int blocksUsed = 0;
+        foreach (BATBlock sbat in _sbat_blocks)
+        {
+            ByteBuffer block = _filesystem.GetBlockAt(sbat.OurBlockIndex);
+            BlockAllocationTableWriter.WriteBlock(sbat, block);
+            if (!sbat.HasFreeSectors)
             {
-                _filesystem.PropertyTable.Root.StartBlock = (newBigBlock);
-                _mini_stream = new NPOIFSStream(_filesystem, newBigBlock);
+                blocksUsed += _filesystem.GetBigBlockSizeDetails().GetBATEntriesPerBlock();
             }
             else
             {
-                // Tack it onto the end of our chain
-                ChainLoopDetector loopDetector = _filesystem.GetChainLoopDetector();
-                int block = _mini_stream.GetStartBlock();
-                while (true)
-                {
-                    loopDetector.Claim(block);
-                    int next = _filesystem.GetNextBlock(block);
-                    if (next == POIFSConstants.END_OF_CHAIN)
-                    {
-                        break;
-                    }
-                    block = next;
-                }
-                _filesystem.SetNextBlock(block, newBigBlock);
+                blocksUsed += sbat.GetUsedSectors(false);
             }
-            _filesystem.SetNextBlock(newBigBlock, POIFSConstants.END_OF_CHAIN);
-
-            // Now try again, to get the real small block
-            return CreateBlockIfNeeded(offset);
-            
         }
-
-        /**
-         * Returns the BATBlock that handles the specified offset,
-         *  and the relative index within it
-         */
-        public override BATBlockAndIndex GetBATBlockAndIndex(int offset)
-        {
-            return BATBlock.GetSBATBlockAndIndex(
-                  offset, _header, _sbat_blocks);
-        }
-
-        /**
-         * Works out what block follows the specified one.
-         */
-        public override int GetNextBlock(int offset)
-        {
-            BATBlockAndIndex bai = GetBATBlockAndIndex(offset);
-            return bai.Block.GetValueAt(bai.Index);
-        }
-
-        /**
-         * Changes the record of what block follows the specified one.
-         */
-        public override void SetNextBlock(int offset, int nextBlock)
-        {
-            BATBlockAndIndex bai = GetBATBlockAndIndex(offset);
-            bai.Block.SetValueAt(bai.Index, nextBlock);
-        }
-
-        /**
-         * Finds a free block, and returns its offset.
-         * This method will extend the file if needed, and if doing
-         *  so, allocate new FAT blocks to Address the extra space.
-         */
-        public override int GetFreeBlock()
-        {
-            int sectorsPerSBAT = _filesystem.GetBigBlockSizeDetails().GetBATEntriesPerBlock();
-
-            // First up, do we have any spare ones?
-            int offset = 0;
-            for (int i = 0; i < _sbat_blocks.Count; i++)
-            {
-                // Check this one
-                BATBlock sbat = _sbat_blocks[i];
-                if (sbat.HasFreeSectors)
-                {
-                    // Claim one of them and return it
-                    for (int j = 0; j < sectorsPerSBAT; j++)
-                    {
-                        int sbatValue = sbat.GetValueAt(j);
-                        if (sbatValue == POIFSConstants.UNUSED_BLOCK)
-                        {
-                            // Bingo
-                            return offset + j;
-                        }
-                    }
-                }
-
-                // Move onto the next SBAT
-                offset += sectorsPerSBAT;
-            }
-
-            // If we Get here, then there aren't any
-            //  free sectors in any of the SBATs
-            // So, we need to extend the chain and add another
-
-            // Create a new BATBlock
-            BATBlock newSBAT = BATBlock.CreateEmptyBATBlock(_filesystem.GetBigBlockSizeDetails(), false);
-            int batForSBAT = _filesystem.GetFreeBlock();
-            newSBAT.OurBlockIndex = batForSBAT;
-
-            // Are we the first SBAT?
-            if (_header.SBATCount == 0)
-            {
-                // Tell the header that we've got our first SBAT there
-                _header.SBATStart = batForSBAT;
-                _header.SBATBlockCount = 1;
-            }
-            else
-            {
-                // Find the end of the SBAT stream, and add the sbat in there
-                ChainLoopDetector loopDetector = _filesystem.GetChainLoopDetector();
-                int batOffset = _header.SBATStart;
-                while (true)
-                {
-                    loopDetector.Claim(batOffset);
-                    int nextBat = _filesystem.GetNextBlock(batOffset);
-                    if (nextBat == POIFSConstants.END_OF_CHAIN)
-                    {
-                        break;
-                    }
-                    batOffset = nextBat;
-                }
-
-                // Add it in at the end
-                _filesystem.SetNextBlock(batOffset, batForSBAT);
-
-                // And update the count
-                _header.SBATBlockCount = _header.SBATCount + 1;
-            }
-
-            // Finish allocating
-            _filesystem.SetNextBlock(batForSBAT, POIFSConstants.END_OF_CHAIN);
-            _sbat_blocks.Add(newSBAT);
-
-            // Return our first spot
-            return offset;
-        }
-
-
-        public override ChainLoopDetector GetChainLoopDetector()
-        {
-            return new ChainLoopDetector(_root.Size, this);
-        }
-
-        public override int GetBlockStoreBlockSize()
-        {
-            return POIFSConstants.SMALL_BLOCK_SIZE;
-        }
-
-        /// <summary>
-        /// Writes the SBATs to their backing blocks, and updates 
-        /// the mini-stream size in the properties. Stream size is
-        /// based on full blocks used, not the data within the streams
-        /// </summary>
-        public void SyncWithDataSource()
-        {
-            int blocksUsed = 0;
-            foreach (BATBlock sbat in _sbat_blocks)
-            {
-                ByteBuffer block = _filesystem.GetBlockAt(sbat.OurBlockIndex);
-                BlockAllocationTableWriter.WriteBlock(sbat, block);
-                if (!sbat.HasFreeSectors)
-                {
-                    blocksUsed += _filesystem.GetBigBlockSizeDetails().GetBATEntriesPerBlock();
-                }
-                else
-                {
-                    blocksUsed += sbat.GetUsedSectors(false);
-                }
-            }
-            // Set the size on the root in terms of the number of SBAT blocks
-            // RootProperty.setSize does the sbat -> bytes conversion for us
-            _filesystem.PropertyTable.Root.Size = (blocksUsed);
-        }
+        // Set the size on the root in terms of the number of SBAT blocks
+        // RootProperty.setSize does the sbat -> bytes conversion for us
+        _filesystem.PropertyTable.Root.Size = (blocksUsed);
     }
 }

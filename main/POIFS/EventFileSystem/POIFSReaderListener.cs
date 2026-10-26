@@ -18,25 +18,23 @@
 
 
 
-namespace NPOI.POIFS.EventFileSystem
+namespace NPOI.POIFS.EventFileSystem;
+
+/**
+ * Interface POIFSReaderListener
+ *
+ * @author Marc Johnson (mjohnson at apache dot org)
+ * @version %I%, %G%
+ */
+public interface POIFSReaderListener
 {
+
     /**
-     * Interface POIFSReaderListener
+     * Process a POIFSReaderEvent that this listener had Registered
+     * for
      *
-     * @author Marc Johnson (mjohnson at apache dot org)
-     * @version %I%, %G%
+     * @param event the POIFSReaderEvent
      */
-    public interface POIFSReaderListener
-    {
 
-        /**
-         * Process a POIFSReaderEvent that this listener had Registered
-         * for
-         *
-         * @param event the POIFSReaderEvent
-         */
-
-        void ProcessPOIFSReaderEvent(POIFSReaderEvent evt);
-    }   // end public interface POIFSReaderListener
-
-}
+    void ProcessPOIFSReaderEvent(POIFSReaderEvent evt);
+}   // end public interface POIFSReaderListener

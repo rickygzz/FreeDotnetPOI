@@ -25,34 +25,42 @@
  * 
  * ==============================================================*/
 
-using System.Collections.Generic;
+using NPOI.POIFS.Common;
+using NPOI.POIFS.Storage;
 
-namespace NPOI.POIFS.Properties
+namespace NPOI.POIFS.Properties;
+
+public class RootProperty:DirectoryProperty
 {
-    /// <summary>
-    /// Behavior for parent (directory) properties
-    /// @author Marc Johnson27591@hotmail.com
-    /// </summary>
-    public interface Parent:Child
+    private const string NAME = "Root Entry";
+
+    public RootProperty():base(NAME)
     {
-        /// <summary>
-        /// Get an iterator over the children of this Parent
-        /// all elements are instances of Property.
-        /// </summary>
-        /// <returns></returns>
-        IEnumerator<Property> Children { get; }
-        /// <summary>
-        /// Add a new child to the collection of children
-        /// </summary>
-        /// <param name="property">the new child to be added; must not be null</param>
-        void AddChild(Property property);
-        /// <summary>
-        /// Sets the previous child.
-        /// </summary>
-        new Child PreviousChild { get; set; }
-        /// <summary>
-        /// Sets the next child.
-        /// </summary>
-        new Child NextChild { get; set; }
+        this.NodeColor=_NODE_BLACK;
+        this.PropertyType=PropertyConstants.ROOT_TYPE;
+        this.StartBlock = POIFSConstants.END_OF_CHAIN;
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="RootProperty"/> class.
+    /// </summary>
+    /// <param name="index">index number</param>
+    /// <param name="array">byte data</param>
+    /// <param name="offset">offset into byte data</param>
+    public RootProperty(int index, byte [] array,
+                           int offset): base(index, array, offset)
+    {
+       
+    }
+
+    /// <summary>
+    /// Gets or sets the size of the document associated with this Property
+    /// </summary>
+    /// <value>the size of the document, in bytes</value>
+    public override int Size
+    {
+        set{
+            base.Size=SmallDocumentBlock.CalcSize(value);
+        }
     }
 }

@@ -16,31 +16,28 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.POIFS.EventFileSystem
+namespace NPOI.POIFS.EventFileSystem;
+
+
+/**
+ * Interface POIFSWriterListener
+ *
+ * @author Marc Johnson (mjohnson at apache dot org)
+ * @version %I%, %G%
+ */
+
+public interface POIFSWriterListener
 {
 
     /**
-     * Interface POIFSWriterListener
+     * Process a POIFSWriterEvent that this listener had registered
+     * for
      *
-     * @author Marc Johnson (mjohnson at apache dot org)
-     * @version %I%, %G%
+     * @param event the POIFSWriterEvent
      */
 
-    public interface POIFSWriterListener
-    {
-
-        /**
-         * Process a POIFSWriterEvent that this listener had registered
-         * for
-         *
-         * @param event the POIFSWriterEvent
-         */
-
-        void ProcessPOIFSWriterEvent(POIFSWriterEvent event1);
-    }   // end public interface POIFSWriterListener
-
-
-}
+    void ProcessPOIFSWriterEvent(POIFSWriterEvent event1);
+}   // end public interface POIFSWriterListener
 
 
 

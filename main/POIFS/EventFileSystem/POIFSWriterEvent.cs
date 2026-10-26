@@ -19,95 +19,92 @@
 
 using System;
 using NPOI.POIFS.FileSystem;
-namespace NPOI.POIFS.EventFileSystem
+
+namespace NPOI.POIFS.EventFileSystem;
+
+
+/**
+ * Class POIFSWriterEvent
+ *
+ * @author Marc Johnson (mjohnson at apache dot org)
+ * @version %I%, %G%
+ */
+
+public class POIFSWriterEvent
 {
+    private DocumentOutputStream stream;
+    private POIFSDocumentPath path;
+    private String documentName;
+    private int limit;
 
     /**
-     * Class POIFSWriterEvent
+     * namespace scoped constructor
      *
-     * @author Marc Johnson (mjohnson at apache dot org)
-     * @version %I%, %G%
+     * @param stream the DocumentOutputStream, freshly opened
+     * @param path the path of the document
+     * @param documentName the name of the document
+     * @param limit the limit, in bytes, that can be written to the
+     *              stream
      */
 
-    public class POIFSWriterEvent
+    public POIFSWriterEvent(DocumentOutputStream stream,
+                     POIFSDocumentPath path, String documentName,
+                     int limit)
     {
-        private DocumentOutputStream stream;
-        private POIFSDocumentPath path;
-        private String documentName;
-        private int limit;
+        this.stream = stream;
+        this.path = path;
+        this.documentName = documentName;
+        this.limit = limit;
+    }
 
-        /**
-         * namespace scoped constructor
-         *
-         * @param stream the DocumentOutputStream, freshly opened
-         * @param path the path of the document
-         * @param documentName the name of the document
-         * @param limit the limit, in bytes, that can be written to the
-         *              stream
-         */
+    /**
+     * @return the DocumentOutputStream, freshly opened
+     */
 
-        public POIFSWriterEvent(DocumentOutputStream stream,
-                         POIFSDocumentPath path, String documentName,
-                         int limit)
+    public DocumentOutputStream Stream
+    {
+        get
         {
-            this.stream = stream;
-            this.path = path;
-            this.documentName = documentName;
-            this.limit = limit;
+            return stream;
         }
+    }
 
-        /**
-         * @return the DocumentOutputStream, freshly opened
-         */
+    /**
+     * @return the document's path
+     */
 
-        public DocumentOutputStream Stream
+    public POIFSDocumentPath Path
+    {
+        get
         {
-            get
-            {
-                return stream;
-            }
+            return path;
         }
+    }
 
-        /**
-         * @return the document's path
-         */
+    /**
+     * @return the document's name
+     */
 
-        public POIFSDocumentPath Path
+    public String Name
+    {
+        get
         {
-            get
-            {
-                return path;
-            }
+            return documentName;
         }
+    }
 
-        /**
-         * @return the document's name
-         */
+    /**
+     * @return the limit on writing, in bytes
+     */
 
-        public String Name
+    public int Limit
+    {
+        get
         {
-            get
-            {
-                return documentName;
-            }
+            return limit;
         }
-
-        /**
-         * @return the limit on writing, in bytes
-         */
-
-        public int Limit
-        {
-            get
-            {
-                return limit;
-            }
-        }
-    }   // end public class POIFSWriterEvent
-
-
-
-}
+    }
+}   // end public class POIFSWriterEvent
 
 
 

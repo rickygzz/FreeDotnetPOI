@@ -40,7 +40,7 @@ namespace NPOI.POIFS.FileSystem
     {
         public OfficeXmlFileException(String s):base(s)
         { 
-        
+    
         }
     }
 }

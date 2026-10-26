@@ -33,102 +33,101 @@ using NPOI.POIFS.Properties;
 using NPOI.POIFS.FileSystem;
 using System.Collections.Generic;
 
-namespace NPOI.POIFS.Storage
+namespace NPOI.POIFS.Storage;
+
+/// <summary>
+/// This class implements reading the small document block list from an
+/// existing file
+/// @author Marc Johnson (mjohnson at apache dot org)
+/// </summary>
+public class SmallBlockTableWriter : BlockWritable, BATManaged
 {
+    private readonly BlockAllocationTableWriter _sbat;
+    private readonly List<SmallDocumentBlock>  _small_blocks;
+    private readonly int                        _big_block_count;
+    private readonly RootProperty               _root;
+
     /// <summary>
-    /// This class implements reading the small document block list from an
-    /// existing file
-    /// @author Marc Johnson (mjohnson at apache dot org)
+    /// Initializes a new instance of the <see cref="SmallBlockTableWriter"/> class.
     /// </summary>
-    public class SmallBlockTableWriter : BlockWritable, BATManaged
+    /// <param name="bigBlockSize">the poifs bigBlockSize</param>
+    /// <param name="documents">a IList of POIFSDocument instances</param>
+    /// <param name="root">the Filesystem's root property</param>
+    public SmallBlockTableWriter(POIFSBigBlockSize bigBlockSize, 
+                                IList<OPOIFSDocument> documents,
+                                RootProperty root)
     {
-        private readonly BlockAllocationTableWriter _sbat;
-        private readonly List<SmallDocumentBlock>  _small_blocks;
-        private readonly int                        _big_block_count;
-        private readonly RootProperty               _root;
+        _sbat = new BlockAllocationTableWriter(bigBlockSize);
+        _small_blocks = new List<SmallDocumentBlock>();
+        _root         = root;
+        IEnumerator iter = documents.GetEnumerator();
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="SmallBlockTableWriter"/> class.
-        /// </summary>
-        /// <param name="bigBlockSize">the poifs bigBlockSize</param>
-        /// <param name="documents">a IList of POIFSDocument instances</param>
-        /// <param name="root">the Filesystem's root property</param>
-        public SmallBlockTableWriter(POIFSBigBlockSize bigBlockSize, 
-                                    IList<OPOIFSDocument> documents,
-                                    RootProperty root)
+        while (iter.MoveNext())
         {
-            _sbat = new BlockAllocationTableWriter(bigBlockSize);
-            _small_blocks = new List<SmallDocumentBlock>();
-            _root         = root;
-            IEnumerator iter = documents.GetEnumerator();
+            OPOIFSDocument   doc    = ( OPOIFSDocument ) iter.Current;
+            SmallDocumentBlock[] blocks = doc.SmallBlocks;
 
-            while (iter.MoveNext())
+            if (blocks.Length != 0)
             {
-                OPOIFSDocument   doc    = ( OPOIFSDocument ) iter.Current;
-                SmallDocumentBlock[] blocks = doc.SmallBlocks;
-
-                if (blocks.Length != 0)
+                doc.StartBlock=_sbat.AllocateSpace(blocks.Length);
+                for (int j = 0; j < blocks.Length; j++)
                 {
-                    doc.StartBlock=_sbat.AllocateSpace(blocks.Length);
-                    for (int j = 0; j < blocks.Length; j++)
-                    {
-                        _small_blocks.Add(blocks[ j ]);
-                    }
-                } else {
-            	    doc.StartBlock=POIFSConstants.END_OF_CHAIN;
+                    _small_blocks.Add(blocks[ j ]);
                 }
+            } else {
+        	    doc.StartBlock=POIFSConstants.END_OF_CHAIN;
             }
-            _sbat.SimpleCreateBlocks();
-            _root.Size=_small_blocks.Count;
-            _big_block_count = SmallDocumentBlock.Fill(bigBlockSize, _small_blocks);
         }
+        _sbat.SimpleCreateBlocks();
+        _root.Size=_small_blocks.Count;
+        _big_block_count = SmallDocumentBlock.Fill(bigBlockSize, _small_blocks);
+    }
 
-        /// <summary>
-        /// Get the number of SBAT blocks
-        /// </summary>
-        /// <value>number of SBAT big blocks</value>
-        public int SBATBlockCount
-        {
-            get { return (_big_block_count + 15) / 16; }
-        }
+    /// <summary>
+    /// Get the number of SBAT blocks
+    /// </summary>
+    /// <value>number of SBAT big blocks</value>
+    public int SBATBlockCount
+    {
+        get { return (_big_block_count + 15) / 16; }
+    }
 
-        /// <summary>
-        /// Gets the SBAT.
-        /// </summary>
-        /// <value>the Small Block Allocation Table</value>
-        public BlockAllocationTableWriter SBAT
-        {
-            get { return _sbat; }
-        }
+    /// <summary>
+    /// Gets the SBAT.
+    /// </summary>
+    /// <value>the Small Block Allocation Table</value>
+    public BlockAllocationTableWriter SBAT
+    {
+        get { return _sbat; }
+    }
 
-        /// <summary>
-        /// Return the number of BigBlock's this instance uses
-        /// </summary>
-        /// <value>count of BigBlock instances</value>
-        public int CountBlocks
-        {
-            get{return _big_block_count;}
-        }
+    /// <summary>
+    /// Return the number of BigBlock's this instance uses
+    /// </summary>
+    /// <value>count of BigBlock instances</value>
+    public int CountBlocks
+    {
+        get{return _big_block_count;}
+    }
 
-        /// <summary>
-        /// Sets the start block.
-        /// </summary>
-        /// <value>The start block.</value>
-        public int StartBlock
-        {
-            set { _root.StartBlock=value; }
-        }
+    /// <summary>
+    /// Sets the start block.
+    /// </summary>
+    /// <value>The start block.</value>
+    public int StartBlock
+    {
+        set { _root.StartBlock=value; }
+    }
 
-        /// <summary>
-        /// Write the storage to an OutputStream
-        /// </summary>
-        /// <param name="stream">the OutputStream to which the stored data should be written</param>
-        public void WriteBlocks(Stream stream)
+    /// <summary>
+    /// Write the storage to an OutputStream
+    /// </summary>
+    /// <param name="stream">the OutputStream to which the stored data should be written</param>
+    public void WriteBlocks(Stream stream)
+    {
+        foreach(BlockWritable block in _small_blocks)
         {
-            foreach(BlockWritable block in _small_blocks)
-            {
-                block.WriteBlocks(stream);
-            }
+            block.WriteBlocks(stream);
         }
     }
 }

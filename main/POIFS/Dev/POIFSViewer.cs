@@ -30,45 +30,44 @@ using System.Text;
 using System.IO;
 using System.Collections.Generic;
 
-namespace NPOI.POIFS.Dev
+namespace NPOI.POIFS.Dev;
+
+using NPOI.POIFS.FileSystem;
+
+public class POIFSViewer
 {
-    using NPOI.POIFS.FileSystem;
-
-    public class POIFSViewer
+    public static void ViewFile(String filename, bool printName)
     {
-        public static void ViewFile(String filename, bool printName)
+        if (printName)
         {
-            if (printName)
-            {
-                StringBuilder flowerbox = new StringBuilder();
+            StringBuilder flowerbox = new StringBuilder();
 
-                flowerbox.Append(".");
-                for (int j = 0; j < filename.Length; j++)
-                {
-                    flowerbox.Append("-");
-                }
-                flowerbox.Append(".");
-                Console.WriteLine(flowerbox);
-                Console.WriteLine("|" + filename + "|");
-                Console.WriteLine(flowerbox);
+            flowerbox.Append(".");
+            for (int j = 0; j < filename.Length; j++)
+            {
+                flowerbox.Append("-");
             }
-            try
+            flowerbox.Append(".");
+            Console.WriteLine(flowerbox);
+            Console.WriteLine("|" + filename + "|");
+            Console.WriteLine(flowerbox);
+        }
+        try
+        {
+            using (Stream fileStream = File.OpenRead(filename))
             {
-                using (Stream fileStream = File.OpenRead(filename))
-                {
-                    POIFSViewable fs = new NPOIFSFileSystem(fileStream);
+                POIFSViewable fs = new NPOIFSFileSystem(fileStream);
 
-                    IList<String> strings = POIFSViewEngine.InspectViewable(fs, true, 0, "  ");
-                    foreach (var s in strings)
-                    {
-                        Console.Write(s);
-                    }
+                IList<String> strings = POIFSViewEngine.InspectViewable(fs, true, 0, "  ");
+                foreach (var s in strings)
+                {
+                    Console.Write(s);
                 }
             }
-            catch (IOException e)
-            {
-                Console.WriteLine(e.Message);
-            }
+        }
+        catch (IOException e)
+        {
+            Console.WriteLine(e.Message);
         }
     }
 }

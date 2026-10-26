@@ -28,80 +28,79 @@
 using NPOI.POIFS.Properties;
 using NPOI.POIFS.Common;
 
-namespace NPOI.POIFS.Storage
+namespace NPOI.POIFS.Storage;
+
+/// <summary>
+/// This class implements reading the small document block list from an
+/// existing file
+/// @author Marc Johnson (mjohnson at apache dot org)
+/// </summary>
+public class SmallBlockTableReader
 {
-    /// <summary>
-    /// This class implements reading the small document block list from an
-    /// existing file
-    /// @author Marc Johnson (mjohnson at apache dot org)
-    /// </summary>
-    public class SmallBlockTableReader
+    private static BlockList prepareSmallDocumentBlocks(
+        POIFSBigBlockSize bigBlockSize,
+        RawDataBlockList blockList, RootProperty root,
+        int sbatStart)
     {
-        private static BlockList prepareSmallDocumentBlocks(
+        // Fetch the blocks which hold the Small Blocks stream
+        ListManagedBlock[]
+        smallBlockBlocks =
+            blockList.FetchBlocks(root.StartBlock, -1);
+
+        // Turn that into a list
+        BlockList list = new SmallDocumentBlockList(
+                SmallDocumentBlock.Extract(bigBlockSize, smallBlockBlocks));
+
+        return list;
+    }
+    private static BlockAllocationTableReader prepareReader(
             POIFSBigBlockSize bigBlockSize,
-            RawDataBlockList blockList, RootProperty root,
-            int sbatStart)
-        {
-            // Fetch the blocks which hold the Small Blocks stream
-            ListManagedBlock[]
-            smallBlockBlocks =
-                blockList.FetchBlocks(root.StartBlock, -1);
+            RawDataBlockList blockList, BlockList list,
+            RootProperty root, int sbatStart)
+    {
+        // Process the SBAT and blocks
+        return new BlockAllocationTableReader(bigBlockSize,
+                blockList.FetchBlocks(sbatStart, -1),
+                list);
+    }
 
-            // Turn that into a list
-            BlockList list = new SmallDocumentBlockList(
-                    SmallDocumentBlock.Extract(bigBlockSize, smallBlockBlocks));
+    /// <summary>
+    /// fetch the small document block list from an existing file, normally
+    /// needed for debugging and low level dumping. You should typically call
+    /// </summary>
+    /// <param name="bigBlockSize">the poifs bigBlockSize</param>
+    /// <param name="blockList">the raw data from which the small block table will be extracted</param>
+    /// <param name="root">the root property (which contains the start block and small block table size)</param>
+    /// <param name="sbatStart">the start block of the SBAT</param>
+    /// <returns>the small document block reader</returns>
+    public static BlockAllocationTableReader _getSmallDocumentBlockReader(
+         POIFSBigBlockSize bigBlockSize,
+         RawDataBlockList blockList, RootProperty root,
+         int sbatStart)
+    {
+        BlockList list = prepareSmallDocumentBlocks(
+                 bigBlockSize, blockList, root, sbatStart);
+        return prepareReader(
+                bigBlockSize, blockList, list, root, sbatStart);
+    }
 
-            return list;
-        }
-        private static BlockAllocationTableReader prepareReader(
-                POIFSBigBlockSize bigBlockSize,
-                RawDataBlockList blockList, BlockList list,
-                RootProperty root, int sbatStart)
-        {
-            // Process the SBAT and blocks
-            return new BlockAllocationTableReader(bigBlockSize,
-                    blockList.FetchBlocks(sbatStart, -1),
-                    list);
-        }
+    /// <summary>
+    /// fetch the small document block list from an existing file
+    /// </summary>
+    /// <param name="bigBlockSize">the poifs bigBlockSize</param>
+    /// <param name="blockList">the raw data from which the small block table will be extracted</param>
+    /// <param name="root">the root property (which contains the start block and small block table size)</param>
+    /// <param name="sbatStart">the start block of the SBAT</param>
+    /// <returns>the small document block list</returns>
+    public static BlockList GetSmallDocumentBlocks(POIFSBigBlockSize bigBlockSize,
+                        RawDataBlockList blockList, RootProperty root,
+                        int sbatStart)
+    {
+        BlockList list =
+            new SmallDocumentBlockList(
+                SmallDocumentBlock.Extract(bigBlockSize, blockList.FetchBlocks(root.StartBlock, -1)));
 
-        /// <summary>
-        /// fetch the small document block list from an existing file, normally
-        /// needed for debugging and low level dumping. You should typically call
-        /// </summary>
-        /// <param name="bigBlockSize">the poifs bigBlockSize</param>
-        /// <param name="blockList">the raw data from which the small block table will be extracted</param>
-        /// <param name="root">the root property (which contains the start block and small block table size)</param>
-        /// <param name="sbatStart">the start block of the SBAT</param>
-        /// <returns>the small document block reader</returns>
-        public static BlockAllocationTableReader _getSmallDocumentBlockReader(
-             POIFSBigBlockSize bigBlockSize,
-             RawDataBlockList blockList, RootProperty root,
-             int sbatStart)
-        {
-            BlockList list = prepareSmallDocumentBlocks(
-                     bigBlockSize, blockList, root, sbatStart);
-            return prepareReader(
-                    bigBlockSize, blockList, list, root, sbatStart);
-        }
-
-        /// <summary>
-        /// fetch the small document block list from an existing file
-        /// </summary>
-        /// <param name="bigBlockSize">the poifs bigBlockSize</param>
-        /// <param name="blockList">the raw data from which the small block table will be extracted</param>
-        /// <param name="root">the root property (which contains the start block and small block table size)</param>
-        /// <param name="sbatStart">the start block of the SBAT</param>
-        /// <returns>the small document block list</returns>
-        public static BlockList GetSmallDocumentBlocks(POIFSBigBlockSize bigBlockSize,
-                            RawDataBlockList blockList, RootProperty root,
-                            int sbatStart)
-        {
-            BlockList list =
-                new SmallDocumentBlockList(
-                    SmallDocumentBlock.Extract(bigBlockSize, blockList.FetchBlocks(root.StartBlock, -1)));
-
-            new BlockAllocationTableReader(bigBlockSize, blockList.FetchBlocks(sbatStart, -1), list);
-            return list;
-        }
+        new BlockAllocationTableReader(bigBlockSize, blockList.FetchBlocks(sbatStart, -1), list);
+        return list;
     }
 }

@@ -32,117 +32,116 @@ using System.IO;
 using NPOI.POIFS.FileSystem;
 using System.Collections.Generic;
 
-namespace NPOI.POIFS.Dev
+namespace NPOI.POIFS.Dev;
+
+/// <summary>
+/// This class contains methods used to inspect POIFSViewable objects
+/// @author Marc Johnson (mjohnson at apache dot org)
+/// </summary>
+public class POIFSViewEngine
 {
     /// <summary>
-    /// This class contains methods used to inspect POIFSViewable objects
-    /// @author Marc Johnson (mjohnson at apache dot org)
+    /// Inspect an object that may be viewable, and drill down if told to
     /// </summary>
-    public class POIFSViewEngine
+    /// <param name="viewable">the object to be viewed</param>
+    /// <param name="drilldown">if <c>true</c> and the object implements POIFSViewable, inspect the objects' contents</param>
+    /// <param name="indentLevel">how far in to indent each string</param>
+    /// <param name="indentString">string to use for indenting</param>
+    /// <returns>a List of Strings holding the content</returns>
+    public static IList<String> InspectViewable(Object viewable,
+                                  bool drilldown,
+                                  int indentLevel,
+                                  String indentString)
     {
-        /// <summary>
-        /// Inspect an object that may be viewable, and drill down if told to
-        /// </summary>
-        /// <param name="viewable">the object to be viewed</param>
-        /// <param name="drilldown">if <c>true</c> and the object implements POIFSViewable, inspect the objects' contents</param>
-        /// <param name="indentLevel">how far in to indent each string</param>
-        /// <param name="indentString">string to use for indenting</param>
-        /// <returns>a List of Strings holding the content</returns>
-        public static IList<String> InspectViewable(Object viewable,
-                                      bool drilldown,
-                                      int indentLevel,
-                                      String indentString)
+        List<String> objects = new List<String>();
+        if (viewable is DictionaryEntry entry)
         {
-            List<String> objects = new List<String>();
-            if (viewable is DictionaryEntry entry)
+            ProcessViewable(entry.Value, drilldown, indentLevel, indentString, objects);
+        }
+        else if (viewable is POIFSViewable)
+        {
+            ProcessViewable(viewable, drilldown, indentLevel, indentString, objects);
+        }
+        else
+        {
+            objects.Add(Indent(indentLevel, indentString,
+                               viewable.ToString()));
+        }
+        return objects;
+    }
+
+    internal static void ProcessViewable(object viewable,
+                                    bool drilldown,
+                                    int indentLevel,
+                                    String indentString,
+                                    List<String> objects)
+    {
+        POIFSViewable inspected = (POIFSViewable)viewable;
+
+        objects.Add(Indent(indentLevel, indentString,
+                           inspected.ShortDescription));
+        if (drilldown)
+        {
+            if (inspected is OPOIFSDocument)
             {
-                ProcessViewable(entry.Value, drilldown, indentLevel, indentString, objects);
+                objects.AddRange(InspectViewable("POIFSDocument content is too long so ignored", drilldown,
+                                                  indentLevel + 1,
+                                                  indentString));
+                return;
             }
-            else if (viewable is POIFSViewable)
+            if (inspected.PreferArray)
             {
-                ProcessViewable(viewable, drilldown, indentLevel, indentString, objects);
+                Object[] data = inspected.ViewableArray;
+
+                foreach (Object datum in data)
+                {
+                    objects.AddRange(InspectViewable(datum, drilldown,
+                                                   indentLevel + 1,
+                                                   indentString));
+                }
             }
             else
             {
-                objects.Add(Indent(indentLevel, indentString,
-                                   viewable.ToString()));
-            }
-            return objects;
-        }
+                IEnumerator<Object> iter = inspected.ViewableIterator;
 
-        internal static void ProcessViewable(object viewable,
-                                        bool drilldown,
-                                        int indentLevel,
-                                        String indentString,
-                                        List<String> objects)
-        {
-            POIFSViewable inspected = (POIFSViewable)viewable;
-
-            objects.Add(Indent(indentLevel, indentString,
-                               inspected.ShortDescription));
-            if (drilldown)
-            {
-                if (inspected is OPOIFSDocument)
+                while (iter.MoveNext())
                 {
-                    objects.AddRange(InspectViewable("POIFSDocument content is too long so ignored", drilldown,
-                                                      indentLevel + 1,
-                                                      indentString));
-                    return;
-                }
-                if (inspected.PreferArray)
-                {
-                    Object[] data = inspected.ViewableArray;
-
-                    foreach (Object datum in data)
-                    {
-                        objects.AddRange(InspectViewable(datum, drilldown,
-                                                       indentLevel + 1,
-                                                       indentString));
-                    }
-                }
-                else
-                {
-                    IEnumerator<Object> iter = inspected.ViewableIterator;
-
-                    while (iter.MoveNext())
-                    {
-                        objects.AddRange(InspectViewable(iter.Current,
-                                                       drilldown,
-                                                       indentLevel + 1,
-                                                       indentString));
-                    }
+                    objects.AddRange(InspectViewable(iter.Current,
+                                                   drilldown,
+                                                   indentLevel + 1,
+                                                   indentString));
                 }
             }
         }
+    }
 
-        /// <summary>
-        /// Indents the specified indent level.
-        /// </summary>
-        /// <param name="indentLevel">how far in to indent each string</param>
-        /// <param name="indentString">string to use for indenting</param>
-        /// <param name="data">The data.</param>
-        /// <returns></returns>
-        private static String Indent(int indentLevel,
-                                     String indentString, String data)
+    /// <summary>
+    /// Indents the specified indent level.
+    /// </summary>
+    /// <param name="indentLevel">how far in to indent each string</param>
+    /// <param name="indentString">string to use for indenting</param>
+    /// <param name="data">The data.</param>
+    /// <returns></returns>
+    private static String Indent(int indentLevel,
+                                 String indentString, String data)
+    {
+        StringBuilder finalBuffer  = new StringBuilder();
+        StringBuilder indentPrefix = new StringBuilder();
+
+        for (int j = 0; j < indentLevel; j++)
         {
-            StringBuilder finalBuffer  = new StringBuilder();
-            StringBuilder indentPrefix = new StringBuilder();
+            indentPrefix.Append(indentString);
+        }
 
-            for (int j = 0; j < indentLevel; j++)
+        using (StringReader reader = new StringReader(data))
+        {
+            string line = reader.ReadLine();
+            while (line != null)
             {
-                indentPrefix.Append(indentString);
+                finalBuffer.Append(indentPrefix).Append(line).Append(Environment.NewLine);
+                line = reader.ReadLine();
             }
-
-            using (StringReader reader = new StringReader(data))
-            {
-                string line = reader.ReadLine();
-                while (line != null)
-                {
-                    finalBuffer.Append(indentPrefix).Append(line).Append(Environment.NewLine);
-                    line = reader.ReadLine();
-                }
-                return finalBuffer.ToString();
-            }
+            return finalBuffer.ToString();
         }
     }
 }

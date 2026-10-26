@@ -18,129 +18,128 @@
 using System;
 using System.IO;
 
-namespace NPOI.POIFS.Storage
+namespace NPOI.POIFS.Storage;
+
+public class BlockListImpl:BlockList
 {
-    public class BlockListImpl:BlockList
+    private ListManagedBlock[]         _blocks;
+    private BlockAllocationTableReader _bat;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="BlockListImpl"/> class.
+    /// </summary>
+    public BlockListImpl()
     {
-        private ListManagedBlock[]         _blocks;
-        private BlockAllocationTableReader _bat;
+        _blocks = [];
+        _bat    = null;
+    }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="BlockListImpl"/> class.
-        /// </summary>
-        public BlockListImpl()
+    /// <summary>
+    /// provide blocks to manage
+    /// </summary>
+    /// <param name="blocks">blocks to be managed</param> 
+    public virtual void SetBlocks(ListManagedBlock[] blocks)
+    {
+        _blocks = (ListManagedBlock[])blocks.Clone();
+    }
+
+    /// <summary>
+    /// remove the specified block from the list
+    /// </summary>
+    /// <param name="index">the index of the specified block; if the index is
+    /// out of range, that's ok</param>
+    public virtual void Zap(int index)
+    {
+        if ((index >= 0) && (index < _blocks.Length))
         {
-            _blocks = [];
-            _bat    = null;
+            _blocks[ index ] = null;
         }
+    }
 
-        /// <summary>
-        /// provide blocks to manage
-        /// </summary>
-        /// <param name="blocks">blocks to be managed</param> 
-        public virtual void SetBlocks(ListManagedBlock[] blocks)
-        {
-            _blocks = (ListManagedBlock[])blocks.Clone();
-        }
+    protected ListManagedBlock Get(int index)
+    {
+        return _blocks[index];
+    }
 
-        /// <summary>
-        /// remove the specified block from the list
-        /// </summary>
-        /// <param name="index">the index of the specified block; if the index is
-        /// out of range, that's ok</param>
-        public virtual void Zap(int index)
+    /// <summary>
+    /// Remove and return the specified block from the list
+    /// </summary>
+    /// <param name="index">the index of the specified block</param>
+    /// <returns>the specified block</returns>
+    public virtual ListManagedBlock Remove(int index)
+    {
+        ListManagedBlock result = null;
+
+        try
         {
-            if ((index >= 0) && (index < _blocks.Length))
+            result = _blocks[ index ];
+            if (result == null)
             {
-                _blocks[ index ] = null;
+                throw new IOException("block[ " + index
+                                      + " ] already removed");
             }
+            _blocks[ index ] = null;
         }
-
-        protected ListManagedBlock Get(int index)
+        catch (IndexOutOfRangeException)
         {
-            return _blocks[index];
+            throw new IOException("Cannot remove block[ " + index
+                                  + " ]; out of range[ 0 - " + 
+                                  (_blocks.Length-1) + " ]");
         }
+        return result;
+    }
 
-        /// <summary>
-        /// Remove and return the specified block from the list
-        /// </summary>
-        /// <param name="index">the index of the specified block</param>
-        /// <returns>the specified block</returns>
-        public virtual ListManagedBlock Remove(int index)
+    /// <summary>
+    /// get the blocks making up a particular stream in the list. The
+    /// blocks are removed from the list.
+    /// </summary>
+    /// <param name="startBlock">the index of the first block in the stream</param>
+    /// <param name="headerPropertiesStartBlock"></param>
+    /// <returns>
+    /// the stream as an array of correctly ordered blocks
+    /// </returns>
+    public virtual ListManagedBlock[] FetchBlocks(int startBlock, int headerPropertiesStartBlock)
+    {
+        if (_bat == null)
         {
-            ListManagedBlock result = null;
-
-            try
-            {
-                result = _blocks[ index ];
-                if (result == null)
-                {
-                    throw new IOException("block[ " + index
-                                          + " ] already removed");
-                }
-                _blocks[ index ] = null;
-            }
-            catch (IndexOutOfRangeException)
-            {
-                throw new IOException("Cannot remove block[ " + index
-                                      + " ]; out of range[ 0 - " + 
-                                      (_blocks.Length-1) + " ]");
-            }
-            return result;
+            throw new IOException(
+                "Improperly initialized list: no block allocation table provided");
         }
+        return _bat.FetchBlocks(startBlock,headerPropertiesStartBlock, this);
+    }
 
-        /// <summary>
-        /// get the blocks making up a particular stream in the list. The
-        /// blocks are removed from the list.
-        /// </summary>
-        /// <param name="startBlock">the index of the first block in the stream</param>
-        /// <param name="headerPropertiesStartBlock"></param>
-        /// <returns>
-        /// the stream as an array of correctly ordered blocks
-        /// </returns>
-        public virtual ListManagedBlock[] FetchBlocks(int startBlock, int headerPropertiesStartBlock)
-        {
-            if (_bat == null)
+
+    /// <summary>
+    /// set the associated BlockAllocationTable
+    /// </summary>
+    /// <value>the associated BlockAllocationTable</value>
+    public virtual BlockAllocationTableReader BAT
+    {
+        set
+    {
+            if (_bat != null)
             {
                 throw new IOException(
-                    "Improperly initialized list: no block allocation table provided");
+                    "Attempt to replace existing BlockAllocationTable");
             }
-            return _bat.FetchBlocks(startBlock,headerPropertiesStartBlock, this);
+            _bat = value;
+        }
+    }
+
+    public virtual int BlockCount()
+    {
+        return _blocks.Length;
+    }
+
+    protected int RemainingBlocks()
+    {
+        int c = 0;
+        for (int i = 0; i < _blocks.Length; i++)
+        {
+            if (_blocks[i] != null)
+                c++;
         }
 
-
-        /// <summary>
-        /// set the associated BlockAllocationTable
-        /// </summary>
-        /// <value>the associated BlockAllocationTable</value>
-        public virtual BlockAllocationTableReader BAT
-        {
-            set
-        {
-                if (_bat != null)
-                {
-                    throw new IOException(
-                        "Attempt to replace existing BlockAllocationTable");
-                }
-                _bat = value;
-            }
-        }
-
-        public virtual int BlockCount()
-        {
-            return _blocks.Length;
-        }
-
-        protected int RemainingBlocks()
-        {
-            int c = 0;
-            for (int i = 0; i < _blocks.Length; i++)
-            {
-                if (_blocks[i] != null)
-                    c++;
-            }
-
-            return c;
-        }
+        return c;
     }
 }

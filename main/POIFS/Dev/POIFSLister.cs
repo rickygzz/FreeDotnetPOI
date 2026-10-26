@@ -31,43 +31,42 @@ using System.IO;
 
 using NPOI.POIFS.FileSystem;
 
-namespace NPOI.POIFS.Dev
+namespace NPOI.POIFS.Dev;
+
+public class POIFSLister
 {
-    public class POIFSLister
+    public static void ViewFile(String filename)
     {
-        public static void ViewFile(String filename)
+        using (Stream stream = new FileStream(filename, FileMode.Open))
         {
-            using (Stream stream = new FileStream(filename, FileMode.Open))
-            {
-                POIFSFileSystem fs = new POIFSFileSystem(stream);
-                DisplayDirectory(fs.Root, "");
-            }
+            POIFSFileSystem fs = new POIFSFileSystem(stream);
+            DisplayDirectory(fs.Root, "");
         }
+    }
 
-        public static void DisplayDirectory(DirectoryNode dir, String indent)
+    public static void DisplayDirectory(DirectoryNode dir, String indent)
+    {
+        Console.WriteLine(indent + dir.Name + " -");
+        String newIndent = indent + "  ";
+
+        IEnumerator it = dir.Entries;
+        while (it.MoveNext())
         {
-            Console.WriteLine(indent + dir.Name + " -");
-            String newIndent = indent + "  ";
-
-            IEnumerator it = dir.Entries;
-            while (it.MoveNext())
+            Object entry = it.Current;
+            if (entry is DirectoryNode node)
             {
-                Object entry = it.Current;
-                if (entry is DirectoryNode node)
+                DisplayDirectory(node, newIndent);
+            }
+            else
+            {
+                DocumentNode doc = (DocumentNode)entry;
+                String name = doc.Name;
+                if (name[0] < 10)
                 {
-                    DisplayDirectory(node, newIndent);
+                    String altname = "(0x0" + (int)name[0] + ")" + name.Substring(1);
+                    name = name.Substring(1) + " <" + altname + ">";
                 }
-                else
-                {
-                    DocumentNode doc = (DocumentNode)entry;
-                    String name = doc.Name;
-                    if (name[0] < 10)
-                    {
-                        String altname = "(0x0" + (int)name[0] + ")" + name.Substring(1);
-                        name = name.Substring(1) + " <" + altname + ">";
-                    }
-                    Console.WriteLine(newIndent + name);
-                }
+                Console.WriteLine(newIndent + name);
             }
         }
     }

@@ -27,21 +27,20 @@
 
 using System.Collections.Generic;
 
-namespace NPOI.POIFS.Storage
+namespace NPOI.POIFS.Storage;
+
+/// <summary>
+/// A list of SmallDocumentBlocks instances, and methods to manage the list
+/// @author Marc Johnson (mjohnson at apache dot org)
+/// </summary>
+public class SmallDocumentBlockList:BlockListImpl
 {
     /// <summary>
-    /// A list of SmallDocumentBlocks instances, and methods to manage the list
-    /// @author Marc Johnson (mjohnson at apache dot org)
+    /// Initializes a new instance of the <see cref="SmallDocumentBlockList"/> class.
     /// </summary>
-    public class SmallDocumentBlockList:BlockListImpl
+    /// <param name="blocks">a list of SmallDocumentBlock instances</param>
+    public SmallDocumentBlockList(List<SmallDocumentBlock> blocks)
     {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="SmallDocumentBlockList"/> class.
-        /// </summary>
-        /// <param name="blocks">a list of SmallDocumentBlock instances</param>
-        public SmallDocumentBlockList(List<SmallDocumentBlock> blocks)
-        {
-            SetBlocks(blocks.ToArray());
-        }
+        SetBlocks(blocks.ToArray());
     }
 }

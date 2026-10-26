@@ -29,176 +29,175 @@ using System;
 
 using NPOI.POIFS.Properties;
 
-namespace NPOI.POIFS.FileSystem
+namespace NPOI.POIFS.FileSystem;
+
+/// <summary>
+/// Abstract implementation of Entry
+/// Extending classes should override isDocument() or isDirectory(), as
+/// appropriate
+/// Extending classes must override isDeleteOK()
+/// @author Marc Johnson (mjohnson at apache dot org)
+/// </summary>
+[Serializable]
+public abstract class EntryNode : Entry
 {
-    /// <summary>
-    /// Abstract implementation of Entry
-    /// Extending classes should override isDocument() or isDirectory(), as
-    /// appropriate
-    /// Extending classes must override isDeleteOK()
-    /// @author Marc Johnson (mjohnson at apache dot org)
-    /// </summary>
-    [Serializable]
-    public abstract class EntryNode : Entry
+
+    // the DocumentProperty backing this object
+    protected Property _property;
+
+    // this object's parent Entry
+    protected DirectoryNode _parent;
+
+
+    protected EntryNode()
+        : this(null, null)
     {
+    }
 
-        // the DocumentProperty backing this object
-        protected Property _property;
+    /// <summary>
+    /// Create a DocumentNode. ThIs method Is not public by design; it
+    /// Is intended strictly for the internal use of extending classes
+    /// </summary>
+    /// <param name="property">the Property for this Entry</param>
+    /// <param name="parent">the parent of this entry</param>
+    protected EntryNode(Property property, DirectoryNode parent)
+    {
+        _property = property;
+        _parent = parent;
+    }
 
-        // this object's parent Entry
-        protected DirectoryNode _parent;
+    /// <summary>
+    /// grant access to the property
+    /// </summary>
+    /// <value>the property backing this entry</value>
+    public Property Property
+    {
+        get { return _property; }
+    }
 
-
-        protected EntryNode()
-            : this(null, null)
+    /// <summary>
+    /// Is this the root of the tree?
+    /// </summary>
+    /// <value><c>true</c> if this instance is root; otherwise, <c>false</c>.</value>
+    protected bool IsRoot
+    {
+        get
         {
+            // only the root Entry has no parent ...
+            return (_parent == null);
         }
+    }
 
-        /// <summary>
-        /// Create a DocumentNode. ThIs method Is not public by design; it
-        /// Is intended strictly for the internal use of extending classes
-        /// </summary>
-        /// <param name="property">the Property for this Entry</param>
-        /// <param name="parent">the parent of this entry</param>
-        protected EntryNode(Property property, DirectoryNode parent)
+    /// <summary>
+    /// extensions use this method to verify internal rules regarding
+    /// deletion of the underlying store.
+    /// </summary>
+    /// <value>
+    /// 	<c>true</c> if it's ok to Delete the underlying store; otherwise, <c>false</c>.
+    /// </value>
+    protected abstract bool IsDeleteOK { get; }
+
+    /// <summary>
+    /// Get the name of the Entry
+    /// </summary>
+    /// <value>The name.</value>
+    /// Get the name of the Entry
+    /// @return name
+    public String Name
+    {
+        get
         {
-            _property = property;
-            _parent = parent;
+            return _property.Name;
         }
+    }
 
-        /// <summary>
-        /// grant access to the property
-        /// </summary>
-        /// <value>the property backing this entry</value>
-        public Property Property
+    /// <summary>
+    /// Is this a DirectoryEntry?
+    /// </summary>
+    /// <value>
+    /// 	<c>true</c> if the Entry Is a DirectoryEntry; otherwise, <c>false</c>.
+    /// </value>
+    public virtual bool IsDirectoryEntry
+    {
+        get
         {
-            get { return _property; }
+            return false;
         }
+    }
 
-        /// <summary>
-        /// Is this the root of the tree?
-        /// </summary>
-        /// <value><c>true</c> if this instance is root; otherwise, <c>false</c>.</value>
-        protected bool IsRoot
+    /// <summary>
+    /// Is this a DocumentEntry?
+    /// </summary>
+    /// <value>
+    /// 	<c>true</c> if the Entry Is a DocumentEntry; otherwise, <c>false</c>.
+    /// </value>
+    public virtual bool IsDocumentEntry
+    {
+        get
         {
-            get
-            {
-                // only the root Entry has no parent ...
-                return (_parent == null);
-            }
+            return false;
         }
+    }
 
-        /// <summary>
-        /// extensions use this method to verify internal rules regarding
-        /// deletion of the underlying store.
-        /// </summary>
-        /// <value>
-        /// 	<c>true</c> if it's ok to Delete the underlying store; otherwise, <c>false</c>.
-        /// </value>
-        protected abstract bool IsDeleteOK { get; }
-
-        /// <summary>
-        /// Get the name of the Entry
-        /// </summary>
-        /// <value>The name.</value>
-        /// Get the name of the Entry
-        /// @return name
-        public String Name
+    /// <summary>
+    /// Get this Entry's parent (the DocumentEntry that owns this
+    /// Entry). All Entry objects, except the root Entry, has a parent.
+    /// </summary>
+    /// <value>this Entry's parent; null iff this Is the root Entry</value>
+    public DirectoryEntry Parent
+    {
+        get
         {
-            get
-            {
-                return _property.Name;
-            }
+            return _parent;
         }
+    }
 
-        /// <summary>
-        /// Is this a DirectoryEntry?
-        /// </summary>
-        /// <value>
-        /// 	<c>true</c> if the Entry Is a DirectoryEntry; otherwise, <c>false</c>.
-        /// </value>
-        public virtual bool IsDirectoryEntry
+    /// <summary>
+    /// Delete this Entry. ThIs operation should succeed, but there are
+    /// special circumstances when it will not:
+    /// If this Entry Is the root of the Entry tree, it cannot be
+    /// deleted, as there Is no way to Create another one.
+    /// If this Entry Is a directory, it cannot be deleted unless it Is
+    /// empty.
+    /// </summary>
+    /// <returns>
+    /// true if the Entry was successfully deleted, else false
+    /// </returns>
+    public bool Delete()
+    {
+        bool rval = false;
+
+        if ((!IsRoot) && IsDeleteOK)
         {
-            get
-            {
-                return false;
-            }
+            rval = _parent.DeleteEntry(this);
         }
+        return rval;
+    }
 
-        /// <summary>
-        /// Is this a DocumentEntry?
-        /// </summary>
-        /// <value>
-        /// 	<c>true</c> if the Entry Is a DocumentEntry; otherwise, <c>false</c>.
-        /// </value>
-        public virtual bool IsDocumentEntry
+    /// <summary>
+    /// Rename this Entry. ThIs operation will fail if:
+    /// There Is a sibling Entry (i.e., an Entry whose parent Is the
+    /// same as this Entry's parent) with the same name.
+    /// ThIs Entry Is the root of the Entry tree. Its name Is dictated
+    /// by the Filesystem and many not be Changed.
+    /// </summary>
+    /// <param name="newName">the new name for this Entry</param>
+    /// <returns>
+    /// true if the operation succeeded, else false
+    /// </returns>
+    public bool RenameTo(String newName)
+    {
+        bool rval = false;
+
+        if (!IsRoot)
         {
-            get
-            {
-                return false;
-            }
+            rval = _parent.ChangeName(Name, newName);
         }
+        return rval;
+    }
 
-        /// <summary>
-        /// Get this Entry's parent (the DocumentEntry that owns this
-        /// Entry). All Entry objects, except the root Entry, has a parent.
-        /// </summary>
-        /// <value>this Entry's parent; null iff this Is the root Entry</value>
-        public DirectoryEntry Parent
-        {
-            get
-            {
-                return _parent;
-            }
-        }
-
-        /// <summary>
-        /// Delete this Entry. ThIs operation should succeed, but there are
-        /// special circumstances when it will not:
-        /// If this Entry Is the root of the Entry tree, it cannot be
-        /// deleted, as there Is no way to Create another one.
-        /// If this Entry Is a directory, it cannot be deleted unless it Is
-        /// empty.
-        /// </summary>
-        /// <returns>
-        /// true if the Entry was successfully deleted, else false
-        /// </returns>
-        public bool Delete()
-        {
-            bool rval = false;
-
-            if ((!IsRoot) && IsDeleteOK)
-            {
-                rval = _parent.DeleteEntry(this);
-            }
-            return rval;
-        }
-
-        /// <summary>
-        /// Rename this Entry. ThIs operation will fail if:
-        /// There Is a sibling Entry (i.e., an Entry whose parent Is the
-        /// same as this Entry's parent) with the same name.
-        /// ThIs Entry Is the root of the Entry tree. Its name Is dictated
-        /// by the Filesystem and many not be Changed.
-        /// </summary>
-        /// <param name="newName">the new name for this Entry</param>
-        /// <returns>
-        /// true if the operation succeeded, else false
-        /// </returns>
-        public bool RenameTo(String newName)
-        {
-            bool rval = false;
-
-            if (!IsRoot)
-            {
-                rval = _parent.ChangeName(Name, newName);
-            }
-            return rval;
-        }
-
-        public override string ToString()
-        {
-            return this.Name;
-        }
+    public override string ToString()
+    {
+        return this.Name;
     }
 }
