@@ -15,188 +15,186 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.HSSF.UserModel
+namespace NPOI.HSSF.UserModel;
+
+using System;
+using NPOI.HSSF.Util;
+using NPOI.SS.UserModel;
+using RecordExtendedColor = NPOI.HSSF.Record.Common.ExtendedColor;
+
+/**
+ * The HSSF file format normally stores Color information in the
+ *  Palette (see PaletteRecord), but for a few cases (eg Conditional
+ *  Formatting, Sheet Extensions), this XSSF-style color record 
+ *  can be used.
+ */
+public class HSSFExtendedColor : ExtendedColor
 {
-    using System;
-    using NPOI.HSSF.Util;
-    using NPOI.SS.UserModel;
-    using RecordExtendedColor = NPOI.HSSF.Record.Common.ExtendedColor;
+    private RecordExtendedColor color;
 
-    /**
-     * The HSSF file format normally stores Color information in the
-     *  Palette (see PaletteRecord), but for a few cases (eg Conditional
-     *  Formatting, Sheet Extensions), this XSSF-style color record 
-     *  can be used.
-     */
-    public class HSSFExtendedColor : ExtendedColor
+    public HSSFExtendedColor(NPOI.HSSF.Record.Common.ExtendedColor color)
     {
-        private RecordExtendedColor color;
+        this.color = color;
+    }
 
-        public HSSFExtendedColor(NPOI.HSSF.Record.Common.ExtendedColor color)
-        {
-            this.color = color;
-        }
+    protected NPOI.HSSF.Record.Common.ExtendedColor GetExtendedColor()
+    {
+        return color;
+    }
 
-        protected NPOI.HSSF.Record.Common.ExtendedColor GetExtendedColor()
+    public RecordExtendedColor ExtendedColor
+    {
+        get
         {
             return color;
         }
+    }
 
-        public RecordExtendedColor ExtendedColor
+    public override bool IsAuto
+    {
+        get
         {
-            get
-            {
-                return color;
-            }
+            return color.type == RecordExtendedColor.TYPE_AUTO;
         }
-
-        public override bool IsAuto
+        set
         {
-            get
-            {
-                return color.type == RecordExtendedColor.TYPE_AUTO;
-            }
-            set
-            {
-                if (value)
-                    color.type = RecordExtendedColor.TYPE_AUTO;
-                else
-                    color.type = RecordExtendedColor.TYPE_UNSET;
-            }
+            if (value)
+                color.type = RecordExtendedColor.TYPE_AUTO;
+            else
+                color.type = RecordExtendedColor.TYPE_UNSET;
         }
-        public override bool IsIndexed
+    }
+    public override bool IsIndexed
+    {
+        get
         {
-            get
-            {
-                return color.type == RecordExtendedColor.TYPE_INDEXED;
-            }
+            return color.type == RecordExtendedColor.TYPE_INDEXED;
         }
-        public override bool IsRGB
+    }
+    public override bool IsRGB
+    {
+        get
         {
-            get
-            {
-                return color.type == RecordExtendedColor.TYPE_RGB;
-            }
+            return color.type == RecordExtendedColor.TYPE_RGB;
         }
-        public override bool IsThemed
+    }
+    public override bool IsThemed
+    {
+        get
         {
-            get
-            {
-                return color.type == RecordExtendedColor.TYPE_THEMED;
-            }
-        }
-
-        public override short Index
-        {
-            get
-            {
-                return (short)color.ColorIndex;
-            }
-        }
-        public override int Theme
-        {
-            get
-            {
-                return color.ThemeIndex;
-            }
-            set
-            {
-                color.ThemeIndex = value;
-            }
-        }
-
-        public override byte[] RGB
-        {
-            get
-            {
-                // Trim trailing A
-                byte[] rgb = new byte[3];
-                byte[] rgba = color.RGBA;
-                if (rgba == null) return null;
-                Array.Copy(rgba, 0, rgb, 0, 3);
-                return rgb;
-            }
-            set
-            {
-                if (value.Length == 3)
-                {
-                    byte[] rgba = new byte[4];
-                    Array.Copy(value, 0, rgba, 0, 3);
-                    unchecked
-                    {
-                        rgba[3] = (byte)-1;
-                    }
-                }
-                else
-                {
-                    // Shuffle from ARGB to RGBA
-                    byte a = value[0];
-                    value[0] = value[1];
-                    value[1] = value[2];
-                    value[2] = value[3];
-                    value[3] = a;
-                    color.RGBA = (/*setter*/value);
-                }
-                color.Type = Record.Common.ExtendedColor.TYPE_RGB;
-            }
-        }
-        public override byte[] ARGB
-        {
-            get
-            {
-                // Swap from RGBA to ARGB
-                byte[] argb = new byte[4];
-                byte[] rgba = color.RGBA;
-                if (rgba == null) return null;
-                Array.Copy(rgba, 0, argb, 1, 3);
-                argb[0] = rgba[3];
-                return argb;
-            }
-        }
-
-        protected override byte[] StoredRGB
-        {
-            get
-            {
-                return ARGB;
-            }
-        }
-
-        public void SetRGB(byte[] rgb)
-        {
-            
-        }
-
-        public override double Tint
-        {
-            get
-            {
-                return color.Tint;
-            }
-            set
-            {
-                color.Tint = (/*setter*/value);
-            }
-        }
-
-        protected override byte[] IndexedRGB
-        {
-            get
-            {
-                if (IsIndexed && Index > 0) {
-                    int indexNum = Index;
-                    HSSFColor indexed = HSSFColor.GetIndexHash()[indexNum];
-                    if (indexed != null) {
-                        byte[] rgb = new byte[3];
-                        rgb[0] = (byte) indexed.GetTriplet()[0];
-                        rgb[1] = (byte) indexed.GetTriplet()[1];
-                        rgb[2] = (byte) indexed.GetTriplet()[2];
-                        return rgb;
-                    }
-                } // else
-                return null;
-            }
+            return color.type == RecordExtendedColor.TYPE_THEMED;
         }
     }
 
+    public override short Index
+    {
+        get
+        {
+            return (short)color.ColorIndex;
+        }
+    }
+    public override int Theme
+    {
+        get
+        {
+            return color.ThemeIndex;
+        }
+        set
+        {
+            color.ThemeIndex = value;
+        }
+    }
+
+    public override byte[] RGB
+    {
+        get
+        {
+            // Trim trailing A
+            byte[] rgb = new byte[3];
+            byte[] rgba = color.RGBA;
+            if (rgba == null) return null;
+            Array.Copy(rgba, 0, rgb, 0, 3);
+            return rgb;
+        }
+        set
+        {
+            if (value.Length == 3)
+            {
+                byte[] rgba = new byte[4];
+                Array.Copy(value, 0, rgba, 0, 3);
+                unchecked
+                {
+                    rgba[3] = (byte)-1;
+                }
+            }
+            else
+            {
+                // Shuffle from ARGB to RGBA
+                byte a = value[0];
+                value[0] = value[1];
+                value[1] = value[2];
+                value[2] = value[3];
+                value[3] = a;
+                color.RGBA = (/*setter*/value);
+            }
+            color.Type = Record.Common.ExtendedColor.TYPE_RGB;
+        }
+    }
+    public override byte[] ARGB
+    {
+        get
+        {
+            // Swap from RGBA to ARGB
+            byte[] argb = new byte[4];
+            byte[] rgba = color.RGBA;
+            if (rgba == null) return null;
+            Array.Copy(rgba, 0, argb, 1, 3);
+            argb[0] = rgba[3];
+            return argb;
+        }
+    }
+
+    protected override byte[] StoredRGB
+    {
+        get
+        {
+            return ARGB;
+        }
+    }
+
+    public void SetRGB(byte[] rgb)
+    {
+        
+    }
+
+    public override double Tint
+    {
+        get
+        {
+            return color.Tint;
+        }
+        set
+        {
+            color.Tint = (/*setter*/value);
+        }
+    }
+
+    protected override byte[] IndexedRGB
+    {
+        get
+        {
+            if (IsIndexed && Index > 0) {
+                int indexNum = Index;
+                HSSFColor indexed = HSSFColor.GetIndexHash()[indexNum];
+                if (indexed != null) {
+                    byte[] rgb = new byte[3];
+                    rgb[0] = (byte) indexed.GetTriplet()[0];
+                    rgb[1] = (byte) indexed.GetTriplet()[1];
+                    rgb[2] = (byte) indexed.GetTriplet()[2];
+                    return rgb;
+                }
+            } // else
+            return null;
+        }
+    }
 }

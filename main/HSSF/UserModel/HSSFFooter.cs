@@ -16,65 +16,64 @@
 ==================================================================== */
 
 
-namespace NPOI.HSSF.UserModel
+namespace NPOI.HSSF.UserModel;
+
+using System;
+using NPOI.HSSF.Record;
+using NPOI.HSSF.Record.Aggregates;
+using NPOI.SS.UserModel;
+
+/// <summary>
+/// Class to Read and manipulate the footer.
+/// The footer works by having a left, center, and right side.  The total cannot
+/// be more that 255 bytes long.  One uses this class by Getting the HSSFFooter
+/// from HSSFSheet and then Getting or Setting the left, center, and right side.
+/// For special things (such as page numbers and date), one can use a the methods
+/// that return the Chars used to represent these.  One can also Change the
+/// fonts by using similar methods.
+/// @author Shawn Laubach (slaubach at apache dot org)
+/// </summary>
+public class HSSFFooter : HeaderFooter,IFooter
 {
-    using System;
-    using NPOI.HSSF.Record;
-    using NPOI.HSSF.Record.Aggregates;
-    using NPOI.SS.UserModel;
+    private readonly PageSettingsBlock _psb;
 
     /// <summary>
-    /// Class to Read and manipulate the footer.
-    /// The footer works by having a left, center, and right side.  The total cannot
-    /// be more that 255 bytes long.  One uses this class by Getting the HSSFFooter
-    /// from HSSFSheet and then Getting or Setting the left, center, and right side.
-    /// For special things (such as page numbers and date), one can use a the methods
-    /// that return the Chars used to represent these.  One can also Change the
-    /// fonts by using similar methods.
-    /// @author Shawn Laubach (slaubach at apache dot org)
+    /// Initializes a new instance of the <see cref="HSSFFooter"/> class.
     /// </summary>
-    public class HSSFFooter : HeaderFooter,IFooter
+    /// <param name="psb">Footer record to create the footer with</param>
+    public HSSFFooter(PageSettingsBlock psb)
     {
-        private readonly PageSettingsBlock _psb;
+        _psb = psb;
+    }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="HSSFFooter"/> class.
-        /// </summary>
-        /// <param name="psb">Footer record to create the footer with</param>
-        public HSSFFooter(PageSettingsBlock psb)
+
+    /// <summary>
+    /// Gets the raw footer.
+    /// </summary>
+    /// <value>The raw footer.</value>
+    public override String RawText
+    {
+        get
         {
-            _psb = psb;
+            FooterRecord hf = _psb.Footer;
+            if (hf == null)
+            {
+                return string.Empty;
+            }
+            return hf.Text;
         }
-
-
-        /// <summary>
-        /// Gets the raw footer.
-        /// </summary>
-        /// <value>The raw footer.</value>
-        public override String RawText
+    }
+    protected override void SetHeaderFooterText(string text)
+    {
+        FooterRecord hfr = _psb.Footer;
+        if (hfr == null)
         {
-            get
-            {
-                FooterRecord hf = _psb.Footer;
-                if (hf == null)
-                {
-                    return string.Empty;
-                }
-                return hf.Text;
-            }
+            hfr = new FooterRecord(text);
+            _psb.Footer=(hfr);
         }
-        protected override void SetHeaderFooterText(string text)
+        else
         {
-            FooterRecord hfr = _psb.Footer;
-            if (hfr == null)
-            {
-                hfr = new FooterRecord(text);
-                _psb.Footer=(hfr);
-            }
-            else
-            {
-                hfr.Text=(text);
-            }
+            hfr.Text=(text);
         }
     }
 }

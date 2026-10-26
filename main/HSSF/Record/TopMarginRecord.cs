@@ -15,68 +15,67 @@
    limitations Under the License.
 ==================================================================== */
 
-namespace NPOI.HSSF.Record
+namespace NPOI.HSSF.Record;
+
+using System;
+using System.Text;
+using NPOI.Util;
+
+/**
+ * Record for the top margin.
+ * NOTE: This source was automatically generated.
+ *
+ * @author Shawn Laubach (slaubach at apache dot org)
+ */
+public class TopMarginRecord : StandardRecord, IMargin
 {
-    using System;
-    using System.Text;
-    using NPOI.Util;
+    public const short sid = 0x28;
+    private double field_1_margin;
+
+    public TopMarginRecord() { }
 
     /**
-     * Record for the top margin.
-     * NOTE: This source was automatically generated.
+     * Constructs a TopMargin record and Sets its fields appropriately.
      *
-     * @author Shawn Laubach (slaubach at apache dot org)
+     * @param in the RecordInputstream to Read the record from
      */
-    public class TopMarginRecord : StandardRecord, IMargin
+    public TopMarginRecord(RecordInputStream in1)
     {
-        public const short sid = 0x28;
-        private double field_1_margin;
-
-        public TopMarginRecord() { }
-
-        /**
-         * Constructs a TopMargin record and Sets its fields appropriately.
-         *
-         * @param in the RecordInputstream to Read the record from
-         */
-        public TopMarginRecord(RecordInputStream in1)
-        {
-            field_1_margin = in1.ReadDouble();
-        }
+        field_1_margin = in1.ReadDouble();
+    }
 
 
-        public override String ToString()
-        {
-            StringBuilder buffer = new StringBuilder();
-            buffer.Append("[TopMargin]\n");
-            buffer.Append("    .margin               = ").Append(" (").Append(Margin).Append(" )\n");
-            buffer.Append("[/TopMargin]\n");
-            return buffer.ToString();
-        }
+    public override String ToString()
+    {
+        StringBuilder buffer = new StringBuilder();
+        buffer.Append("[TopMargin]\n");
+        buffer.Append("    .margin               = ").Append(" (").Append(Margin).Append(" )\n");
+        buffer.Append("[/TopMargin]\n");
+        return buffer.ToString();
+    }
 
-        public override void Serialize(ILittleEndianOutput out1)
-        {
-            out1.WriteDouble(field_1_margin);
-        }
+    public override void Serialize(ILittleEndianOutput out1)
+    {
+        out1.WriteDouble(field_1_margin);
+    }
 
-        protected override int DataSize { get { return  8; } }
+    protected override int DataSize { get { return  8; } }
 
-        public override short Sid { get { return sid; } }
+    public override short Sid { get { return sid; } }
 
-        /**
-         * Get the margin field for the TopMargin record.
-         */
-        public double Margin
-        {
-            get { return field_1_margin; }
-            set { this.field_1_margin = value; }
-        }
+    /**
+     * Get the margin field for the TopMargin record.
+     */
+    public double Margin
+    {
+        get { return field_1_margin; }
+        set { this.field_1_margin = value; }
+    }
 
-        public override Object Clone()
-        {
-            TopMarginRecord rec = new TopMarginRecord();
-            rec.field_1_margin = this.field_1_margin;
-            return rec;
-        }
+    public override Object Clone()
+    {
+        TopMarginRecord rec = new TopMarginRecord();
+        rec.field_1_margin = this.field_1_margin;
+        return rec;
     }
 }

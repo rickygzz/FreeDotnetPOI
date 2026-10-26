@@ -15,34 +15,32 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.POIFS.Crypt.BinaryRC4
+namespace NPOI.POIFS.Crypt.BinaryRC4;
+
+using System;
+
+using NPOI.POIFS.Crypt;
+
+using NPOI.POIFS.Crypt.Standard;
+using NPOI.Util;
+
+public class BinaryRC4EncryptionHeader : EncryptionHeader, EncryptionRecord
 {
-    using System;
 
-    using NPOI.POIFS.Crypt;
-
-    using NPOI.POIFS.Crypt.Standard;
-    using NPOI.Util;
-
-    public class BinaryRC4EncryptionHeader : EncryptionHeader, EncryptionRecord
+    protected internal BinaryRC4EncryptionHeader()
     {
-
-        protected internal BinaryRC4EncryptionHeader()
-        {
-            CipherAlgorithm = (CipherAlgorithm.rc4);
-            KeySize = (40);
-            BlockSize = (-1);
-            CipherProvider = (CipherProvider.rc4);
-            HashAlgorithm = (HashAlgorithm.md5);
-            SizeExtra = (0);
-            Flags = (0);
-            CspName = ("");
-            ChainingMode = (null);
-        }
-
-        public void Write(LittleEndianByteArrayOutputStream littleendianbytearrayoutputstream)
-        {
-        }
+        CipherAlgorithm = (CipherAlgorithm.rc4);
+        KeySize = (40);
+        BlockSize = (-1);
+        CipherProvider = (CipherProvider.rc4);
+        HashAlgorithm = (HashAlgorithm.md5);
+        SizeExtra = (0);
+        Flags = (0);
+        CspName = ("");
+        ChainingMode = (null);
     }
 
+    public void Write(LittleEndianByteArrayOutputStream littleendianbytearrayoutputstream)
+    {
+    }
 }

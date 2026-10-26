@@ -15,75 +15,74 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.HSSF.UserModel
+namespace NPOI.HSSF.UserModel;
+
+using System;
+using NPOI.SS.UserModel;
+using NPOI.SS.Util;
+
+public class HSSFCreationHelper : ICreationHelper
 {
-    using System;
-    using NPOI.SS.UserModel;
-    using NPOI.SS.Util;
+    private HSSFWorkbook workbook;
+    private HSSFDataFormat dataFormat;
 
-    public class HSSFCreationHelper : ICreationHelper
+    public HSSFCreationHelper(HSSFWorkbook wb)
     {
-        private HSSFWorkbook workbook;
-        private HSSFDataFormat dataFormat;
+        workbook = wb;
 
-        public HSSFCreationHelper(HSSFWorkbook wb)
-        {
-            workbook = wb;
+        // Create the things we only ever need one of
+        dataFormat = new HSSFDataFormat(workbook.Workbook);
+    }
 
-            // Create the things we only ever need one of
-            dataFormat = new HSSFDataFormat(workbook.Workbook);
-        }
+    public NPOI.SS.UserModel.IRichTextString CreateRichTextString(String text)
+    {
+        return new HSSFRichTextString(text);
+    }
 
-        public NPOI.SS.UserModel.IRichTextString CreateRichTextString(String text)
-        {
-            return new HSSFRichTextString(text);
-        }
+    public NPOI.SS.UserModel.IDataFormat CreateDataFormat()
+    {
+        return dataFormat;
+    }
 
-        public NPOI.SS.UserModel.IDataFormat CreateDataFormat()
-        {
-            return dataFormat;
-        }
+    public NPOI.SS.UserModel.IHyperlink CreateHyperlink(HyperlinkType type)
+    {
+        return new HSSFHyperlink(type);
+    }
 
-        public NPOI.SS.UserModel.IHyperlink CreateHyperlink(HyperlinkType type)
-        {
-            return new HSSFHyperlink(type);
-        }
+    /**
+     * Creates a HSSFFormulaEvaluator, the object that Evaluates formula cells.
+     *
+     * @return a HSSFFormulaEvaluator instance
+     */
+    public NPOI.SS.UserModel.IFormulaEvaluator CreateFormulaEvaluator()
+    {
+        return new HSSFFormulaEvaluator(workbook);
+    }
 
-        /**
-         * Creates a HSSFFormulaEvaluator, the object that Evaluates formula cells.
-         *
-         * @return a HSSFFormulaEvaluator instance
-         */
-        public NPOI.SS.UserModel.IFormulaEvaluator CreateFormulaEvaluator()
-        {
-            return new HSSFFormulaEvaluator(workbook);
-        }
+    /**
+     * Creates a HSSFClientAnchor. Use this object to position drawing object in a sheet
+     *
+     * @return a HSSFClientAnchor instance
+     * @see NPOI.SS.usermodel.Drawing
+     */
+    public NPOI.SS.UserModel.IClientAnchor CreateClientAnchor()
+    {
+        return new HSSFClientAnchor();
+    }
 
-        /**
-         * Creates a HSSFClientAnchor. Use this object to position drawing object in a sheet
-         *
-         * @return a HSSFClientAnchor instance
-         * @see NPOI.SS.usermodel.Drawing
-         */
-        public NPOI.SS.UserModel.IClientAnchor CreateClientAnchor()
-        {
-            return new HSSFClientAnchor();
-        }
+    public ExtendedColor CreateExtendedColor()
+    {
+        return new HSSFExtendedColor(new NPOI.HSSF.Record.Common.ExtendedColor());
+    }
 
-        public ExtendedColor CreateExtendedColor()
-        {
-            return new HSSFExtendedColor(new NPOI.HSSF.Record.Common.ExtendedColor());
-        }
-
-        public AreaReference CreateAreaReference(String reference)
-        {
-            return new AreaReference(reference, workbook.SpreadsheetVersion);
-        }
-        
-        public AreaReference CreateAreaReference(CellReference topLeft, CellReference bottomRight)
-        {
-            return new AreaReference(topLeft, bottomRight, workbook.SpreadsheetVersion);
-        }
+    public AreaReference CreateAreaReference(String reference)
+    {
+        return new AreaReference(reference, workbook.SpreadsheetVersion);
+    }
+    
+    public AreaReference CreateAreaReference(CellReference topLeft, CellReference bottomRight)
+    {
+        return new AreaReference(topLeft, bottomRight, workbook.SpreadsheetVersion);
     }
 }
 

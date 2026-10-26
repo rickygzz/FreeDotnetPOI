@@ -18,99 +18,98 @@
 
 
 
-namespace NPOI.HSSF.Record
+namespace NPOI.HSSF.Record;
+
+using System;
+using System.Text;
+using NPOI.Util;
+
+/**
+ * Title:        VCenter record
+ * Description:  tells whether to center the sheet between vertical margins
+ * REFERENCE:  PG 420 Microsoft Excel 97 Developer's Kit (ISBN: 1-57231-498-2)
+ * @author Andrew C. Oliver (acoliver at apache dot org)
+ * @author Jason Height (jheight at chariot dot net dot au)
+ * @version 2.0-pre
+ */
+
+public class VCenterRecord
+   : StandardRecord
 {
-    using System;
-    using System.Text;
-    using NPOI.Util;
+    public const short sid = 0x84;
+    private short field_1_vcenter;
 
-    /**
-     * Title:        VCenter record
-     * Description:  tells whether to center the sheet between vertical margins
-     * REFERENCE:  PG 420 Microsoft Excel 97 Developer's Kit (ISBN: 1-57231-498-2)
-     * @author Andrew C. Oliver (acoliver at apache dot org)
-     * @author Jason Height (jheight at chariot dot net dot au)
-     * @version 2.0-pre
-     */
-
-    public class VCenterRecord
-       : StandardRecord
+    public VCenterRecord()
     {
-        public const short sid = 0x84;
-        private short field_1_vcenter;
-
-        public VCenterRecord()
-        {
-        }
-
-        /**
-         * Constructs a VCENTER record and Sets its fields appropriately.
-         * @param in the RecordInputstream to Read the record from
-         */
-
-        public VCenterRecord(RecordInputStream in1)
-    {
-        field_1_vcenter = in1.ReadShort();
     }
 
-        /**
-         * Get whether to center vertically or not
-         * @return vcenter or not
-         */
+    /**
+     * Constructs a VCENTER record and Sets its fields appropriately.
+     * @param in the RecordInputstream to Read the record from
+     */
 
-        public bool VCenter
+    public VCenterRecord(RecordInputStream in1)
+{
+    field_1_vcenter = in1.ReadShort();
+}
+
+    /**
+     * Get whether to center vertically or not
+     * @return vcenter or not
+     */
+
+    public bool VCenter
+    {
+        get
         {
-            get
+            return (field_1_vcenter == 1);
+        }
+        set
+        {
+            if (value == true)
             {
-                return (field_1_vcenter == 1);
+                field_1_vcenter = 1;
             }
-            set
+            else
             {
-                if (value == true)
-                {
-                    field_1_vcenter = 1;
-                }
-                else
-                {
-                    field_1_vcenter = 0;
-                }
-            }
-        }
-
-        public override String ToString()
-        {
-            StringBuilder buffer = new StringBuilder();
-
-            buffer.Append("[VCENTER]\n");
-            buffer.Append("    .vcenter        = ").Append(VCenter)
-                .Append("\n");
-            buffer.Append("[/VCENTER]\n");
-            return buffer.ToString();
-        }
-
-        public override void Serialize(ILittleEndianOutput out1)
-        {
-            out1.WriteShort(field_1_vcenter);
-        }
-
-        protected override int DataSize
-        {
-            get
-            {
-                return 2;
+                field_1_vcenter = 0;
             }
         }
+    }
 
-        public override short Sid
-        {
-            get { return sid; }
-        }
+    public override String ToString()
+    {
+        StringBuilder buffer = new StringBuilder();
 
-        public override Object Clone()
+        buffer.Append("[VCENTER]\n");
+        buffer.Append("    .vcenter        = ").Append(VCenter)
+            .Append("\n");
+        buffer.Append("[/VCENTER]\n");
+        return buffer.ToString();
+    }
+
+    public override void Serialize(ILittleEndianOutput out1)
+    {
+        out1.WriteShort(field_1_vcenter);
+    }
+
+    protected override int DataSize
+    {
+        get
         {
-            VCenterRecord rec = new VCenterRecord();
-            rec.field_1_vcenter = field_1_vcenter;
-            return rec;
+            return 2;
         }
+    }
+
+    public override short Sid
+    {
+        get { return sid; }
+    }
+
+    public override Object Clone()
+    {
+        VCenterRecord rec = new VCenterRecord();
+        rec.field_1_vcenter = field_1_vcenter;
+        return rec;
     }
 }

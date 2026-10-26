@@ -15,101 +15,99 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.POIFS.Crypt.CryptoAPI
+namespace NPOI.POIFS.Crypt.CryptoAPI;
+
+using System;
+using System.Diagnostics;
+using NPOI.POIFS.Crypt;
+using NPOI.Util;
+
+public class CryptoAPIEncryptionInfoBuilder : IEncryptionInfoBuilder
 {
-    using System;
-    using System.Diagnostics;
-    using NPOI.POIFS.Crypt;
-    using NPOI.Util;
+    EncryptionInfo info;
+    CryptoAPIEncryptionHeader header;
+    CryptoAPIEncryptionVerifier verifier;
+    CryptoAPIDecryptor decryptor;
+    CryptoAPIEncryptor encryptor;
 
-    public class CryptoAPIEncryptionInfoBuilder : IEncryptionInfoBuilder
+    public CryptoAPIEncryptionInfoBuilder()
     {
-        EncryptionInfo info;
-        CryptoAPIEncryptionHeader header;
-        CryptoAPIEncryptionVerifier verifier;
-        CryptoAPIDecryptor decryptor;
-        CryptoAPIEncryptor encryptor;
-
-        public CryptoAPIEncryptionInfoBuilder()
-        {
-        }
-
-        /**
-         * Initialize the builder from a stream
-         */
-        public void Initialize(EncryptionInfo info, ILittleEndianInput dis)
-        {
-            this.info = info;
-            int hSize = dis.ReadInt();
-            header = new CryptoAPIEncryptionHeader(dis);
-            verifier = new CryptoAPIEncryptionVerifier(dis, header);
-            decryptor = new CryptoAPIDecryptor(this);
-            encryptor = new CryptoAPIEncryptor(this);
-        }
-
-        /**
-         * Initialize the builder from scratch
-         */
-        public void Initialize(EncryptionInfo info,
-                CipherAlgorithm cipherAlgorithm, HashAlgorithm hashAlgorithm,
-                int keyBits, int blockSize, ChainingMode chainingMode)
-        {
-            this.info = info;
-            if (cipherAlgorithm == null) cipherAlgorithm = CipherAlgorithm.rc4;
-            if (hashAlgorithm == null) hashAlgorithm = HashAlgorithm.sha1;
-            if (keyBits == -1) keyBits = 0x28;
-            Debug.Assert(cipherAlgorithm == CipherAlgorithm.rc4 && hashAlgorithm == HashAlgorithm.sha1);
-
-            header = new CryptoAPIEncryptionHeader(cipherAlgorithm, hashAlgorithm, keyBits, blockSize, chainingMode);
-            verifier = new CryptoAPIEncryptionVerifier(cipherAlgorithm, hashAlgorithm, keyBits, blockSize, chainingMode);
-            decryptor = new CryptoAPIDecryptor(this);
-            encryptor = new CryptoAPIEncryptor(this);
-        }
-
-        public CryptoAPIEncryptionHeader GetHeader()
-        {
-            return header;
-        }
-
-        public CryptoAPIEncryptionVerifier GetVerifier()
-        {
-            return verifier;
-        }
-
-        public CryptoAPIDecryptor GetDecryptor()
-        {
-            return decryptor;
-        }
-
-        public CryptoAPIEncryptor GetEncryptor()
-        {
-            return encryptor;
-        }
-
-        public EncryptionInfo GetEncryptionInfo()
-        {
-            return info;
-        }
-
-        EncryptionHeader IEncryptionInfoBuilder.GetHeader()
-        {
-            return GetHeader();
-        }
-
-        EncryptionVerifier IEncryptionInfoBuilder.GetVerifier()
-        {
-            return GetVerifier();
-        }
-
-        Decryptor IEncryptionInfoBuilder.GetDecryptor()
-        {
-            return GetDecryptor();
-        }
-
-        Encryptor IEncryptionInfoBuilder.GetEncryptor()
-        {
-            return GetEncryptor();
-        }
     }
 
+    /**
+     * Initialize the builder from a stream
+     */
+    public void Initialize(EncryptionInfo info, ILittleEndianInput dis)
+    {
+        this.info = info;
+        int hSize = dis.ReadInt();
+        header = new CryptoAPIEncryptionHeader(dis);
+        verifier = new CryptoAPIEncryptionVerifier(dis, header);
+        decryptor = new CryptoAPIDecryptor(this);
+        encryptor = new CryptoAPIEncryptor(this);
+    }
+
+    /**
+     * Initialize the builder from scratch
+     */
+    public void Initialize(EncryptionInfo info,
+            CipherAlgorithm cipherAlgorithm, HashAlgorithm hashAlgorithm,
+            int keyBits, int blockSize, ChainingMode chainingMode)
+    {
+        this.info = info;
+        if (cipherAlgorithm == null) cipherAlgorithm = CipherAlgorithm.rc4;
+        if (hashAlgorithm == null) hashAlgorithm = HashAlgorithm.sha1;
+        if (keyBits == -1) keyBits = 0x28;
+        Debug.Assert(cipherAlgorithm == CipherAlgorithm.rc4 && hashAlgorithm == HashAlgorithm.sha1);
+
+        header = new CryptoAPIEncryptionHeader(cipherAlgorithm, hashAlgorithm, keyBits, blockSize, chainingMode);
+        verifier = new CryptoAPIEncryptionVerifier(cipherAlgorithm, hashAlgorithm, keyBits, blockSize, chainingMode);
+        decryptor = new CryptoAPIDecryptor(this);
+        encryptor = new CryptoAPIEncryptor(this);
+    }
+
+    public CryptoAPIEncryptionHeader GetHeader()
+    {
+        return header;
+    }
+
+    public CryptoAPIEncryptionVerifier GetVerifier()
+    {
+        return verifier;
+    }
+
+    public CryptoAPIDecryptor GetDecryptor()
+    {
+        return decryptor;
+    }
+
+    public CryptoAPIEncryptor GetEncryptor()
+    {
+        return encryptor;
+    }
+
+    public EncryptionInfo GetEncryptionInfo()
+    {
+        return info;
+    }
+
+    EncryptionHeader IEncryptionInfoBuilder.GetHeader()
+    {
+        return GetHeader();
+    }
+
+    EncryptionVerifier IEncryptionInfoBuilder.GetVerifier()
+    {
+        return GetVerifier();
+    }
+
+    Decryptor IEncryptionInfoBuilder.GetDecryptor()
+    {
+        return GetDecryptor();
+    }
+
+    Encryptor IEncryptionInfoBuilder.GetEncryptor()
+    {
+        return GetEncryptor();
+    }
 }

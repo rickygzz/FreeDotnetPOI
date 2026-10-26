@@ -17,133 +17,132 @@
 
 using NPOI.SS.UserModel;
 
-namespace NPOI.HSSF.UserModel
-{
-    using System;
-    using NPOI.SS.Formula;
-    using NPOI.SS.Util;
+namespace NPOI.HSSF.UserModel;
 
-    /// <summary>
-    /// HSSF wrapper for a cell under evaluation
-    /// @author Josh Micich
-    /// </summary>
-    public class HSSFEvaluationCell : IEvaluationCell
+using System;
+using NPOI.SS.Formula;
+using NPOI.SS.Util;
+
+/// <summary>
+/// HSSF wrapper for a cell under evaluation
+/// @author Josh Micich
+/// </summary>
+public class HSSFEvaluationCell : IEvaluationCell
+{
+
+    private readonly IEvaluationSheet _evalSheet;
+    private readonly NPOI.SS.UserModel.ICell _cell;
+
+    public HSSFEvaluationCell(NPOI.SS.UserModel.ICell cell, IEvaluationSheet evalSheet)
+    {
+        _cell = cell;
+        _evalSheet = evalSheet;
+    }
+    public HSSFEvaluationCell(NPOI.SS.UserModel.ICell cell)
+    {
+        _cell = cell;
+        _evalSheet = new HSSFEvaluationSheet((HSSFSheet)cell.Sheet);
+    }
+    // Note -  hashCode and equals defined according to underlying cell
+    public override int GetHashCode()
+    {
+        return _cell.GetHashCode();
+    }
+    public override bool Equals(Object obj)
+    {
+        NPOI.SS.UserModel.ICell cellb = ((HSSFEvaluationCell)obj)._cell;
+        return _cell.RowIndex == cellb.RowIndex
+            && _cell.ColumnIndex == cellb.ColumnIndex
+            && _cell.CellFormula == cellb.CellFormula
+            && _cell.Sheet == cellb.Sheet;
+    }
+
+    public NPOI.SS.UserModel.ICell HSSFCell
+    {
+        get
+        {
+            return _cell;
+        }
+    }
+    public bool BooleanCellValue
+    {
+        get
+        {
+            return _cell.BooleanCellValue;
+        }
+    }
+    public NPOI.SS.UserModel.CellType CellType
+    {
+        get
+        {
+            return _cell.CellType;
+        }
+    }
+    public int ColumnIndex
+    {
+        get
+        {
+            return _cell.ColumnIndex;
+        }
+    }
+    public int ErrorCellValue
+    {
+        get
+        {
+            return _cell.ErrorCellValue;
+        }
+    }
+    public double NumericCellValue
+    {
+        get
+        {
+            return _cell.NumericCellValue;
+        }
+    }
+    public int RowIndex
+    {
+        get
+        {
+            return _cell.RowIndex;
+        }
+    }
+    public IEvaluationSheet Sheet
+    {
+        get
+        {
+            return _evalSheet;
+        }
+    }
+    public String StringCellValue
+    {
+        get
+        {
+            return _cell.RichStringCellValue.String;
+        }
+    }
+
+
+    public object IdentityKey
+    {
+        get { return _cell; }
+    }
+
+    public CellType CachedFormulaResultType
+    {
+        get { return _cell.CachedFormulaResultType; }
+    }
+
+    public bool IsPartOfArrayFormulaGroup
+    {
+        get
+        {
+            return _cell.IsPartOfArrayFormulaGroup;
+        }
+    }
+
+    public CellRangeAddress ArrayFormulaRange
     {
 
-        private readonly IEvaluationSheet _evalSheet;
-        private readonly NPOI.SS.UserModel.ICell _cell;
-
-        public HSSFEvaluationCell(NPOI.SS.UserModel.ICell cell, IEvaluationSheet evalSheet)
-        {
-            _cell = cell;
-            _evalSheet = evalSheet;
-        }
-        public HSSFEvaluationCell(NPOI.SS.UserModel.ICell cell)
-        {
-            _cell = cell;
-            _evalSheet = new HSSFEvaluationSheet((HSSFSheet)cell.Sheet);
-        }
-        // Note -  hashCode and equals defined according to underlying cell
-        public override int GetHashCode()
-        {
-            return _cell.GetHashCode();
-        }
-        public override bool Equals(Object obj)
-        {
-            NPOI.SS.UserModel.ICell cellb = ((HSSFEvaluationCell)obj)._cell;
-            return _cell.RowIndex == cellb.RowIndex
-                && _cell.ColumnIndex == cellb.ColumnIndex
-                && _cell.CellFormula == cellb.CellFormula
-                && _cell.Sheet == cellb.Sheet;
-        }
-
-        public NPOI.SS.UserModel.ICell HSSFCell
-        {
-            get
-            {
-                return _cell;
-            }
-        }
-        public bool BooleanCellValue
-        {
-            get
-            {
-                return _cell.BooleanCellValue;
-            }
-        }
-        public NPOI.SS.UserModel.CellType CellType
-        {
-            get
-            {
-                return _cell.CellType;
-            }
-        }
-        public int ColumnIndex
-        {
-            get
-            {
-                return _cell.ColumnIndex;
-            }
-        }
-        public int ErrorCellValue
-        {
-            get
-            {
-                return _cell.ErrorCellValue;
-            }
-        }
-        public double NumericCellValue
-        {
-            get
-            {
-                return _cell.NumericCellValue;
-            }
-        }
-        public int RowIndex
-        {
-            get
-            {
-                return _cell.RowIndex;
-            }
-        }
-        public IEvaluationSheet Sheet
-        {
-            get
-            {
-                return _evalSheet;
-            }
-        }
-        public String StringCellValue
-        {
-            get
-            {
-                return _cell.RichStringCellValue.String;
-            }
-        }
-
-
-        public object IdentityKey
-        {
-            get { return _cell; }
-        }
-
-        public CellType CachedFormulaResultType
-        {
-            get { return _cell.CachedFormulaResultType; }
-        }
-
-        public bool IsPartOfArrayFormulaGroup
-        {
-            get
-            {
-                return _cell.IsPartOfArrayFormulaGroup;
-            }
-        }
-
-        public CellRangeAddress ArrayFormulaRange
-        {
-
-            get { return _cell.ArrayFormulaRange; }
-        }
+        get { return _cell.ArrayFormulaRange; }
     }
 }

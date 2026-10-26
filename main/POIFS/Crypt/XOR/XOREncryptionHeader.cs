@@ -15,29 +15,20 @@
    limitations under the License.
 ==================================================================== */
 
+namespace NPOI.POIFS.Crypt.XOR;
+
+using NPOI.POIFS.Crypt;
 using NPOI.POIFS.Crypt.Standard;
 using NPOI.Util;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace NPOI.POIFS.Crypt.XOR
+public class XOREncryptionHeader : EncryptionHeader, EncryptionRecord
 {
-    using NPOI.POIFS.Crypt;
-    using NPOI.POIFS.Crypt.Standard;
-    using NPOI.Util;
-
-    public class XOREncryptionHeader : EncryptionHeader, EncryptionRecord
+    public XOREncryptionHeader()
     {
-        public XOREncryptionHeader()
-        {
-        }
-
-        public void Write(LittleEndianByteArrayOutputStream leos)
-        {
-        }
-
     }
+
+    public void Write(LittleEndianByteArrayOutputStream leos)
+    {
+    }
+
 }

@@ -15,78 +15,74 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.HSSF.UserModel
+namespace NPOI.HSSF.UserModel;
+
+using NPOI.HSSF.Record;
+using NPOI.HSSF.Record.CF;
+using NPOI.SS.UserModel;
+
+/**
+ * High level representation for Icon / Multi-State Formatting 
+ *  component of Conditional Formatting Settings
+ */
+public class HSSFIconMultiStateFormatting : IIconMultiStateFormatting
 {
-    using System;
+    private HSSFSheet sheet;
+    private CFRule12Record cfRule12Record;
+    private IconMultiStateFormatting iconFormatting;
 
-    using NPOI.HSSF.Record;
-    using NPOI.HSSF.Record.CF;
-    using NPOI.SS.UserModel;
-
-    /**
-     * High level representation for Icon / Multi-State Formatting 
-     *  component of Conditional Formatting Settings
-     */
-    public class HSSFIconMultiStateFormatting : IIconMultiStateFormatting
+    protected internal HSSFIconMultiStateFormatting(CFRule12Record cfRule12Record, HSSFSheet sheet)
     {
-        private HSSFSheet sheet;
-        private CFRule12Record cfRule12Record;
-        private IconMultiStateFormatting iconFormatting;
+        this.sheet = sheet;
+        this.cfRule12Record = cfRule12Record;
+        this.iconFormatting = this.cfRule12Record.MultiStateFormatting;
+    }
 
-        protected internal HSSFIconMultiStateFormatting(CFRule12Record cfRule12Record, HSSFSheet sheet)
+    public IconSet IconSet
+    {
+        get { return iconFormatting.IconSet; }
+        set { iconFormatting.IconSet = (value); }
+    }
+
+    public bool IsIconOnly
+    {
+        get { return iconFormatting.IsIconOnly; }
+        set { iconFormatting.IsIconOnly = (value); }
+    }
+
+    public bool IsReversed
+    {
+        get { return iconFormatting.IsReversed; }
+        set { iconFormatting.IsReversed = (value); }
+    }
+
+
+    public IConditionalFormattingThreshold[] Thresholds
+    {
+        get
         {
-            this.sheet = sheet;
-            this.cfRule12Record = cfRule12Record;
-            this.iconFormatting = this.cfRule12Record.MultiStateFormatting;
-        }
-
-        public IconSet IconSet
-        {
-            get { return iconFormatting.IconSet; }
-            set { iconFormatting.IconSet = (value); }
-        }
-
-        public bool IsIconOnly
-        {
-            get { return iconFormatting.IsIconOnly; }
-            set { iconFormatting.IsIconOnly = (value); }
-        }
-
-        public bool IsReversed
-        {
-            get { return iconFormatting.IsReversed; }
-            set { iconFormatting.IsReversed = (value); }
-        }
-
-
-        public IConditionalFormattingThreshold[] Thresholds
-        {
-            get
+            Threshold[] t = iconFormatting.Thresholds;
+            HSSFConditionalFormattingThreshold[] ht = new HSSFConditionalFormattingThreshold[t.Length];
+            for (int i = 0; i < t.Length; i++)
             {
-                Threshold[] t = iconFormatting.Thresholds;
-                HSSFConditionalFormattingThreshold[] ht = new HSSFConditionalFormattingThreshold[t.Length];
-                for (int i = 0; i < t.Length; i++)
-                {
-                    ht[i] = new HSSFConditionalFormattingThreshold(t[i], sheet);
-                }
-                return ht;
+                ht[i] = new HSSFConditionalFormattingThreshold(t[i], sheet);
             }
-            set
-            {
-                Threshold[] t = new Threshold[value.Length];
-                for (int i = 0; i < t.Length; i++)
-                {
-                    t[i] = ((HSSFConditionalFormattingThreshold)value[i]).Threshold;
-                }
-                iconFormatting.Thresholds = t;
-            }
+            return ht;
         }
-
-
-        public IConditionalFormattingThreshold CreateThreshold()
+        set
         {
-            return new HSSFConditionalFormattingThreshold(new IconMultiStateThreshold(), sheet);
+            Threshold[] t = new Threshold[value.Length];
+            for (int i = 0; i < t.Length; i++)
+            {
+                t[i] = ((HSSFConditionalFormattingThreshold)value[i]).Threshold;
+            }
+            iconFormatting.Thresholds = t;
         }
     }
 
+
+    public IConditionalFormattingThreshold CreateThreshold()
+    {
+        return new HSSFConditionalFormattingThreshold(new IconMultiStateThreshold(), sheet);
+    }
 }

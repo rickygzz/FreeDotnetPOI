@@ -15,76 +15,75 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.POIFS.Crypt.BinaryRC4
+namespace NPOI.POIFS.Crypt.BinaryRC4;
+
+using System;
+using System.Diagnostics;
+using NPOI.POIFS.Crypt;
+using NPOI.POIFS.Crypt.Standard;
+using NPOI.Util;
+
+public class BinaryRC4EncryptionVerifier : EncryptionVerifier, EncryptionRecord
 {
-    using System;
-    using System.Diagnostics;
-    using NPOI.POIFS.Crypt;
-    using NPOI.POIFS.Crypt.Standard;
-    using NPOI.Util;
 
-    public class BinaryRC4EncryptionVerifier : EncryptionVerifier, EncryptionRecord
+    protected internal BinaryRC4EncryptionVerifier()
     {
-
-        protected internal BinaryRC4EncryptionVerifier()
-        {
-            SpinCount = (-1);
-            CipherAlgorithm = (CipherAlgorithm.rc4);
-            ChainingMode = (null);
-            EncryptedKey = (null);
-            HashAlgorithm = (HashAlgorithm.md5);
-        }
-
-        protected internal BinaryRC4EncryptionVerifier(ILittleEndianInput is1)
-        {
-            byte[] salt = new byte[16];
-            is1.ReadFully(salt);
-            SetSalt(salt);
-            byte[] encryptedVerifier = new byte[16];
-            is1.ReadFully(encryptedVerifier);
-            EncryptedVerifier = (encryptedVerifier);
-            byte[] encryptedVerifierHash = new byte[16];
-            is1.ReadFully(encryptedVerifierHash);
-            EncryptedVerifierHash = (encryptedVerifierHash);
-            SpinCount = (-1);
-            CipherAlgorithm = (CipherAlgorithm.rc4);
-            ChainingMode = (null);
-            EncryptedKey = (null);
-            HashAlgorithm = (HashAlgorithm.md5);
-        }
-
-        protected internal void SetSalt(byte[] salt)
-        {
-            if (salt == null || salt.Length != 16)
-            {
-                throw new EncryptedDocumentException("invalid verifier salt");
-            }
-
-            base.Salt = (salt);
-        }
-
-        //protected internal void SetEncryptedVerifier(byte[] encryptedVerifier)
-        //{
-        //    base.EncryptedVerifier = (encryptedVerifier);
-        //}
-
-        //protected internal void SetEncryptedVerifierHash(byte[] encryptedVerifierHash)
-        //{
-        //    base.EncryptedVerifierHash = (encryptedVerifierHash);
-        //}
-
-        public void Write(LittleEndianByteArrayOutputStream bos)
-        {
-            byte[] salt = Salt;
-            Debug.Assert(salt.Length == 16);
-            bos.Write(salt);
-            byte[] encryptedVerifier = EncryptedVerifier;
-            Debug.Assert(encryptedVerifier.Length == 16);
-            bos.Write(encryptedVerifier);
-            byte[] encryptedVerifierHash = EncryptedVerifierHash;
-            Debug.Assert(encryptedVerifierHash.Length == 16);
-            bos.Write(encryptedVerifierHash);
-        }
-
+        SpinCount = (-1);
+        CipherAlgorithm = (CipherAlgorithm.rc4);
+        ChainingMode = (null);
+        EncryptedKey = (null);
+        HashAlgorithm = (HashAlgorithm.md5);
     }
+
+    protected internal BinaryRC4EncryptionVerifier(ILittleEndianInput is1)
+    {
+        byte[] salt = new byte[16];
+        is1.ReadFully(salt);
+        SetSalt(salt);
+        byte[] encryptedVerifier = new byte[16];
+        is1.ReadFully(encryptedVerifier);
+        EncryptedVerifier = (encryptedVerifier);
+        byte[] encryptedVerifierHash = new byte[16];
+        is1.ReadFully(encryptedVerifierHash);
+        EncryptedVerifierHash = (encryptedVerifierHash);
+        SpinCount = (-1);
+        CipherAlgorithm = (CipherAlgorithm.rc4);
+        ChainingMode = (null);
+        EncryptedKey = (null);
+        HashAlgorithm = (HashAlgorithm.md5);
+    }
+
+    protected internal void SetSalt(byte[] salt)
+    {
+        if (salt == null || salt.Length != 16)
+        {
+            throw new EncryptedDocumentException("invalid verifier salt");
+        }
+
+        base.Salt = (salt);
+    }
+
+    //protected internal void SetEncryptedVerifier(byte[] encryptedVerifier)
+    //{
+    //    base.EncryptedVerifier = (encryptedVerifier);
+    //}
+
+    //protected internal void SetEncryptedVerifierHash(byte[] encryptedVerifierHash)
+    //{
+    //    base.EncryptedVerifierHash = (encryptedVerifierHash);
+    //}
+
+    public void Write(LittleEndianByteArrayOutputStream bos)
+    {
+        byte[] salt = Salt;
+        Debug.Assert(salt.Length == 16);
+        bos.Write(salt);
+        byte[] encryptedVerifier = EncryptedVerifier;
+        Debug.Assert(encryptedVerifier.Length == 16);
+        bos.Write(encryptedVerifier);
+        byte[] encryptedVerifierHash = EncryptedVerifierHash;
+        Debug.Assert(encryptedVerifierHash.Length == 16);
+        bos.Write(encryptedVerifierHash);
+    }
+
 }

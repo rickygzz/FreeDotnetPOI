@@ -14,14 +14,13 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 ==================================================================== */
-namespace NPOI.POIFS.Crypt.Standard
+namespace NPOI.POIFS.Crypt.Standard;
+
+using NPOI.Util;
+using System;
+
+
+public interface EncryptionRecord
 {
-    using NPOI.Util;
-    using System;
-
-
-    public interface EncryptionRecord
-    {
-        void Write(LittleEndianByteArrayOutputStream os);
-    }
+    void Write(LittleEndianByteArrayOutputStream os);
 }

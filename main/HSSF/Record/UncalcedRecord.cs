@@ -15,66 +15,65 @@
    limitations Under the License.
 ==================================================================== */
 
-namespace NPOI.HSSF.Record
+namespace NPOI.HSSF.Record;
+
+using System;
+using System.Text;
+using NPOI.Util;
+
+/**
+ * Title: Uncalced Record
+ * 
+ * If this record occurs in the Worksheet Substream, it indicates that the formulas have not 
+ * been recalculated before the document was saved.
+ * 
+ * @author Olivier Leprince
+ */
+
+public class UncalcedRecord : StandardRecord
 {
-    using System;
-    using System.Text;
-    using NPOI.Util;
-
+    public const short sid = 0x5E;
+    private readonly short _reserved;
     /**
-     * Title: Uncalced Record
-     * 
-     * If this record occurs in the Worksheet Substream, it indicates that the formulas have not 
-     * been recalculated before the document was saved.
-     * 
-     * @author Olivier Leprince
+     * Default constructor
      */
-
-    public class UncalcedRecord : StandardRecord
+    public UncalcedRecord()
     {
-        public const short sid = 0x5E;
-        private readonly short _reserved;
-        /**
-         * Default constructor
-         */
-        public UncalcedRecord()
-        {
-            _reserved = 0;
-        }
-        /**
-         * Read constructor
-         */
-        public UncalcedRecord(RecordInputStream in1)
-        {
-            _reserved = in1.ReadShort();
+        _reserved = 0;
+    }
+    /**
+     * Read constructor
+     */
+    public UncalcedRecord(RecordInputStream in1)
+    {
+        _reserved = in1.ReadShort();
 	    }
 
-        public override short Sid
-        {
-            get { return sid; }
-        }
+    public override short Sid
+    {
+        get { return sid; }
+    }
 
-        public override String ToString()
-        {
-            StringBuilder buffer = new StringBuilder();
-            buffer.Append("[UNCALCED]\n");
-            buffer.Append("[/UNCALCED]\n");
-            return buffer.ToString();
-        }
+    public override String ToString()
+    {
+        StringBuilder buffer = new StringBuilder();
+        buffer.Append("[UNCALCED]\n");
+        buffer.Append("[/UNCALCED]\n");
+        return buffer.ToString();
+    }
 
-        public override void Serialize(ILittleEndianOutput out1)
-        {
-           out1.WriteShort(_reserved);
-        }
+    public override void Serialize(ILittleEndianOutput out1)
+    {
+       out1.WriteShort(_reserved);
+    }
 
-        protected override int DataSize
-        {
-            get { return 2; }
-        }
+    protected override int DataSize
+    {
+        get { return 2; }
+    }
 
-        public static int StaticRecordSize
-        {
-            get { return 6; }
-        }
+    public static int StaticRecordSize
+    {
+        get { return 6; }
     }
 }

@@ -15,79 +15,78 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.HSSF.Record
+namespace NPOI.HSSF.Record;
+
+
+using System;
+using NPOI.Util;
+using System.Text;
+
+/**
+ * The UserSViewEnd record marks the end of the Settings for a custom view associated with the sheet
+ *
+ * @author Yegor Kozlov
+ */
+public class UserSViewEnd : StandardRecord
 {
 
-    using System;
-    using NPOI.Util;
-    using System.Text;
+    public const short sid = 0x01AB;
+    private readonly byte[] _rawData;
+
+    public UserSViewEnd(byte[] data)
+    {
+        _rawData = data;
+    }
 
     /**
-     * The UserSViewEnd record marks the end of the Settings for a custom view associated with the sheet
-     *
-     * @author Yegor Kozlov
+     * construct an UserSViewEnd record.  No fields are interpreted and the record will
+     * be Serialized in its original form more or less
+     * @param in the RecordInputstream to read the record from
      */
-    public class UserSViewEnd : StandardRecord
+    public UserSViewEnd(RecordInputStream in1)
     {
-
-        public const short sid = 0x01AB;
-        private readonly byte[] _rawData;
-
-        public UserSViewEnd(byte[] data)
-        {
-            _rawData = data;
-        }
-
-        /**
-         * construct an UserSViewEnd record.  No fields are interpreted and the record will
-         * be Serialized in its original form more or less
-         * @param in the RecordInputstream to read the record from
-         */
-        public UserSViewEnd(RecordInputStream in1)
-        {
-            _rawData = in1.ReadRemainder();
-        }
-
-        /**
-         * spit the record out AS IS. no interpretation or identification
-         */
-        public override void Serialize(ILittleEndianOutput out1)
-        {
-            out1.Write(_rawData);
-        }
-
-        protected override int DataSize
-        {
-            get
-            {
-                return _rawData.Length;
-            }
-        }
-
-        public override short Sid
-        {
-            get
-            {
-                return sid;
-            }
-        }
-
-        public override String ToString()
-        {
-            StringBuilder sb = new StringBuilder();
-
-            sb.Append("[").Append("USERSVIEWEND").Append("] (0x");
-            sb.Append(StringUtil.ToHexString(sid).ToUpper() + ")\n");
-            sb.Append("  rawData=").Append(HexDump.ToHex(_rawData)).Append("\n");
-            sb.Append("[/").Append("USERSVIEWEND").Append("]\n");
-            return sb.ToString();
-        }
-
-        //HACK: do a "cheat" Clone, see Record.java for more information
-        public override Object Clone()
-        {
-            return CloneViaReserialise();
-        }
-
+        _rawData = in1.ReadRemainder();
     }
+
+    /**
+     * spit the record out AS IS. no interpretation or identification
+     */
+    public override void Serialize(ILittleEndianOutput out1)
+    {
+        out1.Write(_rawData);
+    }
+
+    protected override int DataSize
+    {
+        get
+        {
+            return _rawData.Length;
+        }
+    }
+
+    public override short Sid
+    {
+        get
+        {
+            return sid;
+        }
+    }
+
+    public override String ToString()
+    {
+        StringBuilder sb = new StringBuilder();
+
+        sb.Append("[").Append("USERSVIEWEND").Append("] (0x");
+        sb.Append(StringUtil.ToHexString(sid).ToUpper() + ")\n");
+        sb.Append("  rawData=").Append(HexDump.ToHex(_rawData)).Append("\n");
+        sb.Append("[/").Append("USERSVIEWEND").Append("]\n");
+        return sb.ToString();
+    }
+
+    //HACK: do a "cheat" Clone, see Record.java for more information
+    public override Object Clone()
+    {
+        return CloneViaReserialise();
+    }
+
 }

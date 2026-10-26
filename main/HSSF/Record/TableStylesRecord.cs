@@ -15,91 +15,90 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.HSSF.Record
+namespace NPOI.HSSF.Record;
+
+using System;
+using NPOI.Util;
+using System.Text;
+
+
+/**
+ * TABLESTYLES (0x088E)<br/>
+ * 
+ * @author Patrick Cheng
+ */
+public class TableStylesRecord : StandardRecord
 {
-    using System;
-    using NPOI.Util;
-    using System.Text;
+    public const short sid = 0x088E;
+
+    private int rt;
+    private int grbitFrt;
+    private byte[] unused = new byte[8];
+    private int cts;
+
+    private String rgchDefListStyle;
+    private String rgchDefPivotStyle;
 
 
-    /**
-     * TABLESTYLES (0x088E)<br/>
-     * 
-     * @author Patrick Cheng
-     */
-    public class TableStylesRecord : StandardRecord
+    public TableStylesRecord(RecordInputStream in1)
     {
-        public const short sid = 0x088E;
+        rt = in1.ReadUShort();
+        grbitFrt = in1.ReadUShort();
+        in1.ReadFully(unused);
+        cts = in1.ReadInt();
+        int cchDefListStyle = in1.ReadUShort();
+        int cchDefPivotStyle = in1.ReadUShort();
 
-        private int rt;
-        private int grbitFrt;
-        private byte[] unused = new byte[8];
-        private int cts;
+        rgchDefListStyle = in1.ReadUnicodeLEString(cchDefListStyle);
+        rgchDefPivotStyle = in1.ReadUnicodeLEString(cchDefPivotStyle);
+    }
 
-        private String rgchDefListStyle;
-        private String rgchDefPivotStyle;
+    public override void Serialize(ILittleEndianOutput out1)
+    {
+        out1.WriteShort(rt);
+        out1.WriteShort(grbitFrt);
+        out1.Write(unused);
+        out1.WriteInt(cts);
+
+        out1.WriteShort(rgchDefListStyle.Length);
+        out1.WriteShort(rgchDefPivotStyle.Length);
+
+        StringUtil.PutUnicodeLE(rgchDefListStyle, out1);
+        StringUtil.PutUnicodeLE(rgchDefPivotStyle, out1);
+    }
 
 
-        public TableStylesRecord(RecordInputStream in1)
+    protected override int DataSize
+    {
+        get
         {
-            rt = in1.ReadUShort();
-            grbitFrt = in1.ReadUShort();
-            in1.ReadFully(unused);
-            cts = in1.ReadInt();
-            int cchDefListStyle = in1.ReadUShort();
-            int cchDefPivotStyle = in1.ReadUShort();
-
-            rgchDefListStyle = in1.ReadUnicodeLEString(cchDefListStyle);
-            rgchDefPivotStyle = in1.ReadUnicodeLEString(cchDefPivotStyle);
+            return 2 + 2 + 8 + 4 + 2 + 2
+                + (2 * rgchDefListStyle.Length) + (2 * rgchDefPivotStyle.Length);
         }
+    }
 
-        public override void Serialize(ILittleEndianOutput out1)
+    public override short Sid
+    {
+        get
         {
-            out1.WriteShort(rt);
-            out1.WriteShort(grbitFrt);
-            out1.Write(unused);
-            out1.WriteInt(cts);
-
-            out1.WriteShort(rgchDefListStyle.Length);
-            out1.WriteShort(rgchDefPivotStyle.Length);
-
-            StringUtil.PutUnicodeLE(rgchDefListStyle, out1);
-            StringUtil.PutUnicodeLE(rgchDefPivotStyle, out1);
+            return sid;
         }
+    }
 
+    public override String ToString()
+    {
+        StringBuilder buffer = new StringBuilder();
 
-        protected override int DataSize
-        {
-            get
-            {
-                return 2 + 2 + 8 + 4 + 2 + 2
-                    + (2 * rgchDefListStyle.Length) + (2 * rgchDefPivotStyle.Length);
-            }
-        }
+        buffer.Append("[TABLESTYLES]\n");
+        buffer.Append("    .rt      =").Append(HexDump.ShortToHex(rt)).Append('\n');
+        buffer.Append("    .grbitFrt=").Append(HexDump.ShortToHex(grbitFrt)).Append('\n');
+        buffer.Append("    .unused  =").Append(HexDump.ToHex(unused)).Append('\n');
+        buffer.Append("    .cts=").Append(HexDump.IntToHex(cts)).Append('\n');
+        buffer.Append("    .rgchDefListStyle=").Append(rgchDefListStyle).Append('\n');
+        buffer.Append("    .rgchDefPivotStyle=").Append(rgchDefPivotStyle).Append('\n');
 
-        public override short Sid
-        {
-            get
-            {
-                return sid;
-            }
-        }
-
-        public override String ToString()
-        {
-            StringBuilder buffer = new StringBuilder();
-
-            buffer.Append("[TABLESTYLES]\n");
-            buffer.Append("    .rt      =").Append(HexDump.ShortToHex(rt)).Append('\n');
-            buffer.Append("    .grbitFrt=").Append(HexDump.ShortToHex(grbitFrt)).Append('\n');
-            buffer.Append("    .unused  =").Append(HexDump.ToHex(unused)).Append('\n');
-            buffer.Append("    .cts=").Append(HexDump.IntToHex(cts)).Append('\n');
-            buffer.Append("    .rgchDefListStyle=").Append(rgchDefListStyle).Append('\n');
-            buffer.Append("    .rgchDefPivotStyle=").Append(rgchDefPivotStyle).Append('\n');
-
-            buffer.Append("[/TABLESTYLES]\n");
-            return buffer.ToString();
-        }
+        buffer.Append("[/TABLESTYLES]\n");
+        return buffer.ToString();
     }
 }
 

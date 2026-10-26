@@ -17,53 +17,52 @@
 ==================================================================== */
 
 
-namespace NPOI.HSSF.Record
+namespace NPOI.HSSF.Record;
+
+using NPOI.Util;
+
+/**
+ * Handles the task of deserializing a SST string.  The two main entry points are
+ *
+ * @author Glen Stampoultzis (glens at apache.org)
+ * @author Jason Height (jheight at apache.org)
+ */
+public class SSTDeserializer
 {
-    using NPOI.Util;
+
+    private IntMapper<UnicodeString> strings;
+
+    public SSTDeserializer(IntMapper<UnicodeString> strings)
+    {
+        this.strings = strings;
+    }
 
     /**
-     * Handles the task of deserializing a SST string.  The two main entry points are
-     *
-     * @author Glen Stampoultzis (glens at apache.org)
-     * @author Jason Height (jheight at apache.org)
+     * This Is the starting point where strings are constructed.  Note that
+     * strings may span across multiple continuations. Read the SST record
+     * carefully before beginning to hack.
      */
-    public class SSTDeserializer
+    public void ManufactureStrings(int stringCount, RecordInputStream in1)
     {
-
-        private IntMapper<UnicodeString> strings;
-
-        public SSTDeserializer(IntMapper<UnicodeString> strings)
+        for (int i = 0; i < stringCount; i++)
         {
-            this.strings = strings;
-        }
-
-        /**
-         * This Is the starting point where strings are constructed.  Note that
-         * strings may span across multiple continuations. Read the SST record
-         * carefully before beginning to hack.
-         */
-        public void ManufactureStrings(int stringCount, RecordInputStream in1)
-        {
-            for (int i = 0; i < stringCount; i++)
+            // Extract exactly the count of strings from the SST record.
+            UnicodeString str;
+            if (in1.Available() == 0 && (!in1.HasNextRecord || in1.GetNextSid() != ContinueRecord.sid))
             {
-                // Extract exactly the count of strings from the SST record.
-                UnicodeString str;
-                if (in1.Available() == 0 && (!in1.HasNextRecord || in1.GetNextSid() != ContinueRecord.sid))
-                {
-                    System.Console.WriteLine("Ran out of data before creating all the strings! String at index " + i + "");
-                    str = new UnicodeString("");
-                }
-                else
-                {
-                    str = new UnicodeString(in1);
-                }
-                AddToStringTable(strings, str);
+                System.Console.WriteLine("Ran out of data before creating all the strings! String at index " + i + "");
+                str = new UnicodeString("");
             }
+            else
+            {
+                str = new UnicodeString(in1);
+            }
+            AddToStringTable(strings, str);
         }
+    }
 
-        static public void AddToStringTable(IntMapper<UnicodeString> strings, UnicodeString str)
-        {
-            strings.Add(str);
-        }
+    static public void AddToStringTable(IntMapper<UnicodeString> strings, UnicodeString str)
+    {
+        strings.Add(str);
     }
 }
