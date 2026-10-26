@@ -1,4 +1,4 @@
-
+﻿
 /* ====================================================================
     Licensed to the Apache Software Foundation (ASF) under one or more
     contributor license agreements.  See the NOTICE file distributed with
@@ -85,7 +85,8 @@ public class UnknownEscherRecord : EscherRecord, ICloneable
         }
         else
         {
-            if (bytesRemaining < 0) {
+            if (bytesRemaining < 0)
+            {
                 bytesRemaining = 0;
             }
             _thedata = IOUtils.SafelyAllocate(bytesRemaining, MAX_RECORD_LENGTH);
@@ -107,7 +108,7 @@ public class UnknownEscherRecord : EscherRecord, ICloneable
         LittleEndian.PutShort(data, offset, Options);
         LittleEndian.PutShort(data, offset + 2, RecordId);
         int remainingBytes = _thedata.Length;
-        for (IEnumerator iterator = ChildRecords.GetEnumerator(); iterator.MoveNext(); )
+        for (IEnumerator iterator = ChildRecords.GetEnumerator(); iterator.MoveNext();)
         {
             EscherRecord r = (EscherRecord)iterator.Current;
             remainingBytes += r.RecordSize;
@@ -115,7 +116,7 @@ public class UnknownEscherRecord : EscherRecord, ICloneable
         LittleEndian.PutInt(data, offset + 4, remainingBytes);
         Array.Copy(_thedata, 0, data, offset + 8, _thedata.Length);
         int pos = offset + 8 + _thedata.Length;
-        for (IEnumerator iterator = ChildRecords.GetEnumerator(); iterator.MoveNext(); )
+        for (IEnumerator iterator = ChildRecords.GetEnumerator(); iterator.MoveNext();)
         {
             EscherRecord r = (EscherRecord)iterator.Current;
             pos += r.Serialize(pos, data);
@@ -185,7 +186,7 @@ public class UnknownEscherRecord : EscherRecord, ICloneable
         if (ChildRecords.Count > 0)
         {
             children.Append("  children: " + nl);
-            for (IEnumerator iterator = ChildRecords.GetEnumerator(); iterator.MoveNext(); )
+            for (IEnumerator iterator = ChildRecords.GetEnumerator(); iterator.MoveNext();)
             {
                 EscherRecord record = (EscherRecord)iterator.Current;
                 children.Append(record.ToString());

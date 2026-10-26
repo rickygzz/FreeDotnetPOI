@@ -1,4 +1,4 @@
-
+﻿
 /* ====================================================================
     Licensed to the Apache Software Foundation (ASF) under one or more
     contributor license agreements.  See the NOTICE file distributed with
@@ -38,7 +38,7 @@ public class DefaultEscherRecordFactory : IEscherRecordFactory
         typeof(EscherClientDataRecord), typeof(EscherDggRecord),
         typeof(EscherSplitMenuColorsRecord), typeof(EscherChildAnchorRecord), typeof(EscherTextboxRecord)
     };
-    private static readonly Dictionary<short,ConstructorInfo> recordsMap = RecordsToMap(escherRecordClasses);
+    private static readonly Dictionary<short, ConstructorInfo> recordsMap = RecordsToMap(escherRecordClasses);
 
     /// <summary>
     /// Initializes a new instance of the <see cref="DefaultEscherRecordFactory"/> class.
@@ -153,7 +153,7 @@ public class DefaultEscherRecordFactory : IEscherRecordFactory
             {
                 ci = recordType.GetConstructor(EMPTY_CLASS_ARRAY);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 throw new RuntimeException(e);
             }

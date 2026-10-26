@@ -1,4 +1,4 @@
-/*
+﻿/*
 * Licensed to the Apache Software Foundation (ASF) under one or more
 * contributor license agreements.  See the NOTICE file distributed with
 * this work for Additional information regarding copyright ownership.
@@ -28,13 +28,13 @@ using System.Text;
 /// <summary>
 /// @author Daniel Noll
 /// </summary>
-public class EscherMetafileBlip:EscherBlipRecord
+public class EscherMetafileBlip : EscherBlipRecord
 {
     private static POILogger log = POILogFactory.GetLogger(typeof(EscherMetafileBlip));
     // arbitrarily selected; may need to increase
     private static int MAX_RECORD_LENGTH = 100_000_000;
 
-    public const short RECORD_ID_EMF = unchecked((short) 0xF018) + 2;
+    public const short RECORD_ID_EMF = unchecked((short)0xF018) + 2;
     public const short RECORD_ID_WMF = unchecked((short)0xF018) + 3;
     public const short RECORD_ID_PICT = unchecked((short)0xF018) + 4;
 
@@ -75,30 +75,31 @@ public class EscherMetafileBlip:EscherBlipRecord
     /// <returns>
     /// The number of bytes Read from the byte array.
     /// </returns>
-    public override int FillFields( byte[] data, int offset, IEscherRecordFactory recordFactory )
+    public override int FillFields(byte[] data, int offset, IEscherRecordFactory recordFactory)
     {
-        int bytesAfterHeader = ReadHeader( data, offset );
+        int bytesAfterHeader = ReadHeader(data, offset);
         int pos = offset + HEADER_SIZE;
 
-        Array.Copy( data, pos, field_1_UID, 0, 16 ); pos += 16;
+        Array.Copy(data, pos, field_1_UID, 0, 16); pos += 16;
 
-        if ((Options ^ Signature) == 0x10){
-            Array.Copy( data, pos, field_2_UID, 0, 16 ); pos += 16;
+        if ((Options ^ Signature) == 0x10)
+        {
+            Array.Copy(data, pos, field_2_UID, 0, 16); pos += 16;
         }
 
-        field_2_cb = LittleEndian.GetInt( data, pos ); pos += 4;
-        field_3_rcBounds_x1 = LittleEndian.GetInt( data, pos ); pos += 4;
-        field_3_rcBounds_y1 = LittleEndian.GetInt( data, pos ); pos += 4;
-        field_3_rcBounds_x2 = LittleEndian.GetInt( data, pos ); pos += 4;
-        field_3_rcBounds_y2 = LittleEndian.GetInt( data, pos ); pos += 4;
-        field_4_ptSize_w = LittleEndian.GetInt( data, pos ); pos += 4;
-        field_4_ptSize_h = LittleEndian.GetInt( data, pos ); pos += 4;
-        field_5_cbSave = LittleEndian.GetInt( data, pos ); pos += 4;
+        field_2_cb = LittleEndian.GetInt(data, pos); pos += 4;
+        field_3_rcBounds_x1 = LittleEndian.GetInt(data, pos); pos += 4;
+        field_3_rcBounds_y1 = LittleEndian.GetInt(data, pos); pos += 4;
+        field_3_rcBounds_x2 = LittleEndian.GetInt(data, pos); pos += 4;
+        field_3_rcBounds_y2 = LittleEndian.GetInt(data, pos); pos += 4;
+        field_4_ptSize_w = LittleEndian.GetInt(data, pos); pos += 4;
+        field_4_ptSize_h = LittleEndian.GetInt(data, pos); pos += 4;
+        field_5_cbSave = LittleEndian.GetInt(data, pos); pos += 4;
         field_6_fCompression = data[pos]; pos++;
         field_7_fFilter = data[pos]; pos++;
 
         raw_pictureData = IOUtils.SafelyAllocate(field_5_cbSave, MAX_RECORD_LENGTH);
-        Array.Copy( data, pos, raw_pictureData, 0, field_5_cbSave );
+        Array.Copy(data, pos, raw_pictureData, 0, field_5_cbSave);
         pos += field_5_cbSave;
 
         // 0 means DEFLATE compression
@@ -132,26 +133,27 @@ public class EscherMetafileBlip:EscherBlipRecord
         listener.BeforeRecordSerialize(offset, RecordId, this);
 
         int pos = offset;
-        LittleEndian.PutShort( data, pos, Options ); pos += 2;
-        LittleEndian.PutShort( data, pos, RecordId ); pos += 2;
-        LittleEndian.PutInt( data, pos, RecordSize - HEADER_SIZE ); pos += 4;
+        LittleEndian.PutShort(data, pos, Options); pos += 2;
+        LittleEndian.PutShort(data, pos, RecordId); pos += 2;
+        LittleEndian.PutInt(data, pos, RecordSize - HEADER_SIZE); pos += 4;
 
-        Array.Copy( field_1_UID, 0, data, pos, field_1_UID.Length ); pos += field_1_UID.Length;
-        if ((Options ^ Signature) == 0x10){
-            Array.Copy( field_2_UID, 0, data, pos, field_2_UID.Length ); pos += field_2_UID.Length;
+        Array.Copy(field_1_UID, 0, data, pos, field_1_UID.Length); pos += field_1_UID.Length;
+        if ((Options ^ Signature) == 0x10)
+        {
+            Array.Copy(field_2_UID, 0, data, pos, field_2_UID.Length); pos += field_2_UID.Length;
         }
-        LittleEndian.PutInt( data, pos, field_2_cb ); pos += 4;
-        LittleEndian.PutInt( data, pos, field_3_rcBounds_x1 ); pos += 4;
-        LittleEndian.PutInt( data, pos, field_3_rcBounds_y1 ); pos += 4;
-        LittleEndian.PutInt( data, pos, field_3_rcBounds_x2 ); pos += 4;
-        LittleEndian.PutInt( data, pos, field_3_rcBounds_y2 ); pos += 4;
-        LittleEndian.PutInt( data, pos, field_4_ptSize_w ); pos += 4;
-        LittleEndian.PutInt( data, pos, field_4_ptSize_h ); pos += 4;
-        LittleEndian.PutInt( data, pos, field_5_cbSave ); pos += 4;
+        LittleEndian.PutInt(data, pos, field_2_cb); pos += 4;
+        LittleEndian.PutInt(data, pos, field_3_rcBounds_x1); pos += 4;
+        LittleEndian.PutInt(data, pos, field_3_rcBounds_y1); pos += 4;
+        LittleEndian.PutInt(data, pos, field_3_rcBounds_x2); pos += 4;
+        LittleEndian.PutInt(data, pos, field_3_rcBounds_y2); pos += 4;
+        LittleEndian.PutInt(data, pos, field_4_ptSize_w); pos += 4;
+        LittleEndian.PutInt(data, pos, field_4_ptSize_h); pos += 4;
+        LittleEndian.PutInt(data, pos, field_5_cbSave); pos += 4;
         data[pos] = field_6_fCompression; pos++;
         data[pos] = field_7_fFilter; pos++;
 
-        Array.Copy( raw_pictureData, 0, data, pos, raw_pictureData.Length );
+        Array.Copy(raw_pictureData, 0, data, pos, raw_pictureData.Length);
         pos += raw_pictureData.Length;
         if (remainingData != null)
         {
@@ -240,7 +242,7 @@ public class EscherMetafileBlip:EscherBlipRecord
     /// <value>The primary UID.</value>
     public byte[] PrimaryUID
     {
-        get{return field_2_UID;}
+        get { return field_2_UID; }
         set
         {
             if (value == null || value.Length != 16)
@@ -290,7 +292,8 @@ public class EscherMetafileBlip:EscherBlipRecord
     /// <value>The size EMU.</value>
     public Size SizeEMU
     {
-        get{
+        get
+        {
             return new Size(field_4_ptSize_w, field_4_ptSize_h);
         }
         set
@@ -306,8 +309,8 @@ public class EscherMetafileBlip:EscherBlipRecord
     /// <value>The size of the compressed.</value>
     public int CompressedSize
     {
-        get{return field_5_cbSave;}
-        set{field_5_cbSave=value;}
+        get { return field_5_cbSave; }
+        set { field_5_cbSave = value; }
     }
 
     /// <summary>
@@ -318,7 +321,7 @@ public class EscherMetafileBlip:EscherBlipRecord
     /// </value>
     public bool IsCompressed
     {
-        get{return (field_6_fCompression == 0);}
+        get { return (field_6_fCompression == 0); }
         set { field_6_fCompression = value ? (byte)0 : (byte)0xFE; }
     }
     public byte[] RemainingData
@@ -385,9 +388,11 @@ public class EscherMetafileBlip:EscherBlipRecord
     /// <value>the blip signature</value>
     public short Signature
     {
-        get{
+        get
+        {
             short sig = 0;
-            switch(RecordId){
+            switch (RecordId)
+            {
                 case RECORD_ID_EMF:
                     sig = HSSFPictureData.MSOBI_EMF;
                     break;
@@ -399,6 +404,7 @@ public class EscherMetafileBlip:EscherBlipRecord
                     break;
                 default: log.Log(POILogger.WARN, "Unknown metafile: " + RecordId); break;
             }
+
             return sig;
         }
     }
@@ -408,7 +414,7 @@ public class EscherMetafileBlip:EscherBlipRecord
         base.PictureData = (pictureData);
         UncompressedSize = (pictureData.Length);
 
-        // info of chicago project:
+        // info of Chicago project:
         // "... LZ compression algorithm in the format used by GNU Zip deflate/inflate with a 32k window ..."
         // not sure what to do, when lookup tables exceed 32k ...
 
@@ -425,7 +431,7 @@ public class EscherMetafileBlip:EscherBlipRecord
             throw new RuntimeException("Can't compress metafile picture data", e);
         }
 
-        CompressedSize=(raw_pictureData.Length);
+        CompressedSize = (raw_pictureData.Length);
         IsCompressed = (true);
     }
 

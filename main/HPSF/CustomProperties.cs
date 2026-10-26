@@ -1,4 +1,4 @@
-/* ====================================================================
+﻿/* ====================================================================
     Licensed to the Apache Software Foundation (ASF) under one or more
     contributor license agreements.  See the NOTICE file distributed with
     this work for additional information regarding copyright ownership.
@@ -69,13 +69,15 @@ public class CustomProperties : Dictionary<string, object>
     /// <summary>
     /// The custom properties
     /// </summary>
-    private Dictionary<long,CustomProperty> props = new Dictionary<long,CustomProperty>();
+    private Dictionary<long, CustomProperty> props = new Dictionary<long, CustomProperty>();
+
     /// <summary>
-    /// Tells whether this object is pure or not.
+    ///     Tells whether this object is pure or not.
     /// </summary>
     private bool isPure = true;
 
     private int codepage = -1;
+
     /// <summary>
     /// Puts a <see cref="CustomProperty"/> into this map. It is assumed that the
     /// <see cref="CustomProperty"/> already has a valid ID. Otherwise use
@@ -126,7 +128,8 @@ public class CustomProperties : Dictionary<string, object>
     /// <returns>the property that was stored under the specified name before, or
     /// <c>null</c> if there was no such property before.
     /// </returns>
-    public object Put(string key, object value) {
+    public object Put(string key, object value)
+    {
         int variantType;
         if (value is String)
         {
@@ -258,9 +261,10 @@ public class CustomProperties : Dictionary<string, object>
         }
         return list;
     }
-    public Dictionary<String, object> entrySet() {
-        Dictionary<String,object> set = new Dictionary<String,object>(props.Count);
-        foreach (KeyValuePair<long,String> se in dictionary)
+    public Dictionary<String, object> entrySet()
+    {
+        Dictionary<String, object> set = new Dictionary<string, object>(props.Count);
+        foreach (KeyValuePair<long, string> se in dictionary)
         {
             set.Add(se.Value, props[se.Key].Value);
         }
@@ -398,7 +402,7 @@ public class CustomProperties : Dictionary<string, object>
         else
         {
             long lastKey = (dictionary.Count == 0) ? 0 : dictionary.LastKey();
-            long nextKey = Math.Max(lastKey,PropertyIDMap.PID_MAX)+1;
+            long nextKey = Math.Max(lastKey, PropertyIDMap.PID_MAX) + 1;
             customProperty.ID = nextKey;
         }
         return this.Put(name, customProperty);

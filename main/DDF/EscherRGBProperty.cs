@@ -1,4 +1,4 @@
-
+﻿
 /* ====================================================================
     Licensed to the Apache Software Foundation (ASF) under one or more
     contributor license agreements.  See the NOTICE file distributed with
@@ -34,7 +34,8 @@ public class EscherRGBProperty : EscherSimpleProperty
     /// </summary>
     /// <param name="propertyNumber">The property number.</param>
     /// <param name="rgbColor">Color of the RGB.</param>
-    public EscherRGBProperty(short propertyNumber, int rgbColor):base(propertyNumber, rgbColor)
+    public EscherRGBProperty(short propertyNumber, int rgbColor)
+        : base(propertyNumber, rgbColor)
     {
     }
 
@@ -62,7 +63,7 @@ public class EscherRGBProperty : EscherSimpleProperty
     /// <value>The green.</value>
     public byte Green
     {
-        get{return (byte)((RgbColor >> 8) & 0xFF);}
+        get { return (byte)((RgbColor >> 8) & 0xFF); }
     }
 
     /// <summary>
@@ -71,7 +72,7 @@ public class EscherRGBProperty : EscherSimpleProperty
     /// <value>The blue.</value>
     public byte Blue
     {
-        get{return (byte)((RgbColor >> 16) & 0xFF);}
+        get { return (byte)((RgbColor >> 16) & 0xFF); }
     }
     public override String ToXml(String tab)
     {

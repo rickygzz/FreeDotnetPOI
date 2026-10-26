@@ -1,4 +1,4 @@
-
+﻿
 /* ====================================================================
     Licensed to the Apache Software Foundation (ASF) under one or more
     contributor license agreements.  See the NOTICE file distributed with
@@ -97,9 +97,9 @@ public class EscherSpRecord : EscherRecord
     /// Returns the number of bytes that are required to Serialize this record.
     /// </summary>
     /// <value>Number of bytes</value>
-    public override  int RecordSize
+    public override int RecordSize
     {
-        get{return 8 + 8;}
+        get { return 8 + 8; }
     }
 
     /// <summary>
@@ -168,7 +168,7 @@ public class EscherSpRecord : EscherRecord
         // need to check, else blows up on some records - bug 34435
         if (result.Length > 0)
         {
-            result.Remove(0,1);
+            result.Remove(0, 1);
         }
         return result.ToString();
     }

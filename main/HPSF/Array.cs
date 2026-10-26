@@ -47,10 +47,10 @@ public class Array
 
             if (!(1 <= numDimensionsUnsigned && numDimensionsUnsigned <= 31))
             {
-                String msg = "Array dimension number "+numDimensionsUnsigned+" is not in [1; 31] range";
+                String msg = "Array dimension number " + numDimensionsUnsigned + " is not in [1; 31] range";
                 throw new IllegalPropertySetDataException(msg);
             }
-            int numDimensions = (int) numDimensionsUnsigned;
+            int numDimensions = (int)numDimensionsUnsigned;
 
             _dimensions = new ArrayDimension[numDimensions];
             for (int i = 0; i < numDimensions; i++)
@@ -102,22 +102,24 @@ public class Array
                 + numberOfScalarsLong + " in memory";
             throw new InvalidOperationException(msg);
         }
-        int numberOfScalars = (int) numberOfScalarsLong;
+        int numberOfScalars = (int)numberOfScalarsLong;
 
         _values = new TypedPropertyValue[numberOfScalars];
         int paddedType = (_header._type == Variant.VT_VARIANT) ? 0 : _header._type;
-        for ( int i = 0; i < numberOfScalars; i++ )
+        for (int i = 0; i < numberOfScalars; i++)
         {
             TypedPropertyValue typedPropertyValue = new TypedPropertyValue(paddedType, null);
             typedPropertyValue.Read(lei);
             _values[i] = typedPropertyValue;
-            if (paddedType != 0) {
+            if (paddedType != 0)
+            {
                 TypedPropertyValue.SkipPadding(lei);
             }
         }
     }
 
-    private TypedPropertyValue[] GetValues(){
+    private TypedPropertyValue[] GetValues()
+    {
         return _values;
     }
 }

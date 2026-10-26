@@ -1,4 +1,4 @@
-/*
+﻿/*
 * Licensed to the Apache Software Foundation (ASF) under one or more
 * contributor license agreements.  See the NOTICE file distributed with
 * this work for Additional information regarding copyright ownership.
@@ -33,7 +33,7 @@ public class EscherBitmapBlip : EscherBlipRecord
 
     private const int HEADER_SIZE = 8;
 
-    private byte[] field_1_UID  = new byte[16];
+    private byte[] field_1_UID = new byte[16];
     private byte field_2_marker = (byte)0xFF;
 
     /// <summary>

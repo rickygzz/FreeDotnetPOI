@@ -1,4 +1,4 @@
-
+﻿
 /* ====================================================================
     Licensed to the Apache Software Foundation (ASF) under one or more
     contributor license agreements.  See the NOTICE file distributed with
@@ -92,10 +92,10 @@ abstract public class EscherRecord : ICloneable
     /// <param name="data">the byte array to read from</param>
     /// <param name="offset">the offset to start reading from</param>
     /// <returns>value of instance part of options field</returns>
-    protected static short ReadInstance( byte[] data, int offset )
+    protected static short ReadInstance(byte[] data, int offset)
     {
-        short options = LittleEndian.GetShort( data, offset );
-        return fInstance.GetShortValue( options );
+        short options = LittleEndian.GetShort(data, offset);
+        return fInstance.GetShortValue(options);
     }
     /// <summary>
     /// Determine whether this is a container record by inspecting the option
@@ -133,7 +133,7 @@ abstract public class EscherRecord : ICloneable
     {
         byte[] retval = new byte[RecordSize];
 
-        int length=Serialize(0, retval);
+        int length = Serialize(0, retval);
         return retval;
     }
     /// <summary>

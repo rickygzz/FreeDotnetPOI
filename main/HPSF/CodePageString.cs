@@ -29,13 +29,14 @@ public class CodePageString
 
     private byte[] _value;
 
-    internal CodePageString() {}
-    internal void Read( LittleEndianByteArrayInputStream lei )
+    internal CodePageString() { }
+    internal void Read(LittleEndianByteArrayInputStream lei)
     {
         int offset = lei.GetReadIndex();
         int size = lei.ReadInt();
         _value = IOUtils.SafelyAllocate(size, MAX_RECORD_LENGTH);
-        if (size == 0) {
+        if (size == 0)
+        {
             return;
         }
 
@@ -49,7 +50,7 @@ public class CodePageString
         // trailing null characters and an OLEPS implementation MUST be able to handle such strings.
 
         lei.ReadFully(_value);
-        if (_value[size - 1] != 0 )
+        if (_value[size - 1] != 0)
         {
             // TODO Some files, such as TestVisioWithCodepage.vsd, are currently
             // triggering this for values that don't look like codepages
@@ -72,11 +73,11 @@ public class CodePageString
 #if NETSTANDARD2_1 || NET6_0_OR_GREATER || NETSTANDARD2_0
         Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 #endif
-        int cp = ( codepage == -1 ) ? Property.DEFAULT_CODEPAGE : codepage;
+        int cp = (codepage == -1) ? Property.DEFAULT_CODEPAGE : codepage;
         String result = CodePageUtil.GetStringFromCodePage(_value, cp);
 
-        int terminator = result.IndexOf( '\0' );
-        if ( terminator == -1 )
+        int terminator = result.IndexOf('\0');
+        if (terminator == -1)
         {
             // String msg =
             //    "String terminator (\\0) for CodePageString property value not found." +
@@ -84,10 +85,10 @@ public class CodePageString
             // LOG.log(POILogger.WARN, msg);
             return result;
         }
-        if ( terminator != result.Length - 1 )
+        if (terminator != result.Length - 1)
         {
             // String msg =
-            //    "String terminator (\\0) for CodePageString property value occured before the end of string. "+
+            //    "String terminator (\\0) for CodePageString property value occurred before the end of string. "+
             //    "Trimming and hope for the best.";
             // LOG.log(POILogger.WARN, msg );
         }
@@ -110,8 +111,9 @@ public class CodePageString
         {
             _value = CodePageUtil.GetBytesInCodePage(stringNT, codepage);
         }
-            // _value = Encoding.GetEncoding(codepage).GetBytes(aString + "\0");
-        int cp = ( codepage == -1 ) ? Property.DEFAULT_CODEPAGE : codepage;
+
+        // _value = Encoding.GetEncoding(codepage).GetBytes(aString + "\0");
+        int cp = (codepage == -1) ? Property.DEFAULT_CODEPAGE : codepage;
         _value = CodePageUtil.GetBytesInCodePage(aString + "\0", cp);
     }
 

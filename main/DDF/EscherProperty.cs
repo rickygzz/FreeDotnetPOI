@@ -1,4 +1,4 @@
-
+﻿
 /* ====================================================================
     Licensed to the Apache Software Foundation (ASF) under one or more
     contributor license agreements.  See the NOTICE file distributed with
@@ -59,7 +59,7 @@ abstract public class EscherProperty
     /// Gets the id.
     /// </summary>
     /// <value>The id.</value>
-    public virtual  short Id
+    public virtual short Id
     {
         get { return id; }
     }
@@ -68,7 +68,7 @@ abstract public class EscherProperty
     /// Gets the property number.
     /// </summary>
     /// <value>The property number.</value>
-    public virtual  short PropertyNumber
+    public virtual short PropertyNumber
     {
         get { return (short)(id & (short)0x3FFF); }
     }
@@ -79,7 +79,7 @@ abstract public class EscherProperty
     /// <value>
     /// 	<c>true</c> if this instance is complex; otherwise, <c>false</c>.
     /// </value>
-    public virtual  bool IsComplex
+    public virtual bool IsComplex
     {
         get { return (id & unchecked((short)0x8000)) != 0; }
     }
@@ -90,7 +90,7 @@ abstract public class EscherProperty
     /// <value>
     /// 	<c>true</c> if this instance is blip id; otherwise, <c>false</c>.
     /// </value>
-    public virtual  bool IsBlipId
+    public virtual bool IsBlipId
     {
         get { return (id & (short)0x4000) != 0; }
     }

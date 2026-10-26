@@ -1,4 +1,4 @@
-
+﻿
 /* ====================================================================
     Licensed to the Apache Software Foundation (ASF) under one or more
     contributor license agreements.  See the NOTICE file distributed with
@@ -113,7 +113,8 @@ public class EscherContainerRecord : EscherRecord
         LittleEndian.PutShort(data, offset, Options);
         LittleEndian.PutShort(data, offset + 2, RecordId);
         int remainingBytes = 0;
-        for (IEnumerator iterator = ChildRecords.GetEnumerator(); iterator.MoveNext(); )
+        for (IEnumerator iterator = ChildRecords.GetEnumerator();
+            iterator.MoveNext();)
         {
             EscherRecord r = (EscherRecord)iterator.Current;
             remainingBytes += r.RecordSize;
@@ -123,7 +124,7 @@ public class EscherContainerRecord : EscherRecord
 
         LittleEndian.PutInt(data, offset + 4, remainingBytes);
         int pos = offset + 8;
-        for (IEnumerator iterator = ChildRecords.GetEnumerator(); iterator.MoveNext(); )
+        for (IEnumerator iterator = ChildRecords.GetEnumerator(); iterator.MoveNext();)
         {
             EscherRecord r = (EscherRecord)iterator.Current;
             pos += r.Serialize(pos, data, listener);
@@ -143,7 +144,7 @@ public class EscherContainerRecord : EscherRecord
         get
         {
             int childRecordsSize = 0;
-            for (IEnumerator iterator = ChildRecords.GetEnumerator(); iterator.MoveNext(); )
+            for (IEnumerator iterator = ChildRecords.GetEnumerator(); iterator.MoveNext();)
             {
                 EscherRecord r = (EscherRecord)iterator.Current;
                 childRecordsSize += r.RecordSize;
@@ -162,7 +163,7 @@ public class EscherContainerRecord : EscherRecord
     /// </returns>
     public bool HasChildOfType(short recordId)
     {
-        for (IEnumerator iterator = ChildRecords.GetEnumerator(); iterator.MoveNext(); )
+        for (IEnumerator iterator = ChildRecords.GetEnumerator(); iterator.MoveNext();)
         {
             EscherRecord r = (EscherRecord)iterator.Current;
             if (r.RecordId == recordId)
@@ -258,7 +259,7 @@ public class EscherContainerRecord : EscherRecord
     public override void Display(int indent)
     {
         base.Display(indent);
-        for (IEnumerator iterator = _childRecords.GetEnumerator(); iterator.MoveNext(); )
+        for (IEnumerator iterator = _childRecords.GetEnumerator(); iterator.MoveNext();)
         {
             EscherRecord escherRecord = (EscherRecord)iterator.Current;
             escherRecord.Display(indent + 1);
@@ -302,7 +303,7 @@ public class EscherContainerRecord : EscherRecord
             children.Append("  children: " + nl);
 
             int count = 0;
-            for (IEnumerator iterator = ChildRecords.GetEnumerator(); iterator.MoveNext(); )
+            for (IEnumerator iterator = ChildRecords.GetEnumerator(); iterator.MoveNext();)
             {
 
                 EscherRecord record = (EscherRecord)iterator.Current;
@@ -353,7 +354,7 @@ public class EscherContainerRecord : EscherRecord
     /// <param name="recordId">The record id.</param>
     public EscherRecord GetChildById(short recordId)
     {
-        for (IEnumerator iterator = _childRecords.GetEnumerator(); iterator.MoveNext(); )
+        for (IEnumerator iterator = _childRecords.GetEnumerator(); iterator.MoveNext();)
         {
             EscherRecord escherRecord = (EscherRecord)iterator.Current;
             if (escherRecord.RecordId == recordId)
@@ -370,7 +371,7 @@ public class EscherContainerRecord : EscherRecord
     /// <param name="out1">list to store found records</param>
     public void GetRecordsById(short recordId, ref ArrayList out1)
     {
-        for (IEnumerator it = ChildRecords.GetEnumerator(); it.MoveNext(); )
+        for (IEnumerator it = ChildRecords.GetEnumerator(); it.MoveNext();)
         {
             Object er = it.Current;
             EscherRecord r = (EscherRecord)er;

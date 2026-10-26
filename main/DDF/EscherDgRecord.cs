@@ -1,4 +1,4 @@
-
+﻿
 /* ====================================================================
     Licensed to the Apache Software Foundation (ASF) under one or more
     contributor license agreements.  See the NOTICE file distributed with
@@ -112,7 +112,7 @@ public class EscherDgRecord : EscherRecord
     /// </returns>
     public override String ToString()
     {
-        String nl =Environment.NewLine;
+        String nl = Environment.NewLine;
 
         //        String extraData;
         //        MemoryStream b = new MemoryStream();

@@ -9,13 +9,13 @@ public class ClipboardData
 
     private int _format = 0;
     private byte[] _value;
-    internal ClipboardData() {}
-    internal void Read( LittleEndianByteArrayInputStream lei )
+    internal ClipboardData() { }
+    internal void Read(LittleEndianByteArrayInputStream lei)
     {
         int offset = lei.GetReadIndex();
         int size = lei.ReadInt();
 
-        if ( size < 4 )
+        if (size < 4)
         {
             // String msg =
             //    "ClipboardData at offset "+offset+" size less than 4 bytes "+
@@ -39,8 +39,8 @@ public class ClipboardData
 
     internal byte[] ToByteArray()
     {
-        byte[] result = new byte[LittleEndianConsts.INT_SIZE*2+_value.Length];
-        LittleEndianByteArrayOutputStream bos = new LittleEndianByteArrayOutputStream(result,0);
+        byte[] result = new byte[LittleEndianConsts.INT_SIZE * 2 + _value.Length];
+        LittleEndianByteArrayOutputStream bos = new LittleEndianByteArrayOutputStream(result, 0);
         try
         {
             bos.WriteInt(LittleEndianConsts.INT_SIZE + _value.Length);

@@ -28,7 +28,7 @@ namespace NPOI.DDF;
 /// </summary>
 public sealed class EscherDggRecord : EscherRecord
 {
-    public static short RECORD_ID = unchecked((short) 0xF006);
+    public static short RECORD_ID = unchecked((short)0xF006);
     public static string RECORD_DESCRIPTION = "MsofbtDgg";
 
     private int field_1_shapeIdMax;
@@ -73,32 +73,33 @@ public sealed class EscherDggRecord : EscherRecord
     }
     public override int FillFields(byte[] data, int offset, IEscherRecordFactory recordFactory)
     {
-        int bytesRemaining = ReadHeader( data, offset );
-        int pos            = offset + 8;
-        int size           = 0;
-        field_1_shapeIdMax     =  LittleEndian.GetInt(data, pos + size);
-        size+=4;
+        int bytesRemaining = ReadHeader(data, offset);
+        int pos = offset + 8;
+        int size = 0;
+        field_1_shapeIdMax = LittleEndian.GetInt(data, pos + size);
+        size += 4;
         // field_2_numIdClusters = LittleEndian.GetInt( data, pos + size );
-        size+=4;
-        field_3_numShapesSaved =  LittleEndian.GetInt(data, pos + size);
-        size+=4;
-        field_4_drawingsSaved  =  LittleEndian.GetInt(data, pos + size);
-        size+=4;
+        size += 4;
+        field_3_numShapesSaved = LittleEndian.GetInt(data, pos + size);
+        size += 4;
+        field_4_drawingsSaved = LittleEndian.GetInt(data, pos + size);
+        size += 4;
 
         field_5_fileIdClusters.Clear();
         // Can't rely on field_2_numIdClusters
-        int numIdClusters = (bytesRemaining-size) / 8;
+        int numIdClusters = (bytesRemaining - size) / 8;
 
         for (int i = 0; i < numIdClusters; i++)
         {
-            int drawingGroupId = LittleEndian.GetInt( data, pos + size );
-            int numShapeIdsUsed = LittleEndian.GetInt( data, pos + size + 4 );
+            int drawingGroupId = LittleEndian.GetInt(data, pos + size);
+            int numShapeIdsUsed = LittleEndian.GetInt(data, pos + size + 4);
             FileIdCluster fic = new FileIdCluster(drawingGroupId, numShapeIdsUsed);
             field_5_fileIdClusters.Add(fic);
             maxDgId = Math.Max(maxDgId, drawingGroupId);
             size += 8;
         }
         bytesRemaining -= size;
+
         if (bytesRemaining != 0)
         {
             throw new RecordFormatException("Expecting no remaining data but got " + bytesRemaining + " byte(s).");
@@ -337,7 +338,7 @@ public sealed class EscherDggRecord : EscherRecord
         {
             bs.Set(fic.DrawingGroupId, true);
         }
-        for (var i = 0; i<field_5_fileIdClusters.Count + 32; i++)
+        for (var i = 0; i < field_5_fileIdClusters.Count + 32; i++)
         {
             if (!bs.Get(i))
             {
@@ -384,7 +385,7 @@ public sealed class EscherDggRecord : EscherRecord
             maxDgId = Math.Max(maxDgId, DrawingGroupId);
         }
 
-        int shapeId = index*1024 + ficAdd.NumShapeIdsUsed;
+        int shapeId = index * 1024 + ficAdd.NumShapeIdsUsed;
         ficAdd.IncrementUsedShapeId();
 
         dg.NumShapes = dg.NumShapes + 1;
@@ -400,7 +401,7 @@ public sealed class EscherDggRecord : EscherRecord
         fldIds.Add(field_5_fileIdClusters.Count);
         foreach (FileIdCluster fic in field_5_fileIdClusters)
         {
-            fldIds.Add("Group"+fic.field_1_drawingGroupId);
+            fldIds.Add("Group" + fic.field_1_drawingGroupId);
             fldIds.Add(fic.field_2_numShapeIdsUsed);
         }
 

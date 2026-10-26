@@ -1,4 +1,4 @@
-/*
+﻿/*
 * Licensed to the Apache Software Foundation (ASF) under one or more
 * contributor license agreements.  See the NOTICE file distributed with
 * this work for Additional information regarding copyright ownership.
@@ -180,7 +180,8 @@ public class EscherPictBlip : EscherBlipRecord
     public byte[] UID
     {
         get { return field_1_UID; }
-        set {
+        set
+        {
             if (value == null || value.Length != 16)
             {
                 throw new ArgumentException("uid must be byte[16]");
@@ -255,7 +256,7 @@ public class EscherPictBlip : EscherBlipRecord
     public bool IsCompressed
     {
         get { return (field_6_fCompression == 0); }
-        set{field_6_fCompression = value ? (byte)0 : (byte)0xFE;}
+        set { field_6_fCompression = value ? (byte)0 : (byte)0xFE; }
     }
 
     // filtering is always 254 according to available docs, so no point giving it a Setter method.

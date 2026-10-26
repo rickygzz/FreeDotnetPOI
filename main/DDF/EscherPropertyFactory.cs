@@ -1,4 +1,4 @@
-
+﻿
 /* ====================================================================
     Licensed to the Apache Software Foundation (ASF) under one or more
     contributor license agreements.  See the NOTICE file distributed with
@@ -86,7 +86,7 @@ public class EscherPropertyFactory
         }
 
         // Get complex data
-        for (IEnumerator iterator = results.GetEnumerator(); iterator.MoveNext(); )
+        for (IEnumerator iterator = results.GetEnumerator(); iterator.MoveNext();)
         {
             EscherProperty p = (EscherProperty)iterator.Current;
             if (p is EscherComplexProperty property)

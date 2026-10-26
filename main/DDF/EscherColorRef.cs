@@ -1,4 +1,4 @@
-/* ====================================================================
+﻿/* ====================================================================
     Licensed to the Apache Software Foundation (ASF) under one or more
     contributor license agreements.  See the NOTICE file distributed with
     this work for Additional information regarding copyright ownership.
@@ -39,28 +39,35 @@ public class SysIndexSource
     public static SysIndexSource FILL_COLOR = new SysIndexSource(0xF0),
     /* If the shape Contains a line, use the line color of the shape. Otherwise, use the fill color. */
     LINE_OR_FILL_COLOR = new SysIndexSource(0xF1),
-    /* Use the line color of the shape. */
+
+    // Use the line color of the shape.
     LINE_COLOR = new SysIndexSource(0xF2),
-        /* Use the shadow color of the shape. */
+
+    // Use the shadow color of the shape
     SHADOW_COLOR = new SysIndexSource(0xF3),
-        /* Use the current, or last-used, color. */
+
+    // Use the current, or last-used, color.
     CURRENT_OR_LAST_COLOR = new SysIndexSource(0xF4),
-        /* Use the fill background color of the shape. */
+
+    // Use the fill background color of the shape.
     FILL_BACKGROUND_COLOR = new SysIndexSource(0xF5),
-        /* Use the line background color of the shape. */
+
+    // Use the line background color of the shape.
     LINE_BACKGROUND_COLOR = new SysIndexSource(0xF6),
-        /* If the shape Contains a Fill, use the fill color of the shape. Otherwise, use the line color. */
-    FILL_OR_LINE_COLOR = new SysIndexSource(0xF7)
-    ;
+
+    // If the shape Contains a Fill, use the fill color of the shape. Otherwise, use the line color.
+    FILL_OR_LINE_COLOR = new SysIndexSource(0xF7);
+
     internal int value;
     internal SysIndexSource(int value) { this.value = value; }
 }
+
 /**
-    * The following enum specifies values that indicate special procedural properties that
-    * are used to modify the color components of another color. These values are combined with
-    * those of the {@link SysIndexSource} enum or with a user-specified color.
-    * The first six values are mutually exclusive.
-    */
+* The following enum specifies values that indicate special procedural properties that
+* are used to modify the color components of another color. These values are combined with
+* those of the {@link SysIndexSource} enum or with a user-specified color.
+* The first six values are mutually exclusive.
+*/
 public class SysIndexProcedure
 {
     internal static SysIndexProcedure[] Values()
@@ -82,44 +89,51 @@ public class SysIndexProcedure
     * whereas a blue value of 0x00 specifies that the color is to be completely darkened.
     */
     public static SysIndexProcedure DARKEN_COLOR = new SysIndexProcedure(0x01),
-        /*
-        * Lighten the color by the value that is specified in the blue field.
-        * A blue value of 0xFF specifies that the color is to be left unChanged,
-        * whereas a blue value of 0x00 specifies that the color is to be completely lightened.
-        */
+
+    /*
+    * Lighten the color by the value that is specified in the blue field.
+    * A blue value of 0xFF specifies that the color is to be left unChanged,
+    * whereas a blue value of 0x00 specifies that the color is to be completely lightened.
+    */
     LIGHTEN_COLOR = new SysIndexProcedure(0x02),
-        /*
-        * Add a gray level RGB value. The blue field Contains the gray level to Add:
-        * NewColor = SourceColor + gray
-        */
+
+    /*
+    * Add a gray level RGB value. The blue field Contains the gray level to Add:
+    * NewColor = SourceColor + gray
+    */
     ADD_GRAY_LEVEL = new SysIndexProcedure(0x03),
-        /*
-        * Subtract a gray level RGB value. The blue field Contains the gray level to subtract:
-        * NewColor = SourceColor - gray
-        */
+
+    /*
+    * Subtract a gray level RGB value. The blue field Contains the gray level to subtract:
+    * NewColor = SourceColor - gray
+    */
     SUB_GRAY_LEVEL = new SysIndexProcedure(0x04),
-        /*
-        * Reverse-subtract a gray level RGB value. The blue field Contains the gray level from
-        * which to subtract:
-        * NewColor = gray - SourceColor
-        */
+
+    /*
+    * Reverse-subtract a gray level RGB value. The blue field Contains the gray level from
+    * which to subtract:
+    * NewColor = gray - SourceColor
+    */
     REVERSE_GRAY_LEVEL = new SysIndexProcedure(0x05),
-        /*
-        * If the color component being modified is less than the parameter Contained in the blue
-        * field, Set it to the minimum intensity. If the color component being modified is greater
-        * than or equal to the parameter, Set it to the maximum intensity.
-        */
+
+    /*
+    * If the color component being modified is less than the parameter Contained in the blue
+    * field, Set it to the minimum intensity. If the color component being modified is greater
+    * than or equal to the parameter, Set it to the maximum intensity.
+    */
     THRESHOLD = new SysIndexProcedure(0x06),
-        /*
-        * After making other modifications, invert the color.
-        * This enum value is only for documentation and won't be directly returned.
-        */
+
+    /*
+    * After making other modifications, invert the color.
+    * This enum value is only for documentation and won't be directly returned.
+    */
     INVERT_AFTER = new SysIndexProcedure(0x20),
-        /*
-        * After making other modifications, invert the color by toggling just the high bit of each
-        * color channel.
-        * This enum value is only for documentation and won't be directly returned.
-        */
+
+    /*
+    * After making other modifications, invert the color by toggling just the high bit of each
+    * color channel.
+    * This enum value is only for documentation and won't be directly returned.
+    */
     INVERT_HIGHBIT_AFTER = new SysIndexProcedure(0x40)
     ;
     internal BitField mask;
@@ -128,6 +142,7 @@ public class SysIndexProcedure
         this.mask = new BitField(mask);
     }
 }
+
 /**
 * An OfficeArtCOLORREF structure entry which also handles color extension opid data
 */

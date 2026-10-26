@@ -1,4 +1,4 @@
-
+﻿
 /* ====================================================================
     Licensed to the Apache Software Foundation (ASF) under one or more
     contributor license agreements.  See the NOTICE file distributed with
@@ -227,7 +227,7 @@ public class EscherBlipWMFRecord : EscherBlipRecord
     /// <value>the cache of the saved size.</value>
     public int CacheOfSavedSize
     {
-        get{return field_9_cacheOfSavedSize;}
+        get { return field_9_cacheOfSavedSize; }
         set { this.field_9_cacheOfSavedSize = value; }
     }
 
@@ -343,7 +343,7 @@ public class EscherBlipWMFRecord : EscherBlipRecord
         using (MemoryStream out1 = new MemoryStream())
         {
             Deflater deflater = new Deflater(0, false);
-            DeflaterOutputStream deflaterOutputStream = new DeflaterOutputStream(out1,deflater);
+            DeflaterOutputStream deflaterOutputStream = new DeflaterOutputStream(out1, deflater);
             try
             {
                 // for (int i = 0; i < data.Length; i++)

@@ -112,7 +112,7 @@ public class ClassID
         String clsStr = Regex.Replace(externalForm, "[{}-]", "");
         for (int i = 0; i < clsStr.Length; i += 2)
         {
-            bytes[i / 2] = (byte) Convert.ToInt64(clsStr.Substring(i, 2), 16);
+            bytes[i / 2] = (byte)Convert.ToInt64(clsStr.Substring(i, 2), 16);
         }
     }
 

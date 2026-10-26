@@ -1,4 +1,4 @@
-
+﻿
 /* ====================================================================
     Licensed to the Apache Software Foundation (ASF) under one or more
     contributor license agreements.  See the NOTICE file distributed with
@@ -384,7 +384,7 @@ public class EscherDump
                 nDumpSize = (recordBytesRemaining > (int)remainingBytes) ? (short)remainingBytes : (short)recordBytesRemaining;
 
                 byte[] buf = new byte[nDumpSize];
-                int Read = in1.Read(buf,0,buf.Length);
+                int Read = in1.Read(buf, 0, buf.Length);
                 while (Read != -1 && Read < nDumpSize)
                     Read += in1.Read(buf, Read, buf.Length);
 

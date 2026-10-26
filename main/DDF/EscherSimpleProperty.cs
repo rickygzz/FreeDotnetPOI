@@ -1,4 +1,4 @@
-
+﻿
 /* ====================================================================
     Licensed to the Apache Software Foundation (ASF) under one or more
     contributor license agreements.  See the NOTICE file distributed with
@@ -39,7 +39,8 @@ public class EscherSimpleProperty : EscherProperty
     /// </summary>
     /// <param name="id">The id.</param>
     /// <param name="propertyValue">The property value.</param>
-    public EscherSimpleProperty(short id, int propertyValue):base(id)
+    public EscherSimpleProperty(short id, int propertyValue)
+        : base(id)
     {
         this.propertyValue = propertyValue;
     }
@@ -52,7 +53,8 @@ public class EscherSimpleProperty : EscherProperty
     /// <param name="isComplex">if set to <c>true</c> [is complex].</param>
     /// <param name="isBlipId">if set to <c>true</c> [is blip id].</param>
     /// <param name="propertyValue">The property value.</param>
-    public EscherSimpleProperty(short propertyNumber, bool isComplex, bool isBlipId, int propertyValue):base(propertyNumber, isComplex, isBlipId)
+    public EscherSimpleProperty(short propertyNumber, bool isComplex, bool isBlipId, int propertyValue)
+        : base(propertyNumber, isComplex, isBlipId)
     {
 
         this.propertyValue = propertyValue;
