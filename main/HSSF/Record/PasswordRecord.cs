@@ -1,4 +1,4 @@
-
+﻿
 /* ====================================================================
    Licensed to the Apache Software Foundation (ASF) Under one or more
    contributor license agreements.  See the NOTICE file distributed with
@@ -17,86 +17,85 @@
 ==================================================================== */
 
 
-namespace NPOI.HSSF.Record
+namespace NPOI.HSSF.Record;
+
+using System;
+using System.Text;
+using NPOI.Util;
+
+
+/**
+ * Title:        Password Record
+ * Description:  stores the encrypted password for a sheet or workbook (HSSF doesn't support encryption)
+ * REFERENCE:  PG 371 Microsoft Excel 97 Developer's Kit (ISBN: 1-57231-498-2)
+ * @author Andrew C. Oliver (acoliver at apache dot org)
+ * @version 2.0-pre
+ */
+
+public class PasswordRecord : StandardRecord
 {
-    using System;
-    using System.Text;
-    using NPOI.Util;
+    public const short sid = 0x13;
+    private int field_1_password;   // not sure why this Is only 2 bytes, but it Is... go figure
+
+    public PasswordRecord(int password)
+    {
+        field_1_password = password;
+    }
+
+    /**
+     * Constructs a Password record and Sets its fields appropriately.
+     * @param in the RecordInputstream to Read the record from
+     */
+
+    public PasswordRecord(RecordInputStream in1)
+    {
+        field_1_password = in1.ReadShort();
+    }
 
 
     /**
-     * Title:        Password Record
-     * Description:  stores the encrypted password for a sheet or workbook (HSSF doesn't support encryption)
-     * REFERENCE:  PG 371 Microsoft Excel 97 Developer's Kit (ISBN: 1-57231-498-2)
-     * @author Andrew C. Oliver (acoliver at apache dot org)
-     * @version 2.0-pre
+     * Get the password
+     *
+     * @return short  representing the password
      */
-
-    public class PasswordRecord : StandardRecord
+    public int Password
     {
-        public const short sid = 0x13;
-        private int field_1_password;   // not sure why this Is only 2 bytes, but it Is... go figure
-
-        public PasswordRecord(int password)
-        {
-            field_1_password = password;
-        }
-
-        /**
-         * Constructs a Password record and Sets its fields appropriately.
-         * @param in the RecordInputstream to Read the record from
-         */
-
-        public PasswordRecord(RecordInputStream in1)
-        {
-            field_1_password = in1.ReadShort();
-        }
-
-
-        /**
-         * Get the password
-         *
-         * @return short  representing the password
-         */
-        public int Password
-        {
-            get { return field_1_password; }
-            set { field_1_password = value; }
-        }
-
-        public override String ToString()
-        {
-            StringBuilder buffer = new StringBuilder();
-
-            buffer.Append("[PASSWORD]\n");
-            buffer.Append("    .password       = ")
-                .Append(StringUtil.ToHexString(Password)).Append("\n");
-            buffer.Append("[/PASSWORD]\n");
-            return buffer.ToString();
-        }
-
-        public override void Serialize(ILittleEndianOutput out1)
-        {
-            out1.WriteShort(field_1_password);
-        }
-
-        protected override int DataSize
-        {
-            get { return 2; }
-        }
-
-        public override short Sid
-        {
-            get { return sid; }
-        }
-
-        /**
-         * Clone this record.
-         */
-        public override Object Clone()
-        {
-            return new PasswordRecord(field_1_password);
-        }
-
+        get { return field_1_password; }
+        set { field_1_password = value; }
     }
+
+    public override String ToString()
+    {
+        StringBuilder buffer = new StringBuilder();
+
+        buffer.Append("[PASSWORD]\n");
+        buffer.Append("    .password       = ")
+            .Append(StringUtil.ToHexString(Password)).Append("\n");
+        buffer.Append("[/PASSWORD]\n");
+        return buffer.ToString();
+    }
+
+    public override void Serialize(ILittleEndianOutput out1)
+    {
+        out1.WriteShort(field_1_password);
+    }
+
+    protected override int DataSize
+    {
+        get { return 2; }
+    }
+
+    public override short Sid
+    {
+        get { return sid; }
+    }
+
+    /**
+     * Clone this record.
+     */
+    public override Object Clone()
+    {
+        return new PasswordRecord(field_1_password);
+    }
+
 }

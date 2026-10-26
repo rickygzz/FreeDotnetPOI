@@ -49,8 +49,8 @@ namespace TestCases.HSSF.Record.Chart
             Stream din = fs.CreateDocumentInputStream("Workbook");
             HSSFRequest req = new HSSFRequest();
             req.AddListenerForAllRecords(grabber);
-            HSSFEventFactory factory = new HSSFEventFactory();
-            factory.ProcessEvents(req, din);
+
+            HSSFEventFactory.ProcessEvents(req, din);
             din.Close();
 
             // Should've found one

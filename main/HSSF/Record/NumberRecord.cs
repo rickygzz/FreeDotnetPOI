@@ -1,4 +1,4 @@
-
+﻿
 /* ====================================================================
    Licensed to the Apache Software Foundation (ASF) Under one or more
    contributor license agreements.  See the NOTICE file distributed with
@@ -22,90 +22,89 @@
  *
  * Created on October 1, 2001, 8:01 PM
  */
-namespace NPOI.HSSF.Record
+namespace NPOI.HSSF.Record;
+
+
+using NPOI.Util;
+
+using System;
+using System.Text;
+using NPOI.SS.Util;
+
+/**
+ * Contains a numeric cell value. 
+ * REFERENCE:  PG 334 Microsoft Excel 97 Developer's Kit (ISBN: 1-57231-498-2)
+ * @author Andrew C. Oliver (acoliver at apache dot org)
+ * @author Jason Height (jheight at chariot dot net dot au)
+ * @version 2.0-pre
+ */
+
+public class NumberRecord : CellRecord, ICloneable
 {
+    public const short sid = 0x203;
+    private double field_4_value;
 
-    using NPOI.Util;
-
-    using System;
-    using System.Text;
-    using NPOI.SS.Util;
+    /** Creates new NumberRecord */
+    public NumberRecord()
+    {
+    }
 
     /**
-     * Contains a numeric cell value. 
-     * REFERENCE:  PG 334 Microsoft Excel 97 Developer's Kit (ISBN: 1-57231-498-2)
-     * @author Andrew C. Oliver (acoliver at apache dot org)
-     * @author Jason Height (jheight at chariot dot net dot au)
-     * @version 2.0-pre
+     * Constructs a Number record and Sets its fields appropriately.
+     *
+     * @param in the RecordInputstream to Read the record from
      */
 
-    public class NumberRecord : CellRecord, ICloneable
+    public NumberRecord(RecordInputStream in1) : base(in1)
     {
-        public const short sid = 0x203;
-        private double field_4_value;
+        field_4_value = in1.ReadDouble();
+    }
 
-        /** Creates new NumberRecord */
-        public NumberRecord()
+    protected override String RecordName
+    {
+        get
         {
+            return "NUMBER";
         }
+    }
+    protected override void AppendValueText(StringBuilder sb)
+    {
+        sb.Append("  .value= ").Append(NumberToTextConverter.ToText(field_4_value));
+    }
 
-        /**
-         * Constructs a Number record and Sets its fields appropriately.
-         *
-         * @param in the RecordInputstream to Read the record from
-         */
+    protected override void SerializeValue(ILittleEndianOutput out1)
+    {
+        out1.WriteDouble(Value);
+    }
+    protected override int ValueDataSize
+    {
+        get
+        {
+            return 8;
+        }
+    }
+    /**
+     * Get the value for the cell
+     *
+     * @return double representing the value
+     */
 
-        public NumberRecord(RecordInputStream in1) : base(in1)
-        {
-            field_4_value = in1.ReadDouble();
-        }
+    public double Value
+    {
+        get { return field_4_value; }
+        set { field_4_value = value; }
+    }
 
-        protected override String RecordName
-        {
-            get
-            {
-                return "NUMBER";
-            }
-        }
-        protected override void AppendValueText(StringBuilder sb)
-        {
-            sb.Append("  .value= ").Append(NumberToTextConverter.ToText(field_4_value));
-        }
+    public override short Sid
+    {
+        get { return sid; }
+    }
 
-        protected override void SerializeValue(ILittleEndianOutput out1)
-        {
-            out1.WriteDouble(Value);
-        }
-        protected override int ValueDataSize
-        {
-            get
-            {
-                return 8;
-            }
-        }
-        /**
-         * Get the value for the cell
-         *
-         * @return double representing the value
-         */
-
-        public double Value
-        {
-            get { return field_4_value; }
-            set { field_4_value = value; }
-        }
-
-        public override short Sid
-        {
-            get { return sid; }
-        }
-
-        public override object Clone()
-        {
-            NumberRecord rec = new NumberRecord();
-            CopyBaseFields(rec);
-            rec.field_4_value = field_4_value;
-            return rec;
-        }
+    public override object Clone()
+    {
+        NumberRecord rec = new NumberRecord();
+        CopyBaseFields(rec);
+        rec.field_4_value = field_4_value;
+        return rec;
     }
 }

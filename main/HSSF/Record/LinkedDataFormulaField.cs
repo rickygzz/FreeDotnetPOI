@@ -1,4 +1,4 @@
-
+﻿
 /* ====================================================================
    Licensed to the Apache Software Foundation (ASF) Under one or more
    contributor license agreements.  See the NOTICE file distributed with
@@ -17,91 +17,90 @@
 ==================================================================== */
 
 
-namespace NPOI.HSSF.Record
+namespace NPOI.HSSF.Record;
+
+using System;
+using NPOI.HSSF.Record;
+using NPOI.Util;
+using System.Text;
+
+using NPOI.SS.Formula.PTG;
+
+/**
+ * Not implemented yet. May commit it anyway just so people can see
+ * where I'm heading.
+ *
+ * @author Glen Stampoultzis (glens at apache.org)
+ */
+public class LinkedDataFormulaField
 {
-    using System;
-    using NPOI.HSSF.Record;
-    using NPOI.Util;
-    using System.Text;
+    Ptg[] formulaTokens;
 
-    using NPOI.SS.Formula.PTG;
-
-    /**
-     * Not implemented yet. May commit it anyway just so people can see
-     * where I'm heading.
-     *
-     * @author Glen Stampoultzis (glens at apache.org)
-     */
-    public class LinkedDataFormulaField
+    public int Size
     {
-        Ptg[] formulaTokens;
-
-        public int Size
+        get
         {
-            get
-            {
-                return 2 + Ptg.GetEncodedSize(formulaTokens);
-            }
+            return 2 + Ptg.GetEncodedSize(formulaTokens);
         }
+    }
 
-        public int FillField(RecordInputStream in1)
+    public int FillField(RecordInputStream in1)
+    {
+        short tokenSize = in1.ReadShort();
+        formulaTokens = Ptg.ReadTokens(tokenSize, in1);
+
+        return tokenSize + 2;
+    }
+
+    public void toString(StringBuilder buffer)
+    {
+        for (int k = 0; k < formulaTokens.Length; k++)
         {
-            short tokenSize = in1.ReadShort();
-            formulaTokens = Ptg.ReadTokens(tokenSize, in1);
-
-            return tokenSize + 2;
+            buffer.Append("Formula ")
+                    .Append(k)
+                    .Append("=")
+                    .Append(formulaTokens[k].ToString())
+                    .Append("\n");
+                    //.Append(((Ptg)formulaTokens[k]).ToDebugString())
+                    //.Append("\n");
         }
+    }
 
-        public void toString(StringBuilder buffer)
+    public override String ToString()
+    {
+        StringBuilder b = new StringBuilder();
+        toString(b);
+        return b.ToString();
+    }
+
+    public int SerializeField(int offset, byte[] data)
+    {
+        int size = Size;
+        LittleEndian.PutShort(data, offset, (short)(size - 2));
+        int pos = offset + 2;
+        pos += Ptg.SerializePtgs(formulaTokens, data, pos);
+        return size;
+    }
+
+
+    public Ptg[] FormulaTokens
+    {
+        get
         {
-            for (int k = 0; k < formulaTokens.Length; k++)
-            {
-                buffer.Append("Formula ")
-                        .Append(k)
-                        .Append("=")
-                        .Append(formulaTokens[k].ToString())
-                        .Append("\n");
-                        //.Append(((Ptg)formulaTokens[k]).ToDebugString())
-                        //.Append("\n");
-            }
+            return (Ptg[])this.formulaTokens.Clone();
         }
-
-        public override String ToString()
+        set 
         {
-            StringBuilder b = new StringBuilder();
-            toString(b);
-            return b.ToString();
+            this.formulaTokens = (Ptg[])value.Clone();
         }
-
-        public int SerializeField(int offset, byte[] data)
-        {
-            int size = Size;
-            LittleEndian.PutShort(data, offset, (short)(size - 2));
-            int pos = offset + 2;
-            pos += Ptg.SerializePtgs(formulaTokens, data, pos);
-            return size;
-        }
+    }
 
 
-        public Ptg[] FormulaTokens
-        {
-            get
-            {
-                return (Ptg[])this.formulaTokens.Clone();
-            }
-            set 
-            {
-                this.formulaTokens = (Ptg[])value.Clone();
-            }
-        }
+    public LinkedDataFormulaField Copy()
+    {
+        LinkedDataFormulaField result = new LinkedDataFormulaField();
 
-
-        public LinkedDataFormulaField Copy()
-        {
-            LinkedDataFormulaField result = new LinkedDataFormulaField();
-
-            result.formulaTokens = this.FormulaTokens;
-            return result;
-        }
+        result.formulaTokens = this.FormulaTokens;
+        return result;
     }
 }
