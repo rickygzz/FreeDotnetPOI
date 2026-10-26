@@ -13,8 +13,10 @@
 
     <ItemGroup>
         <PackageReference Include="Nuke.Common" Version="10.1.0" />
-        <!-- Override vulnerable versions that Nuke.Common 10.1.0 pulls in transitively (build tool only, not shipped). -->
-        <PackageReference Include="NuGet.Packaging" Version="6.14.3" />
+        <!-- Override vulnerable versions that Nuke.Common 10.1.0 pulls in transitively (build tool only, not shipped).
+             NuGet.Packaging must be at least the NuGet version of the .NET SDK (10.0.40x ships NuGet.Frameworks 7.9.0.0);
+             an older NuGet.Frameworks makes NUKE's project model fail with "manifest definition does not match". -->
+        <PackageReference Include="NuGet.Packaging" Version="7.9.0" />
         <PackageReference Include="System.Security.Cryptography.Xml" Version="9.0.22" />
     </ItemGroup>
 
