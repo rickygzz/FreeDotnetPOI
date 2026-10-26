@@ -1,4 +1,4 @@
-/* ====================================================================
+﻿/* ====================================================================
     Licensed to the Apache Software Foundation (ASF) under one or more
     contributor license agreements.  See the NOTICE file distributed with
     this work for additional information regarding copyright ownership.
@@ -107,7 +107,7 @@ public class CustomProperty : MutableProperty
     /// @see java.Util.AbstractSet#hashCode()
     public override int GetHashCode()
     {
-        return (int) this.ID;
+        return (int)this.ID;
     }
     public override bool Equals(Object o)
     {

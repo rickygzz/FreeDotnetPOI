@@ -40,17 +40,18 @@ public class TypedPropertyValue
         get { return _value; }
     }
 
-    internal void Read( LittleEndianByteArrayInputStream lei ) {
+    internal void Read( LittleEndianByteArrayInputStream lei)
+    {
         _type = lei.ReadShort();
         short padding = lei.ReadShort();
-        if ( padding != 0 ) {
+        if (padding != 0) {
             // LOG.log( POILogger.WARN, "TypedPropertyValue padding at offset "
             //        + lei.getReadIndex() + " MUST be 0, but it's value is " + padding );
         }
-        ReadValue( lei );
+        ReadValue(lei);
     }
 
-    internal void ReadValue(LittleEndianByteArrayInputStream lei )
+    internal void ReadValue(LittleEndianByteArrayInputStream lei)
     {
         switch (_type)
         {

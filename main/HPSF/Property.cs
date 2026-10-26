@@ -1,4 +1,4 @@
-/* ====================================================================
+﻿/* ====================================================================
     Licensed to the Apache Software Foundation (ASF) under one or more
     contributor license agreements.  See the NOTICE file distributed with
     this work for additional information regarding copyright ownership.
@@ -149,7 +149,7 @@ public class Property
 
         try
         {
-            _value = VariantSupport.Read(src, o, length, (int) type, codepage);
+            _value = VariantSupport.Read(src, o, length, (int)type, codepage);
         }
         catch (UnsupportedVariantTypeException ex)
         {
@@ -188,7 +188,7 @@ public class Property
 
         try
         {
-            _value = VariantSupport.Read(leis, length, (int) type, codepage);
+            _value = VariantSupport.Read(leis, length, (int)type, codepage);
         }
         catch (UnsupportedVariantTypeException ex)
         {
@@ -282,7 +282,7 @@ public class Property
                     case -1:
                         /* Without a codepage the length is equal to the number of
                         * bytes. */
-                        b.Append(Encoding.GetEncoding("ASCII").GetString(src, (int) o, (int) sLength));
+                        b.Append(Encoding.GetEncoding("ASCII").GetString(src, (int)o, (int)sLength));
                         break;
                     case CodePageUtil.CP_UNICODE:
                         /* The length is the number of characters, i.e. the number
@@ -299,7 +299,7 @@ public class Property
                     default:
                         /* For encodings other than Unicode the length is the number
                         * of bytes. */
-                        b.Append(Encoding.GetEncoding(CodePageUtil.CodepageToEncoding(codepage)).GetString(src, (int) o, (int) sLength));
+                        b.Append(Encoding.GetEncoding(CodePageUtil.CodepageToEncoding(codepage)).GetString(src, (int)o, (int)sLength));
                         break;
                 }
 
@@ -358,7 +358,7 @@ public class Property
 
         /* Variable length: */
         int PADDING = 4; /* Pad to multiples of 4. */
-        switch((int) type)
+        switch ((int) type)
         {
             case Variant.VT_LPSTR:
             {
@@ -591,18 +591,22 @@ public class Property
     }
     private string decodeValueFromID()
     {
-        try {
-            switch((int)ID) {
+        try
+        {
+            switch ((int)ID) {
                 case PropertyIDMap.PID_CODEPAGE:
                     return CodePageUtil.CodepageToEncoding((int)Value);
                 case PropertyIDMap.PID_LOCALE:
                     return LocaleUtil.GetLocaleFromLCID((int)Value);
             }
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             // LOG.log(POILogger.WARN, "Can't decode id " + ID);
         }
         return null;
     }
+
     /// <summary>
     /// Writes the property to an output stream.
     /// </summary>

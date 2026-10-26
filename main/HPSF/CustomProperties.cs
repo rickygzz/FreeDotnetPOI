@@ -161,7 +161,8 @@ public class CustomProperties : Dictionary<string, object>
         }
         else if (value is BigInteger
             && ((BigInteger)value).BitLength() <= 64
-            && ((BigInteger)value).CompareTo(BigInteger.ZERO) >= 0) {
+            && ((BigInteger)value).CompareTo(BigInteger.ZERO) >= 0)
+        {
             variantType = Variant.VT_UI8;
         }
         else if (value is DateTime)
@@ -170,7 +171,8 @@ public class CustomProperties : Dictionary<string, object>
         }
         else
         {
-            throw new InvalidOperationException("unsupported datatype - currently String,short,int,Long,Float,Double,Boolean,Bigint(unsigned long),Date can be processed.");
+            throw new InvalidOperationException(
+                "unsupported datatype - currently String,short,int,Long,Float,Double,Boolean,Bigint(unsigned long),Date can be processed.");
         }
         Property p = new MutableProperty(-1, variantType, value);
 
@@ -221,8 +223,10 @@ public class CustomProperties : Dictionary<string, object>
     {
         return props.GetHashCode();
     }
-    public override bool Equals(object obj) {
-        if (!(obj is CustomProperties)) {
+    public override bool Equals(object obj)
+    {
+        if (!(obj is CustomProperties))
+        {
             return false;
         }
         return props.Equals(((CustomProperties)obj).props);
@@ -243,7 +247,8 @@ public class CustomProperties : Dictionary<string, object>
     public List<CustomProperty> Properties()
     {
         List<CustomProperty> list = new List<CustomProperty>(props.Count);
-        foreach (long l in dictionary.Keys) {
+        foreach (long l in dictionary.Keys)
+        {
             list.Add(props[l]);
         }
         return list;
@@ -394,7 +399,7 @@ public class CustomProperties : Dictionary<string, object>
         string name = customProperty.Name;
 
         /* Check whether a property with this name is in the map already. */
-        long? oldId = (name == null|| !dictionary.ContainsValue(name)) ? null : dictionary.GetKey(name);
+        long? oldId = (name == null || !dictionary.ContainsValue(name)) ? null : dictionary.GetKey(name);
         if (oldId != null)
         {
             customProperty.ID = (oldId.Value);
@@ -423,13 +428,13 @@ public class CustomProperties : Dictionary<string, object>
         try
         {
             cps = CodePageUtil.CodepageToEncoding(cp);
-        } catch (UnsupportedEncodingException e)
+        }
+        catch (UnsupportedEncodingException e)
         {
             // LOG.log(POILogger.ERROR, "Codepage '"+cp+"' can't be found.");
         }
         if (!string.IsNullOrEmpty(cps)
             && CodePageUtil.CanEncode(cps, value))
-            // && Charset.forName(cps).newEncoder().canEncode(value)) 
         {
             return;
         }

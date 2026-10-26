@@ -1,4 +1,4 @@
-/* ====================================================================
+﻿/* ====================================================================
     Licensed to the Apache Software Foundation (ASF) under one or more
     contributor license agreements.  See the NOTICE file distributed with
     this work for additional information regarding copyright ownership.
@@ -110,7 +110,7 @@ public class VariantSupport : Variant
     {
         foreach(var st in SUPPORTED_TYPES)
         {
-            if(variantType == st)
+            if (variantType == st)
             {
                 return true;
             }
@@ -154,15 +154,16 @@ public class VariantSupport : Variant
         {
             typedPropertyValue.ReadValue(lei);
         }
-        catch ( InvalidOperationException exc )
+        catch (InvalidOperationException exc)
         {
             int propLength = Math.Min( length, lei.Available() );
             byte[] v = IOUtils.SafelyAllocate(propLength, MAX_RECORD_LENGTH);
             lei.ReadFully(v, 0, propLength);
-            throw new ReadingNotSupportedException( type, v );
+            throw new ReadingNotSupportedException(type, v);
         }
 
-        switch ( (int) type ) {
+        switch ((int) type)
+        {
             /*
             * we have more property types that can be converted into Java
             * objects, but current API need to be preserved, and it returns
