@@ -15,45 +15,44 @@
 * limitations Under the License.
 */
 
-namespace NPOI.SS.Formula.Eval
-{
-    using NPOI.SS.Formula.Functions;
-    /**
-     * @author Amol S. Deshmukh &lt; amolweb at ya hoo dot com &gt;
-     *  
-     */
-    public class UnaryPlusEval : Fixed1ArgFunction
-    {
+namespace NPOI.SS.Formula.Eval;
 
-        public static Function instance = new UnaryPlusEval();
-    	
+using NPOI.SS.Formula.Functions;
+/**
+ * @author Amol S. Deshmukh &lt; amolweb at ya hoo dot com &gt;
+ *  
+ */
+public class UnaryPlusEval : Fixed1ArgFunction
+{
+
+    public static Function instance = new UnaryPlusEval();
+	
 	    private UnaryPlusEval() {
 	    }
 
-        public override ValueEval Evaluate(int srcCellRow, int srcCellCol, ValueEval arg0)
+    public override ValueEval Evaluate(int srcCellRow, int srcCellCol, ValueEval arg0)
+    {
+        double d;
+        try
         {
-            double d;
-            try
+            ValueEval ve = OperandResolver.GetSingleValue(arg0, srcCellRow, srcCellCol);
+            if (ve is BlankEval)
             {
-                ValueEval ve = OperandResolver.GetSingleValue(arg0, srcCellRow, srcCellCol);
-                if (ve is BlankEval)
-                {
-                    return NumberEval.ZERO;
-                }
-                if (ve is StringEval)
-                {
-                    // Note - asymmetric with UnaryMinus
-                    // -"hello" Evaluates to #VALUE!
-                    // but +"hello" Evaluates to "hello"
-                    return ve;
-                }
-                d = OperandResolver.CoerceValueToDouble(ve);
+                return NumberEval.ZERO;
             }
-            catch (EvaluationException e)
+            if (ve is StringEval)
             {
-                return e.GetErrorEval();
+                // Note - asymmetric with UnaryMinus
+                // -"hello" Evaluates to #VALUE!
+                // but +"hello" Evaluates to "hello"
+                return ve;
             }
-            return new NumberEval(+d);
+            d = OperandResolver.CoerceValueToDouble(ve);
         }
+        catch (EvaluationException e)
+        {
+            return e.GetErrorEval();
+        }
+        return new NumberEval(+d);
     }
 }

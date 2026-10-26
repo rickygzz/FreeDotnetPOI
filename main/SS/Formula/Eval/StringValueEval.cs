@@ -15,19 +15,18 @@
 * limitations Under the License.
 */
 
-namespace NPOI.SS.Formula.Eval
-{
-    using System;
+namespace NPOI.SS.Formula.Eval;
+
+using System;
+
+/**
+ * @author Amol S. Deshmukh &lt; amolweb at ya hoo dot com &gt;
+ *  
+ */
+public interface StringValueEval: ValueEval {
 
     /**
-     * @author Amol S. Deshmukh &lt; amolweb at ya hoo dot com &gt;
-     *  
+     * @return never <code>null</code>, possibly empty string.
      */
-    public interface StringValueEval: ValueEval {
-
-        /**
-         * @return never <code>null</code>, possibly empty string.
-         */
-        String StringValue{get;}
-    }
+    String StringValue{get;}
 }

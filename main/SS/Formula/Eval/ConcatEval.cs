@@ -15,56 +15,55 @@
 * limitations Under the License.
 */
 
-namespace NPOI.SS.Formula.Eval
-{
-    using System;
-    using System.Text; 
 using Cysharp.Text;
-    using NPOI.SS.Formula.Functions;
-    /**
-     * @author Amol S. Deshmukh &lt; amolweb at ya hoo dot com &gt;
-     *  
-     */
-    public class ConcatEval : Fixed2ArgFunction
+using NPOI.SS.Formula.Functions;
+using System;
+
+namespace NPOI.SS.Formula.Eval;
+
+/**
+ * @author Amol S. Deshmukh &lt; amolweb at ya hoo dot com &gt;
+ *  
+ */
+public class ConcatEval : Fixed2ArgFunction
+{
+    public static Function instance = new ConcatEval();
+
+    private ConcatEval()
     {
-        public static Function instance = new ConcatEval();
+        // enforce singleton
+    }
 
-        private ConcatEval()
+    public override ValueEval Evaluate(int srcRowIndex, int srcColumnIndex, ValueEval arg0, ValueEval arg1)
+    {
+        ValueEval ve0;
+        ValueEval ve1;
+        try
         {
-            // enforce singleton
+            ve0 = OperandResolver.GetSingleValue(arg0, srcRowIndex, srcColumnIndex);
+            ve1 = OperandResolver.GetSingleValue(arg1, srcRowIndex, srcColumnIndex);
         }
-
-        public override ValueEval Evaluate(int srcRowIndex, int srcColumnIndex, ValueEval arg0, ValueEval arg1)
+        catch (EvaluationException e)
         {
-            ValueEval ve0;
-            ValueEval ve1;
-            try
-            {
-                ve0 = OperandResolver.GetSingleValue(arg0, srcRowIndex, srcColumnIndex);
-                ve1 = OperandResolver.GetSingleValue(arg1, srcRowIndex, srcColumnIndex);
-            }
-            catch (EvaluationException e)
-            {
-                return e.GetErrorEval();
-            }
-            using var sb = ZString.CreateStringBuilder();
-
-            sb.Append(GetText(ve0));
-            sb.Append(GetText(ve1));
-            return new StringEval(sb.ToString());
+            return e.GetErrorEval();
         }
+        using var sb = ZString.CreateStringBuilder();
 
-        private static string GetText(ValueEval ve)
+        sb.Append(GetText(ve0));
+        sb.Append(GetText(ve1));
+        return new StringEval(sb.ToString());
+    }
+
+    private static string GetText(ValueEval ve)
+    {
+        if (ve is StringValueEval sve)
         {
-            if (ve is StringValueEval sve)
-            {
-                return sve.StringValue;
-            }
-            if (ve == BlankEval.instance)
-            {
-                return "";
-            }
-            throw new InvalidOperationException($"Unexpected value type ({ve.GetType().Name})");
+            return sve.StringValue;
         }
+        if (ve == BlankEval.instance)
+        {
+            return "";
+        }
+        throw new InvalidOperationException($"Unexpected value type ({ve.GetType().Name})");
     }
 }

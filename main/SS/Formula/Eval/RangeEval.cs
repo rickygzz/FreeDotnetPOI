@@ -15,67 +15,65 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.SS.Formula.Eval
+namespace NPOI.SS.Formula.Eval;
+
+using System;
+
+using NPOI.SS.Formula.Functions;
+/**
+ * 
+ * @author Josh Micich 
+ */
+public class RangeEval : Fixed2ArgFunction
 {
-    using System;
 
-    using NPOI.SS.Formula.Functions;
-    /**
-     * 
-     * @author Josh Micich 
-     */
-    public class RangeEval : Fixed2ArgFunction
+    public static Function instance = new RangeEval();
+
+    private RangeEval()
     {
+    }
 
-        public static Function instance = new RangeEval();
-
-        private RangeEval()
+    public override ValueEval Evaluate(int srcRowIndex, int srcColumnIndex, ValueEval arg0, ValueEval arg1)
+    {
+        try
         {
+            AreaEval reA = EvaluateRef(arg0);
+            AreaEval reB = EvaluateRef(arg1);
+            return ResolveRange(reA, reB);
         }
-
-        public override ValueEval Evaluate(int srcRowIndex, int srcColumnIndex, ValueEval arg0, ValueEval arg1)
+        catch (EvaluationException e)
         {
-            try
-            {
-                AreaEval reA = EvaluateRef(arg0);
-                AreaEval reB = EvaluateRef(arg1);
-                return ResolveRange(reA, reB);
-            }
-            catch (EvaluationException e)
-            {
-                return e.GetErrorEval();
-            }
-        }
-
-        private static AreaEval ResolveRange(AreaEval aeA, AreaEval aeB)
-        {
-            int aeAfr = aeA.FirstRow;
-            int aeAfc = aeA.FirstColumn;
-
-            int top = Math.Min(aeAfr, aeB.FirstRow);
-            int bottom = Math.Max(aeA.LastRow, aeB.LastRow);
-            int left = Math.Min(aeAfc, aeB.FirstColumn);
-            int right = Math.Max(aeA.LastColumn, aeB.LastColumn);
-
-            return aeA.Offset(top - aeAfr, bottom - aeAfr, left - aeAfc, right - aeAfc);
-        }
-
-        private static AreaEval EvaluateRef(ValueEval arg)
-        {
-            if (arg is AreaEval eval)
-            {
-                return eval;
-            }
-            if (arg is RefEval refEval)
-            {
-                return refEval.Offset(0, 0, 0, 0);
-            }
-            if (arg is ErrorEval errorEval)
-            {
-                throw new EvaluationException(errorEval);
-            }
-            throw new ArgumentException("Unexpected ref arg class (" + arg.GetType().Name + ")");
+            return e.GetErrorEval();
         }
     }
 
+    private static AreaEval ResolveRange(AreaEval aeA, AreaEval aeB)
+    {
+        int aeAfr = aeA.FirstRow;
+        int aeAfc = aeA.FirstColumn;
+
+        int top = Math.Min(aeAfr, aeB.FirstRow);
+        int bottom = Math.Max(aeA.LastRow, aeB.LastRow);
+        int left = Math.Min(aeAfc, aeB.FirstColumn);
+        int right = Math.Max(aeA.LastColumn, aeB.LastColumn);
+
+        return aeA.Offset(top - aeAfr, bottom - aeAfr, left - aeAfc, right - aeAfc);
+    }
+
+    private static AreaEval EvaluateRef(ValueEval arg)
+    {
+        if (arg is AreaEval eval)
+        {
+            return eval;
+        }
+        if (arg is RefEval refEval)
+        {
+            return refEval.Offset(0, 0, 0, 0);
+        }
+        if (arg is ErrorEval errorEval)
+        {
+            throw new EvaluationException(errorEval);
+        }
+        throw new ArgumentException("Unexpected ref arg class (" + arg.GetType().Name + ")");
+    }
 }

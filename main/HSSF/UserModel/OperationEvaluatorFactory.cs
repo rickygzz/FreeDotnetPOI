@@ -18,6 +18,7 @@
 using NPOI.SS.Formula;
 using NPOI.SS.Formula.Eval;
 using NPOI.SS.Formula.Eval.RelationalOperation;
+using NPOI.SS.Formula.Eval.TwoOperandNumeric;
 using NPOI.SS.Formula.Functions;
 using NPOI.SS.Formula.PTG;
 using NPOI.Util;

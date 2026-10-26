@@ -15,13 +15,14 @@
    limitations under the License.
 ==================================================================== */
 
+using NPOI.SS.Formula.Eval;
 using NPOI.SS.Formula.Eval.RelationalOperation;
+using NPOI.SS.Formula.Eval.TwoOperandNumeric;
+using NPOI.SS.Formula.Functions;
+using NPOI.SS.Formula.PTG;
 using System;
 using System.Collections;
 using System.Reflection;
-using NPOI.SS.Formula.Functions;
-using NPOI.SS.Formula.Eval;
-using NPOI.SS.Formula.PTG;
 
 namespace NPOI.SS.Formula;
 

@@ -15,40 +15,39 @@
    limitations Under the License.
 ==================================================================== */
 
-namespace NPOI.SS.Formula.Eval
+namespace NPOI.SS.Formula.Eval;
+
+using System;
+using System.Text;
+/**
+ * @author Josh Micich
+ */
+public class FunctionNameEval : ValueEval
 {
-    using System;
-    using System.Text;
+
+    private readonly String _functionName;
+
     /**
-     * @author Josh Micich
+     * Creates a NameEval representing a function name
      */
-    public class FunctionNameEval : ValueEval
+    public FunctionNameEval(String functionName) {
+        _functionName = functionName;
+    }
+
+    public String FunctionName
     {
-
-        private readonly String _functionName;
-
-        /**
-         * Creates a NameEval representing a function name
-         */
-        public FunctionNameEval(String functionName) {
-            _functionName = functionName;
-        }
-
-        public String FunctionName
+        get
         {
-            get
-            {
-                return _functionName;
-            }
+            return _functionName;
         }
+    }
 
-        public override String ToString()
-        {
-            StringBuilder sb = new StringBuilder(64);
-            sb.Append(GetType().Name).Append(" [");
-            sb.Append(_functionName);
-            sb.Append("]");
-            return sb.ToString();
-        }
+    public override String ToString()
+    {
+        StringBuilder sb = new StringBuilder(64);
+        sb.Append(GetType().Name).Append(" [");
+        sb.Append(_functionName);
+        sb.Append("]");
+        return sb.ToString();
     }
 }
