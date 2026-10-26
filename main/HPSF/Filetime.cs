@@ -21,8 +21,8 @@ public class Filetime
     internal Filetime(DateTime date)
     {
         long filetime = date.ToFileTime();
-        _dwHighDateTime = (int) ((filetime >>> 32) & UINT_MASK);
-        _dwLowDateTime = (int) (filetime & UINT_MASK);
+        _dwHighDateTime = (int)((filetime >>> 32) & UINT_MASK);
+        _dwLowDateTime = (int)(filetime & UINT_MASK);
     }
     internal Filetime() { }
 
