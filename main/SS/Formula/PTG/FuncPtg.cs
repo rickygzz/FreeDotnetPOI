@@ -21,8 +21,7 @@ namespace NPOI.SS.Formula.PTG
     using System.Text;
     using NPOI.Util;
     using NPOI.HSSF.Record;
-    
-    using NPOI.SS.Formula.Function;
+    using NPOI.SS.Formula.Functions;
 
 
     /**

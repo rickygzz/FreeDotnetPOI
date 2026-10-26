@@ -19,8 +19,7 @@ namespace NPOI.SS.Formula.PTG
 {
     using System;
     using System.Text;
-
-    using NPOI.SS.Formula.Function;
+    using NPOI.SS.Formula.Functions;
     using NPOI.Util;
 
 

@@ -15,18 +15,16 @@
    limitations Under the License.
 ==================================================================== */
 
-namespace NPOI.HSSF.UserModel;
-
 using NPOI.SS.Formula;
 using NPOI.SS.Formula.Eval;
-using NPOI.SS.Formula.Function;
+using NPOI.SS.Formula.Eval.RelationalOperation;
 using NPOI.SS.Formula.Functions;
 using NPOI.SS.Formula.PTG;
 using NPOI.Util;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Reflection;
+
+namespace NPOI.HSSF.UserModel;
 
 
 /**

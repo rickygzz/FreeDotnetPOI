@@ -25,7 +25,6 @@ namespace NPOI.SS.Formula.Eval
 {
     using System;
     using NPOI.SS.Formula.Functions;
-    using NPOI.SS.Formula.Function;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using Index = NPOI.SS.Formula.Functions.Index;
@@ -457,7 +456,7 @@ namespace NPOI.SS.Formula.Eval
      * Register a new function in runtime.
      *
      * @param name  the function name
-     * @param func  the functoin to register
+     * @param func  the function to register
      * @throws ArgumentException if the function is unknown or already  registered.
      * @since 3.8 beta6
      */

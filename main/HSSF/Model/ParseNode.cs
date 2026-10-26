@@ -18,8 +18,7 @@
 namespace NPOI.HSSF.Model;
 
 using System;
-
-using NPOI.SS.Formula.Function;
+using NPOI.SS.Formula.Functions;
 using NPOI.SS.Formula.PTG;
 /**
  * Represents a syntactic element from a formula by encapsulating the corresponding <c>Ptg</c>

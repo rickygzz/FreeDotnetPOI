@@ -16,7 +16,6 @@
 ==================================================================== */
 
 using NPOI.SS.Formula.Eval;
-using NPOI.SS.Formula.Function;
 using NPOI.SS.Formula.Functions;
 using NPOI.SS.Formula.UDF;
 using System;

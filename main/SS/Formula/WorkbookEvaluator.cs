@@ -29,7 +29,6 @@ namespace NPOI.SS.Formula
     using NPOI.SS.UserModel;
     using NPOI.SS.Formula.PTG;
     using NPOI.Util;
-    using NPOI.SS.Formula.Function;
     using EnumsNET;
 
     /**
@@ -258,12 +257,12 @@ namespace NPOI.SS.Formula
             return EvaluateAny(srcCell, sheetIndex, srcCell.RowIndex, srcCell.ColumnIndex, new EvaluationTracker(_cache));
         }
         /**
-  * Evaluate a formula outside a cell value, e.g. conditional format rules or data validation expressions
-  * 
-  * @param formula to evaluate
-  * @param ref defines the optional sheet and row/column base for the formula, if it is relative
-  * @return value
-  */
+          * Evaluate a formula outside a cell value, e.g. conditional format rules or data validation expressions
+          * 
+          * @param formula to evaluate
+          * @param ref defines the optional sheet and row/column base for the formula, if it is relative
+          * @return value
+          */
         public ValueEval Evaluate(String formula, CellReference reference)
         {
             String sheetName = reference == null ? null : reference.SheetName;
