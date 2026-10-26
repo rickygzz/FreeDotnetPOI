@@ -14,59 +14,58 @@
    See the License for the specific language governing permissions and
    limitations Under the License.
 ==================================================================== */
-namespace NPOI.SS.Formula.PTG
+namespace NPOI.SS.Formula.PTG;
+
+using System;
+
+using NPOI.HSSF.Record;
+using NPOI.Util;
+
+
+/**
+ *
+ * @author  andy
+ * @author Jason Height (jheight at chariot dot net dot au)
+ */
+public class UnknownPtg : Ptg
 {
-    using System;
-    
-    using NPOI.HSSF.Record;
-    using NPOI.Util;
+    private short size = 1;
 
+    /** Creates new UnknownPtg */
 
-    /**
-     *
-     * @author  andy
-     * @author Jason Height (jheight at chariot dot net dot au)
-     */
-    public class UnknownPtg : Ptg
+    public UnknownPtg()
     {
-        private short size = 1;
+    }
 
-        /** Creates new UnknownPtg */
+    public UnknownPtg(RecordInputStream in1)
+    {
+        // doesn't need anything
+    }
 
-        public UnknownPtg()
-        {
-        }
+    public override bool IsBaseToken
+    {
+        get { return true; }
+    }
+    public override void Write(ILittleEndianOutput out1)
+    {
+    }
 
-        public UnknownPtg(RecordInputStream in1)
-        {
-            // doesn't need anything
-        }
+    public override int Size
+    {
+        get { return size; }
+    }
 
-        public override bool IsBaseToken
-        {
-            get { return true; }
-        }
-        public override void Write(ILittleEndianOutput out1)
-        {
-        }
+    public override String ToFormulaString()
+    {
+        return "UNKNOWN";
+    }
+    public override byte DefaultOperandClass
+    {
+        get { return Ptg.CLASS_VALUE; }
+    }
 
-        public override int Size
-        {
-            get { return size; }
-        }
-
-        public override String ToFormulaString()
-        {
-            return "UNKNOWN";
-        }
-        public override byte DefaultOperandClass
-        {
-            get { return Ptg.CLASS_VALUE; }
-        }
-
-        public override Object Clone()
-        {
-            return new UnknownPtg();
-        }
+    public override Object Clone()
+    {
+        return new UnknownPtg();
     }
 }

@@ -17,50 +17,49 @@
  * ====================================================================
  */
 
-namespace NPOI.SS.UserModel
+namespace NPOI.SS.UserModel;
+
+using System;
+
+/**
+ * Enum mapping the values of STDataConsolidateFunction
+ */
+public class DataConsolidateFunction
 {
-    using System;
+    public static DataConsolidateFunction AVERAGE = new DataConsolidateFunction(0, "Average"),
+    COUNT = new DataConsolidateFunction(1, "Count"),
+    COUNT_NUMS = new DataConsolidateFunction(2, "Count"),
+    MAX = new DataConsolidateFunction(3, "Max"),
+    MIN = new DataConsolidateFunction(4, "Min"),
+    PRODUCT = new DataConsolidateFunction(5, "Product"),
+    STD_DEV = new DataConsolidateFunction(6, "StdDev"),
+    STD_DEVP = new DataConsolidateFunction(7, "StdDevp"),
+    SUM = new DataConsolidateFunction(8, "Sum"),
+    VAR = new DataConsolidateFunction(9, "Var"),
+    VARP = new DataConsolidateFunction(10, "Varp");
 
-    /**
-     * Enum mapping the values of STDataConsolidateFunction
-     */
-    public class DataConsolidateFunction
+    private int value;
+    private String name;
+
+    public DataConsolidateFunction(int value, String name)
     {
-        public static DataConsolidateFunction AVERAGE = new DataConsolidateFunction(0, "Average"),
-        COUNT = new DataConsolidateFunction(1, "Count"),
-        COUNT_NUMS = new DataConsolidateFunction(2, "Count"),
-        MAX = new DataConsolidateFunction(3, "Max"),
-        MIN = new DataConsolidateFunction(4, "Min"),
-        PRODUCT = new DataConsolidateFunction(5, "Product"),
-        STD_DEV = new DataConsolidateFunction(6, "StdDev"),
-        STD_DEVP = new DataConsolidateFunction(7, "StdDevp"),
-        SUM = new DataConsolidateFunction(8, "Sum"),
-        VAR = new DataConsolidateFunction(9, "Var"),
-        VARP = new DataConsolidateFunction(10, "Varp");
+        this.value = value;
+        this.name = name;
+    }
 
-        private int value;
-        private String name;
-
-        public DataConsolidateFunction(int value, String name)
+    public String Name
+    {
+        get
         {
-            this.value = value;
-            this.name = name;
+            return this.name;
         }
+    }
 
-        public String Name
+    public int Value
+    {
+        get
         {
-            get
-            {
-                return this.name;
-            }
-        }
-
-        public int Value
-        {
-            get
-            {
-                return this.value;
-            }
+            return this.value;
         }
     }
 }

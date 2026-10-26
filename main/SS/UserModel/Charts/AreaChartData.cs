@@ -1,26 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 
-namespace NPOI.SS.UserModel.Charts
+namespace NPOI.SS.UserModel.Charts;
+
+/// <summary>
+/// Data for an Area Chart
+/// </summary>
+public interface IAreaChartData<Tx, Ty> : IChartData
 {
+
     /// <summary>
-    /// Data for an Area Chart
+    /// Adds the series.
     /// </summary>
-    public interface IAreaChartData<Tx, Ty> : IChartData
-    {
+    /// <param name="categories">The categories data source.</param>
+    /// <param name="values">The values data source.</param>
+    /// <returns>Created series.</returns>
+    IAreaChartSeries<Tx, Ty> AddSeries(IChartDataSource<Tx> categories, IChartDataSource<Ty> values);
 
-        /// <summary>
-        /// Adds the series.
-        /// </summary>
-        /// <param name="categories">The categories data source.</param>
-        /// <param name="values">The values data source.</param>
-        /// <returns>Created series.</returns>
-        IAreaChartSeries<Tx, Ty> AddSeries(IChartDataSource<Tx> categories, IChartDataSource<Ty> values);
-
-        /// <summary>
-        /// Return list of all series.
-        /// </summary>
-        List<IAreaChartSeries<Tx, Ty>> GetSeries();
-    }
+    /// <summary>
+    /// Return list of all series.
+    /// </summary>
+    List<IAreaChartSeries<Tx, Ty>> GetSeries();
 }

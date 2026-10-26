@@ -15,24 +15,21 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.SS.UserModel.Charts
+namespace NPOI.SS.UserModel.Charts;
+
+
+/**
+ * Abstraction of chart element that can be positioned with manual
+ * layout.
+ *
+ * @author Roman Kashitsyn
+ */
+public interface ManuallyPositionable
 {
 
     /**
-     * Abstraction of chart element that can be positioned with manual
-     * layout.
-     *
-     * @author Roman Kashitsyn
+     * Returns manual layout for the chart element.
+     * @return manual layout for the chart element.
      */
-    public interface ManuallyPositionable
-    {
-
-        /**
-         * Returns manual layout for the chart element.
-         * @return manual layout for the chart element.
-         */
-        IManualLayout GetManualLayout();
-    }
-
-
+    IManualLayout GetManualLayout();
 }

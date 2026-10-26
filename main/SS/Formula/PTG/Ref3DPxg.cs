@@ -15,143 +15,141 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.SS.Formula.PTG
+namespace NPOI.SS.Formula.PTG;
+
+using NPOI.SS.Util;
+using NPOI.Util;
+using System;
+using System.Text;
+
+/**
+ * <p>Title:        XSSF 3D Reference</p>
+ * <p>Description:  Defines a cell in an external or different sheet.</p>
+ * <p>REFERENCE: </p>
+ * 
+ * <p>This is XSSF only, as it stores the sheet / book references
+ *  in String form. The HSSF equivalent using indexes is {@link Ref3DPtg}</p>
+ */
+public class Ref3DPxg : RefPtgBase, Pxg3D
 {
-    using System;
+    private int externalWorkbookNumber = -1;
+    private String firstSheetName;
+    private String lastSheetName;
 
-    using NPOI.SS.Util;
-    using System.Text;
-    using NPOI.Util;
-
-    /**
-     * <p>Title:        XSSF 3D Reference</p>
-     * <p>Description:  Defines a cell in an external or different sheet.</p>
-     * <p>REFERENCE: </p>
-     * 
-     * <p>This is XSSF only, as it stores the sheet / book references
-     *  in String form. The HSSF equivalent using indexes is {@link Ref3DPtg}</p>
-     */
-    public class Ref3DPxg : RefPtgBase, Pxg3D
+    public Ref3DPxg(int externalWorkbookNumber, SheetIdentifier sheetName, String cellref)
+        : this(externalWorkbookNumber, sheetName, new CellReference(cellref))
     {
-        private int externalWorkbookNumber = -1;
-        private String firstSheetName;
-        private String lastSheetName;
 
-        public Ref3DPxg(int externalWorkbookNumber, SheetIdentifier sheetName, String cellref)
-            : this(externalWorkbookNumber, sheetName, new CellReference(cellref))
+    }
+    public Ref3DPxg(int externalWorkbookNumber, SheetIdentifier sheetName, CellReference c)
+        : base(c)
+    {
+        this.externalWorkbookNumber = externalWorkbookNumber;
+        this.firstSheetName = sheetName.SheetId.Name;
+        if (sheetName is SheetRangeIdentifier identifier)
         {
-
+            this.lastSheetName = identifier.LastSheetIdentifier.Name;
         }
-        public Ref3DPxg(int externalWorkbookNumber, SheetIdentifier sheetName, CellReference c)
-            : base(c)
+        else
         {
-            this.externalWorkbookNumber = externalWorkbookNumber;
-            this.firstSheetName = sheetName.SheetId.Name;
-            if (sheetName is SheetRangeIdentifier identifier)
-            {
-                this.lastSheetName = identifier.LastSheetIdentifier.Name;
-            }
-            else
-            {
-                this.lastSheetName = null;
-            }
+            this.lastSheetName = null;
         }
+    }
 
-        public Ref3DPxg(SheetIdentifier sheetName, String cellref)
-            : this(sheetName, new CellReference(cellref))
+    public Ref3DPxg(SheetIdentifier sheetName, String cellref)
+        : this(sheetName, new CellReference(cellref))
+    {
+
+    }
+    public Ref3DPxg(SheetIdentifier sheetName, CellReference c)
+        : this(-1, sheetName, c)
+    {
+
+    }
+
+    public override String ToString()
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.Append(this.GetType().Name);
+        sb.Append(" [");
+        if (externalWorkbookNumber >= 0)
         {
-
-        }
-        public Ref3DPxg(SheetIdentifier sheetName, CellReference c)
-            : this(-1, sheetName, c)
-        {
-
-        }
-
-        public override String ToString()
-        {
-            StringBuilder sb = new StringBuilder();
-            sb.Append(this.GetType().Name);
             sb.Append(" [");
-            if (externalWorkbookNumber >= 0)
-            {
-                sb.Append(" [");
-                sb.Append("workbook=").Append(ExternalWorkbookNumber);
-                sb.Append("] ");
-            }
-            sb.Append("sheet=").Append(firstSheetName);
-            if (lastSheetName != null)
-            {
-                sb.Append(" : ");
-                sb.Append("sheet=").Append(lastSheetName);
-            }
-            sb.Append(" ! ");
-            sb.Append(FormatReferenceAsString());
-            sb.Append("]");
-            return sb.ToString();
+            sb.Append("workbook=").Append(ExternalWorkbookNumber);
+            sb.Append("] ");
         }
+        sb.Append("sheet=").Append(firstSheetName);
+        if (lastSheetName != null)
+        {
+            sb.Append(" : ");
+            sb.Append("sheet=").Append(lastSheetName);
+        }
+        sb.Append(" ! ");
+        sb.Append(FormatReferenceAsString());
+        sb.Append("]");
+        return sb.ToString();
+    }
 
-        public int ExternalWorkbookNumber
+    public int ExternalWorkbookNumber
+    {
+        get
         {
-            get
-            {
-                return externalWorkbookNumber;
-            }
+            return externalWorkbookNumber;
         }
-        public String SheetName
+    }
+    public String SheetName
+    {
+        get
         {
-            get
-            {
-                return firstSheetName;
-            }
-            set
-            {
-                firstSheetName = value;
-            }
+            return firstSheetName;
         }
-        public string LastSheetName
+        set
         {
-            get { return lastSheetName; }
-            set { lastSheetName = value; }
+            firstSheetName = value;
         }
-        public String Format2DRefAsString()
-        {
-            return FormatReferenceAsString();
-        }
+    }
+    public string LastSheetName
+    {
+        get { return lastSheetName; }
+        set { lastSheetName = value; }
+    }
+    public String Format2DRefAsString()
+    {
+        return FormatReferenceAsString();
+    }
 
-        public override String ToFormulaString()
+    public override String ToFormulaString()
+    {
+        StringBuilder sb = new StringBuilder();
+        if (externalWorkbookNumber >= 0)
         {
-            StringBuilder sb = new StringBuilder();
-            if (externalWorkbookNumber >= 0)
-            {
-                sb.Append('[');
-                sb.Append(externalWorkbookNumber);
-                sb.Append(']');
-            }
-            if (firstSheetName != null)
-            {
-                SheetNameFormatter.AppendFormat(sb, firstSheetName);
-            }
-            if (lastSheetName != null)
-            {
-                sb.Append(':');
-                SheetNameFormatter.AppendFormat(sb, lastSheetName);
-            }
-            sb.Append('!');
-            sb.Append(FormatReferenceAsString());
-            return sb.ToString();
+            sb.Append('[');
+            sb.Append(externalWorkbookNumber);
+            sb.Append(']');
         }
+        if (firstSheetName != null)
+        {
+            SheetNameFormatter.AppendFormat(sb, firstSheetName);
+        }
+        if (lastSheetName != null)
+        {
+            sb.Append(':');
+            SheetNameFormatter.AppendFormat(sb, lastSheetName);
+        }
+        sb.Append('!');
+        sb.Append(FormatReferenceAsString());
+        return sb.ToString();
+    }
 
-        public override int Size
+    public override int Size
+    {
+        get
         {
-            get
-            {
-                return 1;
-            }
+            return 1;
         }
-        public override void Write(ILittleEndianOutput out1)
-        {
-            throw new InvalidOperationException("XSSF-only Ptg, should not be serialised");
-        }
+    }
+    public override void Write(ILittleEndianOutput out1)
+    {
+        throw new InvalidOperationException("XSSF-only Ptg, should not be serialised");
     }
 }

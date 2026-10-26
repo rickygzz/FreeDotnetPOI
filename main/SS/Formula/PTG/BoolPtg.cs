@@ -15,54 +15,53 @@
    limitations Under the License.
 ==================================================================== */
 
-namespace NPOI.SS.Formula.PTG
+namespace NPOI.SS.Formula.PTG;
+
+using NPOI.Util;
+using System;
+
+/**
+ * bool (bool)
+ * Stores a (java) bool value in a formula.
+ * @author Paul Krause (pkrause at soundbite dot com)
+ * @author Andrew C. Oliver (acoliver at apache dot org)
+ * @author Jason Height (jheight at chariot dot net dot au)
+ */
+public class BoolPtg : ScalarConstantPtg
 {
-    using System;
-    using NPOI.Util;
+    public const int SIZE = 2;
+    public const byte sid = 0x1d;
+    private bool field_1_value;
 
-    /**
-     * bool (bool)
-     * Stores a (java) bool value in a formula.
-     * @author Paul Krause (pkrause at soundbite dot com)
-     * @author Andrew C. Oliver (acoliver at apache dot org)
-     * @author Jason Height (jheight at chariot dot net dot au)
-     */
-    public class BoolPtg : ScalarConstantPtg
+    public BoolPtg(ILittleEndianInput in1)
     {
-        public const int SIZE = 2;
-        public const byte sid = 0x1d;
-        private bool field_1_value;
-
-        public BoolPtg(ILittleEndianInput in1)
-        {
-            field_1_value = (in1.ReadByte() == 1);
-        }
+        field_1_value = (in1.ReadByte() == 1);
+    }
 
 
-        public BoolPtg(String formulaToken)
-        {
-            field_1_value = (formulaToken.Equals("TRUE"));
-        }
+    public BoolPtg(String formulaToken)
+    {
+        field_1_value = (formulaToken.Equals("TRUE"));
+    }
 
-        public bool Value
-        {
-            get { return field_1_value; }
-        }
+    public bool Value
+    {
+        get { return field_1_value; }
+    }
 
-        public override void Write(ILittleEndianOutput out1)
-        {
-            out1.WriteByte(sid + PtgClass);
-            out1.WriteByte(field_1_value ? 1 : 0);
-        }
+    public override void Write(ILittleEndianOutput out1)
+    {
+        out1.WriteByte(sid + PtgClass);
+        out1.WriteByte(field_1_value ? 1 : 0);
+    }
 
-        public override int Size
-        {
-            get { return SIZE; }
-        }
+    public override int Size
+    {
+        get { return SIZE; }
+    }
 
-        public override String ToFormulaString()
-        {
-            return field_1_value ? "TRUE" : "FALSE";
-        }
+    public override String ToFormulaString()
+    {
+        return field_1_value ? "TRUE" : "FALSE";
     }
 }

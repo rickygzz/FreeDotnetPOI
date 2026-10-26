@@ -15,57 +15,56 @@
    limitations Under the License.
 ==================================================================== */
 
-namespace NPOI.SS.Formula.PTG
+namespace NPOI.SS.Formula.PTG;
+
+using NPOI.SS.Util;
+using NPOI.Util;
+using System.Text;
+
+/**
+ * RefNPtg
+ * @author Jason Height (jheight at apache dot com)
+ */
+public class RefNPtg : Ref2DPtgBase
 {
-    using NPOI.SS.Util;
-    using NPOI.Util;
-    using System.Text;
+    public const byte sid = 0x2C;
 
-    /**
-     * RefNPtg
-     * @author Jason Height (jheight at apache dot com)
-     */
-    public class RefNPtg : Ref2DPtgBase
+    /** Creates new ValueReferencePtg */
+
+    public RefNPtg(ILittleEndianInput in1)
+        : base(in1)
     {
-        public const byte sid = 0x2C;
 
-        /** Creates new ValueReferencePtg */
+    }
 
-        public RefNPtg(ILittleEndianInput in1)
-            : base(in1)
+    protected override byte Sid
+    {
+        get { return sid; }
+    }
+
+    protected string FormatReferenceAsString()
+    {
+        StringBuilder builder = new StringBuilder();
+
+        // The bits in RefNPtg indicate offset, not relative/absolute values!
+        if(IsRowRelative)
         {
-
+            builder.Append("RowOffset: ").Append(Row).Append(" ");
         }
-
-        protected override byte Sid
+        else
         {
-            get { return sid; }
+            builder.Append(Row+1);
         }
-
-        protected string FormatReferenceAsString()
+    
+        if(IsColRelative)
         {
-            StringBuilder builder = new StringBuilder();
-
-            // The bits in RefNPtg indicate offset, not relative/absolute values!
-            if(IsRowRelative)
-            {
-                builder.Append("RowOffset: ").Append(Row).Append(" ");
-            }
-            else
-            {
-                builder.Append(Row+1);
-            }
-        
-            if(IsColRelative)
-            {
-                builder.Append(" ColOffset: ").Append(Column);
-            }
-            else
-            {
-                builder.Append(CellReference.ConvertNumToColString(Column));
-            }
-        
-            return builder.ToString();
+            builder.Append(" ColOffset: ").Append(Column);
         }
+        else
+        {
+            builder.Append(CellReference.ConvertNumToColString(Column));
+        }
+    
+        return builder.ToString();
     }
 }

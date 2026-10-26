@@ -15,46 +15,45 @@
    limitations Under the License.
 ==================================================================== */
 
-namespace NPOI.SS.Formula.PTG
+namespace NPOI.SS.Formula.PTG;
+
+using System;
+using System.Text;
+/**
+ * Percent PTG.
+ *
+ * @author Daniel Noll (daniel at nuix.com.au)
+ */
+public class PercentPtg : ValueOperatorPtg
 {
-    using System;
-    using System.Text;
-    /**
-     * Percent PTG.
-     *
-     * @author Daniel Noll (daniel at nuix.com.au)
-     */
-    public class PercentPtg : ValueOperatorPtg
+    public const int SIZE = 1;
+    public const byte sid = 0x14;
+
+    private const string PERCENT = "%";
+
+    public static readonly ValueOperatorPtg instance = new PercentPtg();
+
+    private PercentPtg()
     {
-        public const int SIZE = 1;
-        public const byte sid = 0x14;
+        // enforce singleton
+    }
 
-        private const string PERCENT = "%";
+    protected override byte Sid
+    {
+        get { return sid; }
+    }
 
-        public static readonly ValueOperatorPtg instance = new PercentPtg();
+    public override int NumberOfOperands
+    {
+        get { return 1; }
+    }
 
-        private PercentPtg()
-        {
-            // enforce singleton
-        }
+    public override String ToFormulaString(String[] operands)
+    {
+        StringBuilder buffer = new StringBuilder();
 
-        protected override byte Sid
-        {
-            get { return sid; }
-        }
-
-        public override int NumberOfOperands
-        {
-            get { return 1; }
-        }
-
-        public override String ToFormulaString(String[] operands)
-        {
-            StringBuilder buffer = new StringBuilder();
-
-            buffer.Append(operands[0]);
-            buffer.Append(PERCENT);
-            return buffer.ToString();
-        }
+        buffer.Append(operands[0]);
+        buffer.Append(PERCENT);
+        return buffer.ToString();
     }
 }

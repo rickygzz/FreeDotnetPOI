@@ -15,76 +15,75 @@
    limitations Under the License.
 ==================================================================== */
 
-namespace NPOI.SS.Formula.PTG
-{
-    using System;
-    using NPOI.Util;
-    using NPOI.SS.Formula;
+namespace NPOI.SS.Formula.PTG;
 
+using NPOI.SS.Formula;
+using NPOI.Util;
+using System;
+
+
+/**
+ *
+ * @author  andy
+ * @author Jason Height (jheight at chariot dot net dot au)
+ */
+[Serializable]
+public class NamePtg : OperandPtg, WorkbookDependentFormula
+{
+    public const short sid = 0x23;
+    private const int SIZE = 5;
+    /** one-based index to defined name record */
+    private int field_1_label_index;
+    private short field_2_zero;   // reserved must be 0
+    /**
+* @param nameIndex zero-based index to name within workbook
+*/
+    public NamePtg(int nameIndex)
+    {
+        field_1_label_index = 1 + nameIndex; // convert to 1-based
+    }
+
+    /** Creates new NamePtg */
+
+    public NamePtg(ILittleEndianInput in1)
+    {
+        field_1_label_index = in1.ReadUShort();
+        field_2_zero = in1.ReadShort();
+    }
 
     /**
-     *
-     * @author  andy
-     * @author Jason Height (jheight at chariot dot net dot au)
+     * @return zero based index to a defined name record in the LinkTable
      */
-    [Serializable]
-    public class NamePtg : OperandPtg, WorkbookDependentFormula
+    public int Index
     {
-        public const short sid = 0x23;
-        private const int SIZE = 5;
-        /** one-based index to defined name record */
-        private int field_1_label_index;
-        private short field_2_zero;   // reserved must be 0
-        /**
- * @param nameIndex zero-based index to name within workbook
- */
-        public NamePtg(int nameIndex)
-        {
-            field_1_label_index = 1 + nameIndex; // convert to 1-based
-        }
+        get { return field_1_label_index - 1; } // Convert to zero based
+    }
 
-        /** Creates new NamePtg */
-
-        public NamePtg(ILittleEndianInput in1)
-        {
-            field_1_label_index = in1.ReadUShort();
-            field_2_zero = in1.ReadShort();
-        }
-
-        /**
-         * @return zero based index to a defined name record in the LinkTable
-         */
-        public int Index
-        {
-            get { return field_1_label_index - 1; } // Convert to zero based
-        }
-
-        public override void Write(ILittleEndianOutput out1)
-        {
+    public override void Write(ILittleEndianOutput out1)
+    {
 		    out1.WriteByte(sid + PtgClass);
 		    out1.WriteShort(field_1_label_index);
 		    out1.WriteShort(field_2_zero);
-        }
+    }
 
 
-        public override int Size
-        {
-            get { return SIZE; }
-        }
+    public override int Size
+    {
+        get { return SIZE; }
+    }
 
-        public String ToFormulaString(IFormulaRenderingWorkbook book)
-        {
-            return book.GetNameText(this);
-        }
-        public override String ToFormulaString()
-        {
-            throw new NotImplementedException("3D references need a workbook to determine formula text");
-        }
-    
+    public String ToFormulaString(IFormulaRenderingWorkbook book)
+    {
+        return book.GetNameText(this);
+    }
+    public override String ToFormulaString()
+    {
+        throw new NotImplementedException("3D references need a workbook to determine formula text");
+    }
 
-        public override byte DefaultOperandClass
-        {
-            get { return Ptg.CLASS_REF; }
-        }
+
+    public override byte DefaultOperandClass
+    {
+        get { return Ptg.CLASS_REF; }
     }
 }

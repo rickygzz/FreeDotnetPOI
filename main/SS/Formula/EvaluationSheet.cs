@@ -15,29 +15,28 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.SS.Formula
+namespace NPOI.SS.Formula;
+
+
+/**
+ * Abstracts a sheet for the purpose of formula evaluation.<br/>
+ * 
+ * For POI internal use only
+ * 
+ * @author Josh Micich
+ */
+public interface IEvaluationSheet
 {
 
     /**
-     * Abstracts a sheet for the purpose of formula evaluation.<br/>
-     * 
-     * For POI internal use only
-     * 
-     * @author Josh Micich
+     * @return <c>null</c> if there is no cell at the specified coordinates
      */
-    public interface IEvaluationSheet
-    {
-
-        /**
-         * @return <c>null</c> if there is no cell at the specified coordinates
-         */
-        IEvaluationCell GetCell(int rowIndex, int columnIndex);
-        /**
-         * Propagated from {@link EvaluationWorkbook#clearAllCachedResultValues()} to clear locally cached data.
-         * 
-         * @see WorkbookEvaluator#clearAllCachedResultValues()
-         * @see EvaluationWorkbook#clearAllCachedResultValues()
-         */
-        void ClearAllCachedResultValues();
-    }
+    IEvaluationCell GetCell(int rowIndex, int columnIndex);
+    /**
+     * Propagated from {@link EvaluationWorkbook#clearAllCachedResultValues()} to clear locally cached data.
+     * 
+     * @see WorkbookEvaluator#clearAllCachedResultValues()
+     * @see EvaluationWorkbook#clearAllCachedResultValues()
+     */
+    void ClearAllCachedResultValues();
 }

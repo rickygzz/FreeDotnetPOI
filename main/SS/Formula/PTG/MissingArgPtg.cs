@@ -15,41 +15,40 @@
    limitations Under the License.
 ==================================================================== */
 
-namespace NPOI.SS.Formula.PTG
+namespace NPOI.SS.Formula.PTG;
+
+using NPOI.Util;
+using System;
+
+/**
+ * Missing Function Arguments
+ *
+ * Avik Sengupta &lt;avik at apache.org&gt;
+ * @author Jason Height (jheight at chariot dot net dot au)
+ */
+public class MissingArgPtg : ScalarConstantPtg
 {
-    using System;
-    using NPOI.Util;
 
-    /**
-     * Missing Function Arguments
-     *
-     * Avik Sengupta &lt;avik at apache.org&gt;
-     * @author Jason Height (jheight at chariot dot net dot au)
-     */
-    public class MissingArgPtg : ScalarConstantPtg
+    private const int SIZE = 1;
+    public const byte sid = 0x16;
+
+    public static Ptg instance = new MissingArgPtg();
+    private MissingArgPtg()
     {
+    }
 
-        private const int SIZE = 1;
-        public const byte sid = 0x16;
+    public override void Write(ILittleEndianOutput out1)
+    {
+        out1.WriteByte(sid + PtgClass);
+    }
 
-        public static Ptg instance = new MissingArgPtg();
-        private MissingArgPtg()
-        {
-        }
+    public override int Size
+    {
+        get { return SIZE; }
+    }
 
-        public override void Write(ILittleEndianOutput out1)
-        {
-            out1.WriteByte(sid + PtgClass);
-        }
-
-        public override int Size
-        {
-            get { return SIZE; }
-        }
-
-        public override String ToFormulaString()
-        {
-            return " ";
-        }
+    public override String ToFormulaString()
+    {
+        return " ";
     }
 }

@@ -15,100 +15,99 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.SS.Formula
+namespace NPOI.SS.Formula;
+
+
+using System;
+using System.Text;
+using NPOI.SS.Formula.Eval;
+using NPOI.SS.Formula.PTG;
+using NPOI.SS.Util;
+
+/**
+ * Provides Lazy Evaluation to 3D Ranges
+ */
+public class LazyAreaEval : AreaEvalBase
 {
 
-    using System;
-    using System.Text;
-    using NPOI.SS.Formula.Eval;
-    using NPOI.SS.Formula.PTG;
-    using NPOI.SS.Util;
+    private readonly SheetRangeEvaluator _evaluator;
 
-    /**
-     * Provides Lazy Evaluation to 3D Ranges
-     */
-    public class LazyAreaEval : AreaEvalBase
+    public LazyAreaEval(AreaI ptg, SheetRangeEvaluator evaluator)
+        : base(ptg, evaluator)
     {
+        
+        _evaluator = evaluator;
+    }
 
-        private readonly SheetRangeEvaluator _evaluator;
+    public LazyAreaEval(int firstRowIndex, int firstColumnIndex, int lastRowIndex,
+            int lastColumnIndex, SheetRangeEvaluator evaluator) :
+        base(evaluator, firstRowIndex, firstColumnIndex, lastRowIndex, lastColumnIndex)
+    {
+        
+        _evaluator = evaluator;
+    }
 
-        public LazyAreaEval(AreaI ptg, SheetRangeEvaluator evaluator)
-            : base(ptg, evaluator)
-        {
-            
-            _evaluator = evaluator;
-        }
+    public override ValueEval GetRelativeValue(int relativeRowIndex, int relativeColumnIndex)
+    {
+        return GetRelativeValue(FirstSheetIndex, relativeRowIndex, relativeColumnIndex);
+    }
+    public override ValueEval GetRelativeValue(int sheetIndex, int relativeRowIndex, int relativeColumnIndex)
+    {
+        int rowIx = (relativeRowIndex + FirstRow);
+        int colIx = (relativeColumnIndex + FirstColumn);
 
-        public LazyAreaEval(int firstRowIndex, int firstColumnIndex, int lastRowIndex,
-                int lastColumnIndex, SheetRangeEvaluator evaluator) :
-            base(evaluator, firstRowIndex, firstColumnIndex, lastRowIndex, lastColumnIndex)
-        {
-            
-            _evaluator = evaluator;
-        }
+        return _evaluator.GetEvalForCell(sheetIndex, rowIx, colIx);
+    }
 
-        public override ValueEval GetRelativeValue(int relativeRowIndex, int relativeColumnIndex)
+    public override TwoDEval GetRow(int rowIndex)
+    {
+        if (rowIndex >= Height)
         {
-            return GetRelativeValue(FirstSheetIndex, relativeRowIndex, relativeColumnIndex);
+            throw new ArgumentException("Invalid rowIndex " + rowIndex
+                    + ".  Allowable range is (0.." + Height + ").");
         }
-        public override ValueEval GetRelativeValue(int sheetIndex, int relativeRowIndex, int relativeColumnIndex)
+        int absRowIx = FirstRow + rowIndex;
+        return new LazyAreaEval(absRowIx, FirstColumn, absRowIx, LastColumn, _evaluator);
+    }
+    public override TwoDEval GetColumn(int columnIndex)
+    {
+        if (columnIndex >= Width)
         {
-            int rowIx = (relativeRowIndex + FirstRow);
-            int colIx = (relativeColumnIndex + FirstColumn);
+            throw new ArgumentException("Invalid columnIndex " + columnIndex
+                    + ".  Allowable range is (0.." + Width + ").");
+        }
+        int absColIx = FirstColumn + columnIndex;
+        return new LazyAreaEval(FirstRow, absColIx, LastRow, absColIx, _evaluator);
+    }
 
-            return _evaluator.GetEvalForCell(sheetIndex, rowIx, colIx);
-        }
+    public override AreaEval Offset(int relFirstRowIx, int relLastRowIx, int relFirstColIx, int relLastColIx)
+    {
+        AreaI area = new OffsetArea(FirstRow, FirstColumn,
+                relFirstRowIx, relLastRowIx, relFirstColIx, relLastColIx);
 
-        public override TwoDEval GetRow(int rowIndex)
-        {
-            if (rowIndex >= Height)
-            {
-                throw new ArgumentException("Invalid rowIndex " + rowIndex
-                        + ".  Allowable range is (0.." + Height + ").");
-            }
-            int absRowIx = FirstRow + rowIndex;
-            return new LazyAreaEval(absRowIx, FirstColumn, absRowIx, LastColumn, _evaluator);
-        }
-        public override TwoDEval GetColumn(int columnIndex)
-        {
-            if (columnIndex >= Width)
-            {
-                throw new ArgumentException("Invalid columnIndex " + columnIndex
-                        + ".  Allowable range is (0.." + Width + ").");
-            }
-            int absColIx = FirstColumn + columnIndex;
-            return new LazyAreaEval(FirstRow, absColIx, LastRow, absColIx, _evaluator);
-        }
-
-        public override AreaEval Offset(int relFirstRowIx, int relLastRowIx, int relFirstColIx, int relLastColIx)
-        {
-            AreaI area = new OffsetArea(FirstRow, FirstColumn,
-                    relFirstRowIx, relLastRowIx, relFirstColIx, relLastColIx);
-
-            return new LazyAreaEval(area, _evaluator);
-        }
-        public override String ToString()
-        {
-            CellReference crA = new CellReference(FirstRow, FirstColumn);
-            CellReference crB = new CellReference(LastRow, LastColumn);
-            StringBuilder sb = new StringBuilder();
-            sb.Append(GetType().Name).Append("[");
-            sb.Append(_evaluator.SheetNameRange);
-            sb.Append('!');
-            sb.Append(crA.FormatAsString());
-            sb.Append(':');
-            sb.Append(crB.FormatAsString());
-            sb.Append("]");
-            return sb.ToString();
-        }
-        /**
-        * @return  whether cell at rowIndex and columnIndex is a subtotal
-        */
-        public override bool IsSubTotal(int rowIndex, int columnIndex)
-        {
-            // delegate the query to the sheet evaluator which has access to internal ptgs
-            SheetRefEvaluator _sre = _evaluator.GetSheetEvaluator(_evaluator.FirstSheetIndex);
-            return _sre.IsSubTotal(FirstRow + rowIndex, FirstColumn + columnIndex);
-        }
+        return new LazyAreaEval(area, _evaluator);
+    }
+    public override String ToString()
+    {
+        CellReference crA = new CellReference(FirstRow, FirstColumn);
+        CellReference crB = new CellReference(LastRow, LastColumn);
+        StringBuilder sb = new StringBuilder();
+        sb.Append(GetType().Name).Append("[");
+        sb.Append(_evaluator.SheetNameRange);
+        sb.Append('!');
+        sb.Append(crA.FormatAsString());
+        sb.Append(':');
+        sb.Append(crB.FormatAsString());
+        sb.Append("]");
+        return sb.ToString();
+    }
+    /**
+    * @return  whether cell at rowIndex and columnIndex is a subtotal
+    */
+    public override bool IsSubTotal(int rowIndex, int columnIndex)
+    {
+        // delegate the query to the sheet evaluator which has access to internal ptgs
+        SheetRefEvaluator _sre = _evaluator.GetSheetEvaluator(_evaluator.FirstSheetIndex);
+        return _sre.IsSubTotal(FirstRow + rowIndex, FirstColumn + columnIndex);
     }
 }

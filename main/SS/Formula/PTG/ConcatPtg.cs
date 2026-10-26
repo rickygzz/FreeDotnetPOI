@@ -15,46 +15,45 @@
    limitations Under the License.
 ==================================================================== */
 
-namespace NPOI.SS.Formula.PTG
+namespace NPOI.SS.Formula.PTG;
+
+using System;
+using System.Text;
+/**
+ *
+ * @author  andy
+ * @author Jason Height (jheight at chariot dot net dot au)
+ */
+public class ConcatPtg : ValueOperatorPtg
 {
-    using System;
-    using System.Text;
-    /**
-     *
-     * @author  andy
-     * @author Jason Height (jheight at chariot dot net dot au)
-     */
-    public class ConcatPtg : ValueOperatorPtg
+    public const byte sid = 0x08;
+
+    private const string CONCAT = "&";
+
+    public static readonly ValueOperatorPtg instance = new ConcatPtg();
+
+    private ConcatPtg()
     {
-        public const byte sid = 0x08;
+        // enforce singleton
+    }
 
-        private const string CONCAT = "&";
+    protected override byte Sid
+    {
+        get { return sid; }
+    }
 
-        public static readonly ValueOperatorPtg instance = new ConcatPtg();
+    public override int NumberOfOperands
+    {
+        get { return 2; }
+    }
 
-        private ConcatPtg()
-        {
-            // enforce singleton
-        }
+    public override String ToFormulaString(String[] operands)
+    {
+        StringBuilder buffer = new StringBuilder();
 
-        protected override byte Sid
-        {
-            get { return sid; }
-        }
-
-        public override int NumberOfOperands
-        {
-            get { return 2; }
-        }
-
-        public override String ToFormulaString(String[] operands)
-        {
-            StringBuilder buffer = new StringBuilder();
-
-            buffer.Append(operands[0]);
-            buffer.Append(CONCAT);
-            buffer.Append(operands[1]);
-            return buffer.ToString();
-        }
+        buffer.Append(operands[0]);
+        buffer.Append(CONCAT);
+        buffer.Append(operands[1]);
+        return buffer.ToString();
     }
 }

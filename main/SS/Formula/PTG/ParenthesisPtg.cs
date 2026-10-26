@@ -16,51 +16,50 @@
 ==================================================================== */
 
 
-namespace NPOI.SS.Formula.PTG
+namespace NPOI.SS.Formula.PTG;
+
+using NPOI.Util;
+using System;
+
+/**
+ * While formula tokens are stored in RPN order and thus do not need parenthesis for 
+ * precedence reasons, Parenthesis tokens ARE written to Ensure that user entered
+ * parenthesis are Displayed as-is on Reading back
+ *
+ * Avik Sengupta &lt;lists@aviksengupta.com&gt;
+ * Andrew C. Oliver (acoliver at apache dot org)
+ * @author Jason Height (jheight at chariot dot net dot au)
+ */
+public class ParenthesisPtg : ControlPtg
 {
-    using System;
-    using NPOI.Util;
 
-    /**
-     * While formula tokens are stored in RPN order and thus do not need parenthesis for 
-     * precedence reasons, Parenthesis tokens ARE written to Ensure that user entered
-     * parenthesis are Displayed as-is on Reading back
-     *
-     * Avik Sengupta &lt;lists@aviksengupta.com&gt;
-     * Andrew C. Oliver (acoliver at apache dot org)
-     * @author Jason Height (jheight at chariot dot net dot au)
-     */
-    public class ParenthesisPtg : ControlPtg
+    private const int SIZE = 1;
+    public const byte sid = 0x15;
+
+    public static ControlPtg instance = new ParenthesisPtg();
+    private ParenthesisPtg()
     {
+        // enforce singleton
+    }
 
-        private const int SIZE = 1;
-        public const byte sid = 0x15;
+    public override void Write(ILittleEndianOutput out1)
+    {
+        out1.WriteByte(sid + PtgClass);
+    }
 
-        public static ControlPtg instance = new ParenthesisPtg();
-        private ParenthesisPtg()
-        {
-            // enforce singleton
-        }
+    public override int Size
+    {
+        get { return SIZE; }
+    }
 
-        public override void Write(ILittleEndianOutput out1)
-        {
-            out1.WriteByte(sid + PtgClass);
-        }
-
-        public override int Size
-        {
-            get { return SIZE; }
-        }
-
-        public override String ToFormulaString()
-        {
-            return "()";
-        }
+    public override String ToFormulaString()
+    {
+        return "()";
+    }
 
 
-        public String ToFormulaString(String[] operands)
-        {
-            return "(" + operands[0] + ")";
-        }
+    public String ToFormulaString(String[] operands)
+    {
+        return "(" + operands[0] + ")";
     }
 }

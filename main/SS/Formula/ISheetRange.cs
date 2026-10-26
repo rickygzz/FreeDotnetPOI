@@ -15,13 +15,10 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.SS.Formula
-{
-    using System;
+namespace NPOI.SS.Formula;
 
-    public interface ISheetRange
-    {
-        int FirstSheetIndex { get; }
-        int LastSheetIndex { get; }
-    }
+public interface ISheetRange
+{
+    int FirstSheetIndex { get; }
+    int LastSheetIndex { get; }
 }

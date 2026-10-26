@@ -15,141 +15,139 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.SS.UserModel
+namespace NPOI.SS.UserModel;
+
+using NPOI.SS.Formula.Eval;
+using System;
+using System.Globalization;
+using System.Text;
+
+/**
+ * Mimics the 'data view' of a cell. This allows formula Evaluator
+ * to return a CellValue instead of precasting the value to String
+ * or Number or bool type.
+ * @author Amol S. Deshmukh &lt; amolweb at ya hoo dot com &gt;
+ */
+public class CellValue
 {
-    using System;
-    using System.Text;
-    using NPOI.SS.Formula.Eval;
-    using NPOI.SS.UserModel;
-    using System.Globalization;
+    public static readonly CellValue TRUE = new CellValue(CellType.Boolean, 0.0, true, null, 0);
+    public static readonly CellValue FALSE = new CellValue(CellType.Boolean, 0.0, false, null, 0);
+
+    private readonly CellType _cellType;
+    private readonly double _numberValue;
+    private readonly bool _boolValue;
+    private readonly String _textValue;
+    private readonly int _errorCode;
+
+    private CellValue(CellType cellType, double numberValue, bool boolValue,
+            String textValue, int errorCode)
+    {
+        _cellType = cellType;
+        _numberValue = numberValue;
+        _boolValue = boolValue;
+        _textValue = textValue;
+        _errorCode = errorCode;
+    }
+
+
+    public CellValue(double numberValue)
+        : this(CellType.Numeric, numberValue, false, null, 0)
+    {
+
+    }
+    public static CellValue ValueOf(bool boolValue)
+    {
+        return boolValue ? TRUE : FALSE;
+    }
+    public CellValue(String stringValue)
+        : this(CellType.String, 0.0, false, stringValue, 0)
+    {
+
+    }
+    public static CellValue GetError(int errorCode)
+    {
+        return new CellValue(CellType.Error, 0.0, false, null, errorCode);
+    }
+
 
     /**
-     * Mimics the 'data view' of a cell. This allows formula Evaluator
-     * to return a CellValue instead of precasting the value to String
-     * or Number or bool type.
-     * @author Amol S. Deshmukh &lt; amolweb at ya hoo dot com &gt;
+     * @return Returns the boolValue.
      */
-    public class CellValue
+    public bool BooleanValue
     {
-        public static readonly CellValue TRUE = new CellValue(CellType.Boolean, 0.0, true, null, 0);
-        public static readonly CellValue FALSE = new CellValue(CellType.Boolean, 0.0, false, null, 0);
+        get
+        {
+            return _boolValue;
+        }
+    }
+    /**
+     * @return Returns the numberValue.
+     */
+    public double NumberValue
+    {
+        get
+        {
+            return _numberValue;
+        }
+    }
+    /**
+     * @return Returns the stringValue.
+     */
+    public String StringValue
+    {
+        get
+        {
+            return _textValue;
+        }
+    }
+    /**
+     * @return Returns the cellType.
+     */
+    public CellType CellType
+    {
+        get
+        {
+            return _cellType;
+        }
+    }
+    /**
+     * @return Returns the errorValue.
+     */
+    //the return value should be sbyte? the byte in java is signed(-128~127) and is unsiged(0~255) in c#.
+    //if use byte, the test NPOI.SS.Formula.TestWorkbookEvaluator.TestResultOutsideRange failed.
+    public sbyte ErrorValue
+    {
+        get
+        {
+            return (sbyte)_errorCode;
+        }
+    }
+    public override String ToString()
+    {
+        StringBuilder sb = new StringBuilder(64);
+        sb.Append(GetType().Name).Append(" [");
+        sb.Append(FormatAsString());
+        sb.Append("]");
+        return sb.ToString();
+    }
 
-        private readonly CellType _cellType;
-        private readonly double _numberValue;
-        private readonly bool _boolValue;
-        private readonly String _textValue;
-        private readonly int _errorCode;
-
-        private CellValue(CellType cellType, double numberValue, bool boolValue,
-                String textValue, int errorCode)
+    public String FormatAsString()
+    {
+        switch (_cellType)
         {
-            _cellType = cellType;
-            _numberValue = numberValue;
-            _boolValue = boolValue;
-            _textValue = textValue;
-            _errorCode = errorCode;
+            case CellType.Numeric:
+                string result = _numberValue.ToString(CultureInfo.InvariantCulture);
+                //if (result.IndexOf(".") < 0)
+                //    result = result + ".0";
+                return result;
+            case CellType.String:
+                return '"' + _textValue + '"';
+            case CellType.Boolean:
+                return _boolValue ? "TRUE" : "FALSE";
+            case CellType.Error:
+                return ErrorEval.GetText(_errorCode);
         }
-
-
-        public CellValue(double numberValue)
-            : this(CellType.Numeric, numberValue, false, null, 0)
-        {
-
-        }
-        public static CellValue ValueOf(bool boolValue)
-        {
-            return boolValue ? TRUE : FALSE;
-        }
-        public CellValue(String stringValue)
-            : this(CellType.String, 0.0, false, stringValue, 0)
-        {
-
-        }
-        public static CellValue GetError(int errorCode)
-        {
-            return new CellValue(CellType.Error, 0.0, false, null, errorCode);
-        }
-
-
-        /**
-         * @return Returns the boolValue.
-         */
-        public bool BooleanValue
-        {
-            get
-            {
-                return _boolValue;
-            }
-        }
-        /**
-         * @return Returns the numberValue.
-         */
-        public double NumberValue
-        {
-            get
-            {
-                return _numberValue;
-            }
-        }
-        /**
-         * @return Returns the stringValue.
-         */
-        public String StringValue
-        {
-            get
-            {
-                return _textValue;
-            }
-        }
-        /**
-         * @return Returns the cellType.
-         */
-        public CellType CellType
-        {
-            get
-            {
-                return _cellType;
-            }
-        }
-        /**
-         * @return Returns the errorValue.
-         */
-        //the return value should be sbyte? the byte in java is signed(-128~127) and is unsiged(0~255) in c#.
-        //if use byte, the test NPOI.SS.Formula.TestWorkbookEvaluator.TestResultOutsideRange failed.
-        public sbyte ErrorValue
-        {
-            get
-            {
-                return (sbyte)_errorCode;
-            }
-        }
-        public override String ToString()
-        {
-            StringBuilder sb = new StringBuilder(64);
-            sb.Append(GetType().Name).Append(" [");
-            sb.Append(FormatAsString());
-            sb.Append("]");
-            return sb.ToString();
-        }
-
-        public String FormatAsString()
-        {
-            switch (_cellType)
-            {
-                case CellType.Numeric:
-                    string result = _numberValue.ToString(CultureInfo.InvariantCulture);
-                    //if (result.IndexOf(".") < 0)
-                    //    result = result + ".0";
-                    return result;
-                case CellType.String:
-                    return '"' + _textValue + '"';
-                case CellType.Boolean:
-                    return _boolValue ? "TRUE" : "FALSE";
-                case CellType.Error:
-                    return ErrorEval.GetText(_errorCode);
-            }
-            return "<error unexpected cell type " + _cellType + ">";
-        }
+        return "<error unexpected cell type " + _cellType + ">";
     }
 }
 

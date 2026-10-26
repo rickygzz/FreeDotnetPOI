@@ -15,50 +15,49 @@
    limitations Under the License.
 ==================================================================== */
 
-namespace NPOI.SS.Formula.PTG
+namespace NPOI.SS.Formula.PTG;
+
+using System;
+using System.Text;
+
+
+/**
+ * Addition operator PTG the "+" binomial operator.  If you need more 
+ * explanation than that then well...We really can't help you here.
+ * @author  Andrew C. Oliver (acoliver@apache.org)
+ * @author Jason Height (jheight at chariot dot net dot au)
+ */
+public class AddPtg : ValueOperatorPtg
 {
-    using System;
-    using System.Text;
+    public const byte sid = 0x03;
 
+    private static String Add = "+";
 
-    /**
-     * Addition operator PTG the "+" binomial operator.  If you need more 
-     * explanation than that then well...We really can't help you here.
-     * @author  Andrew C. Oliver (acoliver@apache.org)
-     * @author Jason Height (jheight at chariot dot net dot au)
-     */
-    public class AddPtg : ValueOperatorPtg
+    public static ValueOperatorPtg instance = new AddPtg();
+
+    private AddPtg()
     {
-        public const byte sid = 0x03;
+        // enforce singleton
+    }
 
-        private static String Add = "+";
+    protected override byte Sid
+    {
+        get { return sid; }
+    }
 
-        public static ValueOperatorPtg instance = new AddPtg();
+    public override int NumberOfOperands
+    {
+        get { return 2; }
+    }
 
-        private AddPtg()
-        {
-            // enforce singleton
-        }
+    /** implementation of method from OperationsPtg*/
+    public override String ToFormulaString(String[] operands)
+    {
+        StringBuilder buffer = new StringBuilder();
 
-        protected override byte Sid
-        {
-            get { return sid; }
-        }
-
-        public override int NumberOfOperands
-        {
-            get { return 2; }
-        }
-
-        /** implementation of method from OperationsPtg*/
-        public override String ToFormulaString(String[] operands)
-        {
-            StringBuilder buffer = new StringBuilder();
-
-            buffer.Append(operands[0]);
-            buffer.Append(Add);
-            buffer.Append(operands[1]);
-            return buffer.ToString();
-        }
+        buffer.Append(operands[0]);
+        buffer.Append(Add);
+        buffer.Append(operands[1]);
+        return buffer.ToString();
     }
 }

@@ -17,46 +17,41 @@
  * ====================================================================
  */
 
-namespace NPOI.SS.UserModel
+namespace NPOI.SS.UserModel;
+/**
+ * High level representation for the DataBar Formatting 
+ *  component of Conditional Formatting Settings
+ */
+public interface IDataBarFormatting
 {
-    using System;
+    /**
+     * Is the bar Drawn from Left-to-Right, or from
+     *  Right-to-Left
+     */
+    bool IsLeftToRight { get; set; }
+    /**
+     * Should Icon + Value be displayed, or only the Icon?
+     */
+    bool IsIconOnly { get; set; }
+    /**
+     * How much of the cell width, in %, should be given to
+     *  the min value?
+     */
+    int WidthMin { get; set; }
+    /**
+     * How much of the cell width, in %, should be given to
+     *  the max value?
+     */
+    int WidthMax { get; set; }
+
+    IColor Color { get; set; }
 
     /**
-     * High level representation for the DataBar Formatting 
-     *  component of Conditional Formatting Settings
+     * The threshold that defines "everything from here down is minimum"
      */
-    public interface IDataBarFormatting
-    {
-        /**
-         * Is the bar Drawn from Left-to-Right, or from
-         *  Right-to-Left
-         */
-        bool IsLeftToRight { get; set; }
-        /**
-         * Should Icon + Value be displayed, or only the Icon?
-         */
-        bool IsIconOnly { get; set; }
-        /**
-         * How much of the cell width, in %, should be given to
-         *  the min value?
-         */
-        int WidthMin { get; set; }
-        /**
-         * How much of the cell width, in %, should be given to
-         *  the max value?
-         */
-        int WidthMax { get; set; }
-
-        IColor Color { get; set; }
-
-        /**
-         * The threshold that defines "everything from here down is minimum"
-         */
-        IConditionalFormattingThreshold MinThreshold { get; }
-        /**
-         * The threshold that defines "everything from here up is maximum"
-         */
-        IConditionalFormattingThreshold MaxThreshold { get; }
-    }
-
+    IConditionalFormattingThreshold MinThreshold { get; }
+    /**
+     * The threshold that defines "everything from here up is maximum"
+     */
+    IConditionalFormattingThreshold MaxThreshold { get; }
 }

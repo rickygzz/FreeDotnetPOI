@@ -15,27 +15,26 @@
    limitations Under the License.
 ==================================================================== */
 
-namespace NPOI.SS.Formula.PTG
+namespace NPOI.SS.Formula.PTG;
+
+using NPOI.Util;
+
+/**
+ * Specifies a rectangular area of cells A1:A4 for instance.
+ * @author Jason Height (jheight at chariot dot net dot au)
+ */
+public class AreaNPtg : Area2DPtgBase
 {
-    using NPOI.Util;
+    public const short sid = 0x2D;
 
-    /**
-     * Specifies a rectangular area of cells A1:A4 for instance.
-     * @author Jason Height (jheight at chariot dot net dot au)
-     */
-    public class AreaNPtg : Area2DPtgBase
+    public AreaNPtg(ILittleEndianInput in1)
+        : base(in1)
     {
-        public const short sid = 0x2D;
 
-        public AreaNPtg(ILittleEndianInput in1)
-            : base(in1)
-        {
+    }
 
-        }
-
-        protected override byte Sid
-        {
-            get { return (byte) sid; }
-        }
+    protected override byte Sid
+    {
+        get { return (byte) sid; }
     }
 }

@@ -15,31 +15,30 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.SS.Formula
+namespace NPOI.SS.Formula;
+
+
+using NPOI.SS.Formula.PTG;
+using System;
+/**
+ * Abstracts a name record for formula evaluation.<br/>
+ * 
+ * For POI internal use only
+ * 
+ * @author Josh Micich
+ */
+public interface IEvaluationName
 {
 
-    using System;
-    using NPOI.SS.Formula.PTG;
-    /**
-     * Abstracts a name record for formula evaluation.<br/>
-     * 
-     * For POI internal use only
-     * 
-     * @author Josh Micich
-     */
-    public interface IEvaluationName
-    {
+    String NameText{ get; }
 
-        String NameText{ get; }
+    bool IsFunctionName{ get; }
 
-        bool IsFunctionName{ get; }
+    bool HasFormula { get; }
 
-        bool HasFormula { get; }
+    Ptg[] NameDefinition { get; }
 
-        Ptg[] NameDefinition { get; }
-
-        bool IsRange{ get; }
-        NamePtg CreatePtg();
-    }
+    bool IsRange{ get; }
+    NamePtg CreatePtg();
 }
 

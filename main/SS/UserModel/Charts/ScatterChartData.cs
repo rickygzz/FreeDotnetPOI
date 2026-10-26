@@ -16,30 +16,27 @@
 ==================================================================== */
 
 using System.Collections.Generic;
-using NPOI.SS.Util;
-namespace NPOI.SS.UserModel.Charts
-{
 
+namespace NPOI.SS.UserModel.Charts;
+
+
+
+/**
+ * Data for a Scatter Chart
+ */
+public interface IScatterChartData<Tx,Ty> : IChartData
+{
+    /**
+     * @param xs data source to be used for X axis values
+     * @param ys data source to be used for Y axis values
+     * @return a new scatter charts series
+     */
+    IScatterChartSeries<Tx, Ty> AddSeries(IChartDataSource<Tx> xs, IChartDataSource<Ty> ys);
+
+    IScatterChartSeries<Tx, Ty> AddSeries(IChartDataSource<Ty> values);
 
     /**
-     * Data for a Scatter Chart
+     * @return list of all series
      */
-    public interface IScatterChartData<Tx,Ty> : IChartData
-    {
-        /**
-         * @param xs data source to be used for X axis values
-         * @param ys data source to be used for Y axis values
-         * @return a new scatter charts series
-         */
-        IScatterChartSeries<Tx, Ty> AddSeries(IChartDataSource<Tx> xs, IChartDataSource<Ty> ys);
-
-        IScatterChartSeries<Tx, Ty> AddSeries(IChartDataSource<Ty> values);
-
-        /**
-         * @return list of all series
-         */
-        List<IScatterChartSeries<Tx,Ty>> GetSeries();
-    }
-
-
+    List<IScatterChartSeries<Tx,Ty>> GetSeries();
 }

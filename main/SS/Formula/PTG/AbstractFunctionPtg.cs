@@ -15,186 +15,185 @@
    limitations Under the License.
 ==================================================================== */
 
-namespace NPOI.SS.Formula.PTG
-{
-    using System;
-    using System.Text;
-    using NPOI.SS.Formula.Functions;
-    using NPOI.Util;
+namespace NPOI.SS.Formula.PTG;
 
+using NPOI.SS.Formula.Functions;
+using NPOI.Util;
+using System;
+using System.Text;
+
+
+/**
+ * This class provides the base functionality for Excel sheet functions
+ * There are two kinds of function Ptgs - tFunc and tFuncVar
+ * Therefore, this class will have ONLY two subclasses
+ * @author  Avik Sengupta
+ * @author Andrew C. Oliver (acoliver at apache dot org)
+ */
+[Serializable]
+public abstract class AbstractFunctionPtg : OperationPtg
+{
 
     /**
-     * This class provides the base functionality for Excel sheet functions
-     * There are two kinds of function Ptgs - tFunc and tFuncVar
-     * Therefore, this class will have ONLY two subclasses
-     * @author  Avik Sengupta
-     * @author Andrew C. Oliver (acoliver at apache dot org)
+     * The name of the IF function (i.e. "IF").  Extracted as a constant for clarity.
      */
-    [Serializable]
-    public abstract class AbstractFunctionPtg : OperationPtg
+    public const string FUNCTION_NAME_IF = "IF";
+    /** All external functions have function index 255 */
+    private const short FUNCTION_INDEX_EXTERNAL = 255;
+
+    protected byte returnClass;
+    protected byte[] paramClass;
+
+    protected int _numberOfArgs;
+    protected short _functionIndex;
+
+    protected AbstractFunctionPtg(int functionIndex, int pReturnClass, byte[] paramTypes, int nParams)
     {
+        _numberOfArgs = nParams;
+        if (functionIndex < short.MinValue || functionIndex > short.MaxValue)
+            throw new RuntimeException("functionIndex " + functionIndex + " cannot be cast to short");
+        _functionIndex = (short)functionIndex;
+        if (pReturnClass < Byte.MinValue || pReturnClass > Byte.MaxValue)
+            throw new RuntimeException("pReturnClass " + pReturnClass + " cannot be cast to byte");
+        returnClass = (byte)pReturnClass;
+        paramClass = paramTypes;
+    }
 
-        /**
-         * The name of the IF function (i.e. "IF").  Extracted as a constant for clarity.
-         */
-        public const string FUNCTION_NAME_IF = "IF";
-        /** All external functions have function index 255 */
-        private const short FUNCTION_INDEX_EXTERNAL = 255;
+    public override bool IsBaseToken
+    {
+        get { return false; }
+    }
 
-        protected byte returnClass;
-        protected byte[] paramClass;
+    public override String ToString()
+    {
+        StringBuilder sb = new StringBuilder(64);
+        sb.Append(GetType().Name).Append(" [");
+        sb.Append(LookupName(_functionIndex));
+        sb.Append(" nArgs=").Append(_numberOfArgs);
+        sb.Append("]");
+        return sb.ToString();
+    }
 
-        protected int _numberOfArgs;
-        protected short _functionIndex;
-
-        protected AbstractFunctionPtg(int functionIndex, int pReturnClass, byte[] paramTypes, int nParams)
+    public short FunctionIndex
+    {
+        get
         {
-            _numberOfArgs = nParams;
-            if (functionIndex < short.MinValue || functionIndex > short.MaxValue)
-                throw new RuntimeException("functionIndex " + functionIndex + " cannot be cast to short");
-            _functionIndex = (short)functionIndex;
-            if (pReturnClass < Byte.MinValue || pReturnClass > Byte.MaxValue)
-                throw new RuntimeException("pReturnClass " + pReturnClass + " cannot be cast to byte");
-            returnClass = (byte)pReturnClass;
-            paramClass = paramTypes;
+            return _functionIndex;
         }
-
-        public override bool IsBaseToken
+    }
+    public override int NumberOfOperands
+    {
+        get
         {
-            get { return false; }
+            return _numberOfArgs;
         }
+    }
 
-        public override String ToString()
+    public String Name
+    {
+        get { return LookupName(_functionIndex); }
+    }
+    /**
+     * external functions Get some special Processing
+     * @return <c>true</c> if this is an external function
+     */
+    public bool IsExternalFunction
+    {
+        get { return _functionIndex == FUNCTION_INDEX_EXTERNAL; }
+    }
+
+    public override String ToFormulaString()
+    {
+        return Name;
+    }
+
+    public override String ToFormulaString(String[] operands)
+    {
+        StringBuilder buf = new StringBuilder();
+
+        if (IsExternalFunction)
         {
-            StringBuilder sb = new StringBuilder(64);
-            sb.Append(GetType().Name).Append(" [");
-            sb.Append(LookupName(_functionIndex));
-            sb.Append(" nArgs=").Append(_numberOfArgs);
-            sb.Append("]");
-            return sb.ToString();
+            buf.Append(operands[0]); // first operand is actually the function name
+            AppendArgs(buf, 1, operands);
         }
-
-        public short FunctionIndex
+        else
         {
-            get
+            buf.Append(Name);
+            AppendArgs(buf, 0, operands);
+        }
+        return buf.ToString();
+    }
+
+    private static void AppendArgs(StringBuilder buf, int firstArgIx, String[] operands)
+    {
+        buf.Append('(');
+        for (int i = firstArgIx; i < operands.Length; i++)
+        {
+            if (i > firstArgIx)
             {
-                return _functionIndex;
+                buf.Append(',');
             }
+            buf.Append(operands[i]);
         }
-        public override int NumberOfOperands
-        {
-            get
-            {
-                return _numberOfArgs;
-            }
-        }
+        buf.Append(")");
+    }
 
-        public String Name
+    /**
+     * Used to detect whether a function name found in a formula is one of the standard excel functions
+     * 
+     * The name matching is case insensitive.
+     * @return <c>true</c> if the name specifies a standard worksheet function,
+     *  <c>false</c> if the name should be assumed to be an external function.
+     */
+    public static bool IsBuiltInFunctionName(String name)
+    {
+        short ix = FunctionMetadataRegistry.LookupIndexByName(name.ToUpper());
+        return ix >= 0;
+    }
+    protected String LookupName(short index)
+    {
+        if (index == FunctionMetadataRegistry.FUNCTION_INDEX_EXTERNAL)
         {
-            get { return LookupName(_functionIndex); }
+            return "#external#";
         }
-        /**
-         * external functions Get some special Processing
-         * @return <c>true</c> if this is an external function
-         */
-        public bool IsExternalFunction
+        FunctionMetadata fm = FunctionMetadataRegistry.GetFunctionByIndex(index);
+        if (fm == null)
         {
-            get { return _functionIndex == FUNCTION_INDEX_EXTERNAL; }
+            throw new Exception("bad function index (" + index + ")");
         }
+        return fm.Name;
+    }
 
-        public override String ToFormulaString()
+    /**
+     * Resolves internal function names into function indexes.
+     * 
+     * The name matching is case insensitive.
+     * @return the standard worksheet function index if found, otherwise <c>FUNCTION_INDEX_EXTERNAL</c>
+     */
+    protected static short LookupIndex(String name)
+    {
+        short ix = FunctionMetadataRegistry.LookupIndexByName(name.ToUpper());
+        if (ix < 0)
         {
-            return Name;
+            return FUNCTION_INDEX_EXTERNAL;
         }
+        return ix;
+    }
 
-        public override String ToFormulaString(String[] operands)
-        {
-            StringBuilder buf = new StringBuilder();
+    public override byte DefaultOperandClass
+    {
+        get { return returnClass; }
+    }
 
-            if (IsExternalFunction)
-            {
-                buf.Append(operands[0]); // first operand is actually the function name
-                AppendArgs(buf, 1, operands);
-            }
-            else
-            {
-                buf.Append(Name);
-                AppendArgs(buf, 0, operands);
-            }
-            return buf.ToString();
-        }
-
-        private static void AppendArgs(StringBuilder buf, int firstArgIx, String[] operands)
+    public byte GetParameterClass(int index)
+    {
+        if (index >= paramClass.Length)
         {
-            buf.Append('(');
-            for (int i = firstArgIx; i < operands.Length; i++)
-            {
-                if (i > firstArgIx)
-                {
-                    buf.Append(',');
-                }
-                buf.Append(operands[i]);
-            }
-            buf.Append(")");
+            // For var-arg (and other?) functions, the metadata does not list all the parameter
+            // operand classes.  In these cases, all extra parameters are assumed to have the 
+            // same operand class as the last one specified.
+            return paramClass[paramClass.Length - 1];
         }
-
-        /**
-         * Used to detect whether a function name found in a formula is one of the standard excel functions
-         * 
-         * The name matching is case insensitive.
-         * @return <c>true</c> if the name specifies a standard worksheet function,
-         *  <c>false</c> if the name should be assumed to be an external function.
-         */
-        public static bool IsBuiltInFunctionName(String name)
-        {
-            short ix = FunctionMetadataRegistry.LookupIndexByName(name.ToUpper());
-            return ix >= 0;
-        }
-        protected String LookupName(short index)
-        {
-            if (index == FunctionMetadataRegistry.FUNCTION_INDEX_EXTERNAL)
-            {
-                return "#external#";
-            }
-            FunctionMetadata fm = FunctionMetadataRegistry.GetFunctionByIndex(index);
-            if (fm == null)
-            {
-                throw new Exception("bad function index (" + index + ")");
-            }
-            return fm.Name;
-        }
-
-        /**
-         * Resolves internal function names into function indexes.
-         * 
-         * The name matching is case insensitive.
-         * @return the standard worksheet function index if found, otherwise <c>FUNCTION_INDEX_EXTERNAL</c>
-         */
-        protected static short LookupIndex(String name)
-        {
-            short ix = FunctionMetadataRegistry.LookupIndexByName(name.ToUpper());
-            if (ix < 0)
-            {
-                return FUNCTION_INDEX_EXTERNAL;
-            }
-            return ix;
-        }
-
-        public override byte DefaultOperandClass
-        {
-            get { return returnClass; }
-        }
-
-        public byte GetParameterClass(int index)
-        {
-            if (index >= paramClass.Length)
-            {
-                // For var-arg (and other?) functions, the metadata does not list all the parameter
-                // operand classes.  In these cases, all extra parameters are assumed to have the 
-                // same operand class as the last one specified.
-                return paramClass[paramClass.Length - 1];
-            }
-            return paramClass[index];
-        }
+        return paramClass[index];
     }
 }

@@ -15,45 +15,43 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.SS.Formula.UDF
+namespace NPOI.SS.Formula.UDF;
+
+
+using NPOI.SS.Formula.Functions;
+using System;
+using System.Collections.Generic;
+
+/**
+ * Default UDF Finder - for Adding your own user defined functions.
+ *
+ * @author PUdalau
+ */
+public class DefaultUDFFinder : UDFFinder
 {
+    private readonly Dictionary<String, FreeRefFunction> _functionsByName;
 
-    using System;
-    using System.Collections.Generic;
-    using NPOI.SS.Formula.Functions;
-
-    /**
-     * Default UDF Finder - for Adding your own user defined functions.
-     *
-     * @author PUdalau
-     */
-    public class DefaultUDFFinder : UDFFinder
+    public DefaultUDFFinder(String[] functionNames, FreeRefFunction[] functionImpls)
     {
-        private readonly Dictionary<String, FreeRefFunction> _functionsByName;
-
-        public DefaultUDFFinder(String[] functionNames, FreeRefFunction[] functionImpls)
+        int nFuncs = functionNames.Length;
+        if (functionImpls.Length != nFuncs)
         {
-            int nFuncs = functionNames.Length;
-            if (functionImpls.Length != nFuncs)
-            {
-                throw new ArgumentException(
-                        "Mismatch in number of function names and implementations");
-            }
-            Dictionary<String, FreeRefFunction> m = new Dictionary<String, FreeRefFunction>(nFuncs * 3 / 2);
-            for (int i = 0; i < functionImpls.Length; i++)
-            {
-                m[functionNames[i].ToUpper()]= functionImpls[i];
-            }
-            _functionsByName = m;
+            throw new ArgumentException(
+                    "Mismatch in number of function names and implementations");
         }
-
-        public override FreeRefFunction FindFunction(String name)
+        Dictionary<String, FreeRefFunction> m = new Dictionary<String, FreeRefFunction>(nFuncs * 3 / 2);
+        for (int i = 0; i < functionImpls.Length; i++)
         {
-            if (!_functionsByName.ContainsKey(name.ToUpper()))
-                return null;
-
-            return _functionsByName[name.ToUpper()];
+            m[functionNames[i].ToUpper()]= functionImpls[i];
         }
+        _functionsByName = m;
     }
 
+    public override FreeRefFunction FindFunction(String name)
+    {
+        if (!_functionsByName.ContainsKey(name.ToUpper()))
+            return null;
+
+        return _functionsByName[name.ToUpper()];
+    }
 }

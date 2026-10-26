@@ -15,47 +15,46 @@
    limitations Under the License.
 ==================================================================== */
 
-namespace NPOI.SS.Formula.PTG
+namespace NPOI.SS.Formula.PTG;
+
+using System;
+using System.Text;
+
+/**
+ *
+ * @author  andy
+ * @author Jason Height (jheight at chariot dot net dot au)
+ */
+public class PowerPtg : ValueOperatorPtg
 {
-    using System;
-    using System.Text;
+    public const byte sid = 0x07;
 
-    /**
-     *
-     * @author  andy
-     * @author Jason Height (jheight at chariot dot net dot au)
-     */
-    public class PowerPtg : ValueOperatorPtg
+    public static ValueOperatorPtg instance = new PowerPtg();
+
+    private PowerPtg()
     {
-        public const byte sid = 0x07;
+        // enforce singleton
+    }
 
-        public static ValueOperatorPtg instance = new PowerPtg();
+    protected override byte Sid
+    {
+        get { return sid; }
+    }
 
-        private PowerPtg()
-        {
-            // enforce singleton
-        }
+    public override int NumberOfOperands
+    {
+        get { return 2; } 
+        // TODO - 2 seems wrong (Jun 2008).  Maybe this method is not relevant
+    }
 
-        protected override byte Sid
-        {
-            get { return sid; }
-        }
-
-        public override int NumberOfOperands
-        {
-            get { return 2; } 
-            // TODO - 2 seems wrong (Jun 2008).  Maybe this method is not relevant
-        }
-
-        public override String ToFormulaString(String[] operands)
-        {
-            StringBuilder buffer = new StringBuilder();
+    public override String ToFormulaString(String[] operands)
+    {
+        StringBuilder buffer = new StringBuilder();
 
 
-            buffer.Append(operands[0]);
-            buffer.Append("^");
-            buffer.Append(operands[1]);
-            return buffer.ToString();
-        }
+        buffer.Append(operands[0]);
+        buffer.Append("^");
+        buffer.Append(operands[1]);
+        return buffer.ToString();
     }
 }

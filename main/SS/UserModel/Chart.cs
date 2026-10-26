@@ -1,48 +1,47 @@
-﻿using System.Collections.Generic;
-using NPOI.SS.UserModel.Charts;
+﻿using NPOI.SS.UserModel.Charts;
+using System.Collections.Generic;
 
-namespace NPOI.SS.UserModel
+namespace NPOI.SS.UserModel;
+
+/**
+ * High level representation of a chart.
+ *
+ * @author Roman Kashitsyn
+ */
+public interface IChart : ManuallyPositionable
 {
+
     /**
-     * High level representation of a chart.
-     *
-     * @author Roman Kashitsyn
+     * @return an appropriate ChartDataFactory implementation
      */
-    public interface IChart : ManuallyPositionable
-    {
+    IChartDataFactory ChartDataFactory { get; }
 
-        /**
-         * @return an appropriate ChartDataFactory implementation
-         */
-        IChartDataFactory ChartDataFactory { get; }
+    /**
+     * @return an appropriate ChartAxisFactory implementation
+     */
+    IChartAxisFactory ChartAxisFactory { get; }
 
-        /**
-         * @return an appropriate ChartAxisFactory implementation
-         */
-        IChartAxisFactory ChartAxisFactory { get; }
+    /**
+     * @return chart legend instance
+     */
+    IChartLegend GetOrCreateLegend();
 
-        /**
-         * @return chart legend instance
-         */
-        IChartLegend GetOrCreateLegend();
+    /**
+     * Delete current chart legend.
+     */
+    void DeleteLegend();
 
-        /**
-         * Delete current chart legend.
-         */
-        void DeleteLegend();
+    /**
+     * @return list of all chart axis
+     */
+    List<IChartAxis> GetAxis();
 
-        /**
-         * @return list of all chart axis
-         */
-        List<IChartAxis> GetAxis();
+    /**
+     * Plots specified data on the chart.
+     *
+     * @param data a data to plot
+     */
+    void Plot(IChartData data, params IChartAxis[] axis);
 
-        /**
-         * Plots specified data on the chart.
-         *
-         * @param data a data to plot
-         */
-        void Plot(IChartData data, params IChartAxis[] axis);
-
-        void SetTitle(string newTitle);
-    }
+    void SetTitle(string newTitle);
 }

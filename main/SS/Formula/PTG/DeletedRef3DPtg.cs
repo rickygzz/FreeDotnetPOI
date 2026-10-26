@@ -15,62 +15,58 @@
    limitations Under the License.
 ==================================================================== */
 
-namespace NPOI.SS.Formula.PTG
+namespace NPOI.SS.Formula.PTG;
+
+using NPOI.SS.Formula;
+using NPOI.SS.UserModel;
+using NPOI.Util;
+using System;
+
+/**
+ * Title:        Deleted Reference 3D Ptg 
+ * Description:  Defined a cell in extern sheet. 
+ * REFERENCE:  
+ * @author Patrick Luby
+ * @version 1.0-pre
+ */
+public class DeletedRef3DPtg : OperandPtg, WorkbookDependentFormula
 {
-    using System;
-    using NPOI.SS.Formula;
-    using NPOI.Util;
-    
+    public const byte sid = 0x3c;
+    private int field_1_index_extern_sheet;
+    private int unused1;
 
-    using NPOI.HSSF.UserModel;
-    using NPOI.SS.UserModel;
-
-    /**
-     * Title:        Deleted Reference 3D Ptg 
-     * Description:  Defined a cell in extern sheet. 
-     * REFERENCE:  
-     * @author Patrick Luby
-     * @version 1.0-pre
-     */
-    public class DeletedRef3DPtg : OperandPtg, WorkbookDependentFormula
+    /** Creates new DeletedRef3DPtg */
+    public DeletedRef3DPtg(ILittleEndianInput in1)
     {
-        public const byte sid = 0x3c;
-        private int field_1_index_extern_sheet;
-        private int unused1;
-
-        /** Creates new DeletedRef3DPtg */
-        public DeletedRef3DPtg(ILittleEndianInput in1)
-        {
-            field_1_index_extern_sheet = in1.ReadUShort();
-            unused1 = in1.ReadInt();
-        }
-        public DeletedRef3DPtg(int externSheetIndex)
-        {
-            field_1_index_extern_sheet = externSheetIndex;
-            unused1 = 0;
-        }
-        public String ToFormulaString(IFormulaRenderingWorkbook book)
-        {
-            return ExternSheetNameResolver.PrependSheetName(book, field_1_index_extern_sheet,
-                FormulaError.REF.String);
-        }
-        public override String ToFormulaString()
-        {
-            throw new Exception("3D references need a workbook to determine formula text");
-        }
-        public override byte DefaultOperandClass
-        {
-            get { return Ptg.CLASS_REF; }
-        }
-        public override int Size
-        {
-            get { return 7; }
-        }
-        public override void Write(ILittleEndianOutput out1)
-        {
-            out1.WriteByte(sid + PtgClass);
-            out1.WriteShort(field_1_index_extern_sheet);
-            out1.WriteInt(unused1);
-        }
+        field_1_index_extern_sheet = in1.ReadUShort();
+        unused1 = in1.ReadInt();
+    }
+    public DeletedRef3DPtg(int externSheetIndex)
+    {
+        field_1_index_extern_sheet = externSheetIndex;
+        unused1 = 0;
+    }
+    public String ToFormulaString(IFormulaRenderingWorkbook book)
+    {
+        return ExternSheetNameResolver.PrependSheetName(book, field_1_index_extern_sheet,
+            FormulaError.REF.String);
+    }
+    public override String ToFormulaString()
+    {
+        throw new Exception("3D references need a workbook to determine formula text");
+    }
+    public override byte DefaultOperandClass
+    {
+        get { return Ptg.CLASS_REF; }
+    }
+    public override int Size
+    {
+        get { return 7; }
+    }
+    public override void Write(ILittleEndianOutput out1)
+    {
+        out1.WriteByte(sid + PtgClass);
+        out1.WriteShort(field_1_index_extern_sheet);
+        out1.WriteInt(unused1);
     }
 }

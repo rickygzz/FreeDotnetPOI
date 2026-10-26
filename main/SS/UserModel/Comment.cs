@@ -15,69 +15,68 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.SS.UserModel
+namespace NPOI.SS.UserModel;
+
+using NPOI.SS.Util;
+using System;
+public interface IComment
 {
-    using NPOI.SS.Util;
-    using System;
-    public interface IComment
-    {
-        /**
-         * Sets whether this comment is visible.
-         *
-         * @return <c>true</c> if the comment is visible, <c>false</c> otherwise
-         */
-        bool Visible { get; set; }
+    /**
+     * Sets whether this comment is visible.
+     *
+     * @return <c>true</c> if the comment is visible, <c>false</c> otherwise
+     */
+    bool Visible { get; set; }
 
-        /// <summary>
-        /// Get or set the address of the cell that this comment is attached to
-        /// </summary>
-        CellAddress Address { get; set; }
+    /// <summary>
+    /// Get or set the address of the cell that this comment is attached to
+    /// </summary>
+    CellAddress Address { get; set; }
 
-        /**
-         * Set the address of the cell that this comment is attached to
-         *
-         * @param row
-         * @param col
-         */
-        void SetAddress(int row, int col);
+    /**
+     * Set the address of the cell that this comment is attached to
+     *
+     * @param row
+     * @param col
+     */
+    void SetAddress(int row, int col);
 
-        /**
-         * Return the row of the cell that Contains the comment
-         *
-         * @return the 0-based row of the cell that Contains the comment
-         */
-        int Row { get; set; }
+    /**
+     * Return the row of the cell that Contains the comment
+     *
+     * @return the 0-based row of the cell that Contains the comment
+     */
+    int Row { get; set; }
 
 
-        /**
-         * Return the column of the cell that Contains the comment
-         *
-         * @return the 0-based column of the cell that Contains the comment
-         */
-        int Column { get; set; }
+    /**
+     * Return the column of the cell that Contains the comment
+     *
+     * @return the 0-based column of the cell that Contains the comment
+     */
+    int Column { get; set; }
 
 
-        /**
-         * Name of the original comment author
-         *
-         * @return the name of the original author of the comment
-         */
-        String Author { get; set; }
+    /**
+     * Name of the original comment author
+     *
+     * @return the name of the original author of the comment
+     */
+    String Author { get; set; }
 
-        /**
-         * Fetches the rich text string of the comment
-         */
-        IRichTextString String { get; set; }
+    /**
+     * Fetches the rich text string of the comment
+     */
+    IRichTextString String { get; set; }
 
-        /**
-         * Return defines position of this anchor in the sheet.
-         *
-         * The anchor is the yellow box/balloon that is rendered on top of the sheets
-         * when the comment is visible.
-         * 
-         * To associate a comment with a different cell, use {@link #setAddress}.
-         * @return defines position of this anchor in the sheet
-         */
-        IClientAnchor ClientAnchor { get; }
-    }
+    /**
+     * Return defines position of this anchor in the sheet.
+     *
+     * The anchor is the yellow box/balloon that is rendered on top of the sheets
+     * when the comment is visible.
+     * 
+     * To associate a comment with a different cell, use {@link #setAddress}.
+     * @return defines position of this anchor in the sheet
+     */
+    IClientAnchor ClientAnchor { get; }
 }

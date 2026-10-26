@@ -15,35 +15,32 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.SS.UserModel.Charts
+namespace NPOI.SS.UserModel.Charts;
+
+/// <summary>
+/// High level representation of chart legend.
+/// </summary>
+/// <remarks>@author Roman Kashitsyn</remarks>
+public interface IChartLegend : ManuallyPositionable
 {
     /// <summary>
-    /// High level representation of chart legend.
+    /// legend position
     /// </summary>
-    /// <remarks>@author Roman Kashitsyn</remarks>
-    public interface IChartLegend : ManuallyPositionable
+    /// <returns></returns>
+    LegendPosition Position
     {
-        /// <summary>
-        /// legend position
-        /// </summary>
-        /// <returns></returns>
-        LegendPosition Position
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// If true the legend is positioned over the chart area otherwise
-        /// the legend is displayed next to it.
-        /// Default is no overlay.
-        /// </summary>
-        bool IsOverlay
-        {
-            get;
-            set;
-        }
+        get;
+        set;
     }
 
-
+    /// <summary>
+    /// If true the legend is positioned over the chart area otherwise
+    /// the legend is displayed next to it.
+    /// Default is no overlay.
+    /// </summary>
+    bool IsOverlay
+    {
+        get;
+        set;
+    }
 }

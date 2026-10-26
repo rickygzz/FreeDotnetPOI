@@ -15,63 +15,61 @@
    limitations Under the License.
 ==================================================================== */
 
-namespace NPOI.SS.Formula.PTG
+namespace NPOI.SS.Formula.PTG;
+
+using NPOI.Util;
+using System;
+using System.Text;
+
+/**
+ * @author Glen Stampoultzis (glens at apache.org)
+ */
+public class UnionPtg : OperationPtg
 {
-    using System;
-    using System.Text;
-    
-    using NPOI.Util;
+    public const byte sid = 0x10;
 
-    /**
-     * @author Glen Stampoultzis (glens at apache.org)
-     */
-    public class UnionPtg : OperationPtg
+    public static OperationPtg instance = new UnionPtg();
+
+    private UnionPtg()
     {
-        public const byte sid = 0x10;
-
-        public static OperationPtg instance = new UnionPtg();
-
-        private UnionPtg()
-        {
-            // enforce singleton
-        }
-
-        public override bool IsBaseToken
-        {
-            get { return true; }
-        }
-
-        public override int Size
-        {
-            get { return 1; }
-        }
-
-        public override void Write(ILittleEndianOutput out1)
-        {
-            out1.WriteByte(sid + PtgClass);
-        }
-
-        public override String ToFormulaString()
-        {
-            return ",";
-        }
-
-
-        /** implementation of method from OperationsPtg*/
-        public override String ToFormulaString(String[] operands)
-        {
-            StringBuilder buffer = new StringBuilder();
-
-            buffer.Append(operands[0]);
-            buffer.Append(",");
-            buffer.Append(operands[1]);
-            return buffer.ToString();
-        }
-
-        public override int NumberOfOperands
-        {
-            get { return 2; }
-        }
-
+        // enforce singleton
     }
+
+    public override bool IsBaseToken
+    {
+        get { return true; }
+    }
+
+    public override int Size
+    {
+        get { return 1; }
+    }
+
+    public override void Write(ILittleEndianOutput out1)
+    {
+        out1.WriteByte(sid + PtgClass);
+    }
+
+    public override String ToFormulaString()
+    {
+        return ",";
+    }
+
+
+    /** implementation of method from OperationsPtg*/
+    public override String ToFormulaString(String[] operands)
+    {
+        StringBuilder buffer = new StringBuilder();
+
+        buffer.Append(operands[0]);
+        buffer.Append(",");
+        buffer.Append(operands[1]);
+        return buffer.ToString();
+    }
+
+    public override int NumberOfOperands
+    {
+        get { return 2; }
+    }
+
 }

@@ -15,23 +15,18 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.SS.Formula
+namespace NPOI.SS.Formula;
+/**
+ * Provides access to a {@link WorkbookEvaluator}, eg for use with
+ *  {@link CollaboratingWorkbooksEnvironment}
+ * 
+ * For POI internal use only
+ */
+
+public interface IWorkbookEvaluatorProvider
 {
-    using System;
-
     /**
-     * Provides access to a {@link WorkbookEvaluator}, eg for use with
-     *  {@link CollaboratingWorkbooksEnvironment}
-     * 
-     * For POI internal use only
+     * Provide the underlying WorkbookEvaluator
      */
-
-    public interface IWorkbookEvaluatorProvider
-    {
-        /**
-         * Provide the underlying WorkbookEvaluator
-         */
-        WorkbookEvaluator GetWorkbookEvaluator();
-    }
-
+    WorkbookEvaluator GetWorkbookEvaluator();
 }

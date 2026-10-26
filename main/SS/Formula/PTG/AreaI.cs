@@ -14,37 +14,37 @@
    See the License for the specific language governing permissions and
    limitations Under the License.
 ==================================================================== */
-namespace NPOI.SS.Formula.PTG
+namespace NPOI.SS.Formula.PTG;
+
+using System;
+/**
+ * Common interface for AreaPtg and Area3DPtg, and their
+ *  child classes.
+ */
+public interface AreaI
 {
-    using System;
     /**
-     * Common interface for AreaPtg and Area3DPtg, and their
-     *  child classes.
+     * @return the first row in the area
      */
-    public interface AreaI
-    {
-        /**
-         * @return the first row in the area
-         */
-        int FirstRow{get;}
+    int FirstRow{get;}
 
-        /**
-         * @return last row in the range (x2 in x1,y1-x2,y2)
-         */
-        int LastRow { get; }
+    /**
+     * @return last row in the range (x2 in x1,y1-x2,y2)
+     */
+    int LastRow { get; }
 
-        /**
-         * @return the first column number in the area.
-         */
-        int FirstColumn{get;}
+    /**
+     * @return the first column number in the area.
+     */
+    int FirstColumn{get;}
 
-        /**
-         * @return lastcolumn in the area
-         */
-        int LastColumn{get;}
-    }
+    /**
+     * @return lastcolumn in the area
+     */
+    int LastColumn{get;}
+}
 
-    	public class OffsetArea: AreaI {
+	public class OffsetArea: AreaI {
 
 		private readonly int _firstColumn;
 		private readonly int _firstRow;
@@ -60,35 +60,34 @@ namespace NPOI.SS.Formula.PTG
 		}
 
 		public int FirstColumn 
+    {
+        get
         {
-            get
-            {
-                return _firstColumn;
-            }
+            return _firstColumn;
+        }
 		}
 
 		public int FirstRow
+    {
+        get
         {
-            get
-            {
-                return _firstRow;
-            }
+            return _firstRow;
+        }
 		}
 
 		public int LastColumn
+    {
+        get
         {
-            get
-            {
-                return _lastColumn;
-            }
+            return _lastColumn;
+        }
 		}
 
 		public int LastRow
+    {
+        get
         {
-            get
-            {
-                return _lastRow;
-            }
+            return _lastRow;
+        }
 		}
 	}
-}

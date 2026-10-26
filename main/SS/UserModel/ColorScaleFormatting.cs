@@ -17,42 +17,35 @@
  * ====================================================================
  */
 
-namespace NPOI.SS.UserModel
-{
-    using System;
+namespace NPOI.SS.UserModel;
+/**
+ * High level representation for the Color Scale / Colour Scale /
+ *  Color Gradient Formatting component of Conditional Formatting Settings
+ */
+public interface IColorScaleFormatting {
+    
+    /**
+    * get or sets the number of control points to use to map
+    *  the colours. Should normally be 2 or 3.
+    * <p>After updating, you need to ensure that the
+    *  {@link Threshold} count and Color count match
+    */
+    int NumControlPoints { get; set; }
 
-    using NPOI.HSSF.Record.CF;
+
 
     /**
-     * High level representation for the Color Scale / Colour Scale /
-     *  Color Gradient Formatting component of Conditional Formatting Settings
+     * get or sets the list of colours that are interpolated
+     *  between.The number must match {@link #getNumControlPoints()}
      */
-    public interface IColorScaleFormatting {
-        
-        /**
-        * get or sets the number of control points to use to map
-        *  the colours. Should normally be 2 or 3.
-        * <p>After updating, you need to ensure that the
-        *  {@link Threshold} count and Color count match
-        */
-        int NumControlPoints { get; set; }
+    IColor[] Colors { get; set; }
+    /**
+     * Gets the list of thresholds
+     */
+    IConditionalFormattingThreshold[] Thresholds { get; set; }
 
-
-
-        /**
-         * get or sets the list of colours that are interpolated
-         *  between.The number must match {@link #getNumControlPoints()}
-         */
-        IColor[] Colors { get; set; }
-        /**
-         * Gets the list of thresholds
-         */
-        IConditionalFormattingThreshold[] Thresholds { get; set; }
-
-        /**
-         * Creates a new, empty Threshold
-         */
-        IConditionalFormattingThreshold CreateThreshold();
-    }
-
+    /**
+     * Creates a new, empty Threshold
+     */
+    IConditionalFormattingThreshold CreateThreshold();
 }

@@ -15,65 +15,64 @@
    limitations Under the License.
 ==================================================================== */
 
-namespace NPOI.SS.Formula.PTG
+namespace NPOI.SS.Formula.PTG;
+
+using NPOI.Util;
+using System;
+
+
+
+/**
+ * @author Glen Stampoultzis (glens at apache.org)
+ */
+public class MemFuncPtg : OperandPtg
 {
-    using System;
-    using NPOI.Util;
-    
 
+    public const byte sid = 0x29;
+    private int field_1_len_ref_subexpression;
 
-    /**
-     * @author Glen Stampoultzis (glens at apache.org)
+    /**Creates new function pointer from a byte array
+     * usually called while Reading an excel file.
      */
-    public class MemFuncPtg : OperandPtg
+    public MemFuncPtg(ILittleEndianInput in1)
+        : this(in1.ReadUShort())
     {
 
-        public const byte sid = 0x29;
-        private int field_1_len_ref_subexpression;
+    }
 
-        /**Creates new function pointer from a byte array
-         * usually called while Reading an excel file.
-         */
-        public MemFuncPtg(ILittleEndianInput in1)
-            : this(in1.ReadUShort())
-        {
+    public MemFuncPtg(int subExprLen)
+    {
+        field_1_len_ref_subexpression = subExprLen;
+    }
 
-        }
+    public override int Size
+    {
+        get { return 3; }
+    }
 
-        public MemFuncPtg(int subExprLen)
-        {
-            field_1_len_ref_subexpression = subExprLen;
-        }
+    public override void Write(ILittleEndianOutput out1)
+    {
+        out1.WriteByte(sid + PtgClass);
+        out1.WriteShort(field_1_len_ref_subexpression);
+    }
 
-        public override int Size
-        {
-            get { return 3; }
-        }
+    public override String ToFormulaString()
+    {
+        return "";
+    }
 
-        public override void Write(ILittleEndianOutput out1)
-        {
-            out1.WriteByte(sid + PtgClass);
-            out1.WriteShort(field_1_len_ref_subexpression);
-        }
+    public override byte DefaultOperandClass
+    {
+        get { return Ptg.CLASS_REF; }
+    }
 
-        public override String ToFormulaString()
-        {
-            return "";
-        }
+    public int NumberOfOperands
+    {
+        get { return field_1_len_ref_subexpression; }
+    }
 
-        public override byte DefaultOperandClass
-        {
-            get { return Ptg.CLASS_REF; }
-        }
-
-        public int NumberOfOperands
-        {
-            get { return field_1_len_ref_subexpression; }
-        }
-
-        public int LenRefSubexpression
-        {
-            get { return field_1_len_ref_subexpression; }
-        }
+    public int LenRefSubexpression
+    {
+        get { return field_1_len_ref_subexpression; }
     }
 }

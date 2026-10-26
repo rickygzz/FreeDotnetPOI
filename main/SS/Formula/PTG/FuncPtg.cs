@@ -15,50 +15,47 @@
    limitations Under the License.
 ==================================================================== */
 
-namespace NPOI.SS.Formula.PTG
+namespace NPOI.SS.Formula.PTG;
+
+using NPOI.SS.Formula.Functions;
+using NPOI.Util;
+using System;
+
+
+/**
+ * @author aviks
+ * @author Jason Height (jheight at chariot dot net dot au)
+ * @author Danny Mui (dmui at apache dot org) (Leftover handling)
+ */
+[Serializable]
+public class FuncPtg : AbstractFunctionPtg
 {
-    using System;
-    using System.Text;
-    using NPOI.Util;
-    using NPOI.HSSF.Record;
-    using NPOI.SS.Formula.Functions;
 
+    public const byte sid = 0x21;
+    public const int SIZE = 3;
+    // not used: private int numParams = 0;
+public static FuncPtg Create(ILittleEndianInput in1) {
+    return Create(in1.ReadUShort());
+}
+private FuncPtg(int funcIndex, FunctionMetadata fm):
+    base(funcIndex, fm.ReturnClassCode, fm.ParameterClassCodes, fm.MinParams)  // minParams same as max since these are not var-arg funcs {
+{
+}
+public static FuncPtg Create(int functionIndex) {
+    FunctionMetadata fm = FunctionMetadataRegistry.GetFunctionByIndex(functionIndex);
+    if(fm == null) {
+        throw new Exception("Invalid built-in function index (" + functionIndex + ")");
+    }
+    return new FuncPtg(functionIndex, fm);
+}
 
-    /**
-     * @author aviks
-     * @author Jason Height (jheight at chariot dot net dot au)
-     * @author Danny Mui (dmui at apache dot org) (Leftover handling)
-     */
-    [Serializable]
-    public class FuncPtg : AbstractFunctionPtg
+    public override void Write(ILittleEndianOutput out1)
     {
-
-        public const byte sid = 0x21;
-        public const int SIZE = 3;
-        // not used: private int numParams = 0;
-    public static FuncPtg Create(ILittleEndianInput in1) {
-        return Create(in1.ReadUShort());
+        out1.WriteByte(sid + PtgClass);
+        out1.WriteShort(_functionIndex);
     }
-    private FuncPtg(int funcIndex, FunctionMetadata fm):
-        base(funcIndex, fm.ReturnClassCode, fm.ParameterClassCodes, fm.MinParams)  // minParams same as max since these are not var-arg funcs {
+    public override int Size
     {
-    }
-    public static FuncPtg Create(int functionIndex) {
-        FunctionMetadata fm = FunctionMetadataRegistry.GetFunctionByIndex(functionIndex);
-        if(fm == null) {
-            throw new Exception("Invalid built-in function index (" + functionIndex + ")");
-        }
-        return new FuncPtg(functionIndex, fm);
-    }
-
-        public override void Write(ILittleEndianOutput out1)
-        {
-            out1.WriteByte(sid + PtgClass);
-            out1.WriteShort(_functionIndex);
-        }
-        public override int Size
-        {
-            get { return SIZE; }
-        }
+        get { return SIZE; }
     }
 }

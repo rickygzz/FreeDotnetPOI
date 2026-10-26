@@ -17,226 +17,225 @@
 
 using System.Collections.Generic;
 
-namespace NPOI.SS.Formula
+namespace NPOI.SS.Formula;
+
+
+using NPOI.SS.Util;
+using System;
+using System.Collections;
+using System.Text;
+
+public class BookSheetKey
 {
 
-    using System;
-    using System.Text;
-    using System.Collections;
-    using NPOI.SS.Util;
+    private readonly int _bookIndex;
+    private readonly int _sheetIndex;
 
-    public class BookSheetKey
+    public BookSheetKey(int bookIndex, int sheetIndex)
     {
-
-        private readonly int _bookIndex;
-        private readonly int _sheetIndex;
-
-        public BookSheetKey(int bookIndex, int sheetIndex)
-        {
-            _bookIndex = bookIndex;
-            _sheetIndex = sheetIndex;
-        }
-        public override int GetHashCode()
-        {
-            return _bookIndex * 17 + _sheetIndex;
-        }
-        public override bool Equals(Object obj)
-        {
-            BookSheetKey other = (BookSheetKey)obj;
-            return _bookIndex == other._bookIndex && _sheetIndex == other._sheetIndex;
-        }
+        _bookIndex = bookIndex;
+        _sheetIndex = sheetIndex;
     }
-    /**
-     * Optimisation - compacts many blank cell references used by a single formula. 
-     * 
-     * @author Josh Micich
-     */
-    public class FormulaUsedBlankCellSet
+    public override int GetHashCode()
     {
+        return _bookIndex * 17 + _sheetIndex;
+    }
+    public override bool Equals(Object obj)
+    {
+        BookSheetKey other = (BookSheetKey)obj;
+        return _bookIndex == other._bookIndex && _sheetIndex == other._sheetIndex;
+    }
+}
+/**
+ * Optimisation - compacts many blank cell references used by a single formula. 
+ * 
+ * @author Josh Micich
+ */
+public class FormulaUsedBlankCellSet
+{
 
 
-        private  class BlankCellSheetGroup
+    private  class BlankCellSheetGroup
+    {
+        private readonly List<BlankCellRectangleGroup> _rectangleGroups;
+        private int _currentRowIndex;
+        private int _firstColumnIndex;
+        private int _lastColumnIndex;
+        private BlankCellRectangleGroup _currentRectangleGroup;
+
+        public BlankCellSheetGroup()
         {
-            private readonly List<BlankCellRectangleGroup> _rectangleGroups;
-            private int _currentRowIndex;
-            private int _firstColumnIndex;
-            private int _lastColumnIndex;
-            private BlankCellRectangleGroup _currentRectangleGroup;
+            _rectangleGroups = [];
+            _currentRowIndex = -1;
+        }
 
-            public BlankCellSheetGroup()
+        public void AddCell(int rowIndex, int columnIndex)
+        {
+            if (_currentRowIndex == -1)
             {
-                _rectangleGroups = [];
-                _currentRowIndex = -1;
+                _currentRowIndex = rowIndex;
+                _firstColumnIndex = columnIndex;
+                _lastColumnIndex = columnIndex;
             }
-
-            public void AddCell(int rowIndex, int columnIndex)
+            else
             {
-                if (_currentRowIndex == -1)
+                if (_currentRowIndex == rowIndex && _lastColumnIndex + 1 == columnIndex)
                 {
-                    _currentRowIndex = rowIndex;
-                    _firstColumnIndex = columnIndex;
                     _lastColumnIndex = columnIndex;
                 }
                 else
                 {
-                    if (_currentRowIndex == rowIndex && _lastColumnIndex + 1 == columnIndex)
+                    // cell does not fit on end of current row
+                    if (_currentRectangleGroup == null)
                     {
-                        _lastColumnIndex = columnIndex;
+                        _currentRectangleGroup = new BlankCellRectangleGroup(_currentRowIndex, _firstColumnIndex, _lastColumnIndex);
                     }
                     else
                     {
-                        // cell does not fit on end of current row
-                        if (_currentRectangleGroup == null)
+                        if (!_currentRectangleGroup.AcceptRow(_currentRowIndex, _firstColumnIndex, _lastColumnIndex))
                         {
+                            _rectangleGroups.Add(_currentRectangleGroup);
                             _currentRectangleGroup = new BlankCellRectangleGroup(_currentRowIndex, _firstColumnIndex, _lastColumnIndex);
                         }
-                        else
-                        {
-                            if (!_currentRectangleGroup.AcceptRow(_currentRowIndex, _firstColumnIndex, _lastColumnIndex))
-                            {
-                                _rectangleGroups.Add(_currentRectangleGroup);
-                                _currentRectangleGroup = new BlankCellRectangleGroup(_currentRowIndex, _firstColumnIndex, _lastColumnIndex);
-                            }
-                        }
-                        _currentRowIndex = rowIndex;
-                        _firstColumnIndex = columnIndex;
-                        _lastColumnIndex = columnIndex;
                     }
+                    _currentRowIndex = rowIndex;
+                    _firstColumnIndex = columnIndex;
+                    _lastColumnIndex = columnIndex;
                 }
             }
+        }
 
-            public bool ContainsCell(int rowIndex, int columnIndex)
+        public bool ContainsCell(int rowIndex, int columnIndex)
+        {
+            for (int i = _rectangleGroups.Count - 1; i >= 0; i--)
             {
-                for (int i = _rectangleGroups.Count - 1; i >= 0; i--)
-                {
-                    BlankCellRectangleGroup bcrg = (BlankCellRectangleGroup)_rectangleGroups[i];
-                    if (bcrg.ContainsCell(rowIndex, columnIndex))
-                    {
-                        return true;
-                    }
-                }
-                if (_currentRectangleGroup != null && _currentRectangleGroup.ContainsCell(rowIndex, columnIndex))
+                BlankCellRectangleGroup bcrg = (BlankCellRectangleGroup)_rectangleGroups[i];
+                if (bcrg.ContainsCell(rowIndex, columnIndex))
                 {
                     return true;
                 }
-                if (_currentRowIndex != -1 && _currentRowIndex == rowIndex)
-                {
-                    if (_firstColumnIndex <= columnIndex && columnIndex <= _lastColumnIndex)
-                    {
-                        return true;
-                    }
-                }
-                return false;
             }
-
-        }
-
-        private sealed class BlankCellRectangleGroup
-        {
-
-            private readonly int _firstRowIndex;
-            private readonly int _firstColumnIndex;
-            private readonly int _lastColumnIndex;
-            private int _lastRowIndex;
-
-            public BlankCellRectangleGroup(int firstRowIndex, int firstColumnIndex, int lastColumnIndex)
+            if (_currentRectangleGroup != null && _currentRectangleGroup.ContainsCell(rowIndex, columnIndex))
             {
-                _firstRowIndex = firstRowIndex;
-                _firstColumnIndex = firstColumnIndex;
-                _lastColumnIndex = lastColumnIndex;
-                _lastRowIndex = firstRowIndex;
-            }
-
-            public bool ContainsCell(int rowIndex, int columnIndex)
-            {
-                if (columnIndex < _firstColumnIndex)
-                {
-                    return false;
-                }
-                if (columnIndex > _lastColumnIndex)
-                {
-                    return false;
-                }
-                if (rowIndex < _firstRowIndex)
-                {
-                    return false;
-                }
-                if (rowIndex > _lastRowIndex)
-                {
-                    return false;
-                }
                 return true;
             }
-
-            public bool AcceptRow(int rowIndex, int firstColumnIndex, int lastColumnIndex)
+            if (_currentRowIndex != -1 && _currentRowIndex == rowIndex)
             {
-                if (firstColumnIndex != _firstColumnIndex)
+                if (_firstColumnIndex <= columnIndex && columnIndex <= _lastColumnIndex)
                 {
-                    return false;
+                    return true;
                 }
-                if (lastColumnIndex != _lastColumnIndex)
-                {
-                    return false;
-                }
-                if (rowIndex != _lastRowIndex + 1)
-                {
-                    return false;
-                }
-                _lastRowIndex = rowIndex;
-                return true;
             }
-            public override String ToString()
-            {
-                StringBuilder sb = new StringBuilder(64);
-                CellReference crA = new CellReference(_firstRowIndex, _firstColumnIndex, false, false);
-                CellReference crB = new CellReference(_lastRowIndex, _lastColumnIndex, false, false);
-                sb.Append(GetType().Name);
-                sb.Append(" [").Append(crA.FormatAsString()).Append(':').Append(crB.FormatAsString()).Append("]");
-                return sb.ToString();
-            }
+            return false;
         }
 
-        private readonly Hashtable _sheetGroupsByBookSheet;
+    }
 
-        public FormulaUsedBlankCellSet()
+    private sealed class BlankCellRectangleGroup
+    {
+
+        private readonly int _firstRowIndex;
+        private readonly int _firstColumnIndex;
+        private readonly int _lastColumnIndex;
+        private int _lastRowIndex;
+
+        public BlankCellRectangleGroup(int firstRowIndex, int firstColumnIndex, int lastColumnIndex)
         {
-            _sheetGroupsByBookSheet = new Hashtable();
+            _firstRowIndex = firstRowIndex;
+            _firstColumnIndex = firstColumnIndex;
+            _lastColumnIndex = lastColumnIndex;
+            _lastRowIndex = firstRowIndex;
         }
 
-        public void AddCell(int bookIndex, int sheetIndex, int rowIndex, int columnIndex)
+        public bool ContainsCell(int rowIndex, int columnIndex)
         {
-            BlankCellSheetGroup sbcg = GetSheetGroup(bookIndex, sheetIndex);
-            sbcg.AddCell(rowIndex, columnIndex);
-        }
-
-        private BlankCellSheetGroup GetSheetGroup(int bookIndex, int sheetIndex)
-        {
-            BookSheetKey key = new BookSheetKey(bookIndex, sheetIndex);
-
-            BlankCellSheetGroup result = (BlankCellSheetGroup)_sheetGroupsByBookSheet[key];
-            if (result == null)
-            {
-                result = new BlankCellSheetGroup();
-                _sheetGroupsByBookSheet[key]= result;
-            }
-            return result;
-        }
-
-        public bool ContainsCell(BookSheetKey key, int rowIndex, int columnIndex)
-        {
-            BlankCellSheetGroup bcsg = (BlankCellSheetGroup)_sheetGroupsByBookSheet[key];
-            if (bcsg == null)
+            if (columnIndex < _firstColumnIndex)
             {
                 return false;
             }
-            return bcsg.ContainsCell(rowIndex, columnIndex);
-        }
-        public bool IsEmpty
-        {
-            get
+            if (columnIndex > _lastColumnIndex)
             {
-                return _sheetGroupsByBookSheet.Count == 0;
+                return false;
             }
+            if (rowIndex < _firstRowIndex)
+            {
+                return false;
+            }
+            if (rowIndex > _lastRowIndex)
+            {
+                return false;
+            }
+            return true;
+        }
+
+        public bool AcceptRow(int rowIndex, int firstColumnIndex, int lastColumnIndex)
+        {
+            if (firstColumnIndex != _firstColumnIndex)
+            {
+                return false;
+            }
+            if (lastColumnIndex != _lastColumnIndex)
+            {
+                return false;
+            }
+            if (rowIndex != _lastRowIndex + 1)
+            {
+                return false;
+            }
+            _lastRowIndex = rowIndex;
+            return true;
+        }
+        public override String ToString()
+        {
+            StringBuilder sb = new StringBuilder(64);
+            CellReference crA = new CellReference(_firstRowIndex, _firstColumnIndex, false, false);
+            CellReference crB = new CellReference(_lastRowIndex, _lastColumnIndex, false, false);
+            sb.Append(GetType().Name);
+            sb.Append(" [").Append(crA.FormatAsString()).Append(':').Append(crB.FormatAsString()).Append("]");
+            return sb.ToString();
+        }
+    }
+
+    private readonly Hashtable _sheetGroupsByBookSheet;
+
+    public FormulaUsedBlankCellSet()
+    {
+        _sheetGroupsByBookSheet = new Hashtable();
+    }
+
+    public void AddCell(int bookIndex, int sheetIndex, int rowIndex, int columnIndex)
+    {
+        BlankCellSheetGroup sbcg = GetSheetGroup(bookIndex, sheetIndex);
+        sbcg.AddCell(rowIndex, columnIndex);
+    }
+
+    private BlankCellSheetGroup GetSheetGroup(int bookIndex, int sheetIndex)
+    {
+        BookSheetKey key = new BookSheetKey(bookIndex, sheetIndex);
+
+        BlankCellSheetGroup result = (BlankCellSheetGroup)_sheetGroupsByBookSheet[key];
+        if (result == null)
+        {
+            result = new BlankCellSheetGroup();
+            _sheetGroupsByBookSheet[key]= result;
+        }
+        return result;
+    }
+
+    public bool ContainsCell(BookSheetKey key, int rowIndex, int columnIndex)
+    {
+        BlankCellSheetGroup bcsg = (BlankCellSheetGroup)_sheetGroupsByBookSheet[key];
+        if (bcsg == null)
+        {
+            return false;
+        }
+        return bcsg.ContainsCell(rowIndex, columnIndex);
+    }
+    public bool IsEmpty
+    {
+        get
+        {
+            return _sheetGroupsByBookSheet.Count == 0;
         }
     }
 }

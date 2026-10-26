@@ -15,51 +15,49 @@
    limitations Under the License.
 ==================================================================== */
 
-namespace NPOI.SS.Formula.PTG
-{
-    using System;
-    
-    using NPOI.Util;
+namespace NPOI.SS.Formula.PTG;
 
-    //import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+using NPOI.Util;
+using System;
+
+//import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+
+/**
+ * Common baseclass of all value operators.
+ * Subclasses include all Unary and binary operators except for the reference operators (IntersectionPtg, RangePtg, UnionPtg) 
+ * 
+ * @author Josh Micich
+ */
+public abstract class ValueOperatorPtg : OperationPtg
+{
 
     /**
-     * Common baseclass of all value operators.
-     * Subclasses include all Unary and binary operators except for the reference operators (IntersectionPtg, RangePtg, UnionPtg) 
-     * 
-     * @author Josh Micich
+     * All Operator <c>Ptg</c>s are base tokens (i.e. are not RVA classified)  
      */
-    public abstract class ValueOperatorPtg : OperationPtg
+    public override bool IsBaseToken
     {
-
-        /**
-         * All Operator <c>Ptg</c>s are base tokens (i.e. are not RVA classified)  
-         */
-        public override bool IsBaseToken
-        {
-            get { return true; }
-        }
-
-        public override byte DefaultOperandClass
-        {
-            get { return Ptg.CLASS_VALUE; }
-        }
-
-        public override void Write(ILittleEndianOutput out1)
-        {
-            out1.WriteByte(Sid + PtgClass);
-        }
-
-        protected abstract byte Sid { get; }
-
-        public override int Size
-        {
-            get { return 1; }
-        }
-
-        public override String ToFormulaString() 
-        {
-    	    throw new NotImplementedException("ToFormulaString(String[] operands) should be used for subclasses of OperationPtgs");
-	    }
+        get { return true; }
     }
+
+    public override byte DefaultOperandClass
+    {
+        get { return Ptg.CLASS_VALUE; }
+    }
+
+    public override void Write(ILittleEndianOutput out1)
+    {
+        out1.WriteByte(Sid + PtgClass);
+    }
+
+    protected abstract byte Sid { get; }
+
+    public override int Size
+    {
+        get { return 1; }
+    }
+
+    public override String ToFormulaString() 
+    {
+	    throw new NotImplementedException("ToFormulaString(String[] operands) should be used for subclasses of OperationPtgs");
+	    }
 }

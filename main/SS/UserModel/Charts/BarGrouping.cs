@@ -1,10 +1,9 @@
-﻿namespace NPOI.SS.UserModel.Charts
+﻿namespace NPOI.SS.UserModel.Charts;
+
+public enum BarGrouping
 {
-    public enum BarGrouping
-    {
-        PercentStacked,
-        Clustered,
-        Standard,
-        Stacked
-    }
+    PercentStacked,
+    Clustered,
+    Standard,
+    Stacked
 }

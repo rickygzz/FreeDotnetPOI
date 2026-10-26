@@ -16,104 +16,102 @@
 ==================================================================== */
 
 using System;
-namespace NPOI.SS.UserModel.Charts
+
+namespace NPOI.SS.UserModel.Charts;
+
+
+/**
+ * High level representation of chart axis.
+ *
+ * @author Roman Kashitsyn
+ */
+public interface IChartAxis
 {
 
     /**
-     * High level representation of chart axis.
-     *
-     * @author Roman Kashitsyn
+     * @return axis id
      */
-    public interface IChartAxis
-    {
+    long Id { get; }
 
-        /**
-         * @return axis id
-         */
-        long Id { get; }
+    /**
+     * get or set axis position
+     */
+    AxisPosition Position { get; set; }
 
-        /**
-         * get or set axis position
-         */
-        AxisPosition Position { get; set; }
+    /**
+     * get or set axis number format
+     */
+    String NumberFormat { get; set; }
 
-        /**
-         * get or set axis number format
-         */
-        String NumberFormat { get; set; }
+    /**
+     * @return true if log base is defined, false otherwise
+     */
+    bool IsSetLogBase { get; }
 
-        /**
-         * @return true if log base is defined, false otherwise
-         */
-        bool IsSetLogBase { get; }
+    /**
+     * @param logBase a number between 2 and 1000 (inclusive)
+     * @return axis log base or 0.0 if not Set
+     * @throws ArgumentException if log base not within allowed range
+     */
+    double LogBase { get; set; }
 
-        /**
-         * @param logBase a number between 2 and 1000 (inclusive)
-         * @return axis log base or 0.0 if not Set
-         * @throws ArgumentException if log base not within allowed range
-         */
-        double LogBase { get; set; }
+    /**
+     * @return true if minimum value is defined, false otherwise
+     */
+    bool IsSetMinimum { get; }
 
-        /**
-         * @return true if minimum value is defined, false otherwise
-         */
-        bool IsSetMinimum { get; }
+    /**
+     * get or set axis minimum 
+     * 0.0 if not Set
+     */
+    double Minimum { get; set; }
 
-        /**
-         * get or set axis minimum 
-         * 0.0 if not Set
-         */
-        double Minimum { get; set; }
+    /**
+     * @return true if maximum value is defined, false otherwise
+     */
+    bool IsSetMaximum { get; }
 
-        /**
-         * @return true if maximum value is defined, false otherwise
-         */
-        bool IsSetMaximum { get; }
+    /**
+     * get or set axis maximum 
+     * 0.0 if not Set
+     */
+    double Maximum { get; set; }
 
-        /**
-         * get or set axis maximum 
-         * 0.0 if not Set
-         */
-        double Maximum { get; set; }
+    /**
+     * get or set axis orientation
+     */
+    AxisOrientation Orientation { get; set; }
 
-        /**
-         * get or set axis orientation
-         */
-        AxisOrientation Orientation { get; set; }
+    /**
+     * get or set axis cross type
+     */
+    AxisCrosses Crosses { get; set; }
 
-        /**
-         * get or set axis cross type
-         */
-        AxisCrosses Crosses { get; set; }
+    /**
+     * Declare this axis cross another axis.
+     * @param axis that this axis should cross
+     */
+    void CrossAxis(IChartAxis axis);
 
-        /**
-         * Declare this axis cross another axis.
-         * @param axis that this axis should cross
-         */
-        void CrossAxis(IChartAxis axis);
+    /**
+     * @return visibility of the axis.
+     */
+    bool IsVisible { get; set; }
 
-        /**
-         * @return visibility of the axis.
-         */
-        bool IsVisible { get; set; }
+    /**
+     * @return major tick mark.
+     */
+    AxisTickMark MajorTickMark { get; set; }
 
-        /**
-         * @return major tick mark.
-         */
-        AxisTickMark MajorTickMark { get; set; }
-
-        /**
-         * @return minor tick mark.
-         */
-        AxisTickMark MinorTickMark { get; set; }
+    /**
+     * @return minor tick mark.
+     */
+    AxisTickMark MinorTickMark { get; set; }
 
 
-        /// <summary>
-        /// Use this to check before retrieving a number format, as calling {@link #getNumberFormat()} may create a default one if none exists.
-        /// </summary>
-        /// <returns>return true if a number format element is defined, false if not</returns>
-        bool HasNumberFormat();
-    }
-
-
+    /// <summary>
+    /// Use this to check before retrieving a number format, as calling {@link #getNumberFormat()} may create a default one if none exists.
+    /// </summary>
+    /// <returns>return true if a number format element is defined, false if not</returns>
+    bool HasNumberFormat();
 }
