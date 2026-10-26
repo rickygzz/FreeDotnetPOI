@@ -1,451 +1,456 @@
-
+﻿
 /* ====================================================================
-   Licensed to the Apache Software Foundation (ASF) under one or more
-   contributor license agreements.  See the NOTICE file distributed with
-   this work for Additional information regarding copyright ownership.
-   The ASF licenses this file to You under the Apache License, Version 2.0
-   (the "License"); you may not use this file except in compliance with
-   the License.  You may obtain a copy of the License at
+    Licensed to the Apache Software Foundation (ASF) under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for Additional information regarding copyright ownership.
+    The ASF licenses this file to You under the Apache License, Version 2.0
+    (the "License"); you may not use this file except in compliance with
+    the License.  You may obtain a copy of the License at
 
-       http://www.apache.org/licenses/LICENSE-2.0
+        http://www.apache.org/licenses/LICENSE-2.0
 
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
 ==================================================================== */
 
+namespace NPOI.DDF;
 
-namespace NPOI.DDF
+using ICSharpCode.SharpZipLib.Zip.Compression;
+using ICSharpCode.SharpZipLib.Zip.Compression.Streams;
+using NPOI.Util;
+using System;
+using System.IO;
+using System.Text;
+
+/// <summary>
+/// Used to dump the contents of escher records to a PrintStream.
+/// @author Glen Stampoultzis (glens at apache.org)
+/// </summary>
+public class EscherDump
 {
-    using System;
-    using System.IO;
-    using System.Text;
 
-
-    using NPOI.Util;
-    using ICSharpCode.SharpZipLib.Zip.Compression;
-    using ICSharpCode.SharpZipLib.Zip.Compression.Streams;
+    public EscherDump()
+    {
+    }
 
     /// <summary>
-    /// Used to dump the contents of escher records to a PrintStream.
-    /// @author Glen Stampoultzis (glens at apache.org)
+    /// Decodes the escher stream from a byte array and dumps the results to
+    /// a print stream.
     /// </summary>
-    public class EscherDump
+    /// <param name="data">The data array containing the escher records.</param>
+    /// <param name="offset">The starting offset within the data array.</param>
+    /// <param name="size">The number of bytes to Read.</param>
+    public void Dump(byte[] data, int offset, int size)
     {
-
-        public EscherDump()
+        DefaultEscherRecordFactory recordFactory = new();
+        int pos = offset;
+        while (pos < offset + size)
         {
+            EscherRecord r = recordFactory.CreateRecord(data, pos);
+            int bytesRead = r.FillFields(data, pos, recordFactory);
+            Console.WriteLine(r.ToString());
+            pos += bytesRead;
         }
+    }
 
-        /// <summary>
-        /// Decodes the escher stream from a byte array and dumps the results to
-        /// a print stream.
-        /// </summary>
-        /// <param name="data">The data array containing the escher records.</param>
-        /// <param name="offset">The starting offset within the data array.</param>
-        /// <param name="size">The number of bytes to Read.</param>
-        public void Dump(byte[] data, int offset, int size)
+    /// <summary>
+    /// This version of dump is a translation from the open office escher dump routine.
+    /// </summary>
+    /// <param name="maxLength">The number of bytes to Read</param>
+    /// <param name="in1">An input stream to Read from.</param>
+    public void DumpOld(long maxLength, Stream in1)
+    {
+        long remainingBytes = maxLength;
+        short options;      // 4 bits for the version and 12 bits for the instance
+        short recordId;
+        int recordBytesRemaining;       // including enclosing records
+        StringBuilder stringBuf = new StringBuilder();
+        short nDumpSize;
+        String recordName;
+
+        bool atEOF = false;
+
+        while (!atEOF && (remainingBytes > 0))
         {
-            DefaultEscherRecordFactory recordFactory = new();
-            int pos = offset;
-            while (pos < offset + size)
+            stringBuf = new StringBuilder();
+            options = LittleEndian.ReadShort(in1);
+            recordId = LittleEndian.ReadShort(in1);
+            recordBytesRemaining = LittleEndian.ReadInt(in1);
+
+            remainingBytes -= 2 + 2 + 4;
+
+            switch (recordId)
             {
-                EscherRecord r = recordFactory.CreateRecord(data, pos);
-                int bytesRead = r.FillFields(data, pos, recordFactory);
-                Console.WriteLine(r.ToString());
-                pos += bytesRead;
+                case unchecked((short)0xF000):
+                    recordName = "MsofbtDggContainer";
+                    break;
+                case unchecked((short)0xF006):
+                    recordName = "MsofbtDgg";
+                    break;
+                case unchecked((short)0xF016):
+                    recordName = "MsofbtCLSID";
+                    break;
+                case unchecked((short)0xF00B):
+                    recordName = "MsofbtOPT";
+                    break;
+                case unchecked((short)0xF11A):
+                    recordName = "MsofbtColorMRU";
+                    break;
+                case unchecked((short)0xF11E):
+                    recordName = "MsofbtSplitMenuColors";
+                    break;
+                case unchecked((short)0xF001):
+                    recordName = "MsofbtBstoreContainer";
+                    break;
+                case unchecked((short)0xF007):
+                    recordName = "MsofbtBSE";
+                    break;
+                case unchecked((short)0xF002):
+                    recordName = "MsofbtDgContainer";
+                    break;
+                case unchecked((short)0xF008):
+                    recordName = "MsofbtDg";
+                    break;
+                case unchecked((short)0xF118):
+                    recordName = "MsofbtRegroupItem";
+                    break;
+                case unchecked((short)0xF120):
+                    recordName = "MsofbtColorScheme";
+                    break;
+                case unchecked((short)0xF003):
+                    recordName = "MsofbtSpgrContainer";
+                    break;
+                case unchecked((short)0xF004):
+                    recordName = "MsofbtSpContainer";
+                    break;
+                case unchecked((short)0xF009):
+                    recordName = "MsofbtSpgr";
+                    break;
+                case unchecked((short)0xF00A):
+                    recordName = "MsofbtSp";
+                    break;
+                case unchecked((short)0xF00C):
+                    recordName = "MsofbtTextbox";
+                    break;
+                case unchecked((short)0xF00D):
+                    recordName = "MsofbtClientTextbox";
+                    break;
+                case unchecked((short)0xF00E):
+                    recordName = "MsofbtAnchor";
+                    break;
+                case unchecked((short)0xF00F):
+                    recordName = "MsofbtChildAnchor";
+                    break;
+                case unchecked((short)0xF010):
+                    recordName = "MsofbtClientAnchor";
+                    break;
+                case unchecked((short)0xF011):
+                    recordName = "MsofbtClientData";
+                    break;
+                case unchecked((short)0xF11F):
+                    recordName = "MsofbtOleObject";
+                    break;
+                case unchecked((short)0xF11D):
+                    recordName = "MsofbtDeletedPspl";
+                    break;
+                case unchecked((short)0xF005):
+                    recordName = "MsofbtSolverContainer";
+                    break;
+                case unchecked((short)0xF012):
+                    recordName = "MsofbtConnectorRule";
+                    break;
+                case unchecked((short)0xF013):
+                    recordName = "MsofbtAlignRule";
+                    break;
+                case unchecked((short)0xF014):
+                    recordName = "MsofbtArcRule";
+                    break;
+                case unchecked((short)0xF015):
+                    recordName = "MsofbtClientRule";
+                    break;
+                case unchecked((short)0xF017):
+                    recordName = "MsofbtCalloutRule";
+                    break;
+                case unchecked((short)0xF119):
+                    recordName = "MsofbtSelection";
+                    break;
+                case unchecked((short)0xF122):
+                    recordName = "MsofbtUDefProp";
+                    break;
+                default:
+                    if (recordId >= unchecked((short)0xF018) && recordId <= unchecked((short)0xF117))
+                    {
+                        recordName = "MsofbtBLIP";
+                    }
+                    else if ((options & (short)0x000F) == (short)0x000F)
+                    {
+                        recordName = "UNKNOWN container";
+                    }
+                    else
+                    {
+                        recordName = "UNKNOWN ID";
+                    }
+                    break;
             }
-        }
 
-        /// <summary>
-        /// This version of dump is a translation from the open office escher dump routine.
-        /// </summary>
-        /// <param name="maxLength">The number of bytes to Read</param>
-        /// <param name="in1">An input stream to Read from.</param>
-        public void DumpOld(long maxLength, Stream in1)
-        {
-            long remainingBytes = maxLength;
-            short options;      // 4 bits for the version and 12 bits for the instance
-            short recordId;
-            int recordBytesRemaining;       // including enclosing records
-            StringBuilder stringBuf = new StringBuilder();
-            short nDumpSize;
-            String recordName;
+            stringBuf.Append("  ");
+            stringBuf.Append(HexDump.ToHex(recordId));
+            stringBuf.Append("  ").Append(recordName).Append(" [");
+            stringBuf.Append(HexDump.ToHex(options));
+            stringBuf.Append(',');
+            stringBuf.Append(HexDump.ToHex(recordBytesRemaining));
+            stringBuf.Append("]  instance: ");
+            stringBuf.Append(HexDump.ToHex(((short)(options >> 4))));
+            Console.WriteLine(stringBuf.ToString());
 
-            bool atEOF = false;
+            if (recordId == (unchecked((short)0xF007)) && 36 <= remainingBytes && 36 <= recordBytesRemaining)
+            {	// BSE, FBSE
+                //                ULONG nP = pIn->GetRecPos();
 
-            while (!atEOF && (remainingBytes > 0))
-            {
-                stringBuf = new StringBuilder();
-                options = LittleEndian.ReadShort(in1);
-                recordId = LittleEndian.ReadShort(in1);
-                recordBytesRemaining = LittleEndian.ReadInt(in1);
+                byte n8;
+                //                short n16;
+                //                int n32;
 
-                remainingBytes -= 2 + 2 + 4;
-
-                switch (recordId)
-                {
-                    case unchecked((short)0xF000):
-                        recordName = "MsofbtDggContainer";
-                        break;
-                    case unchecked((short)0xF006):
-                        recordName = "MsofbtDgg";
-                        break;
-                    case unchecked((short)0xF016):
-                        recordName = "MsofbtCLSID";
-                        break;
-                    case unchecked((short)0xF00B):
-                        recordName = "MsofbtOPT";
-                        break;
-                    case unchecked((short)0xF11A):
-                        recordName = "MsofbtColorMRU";
-                        break;
-                    case unchecked((short)0xF11E):
-                        recordName = "MsofbtSplitMenuColors";
-                        break;
-                    case unchecked((short)0xF001):
-                        recordName = "MsofbtBstoreContainer";
-                        break;
-                    case unchecked((short)0xF007):
-                        recordName = "MsofbtBSE";
-                        break;
-                    case unchecked((short)0xF002):
-                        recordName = "MsofbtDgContainer";
-                        break;
-                    case unchecked((short)0xF008):
-                        recordName = "MsofbtDg";
-                        break;
-                    case unchecked((short)0xF118):
-                        recordName = "MsofbtRegroupItem";
-                        break;
-                    case unchecked((short)0xF120):
-                        recordName = "MsofbtColorScheme";
-                        break;
-                    case unchecked((short)0xF003):
-                        recordName = "MsofbtSpgrContainer";
-                        break;
-                    case unchecked((short)0xF004):
-                        recordName = "MsofbtSpContainer";
-                        break;
-                    case unchecked((short)0xF009):
-                        recordName = "MsofbtSpgr";
-                        break;
-                    case unchecked((short)0xF00A):
-                        recordName = "MsofbtSp";
-                        break;
-                    case unchecked((short)0xF00C):
-                        recordName = "MsofbtTextbox";
-                        break;
-                    case unchecked((short)0xF00D):
-                        recordName = "MsofbtClientTextbox";
-                        break;
-                    case unchecked((short)0xF00E):
-                        recordName = "MsofbtAnchor";
-                        break;
-                    case unchecked((short)0xF00F):
-                        recordName = "MsofbtChildAnchor";
-                        break;
-                    case unchecked((short)0xF010):
-                        recordName = "MsofbtClientAnchor";
-                        break;
-                    case unchecked((short)0xF011):
-                        recordName = "MsofbtClientData";
-                        break;
-                    case unchecked((short)0xF11F):
-                        recordName = "MsofbtOleObject";
-                        break;
-                    case unchecked((short)0xF11D):
-                        recordName = "MsofbtDeletedPspl";
-                        break;
-                    case unchecked((short)0xF005):
-                        recordName = "MsofbtSolverContainer";
-                        break;
-                    case unchecked((short)0xF012):
-                        recordName = "MsofbtConnectorRule";
-                        break;
-                    case unchecked((short)0xF013):
-                        recordName = "MsofbtAlignRule";
-                        break;
-                    case unchecked((short)0xF014):
-                        recordName = "MsofbtArcRule";
-                        break;
-                    case unchecked((short)0xF015):
-                        recordName = "MsofbtClientRule";
-                        break;
-                    case unchecked((short)0xF017):
-                        recordName = "MsofbtCalloutRule";
-                        break;
-                    case unchecked((short)0xF119):
-                        recordName = "MsofbtSelection";
-                        break;
-                    case unchecked((short)0xF122):
-                        recordName = "MsofbtUDefProp";
-                        break;
-                    default:
-                        if (recordId >= unchecked((short)0xF018) && recordId <= unchecked((short)0xF117))
-                            recordName = "MsofbtBLIP";
-                        else if ((options & (short)0x000F) == (short)0x000F)
-                            recordName = "UNKNOWN container";
-                        else
-                            recordName = "UNKNOWN ID";
-                        break;
-                }
-
-                stringBuf.Append("  ");
-                stringBuf.Append(HexDump.ToHex(recordId));
-                stringBuf.Append("  ").Append(recordName).Append(" [");
-                stringBuf.Append(HexDump.ToHex(options));
-                stringBuf.Append(',');
-                stringBuf.Append(HexDump.ToHex(recordBytesRemaining));
-                stringBuf.Append("]  instance: ");
-                stringBuf.Append(HexDump.ToHex(((short)(options >> 4))));
+                stringBuf = new StringBuilder("    btWin32: ");
+                n8 = (byte)in1.ReadByte();
+                stringBuf.Append(HexDump.ToHex(n8));
+                stringBuf.Append(GetBlipType(n8));
+                stringBuf.Append("  btMacOS: ");
+                n8 = (byte)in1.ReadByte();
+                stringBuf.Append(HexDump.ToHex(n8));
+                stringBuf.Append(GetBlipType(n8));
                 Console.WriteLine(stringBuf.ToString());
 
+                Console.WriteLine("    rgbUid:");
+                HexDump.Dump(in1, 0, 16);
 
-                if (recordId == (unchecked((short)0xF007)) && 36 <= remainingBytes && 36 <= recordBytesRemaining)
-                {	// BSE, FBSE
-                    //                ULONG nP = pIn->GetRecPos();
+                Console.Write("    tag: ");
+                OutHex(2, in1);
+                Console.WriteLine();
+                Console.Write("    size: ");
+                OutHex(4, in1);
+                Console.WriteLine();
+                Console.Write("    cRef: ");
+                OutHex(4, in1);
+                Console.WriteLine();
+                Console.Write("    offs: ");
+                OutHex(4, in1);
+                Console.WriteLine();
+                Console.Write("    usage: ");
+                OutHex(4, in1);
+                Console.WriteLine();
+                Console.Write("    cbName: ");
+                OutHex(4, in1);
+                Console.WriteLine();
+                Console.Write("    unused2: ");
+                OutHex(4, in1);
+                Console.WriteLine();
+                Console.Write("    unused3: ");
+                OutHex(4, in1);
+                Console.WriteLine();
 
-                    byte n8;
-                    //                short n16;
-                    //                int n32;
+                // subtract the number of bytes we've Read
+                remainingBytes -= 36;
+                // n -= pIn->GetRecPos() - nP;
+                recordBytesRemaining = 0;		// loop to MsofbtBLIP
+            }
+            else if (recordId == unchecked((short)0xF010) && 0x12 <= remainingBytes && 0x12 <= recordBytesRemaining)
+            {	// ClientAnchor
+                // ULONG nP = pIn->GetRecPos();
+                //                short n16;
 
-                    stringBuf = new StringBuilder("    btWin32: ");
-                    n8 = (byte)in1.ReadByte();
-                    stringBuf.Append(HexDump.ToHex(n8));
-                    stringBuf.Append(GetBlipType(n8));
-                    stringBuf.Append("  btMacOS: ");
-                    n8 = (byte)in1.ReadByte();
-                    stringBuf.Append(HexDump.ToHex(n8));
-                    stringBuf.Append(GetBlipType(n8));
-                    Console.WriteLine(stringBuf.ToString());
+                Console.Write("    Flag: ");
+                OutHex(2, in1);
+                Console.WriteLine();
+                Console.Write("    Col1: ");
+                OutHex(2, in1);
+                Console.Write("    dX1: ");
+                OutHex(2, in1);
+                Console.Write("    Row1: ");
+                OutHex(2, in1);
+                Console.Write("    dY1: ");
+                OutHex(2, in1);
+                Console.WriteLine();
+                Console.Write("    Col2: ");
+                OutHex(2, in1);
+                Console.Write("    dX2: ");
+                OutHex(2, in1);
+                Console.Write("    Row2: ");
+                OutHex(2, in1);
+                Console.Write("    dY2: ");
+                OutHex(2, in1);
+                Console.WriteLine();
 
-                    Console.WriteLine("    rgbUid:");
-                    HexDump.Dump(in1, 0, 16);
+                remainingBytes -= 18;
+                recordBytesRemaining -= 18;
+            }
+            else if (recordId == unchecked((short)0xF00B) || recordId == unchecked((short)0xF122))
+            {	// OPT
+                int nComplex = 0;
+                Console.WriteLine("    PROPID        VALUE");
+                while (recordBytesRemaining >= 6 + nComplex && remainingBytes >= 6 + nComplex)
+                {
+                    short n16;
+                    int n32;
+                    n16 = LittleEndian.ReadShort(in1);
+                    n32 = LittleEndian.ReadInt(in1);
 
-                    Console.Write("    tag: ");
-                    OutHex(2, in1);
-                    Console.WriteLine();
-                    Console.Write("    size: ");
-                    OutHex(4, in1);
-                    Console.WriteLine();
-                    Console.Write("    cRef: ");
-                    OutHex(4, in1);
-                    Console.WriteLine();
-                    Console.Write("    offs: ");
-                    OutHex(4, in1);
-                    Console.WriteLine();
-                    Console.Write("    usage: ");
-                    OutHex(4, in1);
-                    Console.WriteLine();
-                    Console.Write("    cbName: ");
-                    OutHex(4, in1);
-                    Console.WriteLine();
-                    Console.Write("    unused2: ");
-                    OutHex(4, in1);
-                    Console.WriteLine();
-                    Console.Write("    unused3: ");
-                    OutHex(4, in1);
-                    Console.WriteLine();
-
-                    // subtract the number of bytes we've Read
-                    remainingBytes -= 36;
-                    //n -= pIn->GetRecPos() - nP;
-                    recordBytesRemaining = 0;		// loop to MsofbtBLIP
-                }
-                else if (recordId == unchecked((short)0xF010) && 0x12 <= remainingBytes && 0x12 <= recordBytesRemaining)
-                {	// ClientAnchor
-                    //ULONG nP = pIn->GetRecPos();
-                    //                short n16;
-
-                    Console.Write("    Flag: ");
-                    OutHex(2, in1);
-                    Console.WriteLine();
-                    Console.Write("    Col1: ");
-                    OutHex(2, in1);
-                    Console.Write("    dX1: ");
-                    OutHex(2, in1);
-                    Console.Write("    Row1: ");
-                    OutHex(2, in1);
-                    Console.Write("    dY1: ");
-                    OutHex(2, in1);
-                    Console.WriteLine();
-                    Console.Write("    Col2: ");
-                    OutHex(2, in1);
-                    Console.Write("    dX2: ");
-                    OutHex(2, in1);
-                    Console.Write("    Row2: ");
-                    OutHex(2, in1);
-                    Console.Write("    dY2: ");
-                    OutHex(2, in1);
-                    Console.WriteLine();
-
-                    remainingBytes -= 18;
-                    recordBytesRemaining -= 18;
-
-                }
-                else if (recordId == unchecked((short)0xF00B) || recordId == unchecked((short)0xF122))
-                {	// OPT
-                    int nComplex = 0;
-                    Console.WriteLine("    PROPID        VALUE");
-                    while (recordBytesRemaining >= 6 + nComplex && remainingBytes >= 6 + nComplex)
+                    recordBytesRemaining -= 6;
+                    remainingBytes -= 6;
+                    Console.Write("    ");
+                    Console.Write(HexDump.ToHex(n16));
+                    Console.Write(" (");
+                    int propertyId = n16 & (short)0x3FFF;
+                    Console.Write(" " + propertyId);
+                    if ((n16 & unchecked((short)0x8000)) == 0)
                     {
-                        short n16;
-                        int n32;
-                        n16 = LittleEndian.ReadShort(in1);
-                        n32 = LittleEndian.ReadInt(in1);
-
-                        recordBytesRemaining -= 6;
-                        remainingBytes -= 6;
-                        Console.Write("    ");
-                        Console.Write(HexDump.ToHex(n16));
-                        Console.Write(" (");
-                        int propertyId = n16 & (short)0x3FFF;
-                        Console.Write(" " + propertyId);
-                        if ((n16 & unchecked((short)0x8000)) == 0)
+                        if ((n16 & (short)0x4000) != 0)
                         {
-                            if ((n16 & (short)0x4000) != 0)
-                                Console.Write(", fBlipID");
-                            Console.Write(")  ");
-
-                            Console.Write(HexDump.ToHex(n32));
-
-                            if ((n16 & (short)0x4000) == 0)
-                            {
-                                Console.Write(" (");
-                                Console.Write(Dec1616(n32));
-                                Console.Write(')');
-                                Console.Write(" {" + PropertyName((short)propertyId) + "}");
-                            }
-                            Console.WriteLine();
+                            Console.Write(", fBlipID");
                         }
-                        else
+                        Console.Write(")  ");
+
+                        Console.Write(HexDump.ToHex(n32));
+
+                        if ((n16 & (short)0x4000) == 0)
                         {
-                            Console.Write(", fComplex)  ");
-                            Console.Write(HexDump.ToHex(n32));
-                            Console.Write(" - Complex prop len");
-                            Console.WriteLine(" {" + PropertyName((short)propertyId) + "}");
-
-                            nComplex += n32;
+                            Console.Write(" (");
+                            Console.Write(Dec1616(n32));
+                            Console.Write(')');
+                            Console.Write(" {" + PropertyName((short)propertyId) + "}");
                         }
-
+                        Console.WriteLine();
                     }
-                    // complex property data
-                    while ((nComplex & remainingBytes) > 0)
+                    else
                     {
-                        nDumpSize = (nComplex > (int)remainingBytes) ? (short)remainingBytes : (short)nComplex;
-                        HexDump.Dump(in1, 0, nDumpSize);
-                        nComplex -= nDumpSize;
+                        Console.Write(", fComplex)  ");
+                        Console.Write(HexDump.ToHex(n32));
+                        Console.Write(" - Complex prop len");
+                        Console.WriteLine(" {" + PropertyName((short)propertyId) + "}");
+
+                        nComplex += n32;
+                    }
+                }
+                // complex property data
+                while ((nComplex & remainingBytes) > 0)
+                {
+                    nDumpSize = (nComplex > (int)remainingBytes) ? (short)remainingBytes : (short)nComplex;
+                    HexDump.Dump(in1, 0, nDumpSize);
+                    nComplex -= nDumpSize;
+                    recordBytesRemaining -= nDumpSize;
+                    remainingBytes -= nDumpSize;
+                }
+            }
+            else if (recordId == (unchecked((short)0xF012)))
+            {
+                Console.Write("    Connector rule: ");
+                Console.Write(LittleEndian.ReadInt(in1));
+                Console.Write("    ShapeID A: ");
+                Console.Write(LittleEndian.ReadInt(in1));
+                Console.Write("   ShapeID B: ");
+                Console.Write(LittleEndian.ReadInt(in1));
+                Console.Write("    ShapeID connector: ");
+                Console.Write(LittleEndian.ReadInt(in1));
+                Console.Write("   Connect pt A: ");
+                Console.Write(LittleEndian.ReadInt(in1));
+                Console.Write("   Connect pt B: ");
+                Console.WriteLine(LittleEndian.ReadInt(in1));
+
+                recordBytesRemaining -= 24;
+                remainingBytes -= 24;
+            }
+            else if (recordId >= unchecked((short)0xF018) && recordId < unchecked((short)0xF117))
+            {
+                Console.WriteLine("    Secondary UID: ");
+                HexDump.Dump(in1, 0, 16);
+                Console.WriteLine("    Cache of size: " + HexDump.ToHex(LittleEndian.ReadInt(in1)));
+                Console.WriteLine("    Boundary top: " + HexDump.ToHex(LittleEndian.ReadInt(in1)));
+                Console.WriteLine("    Boundary left: " + HexDump.ToHex(LittleEndian.ReadInt(in1)));
+                Console.WriteLine("    Boundary width: " + HexDump.ToHex(LittleEndian.ReadInt(in1)));
+                Console.WriteLine("    Boundary height: " + HexDump.ToHex(LittleEndian.ReadInt(in1)));
+                Console.WriteLine("    X: " + HexDump.ToHex(LittleEndian.ReadInt(in1)));
+                Console.WriteLine("    Y: " + HexDump.ToHex(LittleEndian.ReadInt(in1)));
+                Console.WriteLine("    Cache of saved size: " + HexDump.ToHex(LittleEndian.ReadInt(in1)));
+                Console.WriteLine("    Compression Flag: " + HexDump.ToHex((byte)in1.ReadByte()));
+                Console.WriteLine("    Filter: " + HexDump.ToHex((byte)in1.ReadByte()));
+                Console.WriteLine("    Data (after decompression): ");
+
+                recordBytesRemaining -= 34 + 16;
+                remainingBytes -= 34 + 16;
+
+                nDumpSize = (recordBytesRemaining > (int)remainingBytes) ? (short)remainingBytes : (short)recordBytesRemaining;
+
+                byte[] buf = new byte[nDumpSize];
+                int Read = in1.Read(buf, 0, buf.Length);
+                while (Read != -1 && Read < nDumpSize)
+                    Read += in1.Read(buf, Read, buf.Length);
+
+                using (MemoryStream bin = new MemoryStream(buf))
+                {
+                    Inflater inflater = new Inflater(false);
+                    using (InflaterInputStream zIn = new InflaterInputStream(bin, inflater))
+                    {
+                        int bytesToDump = -1;
+                        HexDump.Dump(zIn, 0, bytesToDump);
+
                         recordBytesRemaining -= nDumpSize;
                         remainingBytes -= nDumpSize;
                     }
                 }
-                else if (recordId == (unchecked((short)0xF012)))
+            }
+
+            bool isContainer = (options & (short)0x000F) == (short)0x000F;
+            if (isContainer && remainingBytes >= 0)
+            {	// Container
+                if (recordBytesRemaining <= (int)remainingBytes)
                 {
-                    Console.Write("    Connector rule: ");
-                    Console.Write(LittleEndian.ReadInt(in1));
-                    Console.Write("    ShapeID A: ");
-                    Console.Write(LittleEndian.ReadInt(in1));
-                    Console.Write("   ShapeID B: ");
-                    Console.Write(LittleEndian.ReadInt(in1));
-                    Console.Write("    ShapeID connector: ");
-                    Console.Write(LittleEndian.ReadInt(in1));
-                    Console.Write("   Connect pt A: ");
-                    Console.Write(LittleEndian.ReadInt(in1));
-                    Console.Write("   Connect pt B: ");
-                    Console.WriteLine(LittleEndian.ReadInt(in1));
-
-                    recordBytesRemaining -= 24;
-                    remainingBytes -= 24;
-                }
-                else if (recordId >= unchecked((short)0xF018) && recordId < unchecked((short)0xF117))
-                {
-                    Console.WriteLine("    Secondary UID: ");
-                    HexDump.Dump(in1, 0, 16);
-                    Console.WriteLine("    Cache of size: " + HexDump.ToHex(LittleEndian.ReadInt(in1)));
-                    Console.WriteLine("    Boundary top: " + HexDump.ToHex(LittleEndian.ReadInt(in1)));
-                    Console.WriteLine("    Boundary left: " + HexDump.ToHex(LittleEndian.ReadInt(in1)));
-                    Console.WriteLine("    Boundary width: " + HexDump.ToHex(LittleEndian.ReadInt(in1)));
-                    Console.WriteLine("    Boundary height: " + HexDump.ToHex(LittleEndian.ReadInt(in1)));
-                    Console.WriteLine("    X: " + HexDump.ToHex(LittleEndian.ReadInt(in1)));
-                    Console.WriteLine("    Y: " + HexDump.ToHex(LittleEndian.ReadInt(in1)));
-                    Console.WriteLine("    Cache of saved size: " + HexDump.ToHex(LittleEndian.ReadInt(in1)));
-                    Console.WriteLine("    Compression Flag: " + HexDump.ToHex((byte)in1.ReadByte()));
-                    Console.WriteLine("    Filter: " + HexDump.ToHex((byte)in1.ReadByte()));
-                    Console.WriteLine("    Data (after decompression): ");
-
-                    recordBytesRemaining -= 34 + 16;
-                    remainingBytes -= 34 + 16;
-
-                    nDumpSize = (recordBytesRemaining > (int)remainingBytes) ? (short)remainingBytes : (short)recordBytesRemaining;
-
-
-                    byte[] buf = new byte[nDumpSize];
-                    int Read = in1.Read(buf,0,buf.Length);
-                    while (Read != -1 && Read < nDumpSize)
-                        Read += in1.Read(buf, Read, buf.Length);
-
-                    using (MemoryStream bin = new MemoryStream(buf))
-                    {
-                        Inflater inflater = new Inflater(false);
-                        using (InflaterInputStream zIn = new InflaterInputStream(bin, inflater))
-                        {
-                            int bytesToDump = -1;
-                            HexDump.Dump(zIn, 0, bytesToDump);
-
-                            recordBytesRemaining -= nDumpSize;
-                            remainingBytes -= nDumpSize;
-                        }
-                    }
-                }
-
-                bool isContainer = (options & (short)0x000F) == (short)0x000F;
-                if (isContainer && remainingBytes >= 0)
-                {	// Container
-                    if (recordBytesRemaining <= (int)remainingBytes)
-                        Console.WriteLine("            completed within");
-                    else
-                        Console.WriteLine("            continued elsewhere");
-                }
-                else if (remainingBytes >= 0)     // -> 0x0000 ... 0x0FFF
-                {
-                    nDumpSize = (recordBytesRemaining > (int)remainingBytes) ? (short)remainingBytes : (short)recordBytesRemaining;
-
-                    if (nDumpSize != 0)
-                    {
-                        HexDump.Dump(in1, 0, nDumpSize);
-                        remainingBytes -= nDumpSize;
-                    }
+                    Console.WriteLine("            completed within");
                 }
                 else
-                    Console.WriteLine(" >> OVERRUN <<");
+                {
+                    Console.WriteLine("            continued elsewhere");
+                }
             }
-        }
-
-        private sealed class PropName
-        {
-            public PropName(int id, String name)
+            else if (remainingBytes >= 0)     // -> 0x0000 ... 0x0FFF
             {
-                this.id = id;
-                this.name = name;
+                nDumpSize = (recordBytesRemaining > (int)remainingBytes) ? (short)remainingBytes : (short)recordBytesRemaining;
+
+                if (nDumpSize != 0)
+                {
+                    HexDump.Dump(in1, 0, nDumpSize);
+                    remainingBytes -= nDumpSize;
+                }
             }
-
-            public int id;
-            public String name;
+            else
+            {
+                Console.WriteLine(" >> OVERRUN <<");
+            }
         }
-        /// <summary>
-        /// Returns a property name given a property id.  This is used only by the
-        /// old escher dump routine.
-        /// </summary>
-        /// <param name="propertyId">The property number for the name</param>
-        /// <returns>A descriptive name.</returns>
-        private static String PropertyName(short propertyId)
+    }
+
+    private sealed class PropName
+    {
+        public PropName(int id, String name)
         {
+            this.id = id;
+            this.name = name;
+        }
 
-
-            PropName[] props = new PropName[] {
+        public int id;
+        public String name;
+    }
+    /// <summary>
+    /// Returns a property name given a property id.  This is used only by the
+    /// old escher dump routine.
+    /// </summary>
+    /// <param name="propertyId">The property number for the name</param>
+    /// <returns>A descriptive name.</returns>
+    private static String PropertyName(short propertyId)
+    {
+        PropName[] props = new PropName[] {
             new PropName(4, "transform.rotation"),
             new PropName(119, "protection.lockrotation"),
             new PropName(120, "protection.lockaspectratio"),
@@ -722,97 +727,99 @@ namespace NPOI.DDF
             new PropName(959, "groupshape.print"),
         };
 
-            for (int i = 0; i < props.Length; i++)
+        for (int i = 0; i < props.Length; i++)
+        {
+            if (props[i].id == propertyId)
             {
-                if (props[i].id == propertyId)
+                return props[i].name;
+            }
+        }
+
+        return "unknown property";
+    }
+
+    /// <summary>
+    /// Returns the blip description given a blip id.
+    /// </summary>
+    /// <param name="b">blip id</param>
+    /// <returns> A description.</returns>
+    private static String GetBlipType(byte b)
+    {
+        switch (b)
+        {
+            case 0:
+                return " ERROR";
+            case 1:
+                return " UNKNOWN";
+            case 2:
+                return " EMF";
+            case 3:
+                return " WMF";
+            case 4:
+                return " PICT";
+            case 5:
+                return " JPEG";
+            case 6:
+                return " PNG";
+            case 7:
+                return " DIB";
+            default:
+                if (b < 32)
                 {
-                    return props[i].name;
+                    return " NotKnown";
                 }
-            }
-
-            return "unknown property";
+                else
+                {
+                    return " Client";
+                }
         }
+    }
 
-        /// <summary>
-        /// Returns the blip description given a blip id.
-        /// </summary>
-        /// <param name="b">blip id</param>
-        /// <returns> A description.</returns>
-        private static String GetBlipType(byte b)
+    /// <summary>
+    /// Straight conversion from OO.  Converts a type of float.
+    /// </summary>
+    /// <param name="n32">The N32.</param>
+    private static String Dec1616(int n32)
+    {
+        String result = "";
+        result += (short)(n32 >> 16);
+        result += '.';
+        result += (short)(n32 & 0xFFFF);
+        return result;
+    }
+
+    /// <summary>
+    /// Dumps out a hex value by Reading from a input stream.
+    /// </summary>
+    /// <param name="bytes">How many bytes this hex value consists of.</param>
+    /// <param name="in1">The stream to Read the hex value from.</param>
+    private static void OutHex(int bytes, Stream in1)
+    {
+        switch (bytes)
         {
-            switch (b)
-            {
-                case 0:
-                    return " ERROR";
-                case 1:
-                    return " UNKNOWN";
-                case 2:
-                    return " EMF";
-                case 3:
-                    return " WMF";
-                case 4:
-                    return " PICT";
-                case 5:
-                    return " JPEG";
-                case 6:
-                    return " PNG";
-                case 7:
-                    return " DIB";
-                default:
-                    if (b < 32)
-                        return " NotKnown";
-                    else
-                        return " Client";
-            }
+            case 1:
+                Console.Write(HexDump.ToHex((byte)in1.ReadByte()));
+                break;
+            case 2:
+                Console.Write(HexDump.ToHex(LittleEndian.ReadShort(in1)));
+                break;
+            case 4:
+                Console.Write(HexDump.ToHex(LittleEndian.ReadInt(in1)));
+                break;
+            default:
+                throw new IOException("Unable to output variable of that width");
         }
+    }
 
-        /// <summary>
-        /// Straight conversion from OO.  Converts a type of float.
-        /// </summary>
-        /// <param name="n32">The N32.</param>
-        /// <returns></returns>
-        private static String Dec1616(int n32)
-        {
-            String result = "";
-            result += (short)(n32 >> 16);
-            result += '.';
-            result += (short)(n32 & 0xFFFF);
-            return result;
-        }
-
-        /// <summary>
-        /// Dumps out a hex value by Reading from a input stream.
-        /// </summary>
-        /// <param name="bytes">How many bytes this hex value consists of.</param>
-        /// <param name="in1">The stream to Read the hex value from.</param>
-        private static void OutHex(int bytes, Stream in1)
-        {
-            switch (bytes)
-            {
-                case 1:
-                    Console.Write(HexDump.ToHex((byte)in1.ReadByte()));
-                    break;
-                case 2:
-                    Console.Write(HexDump.ToHex(LittleEndian.ReadShort(in1)));
-                    break;
-                case 4:
-                    Console.Write(HexDump.ToHex(LittleEndian.ReadInt(in1)));
-                    break;
-                default:
-                    throw new IOException("Unable to output variable of that width");
-            }
-        }
-
-        /// <summary>
-        /// Dumps the specified record size.
-        /// </summary>
-        /// <param name="recordSize">Size of the record.</param>
-        /// <param name="data">The data.</param>
-        public void Dump(int recordSize, byte[] data)
-        {
-            //        ByteArrayInputStream is = new ByteArrayInputStream( data );
-            //        dump( recordSize, is, out );
-            Dump(data, 0, recordSize);
-        }
+    /// <summary>
+    /// Dumps the specified record size.
+    /// </summary>
+    /// <param name="recordSize">Size of the record.</param>
+    /// <param name="data">The data.</param>
+    public void Dump(int recordSize, byte[] data)
+    {
+        //        ByteArrayInputStream is = new ByteArrayInputStream( data );
+        //        dump( recordSize, is, out );
+        Dump(data, 0, recordSize);
     }
 }

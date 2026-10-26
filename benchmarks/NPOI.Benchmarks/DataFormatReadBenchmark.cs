@@ -35,7 +35,7 @@ public class DataFormatReadBenchmark
 
         ISheet sheet = wb.CreateSheet();
 
-        for(var i = 0; i<RowCount; i++)
+        for (var i = 0; i<RowCount; i++)
         {
             IRow row = sheet.CreateRow(i);
 
@@ -57,15 +57,18 @@ public class DataFormatReadBenchmark
         DataFormatter df = new DataFormatter();
         ISheet sheet = workbook.GetSheetAt(0);
         var numRows = sheet.LastRowNum;
-        for(var r = 0; r<=numRows; r++)
+        for (var r = 0; r<=numRows; r++)
         {
             IRow row = sheet.GetRow(r);
             var numCells = row.LastCellNum;
             var readRow = new string[numCells];
-            for(var c = 0; c<numCells; c++)
+            for (var c = 0; c<numCells; c++)
             {
                 ICell cell = row.GetCell(c);
-                if(cell is null) continue;
+                if (cell is null)
+                {
+                    continue;
+                }
                 readRow[c] = df.FormatCellValue(cell);
             }
         }

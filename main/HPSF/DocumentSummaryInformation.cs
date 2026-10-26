@@ -1,18 +1,18 @@
 /* ====================================================================
-   Licensed to the Apache Software Foundation (ASF) under one or more
-   contributor license agreements.  See the NOTICE file distributed with
-   this work for additional information regarding copyright ownership.
-   The ASF licenses this file to You under the Apache License, Version 2.0
-   (the "License"); you may not use this file except in compliance with
-   the License.  You may obtain a copy of the License at
+    Licensed to the Apache Software Foundation (ASF) under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The ASF licenses this file to You under the Apache License, Version 2.0
+    (the "License"); you may not use this file except in compliance with
+    the License.  You may obtain a copy of the License at
 
-       http://www.apache.org/licenses/LICENSE-2.0
+        http://www.apache.org/licenses/LICENSE-2.0
 
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
 ==================================================================== */
 
 using System;
@@ -39,7 +39,6 @@ namespace NPOI.HPSF
             "\x0005DocumentSummaryInformation";
         public override PropertyIDMap PropertySetIDMap => PropertyIDMap.DocumentSummaryInformationProperties;
 
-
         /// <summary>
         /// Creates an empty {@link DocumentSummaryInformation}.
         /// </summary>
@@ -47,7 +46,6 @@ namespace NPOI.HPSF
         {
             FirstSection.FormatID = SectionIDMap.DOCUMENT_SUMMARY_INFORMATION_ID[0];
         }
-
 
         /// <summary>
         /// Creates a {@link DocumentSummaryInformation} from a given
@@ -64,7 +62,7 @@ namespace NPOI.HPSF
         {
 
             ;
-            if(!IsDocumentSummaryInformation)
+            if (!IsDocumentSummaryInformation)
             {
                 throw new UnexpectedPropertySetTypeException("Not a " + GetType().Name);
             }
@@ -121,8 +119,6 @@ namespace NPOI.HPSF
             Remove1stProperty(PropertyIDMap.PID_CATEGORY);
         }
 
-
-
         /// <summary>
         /// Returns the presentation format (or
         /// <c>null</c>).
@@ -141,8 +137,6 @@ namespace NPOI.HPSF
         {
             Remove1stProperty(PropertyIDMap.PID_PRESFORMAT);
         }
-
-
 
         /// <summary>
         /// get or set the byte count or 0 if the {@link
@@ -163,8 +157,6 @@ namespace NPOI.HPSF
             Remove1stProperty(PropertyIDMap.PID_BYTECOUNT);
         }
 
-
-
         /// <summary>
         /// get or set the line count or 0 if the {@link
         /// DocumentSummaryInformation} does not contain a line count.
@@ -183,8 +175,6 @@ namespace NPOI.HPSF
         {
             Remove1stProperty(PropertyIDMap.PID_LINECOUNT);
         }
-
-
 
         /// <summary>
         /// get or set the par count or 0 if the {@link
@@ -205,8 +195,6 @@ namespace NPOI.HPSF
             Remove1stProperty(PropertyIDMap.PID_PARCOUNT);
         }
 
-
-
         /// <summary>
         /// get or set the slide count or 0 if the {@link
         /// DocumentSummaryInformation} does not contain a slide count.
@@ -226,8 +214,6 @@ namespace NPOI.HPSF
             Remove1stProperty(PropertyIDMap.PID_SLIDECOUNT);
         }
 
-
-
         /// <summary>
         /// get or set the note count or 0 if the {@link
         /// DocumentSummaryInformation} does not contain a note count.
@@ -246,8 +232,6 @@ namespace NPOI.HPSF
         {
             Remove1stProperty(PropertyIDMap.PID_NOTECOUNT);
         }
-
-
 
         /// <summary>
         /// get or set the hidden count or 0 if the {@link
@@ -281,7 +265,6 @@ namespace NPOI.HPSF
             set => Set1stProperty(PropertyIDMap.PID_MMCLIPCOUNT, value);
         }
 
-
         /// <summary>
         /// Removes the mmclip count.
         /// </summary>
@@ -289,7 +272,6 @@ namespace NPOI.HPSF
         {
             Remove1stProperty(PropertyIDMap.PID_MMCLIPCOUNT);
         }
-
 
         /// <summary>
         /// get or set <c>true</c> when scaling of the thumbnail is
@@ -339,8 +321,6 @@ namespace NPOI.HPSF
             Remove1stProperty(PropertyIDMap.PID_HEADINGPAIR);
         }
 
-
-
         /// <summary>
         /// <para>
         /// Returns the doc parts (or <c>null</c>)
@@ -370,8 +350,6 @@ namespace NPOI.HPSF
             Remove1stProperty(PropertyIDMap.PID_DOCPARTS);
         }
 
-
-
         /// <summary>
         /// get or set the manager (or <c>null</c>).
         /// </summary>
@@ -389,8 +367,6 @@ namespace NPOI.HPSF
         {
             Remove1stProperty(PropertyIDMap.PID_MANAGER);
         }
-
-
 
         /// <summary>
         /// Returns the company (or <c>null</c>).
@@ -410,9 +386,8 @@ namespace NPOI.HPSF
             Remove1stProperty(PropertyIDMap.PID_COMPANY);
         }
 
-
         /// <summary>
-        /// get <c>true</c> if the custom links are dirty. 
+        /// get <c>true</c> if the custom links are dirty.
         /// </summary>
         /// <return>links dirty value</return>
         public bool LinksDirty
@@ -428,7 +403,6 @@ namespace NPOI.HPSF
         {
             Remove1stProperty(PropertyIDMap.PID_LINKSDIRTY);
         }
-
 
         /// <summary>
         /// <para>
@@ -453,7 +427,6 @@ namespace NPOI.HPSF
         {
             Remove1stProperty(PropertyIDMap.PID_CCHWITHSPACES);
         }
-
 
         /// <summary>
         /// <para>
@@ -480,7 +453,6 @@ namespace NPOI.HPSF
             Remove1stProperty(PropertyIDMap.PID_HYPERLINKSCHANGED);
         }
 
-
         /// <summary>
         /// <para>
         /// get or set the version of the Application which wrote the
@@ -502,7 +474,6 @@ namespace NPOI.HPSF
         /// two low order bytes the minor version number.
         /// </summary>
 
-
         /// <summary>
         /// Removes the Application Version
         /// </summary>
@@ -510,7 +481,6 @@ namespace NPOI.HPSF
         {
             Remove1stProperty(PropertyIDMap.PID_VERSION);
         }
-
 
         /// <summary>
         /// Returns the VBA digital signature for the VBA project
@@ -522,7 +492,7 @@ namespace NPOI.HPSF
             get
             {
                 Object value = GetProperty(PropertyIDMap.PID_DIGSIG);
-                if(value != null && value is byte[] bytes)
+                if (value != null && value is byte[] bytes)
                 {
                     return bytes;
                 }
@@ -542,7 +512,6 @@ namespace NPOI.HPSF
             Remove1stProperty(PropertyIDMap.PID_DIGSIG);
         }
 
-
         /// <summary>
         /// Gets the content type of the file (or <c>null</c>).
         /// </summary>
@@ -560,7 +529,6 @@ namespace NPOI.HPSF
         {
             Remove1stProperty(PropertyIDMap.PID_CONTENTTYPE);
         }
-
 
         /// <summary>
         /// Gets the content status of the file (or <c>null</c>).
@@ -580,7 +548,6 @@ namespace NPOI.HPSF
             Remove1stProperty(PropertyIDMap.PID_CONTENTSTATUS);
         }
 
-
         /// <summary>
         /// Gets the document language, which is normally unset and empty (or <c>null</c>).
         /// </summary>
@@ -599,7 +566,6 @@ namespace NPOI.HPSF
             Remove1stProperty(PropertyIDMap.PID_LANGUAGE);
         }
 
-
         /// <summary>
         /// get or set the document version as a string, which is normally unset and empty
         /// (or <c>null</c>).
@@ -611,7 +577,6 @@ namespace NPOI.HPSF
             set => Set1stProperty(PropertyIDMap.PID_DOCVERSION, value);
         }
 
-
         /// <summary>
         /// Removes the document version string
         /// </summary>
@@ -619,7 +584,6 @@ namespace NPOI.HPSF
         {
             Remove1stProperty(PropertyIDMap.PID_DOCVERSION);
         }
-
 
         /// <summary>
         /// get or set the custom properties.
@@ -630,7 +594,7 @@ namespace NPOI.HPSF
             get
             {
                 CustomProperties cps = null;
-                if(SectionCount >= 2)
+                if (SectionCount >= 2)
                 {
                     cps = new CustomProperties();
                     Section section = Sections[1];
@@ -638,14 +602,14 @@ namespace NPOI.HPSF
 
                     Property[] properties = section.Properties;
                     int propertyCount = 0;
-                    foreach(var p in properties)
+                    foreach (var p in properties)
                     {
                         long id = p.ID;
-                        if(id == PropertyIDMap.PID_CODEPAGE)
+                        if (id == PropertyIDMap.PID_CODEPAGE)
                         {
                             cps.SetCodepage((int)p.Value);
                         }
-                        else if(id > PropertyIDMap.PID_CODEPAGE)
+                        else if (id > PropertyIDMap.PID_CODEPAGE)
                         {
                             propertyCount++;
                             dictionary.TryGetValue(id, out string name);
@@ -653,7 +617,7 @@ namespace NPOI.HPSF
                             cps.Put(cp.Name, cp);
                         }
                     }
-                    if(cps.Count != propertyCount)
+                    if (cps.Count != propertyCount)
                     {
                         cps.IsPure = (false);
                     }
@@ -665,25 +629,25 @@ namespace NPOI.HPSF
                 ensureSection2();
                 Section section = Sections[1];
                 Dictionary<long, String> dictionary = value.GetDictionary();
-                //section.clear();
+                // section.clear();
 
                 /* Set the codepage. If both custom properties and section have a
-                 * codepage, the codepage from the custom properties wins, else take the
-                 * one that is defined. If none is defined, take Unicode. */
+                * codepage, the codepage from the custom properties wins, else take the
+                * one that is defined. If none is defined, take Unicode. */
                 int cpCodepage = value.GetCodepage();
-                if(cpCodepage < 0)
+                if (cpCodepage < 0)
                 {
                     cpCodepage = section.Codepage;
                 }
-                if(cpCodepage < 0)
+                if (cpCodepage < 0)
                 {
                     cpCodepage = Property.DEFAULT_CODEPAGE;
                 }
                 value.SetCodepage(cpCodepage);
                 section.Codepage = cpCodepage;
                 section.SetDictionary(dictionary);
-                //i = section.Size;
-                foreach(CustomProperty p in value.Properties())
+                // i = section.Size;
+                foreach (CustomProperty p in value.Properties())
                 {
                     section.SetProperty(p);
                 }
@@ -695,7 +659,7 @@ namespace NPOI.HPSF
         /// </summary>
         private void ensureSection2()
         {
-            if(SectionCount < 2)
+            if (SectionCount < 2)
             {
                 Section s2 = new MutableSection();
                 s2.FormatID = SectionIDMap.DOCUMENT_SUMMARY_INFORMATION_ID[1];
@@ -708,7 +672,7 @@ namespace NPOI.HPSF
         /// </summary>
         public void RemoveCustomProperties()
         {
-            if(SectionCount < 2)
+            if (SectionCount < 2)
             {
                 throw new HPSFRuntimeException("Illegal internal format of Document SummaryInformation stream: second section is missing.");
             }
@@ -716,9 +680,9 @@ namespace NPOI.HPSF
             List<Section> l = new List<Section>(Sections);
             ClearSections();
             int idx = 0;
-            foreach(Section s in l)
+            foreach (Section s in l)
             {
-                if(idx++ != 1)
+                if (idx++ != 1)
                 {
                     AddSection(s);
                 }
@@ -738,4 +702,3 @@ namespace NPOI.HPSF
         }
     }
 }
-

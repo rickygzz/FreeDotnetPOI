@@ -6,66 +6,70 @@ using NPOI.HSSF.Converter;
 using System.IO;
 using NUnit.Framework;
 
-namespace TestCases.HSSF.Converter
-{
-    [TestFixture]
-    public class TestExcelToHtmlConverterSuite
-    {
-        private static List<String> failingFiles = new List<string>();
+namespace TestCases.HSSF.Converter;
 
-        //[Test]
-        public void TestExcelToHtmlConverter()
+[TestFixture]
+public class TestExcelToHtmlConverterSuite
+{
+    private static List<String> failingFiles = new List<string>();
+
+    // [Test]
+    public void TestExcelToHtmlConverter()
+    {
+        string[] fileNames = POIDataSamples.GetSpreadSheetInstance().GetFiles("*.xls");
+        List<string> toConverter = new List<string>();
+        StringBuilder stringBuilder = new StringBuilder();
+        foreach (string filename in fileNames)
         {
-            string[] fileNames = POIDataSamples.GetSpreadSheetInstance().GetFiles("*.xls");
-            List<string> toConverter = new List<string>();
-            StringBuilder stringBuilder = new StringBuilder();
-            foreach (string filename in fileNames)
+            if (filename.EndsWith(".xls"))
             {
-                if (filename.EndsWith(".xls"))
-                    toConverter.Add(filename);
-                else
-                    continue;
-                try
-                {
-                    Test(filename);
-                }
-                catch (Exception ex)
-                {
-                    failingFiles.Add(filename);
-                    stringBuilder.AppendLine(filename);
-                    stringBuilder.AppendLine(ex.Source);
-                    stringBuilder.AppendLine(ex.Message);
-                    stringBuilder.AppendLine(ex.StackTrace);
-                    stringBuilder.AppendLine("**************************************");
-                }
+                toConverter.Add(filename);
             }
-            //
-            // TODO: 在此	添加测试逻辑
-            //
-            string output = string.Empty;
-            if (failingFiles.Count > 0)
+            else
             {
-                output = Path.GetDirectoryName(failingFiles[0]) + "\\failxls.txt";
-                using (StreamWriter sw = new StreamWriter(output, false))
-                {
-                    foreach (string file in failingFiles)
-                    {
-                        sw.WriteLine(file);
-                    }
-                    sw.WriteLine("**********************************************************");
-                    sw.Write(stringBuilder.ToString());
-                    sw.Close();
-                }
+                continue;
             }
-            Assert.IsTrue(failingFiles.Count == 0, "{0}({1}) files failed to convert to html. see " + output, failingFiles.Count, toConverter.Count);
+
+            try
+            {
+                Test(filename);
+            }
+            catch (Exception ex)
+            {
+                failingFiles.Add(filename);
+                stringBuilder.AppendLine(filename);
+                stringBuilder.AppendLine(ex.Source);
+                stringBuilder.AppendLine(ex.Message);
+                stringBuilder.AppendLine(ex.StackTrace);
+                stringBuilder.AppendLine("**************************************");
+            }
         }
-        private void Test(string fileName)
+        //
+        // TODO: 在此	添加测试逻辑
+        //
+        string output = string.Empty;
+        if (failingFiles.Count > 0)
         {
-            HSSFWorkbook workbook;
-                workbook = ExcelToHtmlUtils.LoadXls(fileName);
-                ExcelToHtmlConverter excelToHtmlConverter = new ExcelToHtmlConverter();
-                excelToHtmlConverter.ProcessWorkbook(workbook);
-                excelToHtmlConverter.Document.Save(Path.ChangeExtension(fileName, "html")); ;
+            output = Path.GetDirectoryName(failingFiles[0]) + "\\failxls.txt";
+            using (StreamWriter sw = new StreamWriter(output, false))
+            {
+                foreach (string file in failingFiles)
+                {
+                    sw.WriteLine(file);
+                }
+                sw.WriteLine("**********************************************************");
+                sw.Write(stringBuilder.ToString());
+                sw.Close();
+            }
         }
+        Assert.IsTrue(failingFiles.Count == 0, "{0}({1}) files failed to convert to html. see " + output, failingFiles.Count, toConverter.Count);
+    }
+    private void Test(string fileName)
+    {
+        HSSFWorkbook workbook;
+            workbook = ExcelToHtmlUtils.LoadXls(fileName);
+            ExcelToHtmlConverter excelToHtmlConverter = new ExcelToHtmlConverter();
+            excelToHtmlConverter.ProcessWorkbook(workbook);
+            excelToHtmlConverter.Document.Save(Path.ChangeExtension(fileName, "html")); ;
     }
 }

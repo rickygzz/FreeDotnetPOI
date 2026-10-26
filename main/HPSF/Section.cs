@@ -1,24 +1,24 @@
 /* ====================================================================
-   Licensed to the Apache Software Foundation (ASF) under one or more
-   contributor license agreements.  See the NOTICE file distributed with
-   this work for additional information regarding copyright ownership.
-   The ASF licenses this file to You under the Apache License, Version 2.0
-   (the "License"); you may not use this file except in compliance with
-   the License.  You may obtain a copy of the License at
+    Licensed to the Apache Software Foundation (ASF) under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The ASF licenses this file to You under the Apache License, Version 2.0
+    (the "License"); you may not use this file except in compliance with
+    the License.  You may obtain a copy of the License at
 
-       http://www.apache.org/licenses/LICENSE-2.0
+        http://www.apache.org/licenses/LICENSE-2.0
 
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
 ==================================================================== */
 
 namespace NPOI.HPSF
 {
 
-    //using TreeBidiMap;
+    // using TreeBidiMap;
     using NPOI.HPSF.Wellknown;
     using NPOI.Util;
     using System;
@@ -34,7 +34,7 @@ namespace NPOI.HPSF
     /// </summary>
     public class Section
     {
-        //arbitrarily selected; may need to increase
+        // arbitrarily selected; may need to increase
         private static int MAX_RECORD_LENGTH = 100_000;
         /// <summary>
         /// <para>
@@ -44,7 +44,7 @@ namespace NPOI.HPSF
         /// <para>
         /// Note: the type should be Dictionary&lt;long, String&gt; .
         /// </para></summary>
-        //private Dictionary<long, String> dictionary;
+        // private Dictionary<long, String> dictionary;
 
         private Dictionary<long, String> dictionary;
 
@@ -96,14 +96,12 @@ namespace NPOI.HPSF
         {
             this._offset = -1;
             FormatID = (s.FormatID);
-            foreach(Property p in s.properties.Values)
+            foreach (Property p in s.properties.Values)
             {
                 properties.Add(p.ID, new MutableProperty(p));
             }
             SetDictionary(s.Dictionary);
         }
-
-
 
         /// <summary>
         /// Creates a {@link Section} instance from a byte array.
@@ -112,21 +110,21 @@ namespace NPOI.HPSF
         /// <param name="offset">The position in the stream that points to the
         /// section's format ID.
         /// </param>
-        /// 
+        ///
         /// <exception name="UnsupportedEncodingException">if the section's codepage is not
         /// supported.
-        /// </exception>  
+        /// </exception>
         public Section(byte[] src, int offset)
         {
             /*
-             * Read the format ID.
-             */
+            * Read the format ID.
+            */
             formatID = new ClassID(src, offset);
 
             /*
-             * Read the offset from the stream's start and positions to
-             * the section header.
-             */
+            * Read the offset from the stream's start and positions to
+            * the section header.
+            */
             int offFix = (int)LittleEndian.GetUInt(src, offset + ClassID.LENGTH);
 
             // some input files have a invalid (padded?) offset, which need to be fixed
@@ -142,43 +140,43 @@ namespace NPOI.HPSF
             LittleEndianByteArrayInputStream leis = new LittleEndianByteArrayInputStream(src, offFix);
 
             /*
-             * Read the section length.
-             */
+            * Read the section length.
+            */
             int size = (int)Math.Min(leis.ReadUInt(), src.Length-_offset);
 
             /*
-             * Read the number of properties.
-             */
+            * Read the number of properties.
+            */
             int propertyCount = (int)leis.ReadUInt();
 
             /*
-             * Read the properties. The offset is positioned at the first
-             * entry of the property list. There are two problems:
-             *
-             * 1. For each property we have to find out its length. In the
-             *    property list we find each property's ID and its offset relative
-             *    to the section's beginning. Unfortunately the properties in the
-             *    property list need not to be in ascending order, so it is not
-             *    possible to calculate the length as
-             *    (offset of property(i+1) - offset of property(i)). Before we can
-             *    that we first have to sort the property list by ascending offsets.
-             *
-             * 2. We have to read the property with ID 1 before we read other
-             *    properties, at least before other properties containing strings.
-             *    The reason is that property 1 specifies the codepage. If it is
-             *    1200, all strings are in Unicode. In other words: Before we can
-             *    read any strings we have to know whether they are in Unicode or
-             *    not. Unfortunately property 1 is not guaranteed to be the first in
-             *    a section.
-             *
-             *    The algorithm below reads the properties in two passes: The first
-             *    one looks for property ID 1 and extracts the codepage number. The
-             *    seconds pass reads the other properties.
-             */
+            * Read the properties. The offset is positioned at the first
+            * entry of the property list. There are two problems:
+            *
+            * 1. For each property we have to find out its length. In the
+            *    property list we find each property's ID and its offset relative
+            *    to the section's beginning. Unfortunately the properties in the
+            *    property list need not to be in ascending order, so it is not
+            *    possible to calculate the length as
+            *    (offset of property(i+1) - offset of property(i)). Before we can
+            *    that we first have to sort the property list by ascending offsets.
+            *
+            * 2. We have to read the property with ID 1 before we read other
+            *    properties, at least before other properties containing strings.
+            *    The reason is that property 1 specifies the codepage. If it is
+            *    1200, all strings are in Unicode. In other words: Before we can
+            *    read any strings we have to know whether they are in Unicode or
+            *    not. Unfortunately property 1 is not guaranteed to be the first in
+            *    a section.
+            *
+            *    The algorithm below reads the properties in two passes: The first
+            *    one looks for property ID 1 and extracts the codepage number. The
+            *    seconds pass reads the other properties.
+            */
             /* Pass 1: Read the property list. */
-            //TreeBidiDictionary<long, long> offset2Id = new TreeBidiDictionary<long, long>();
+            // TreeBidiDictionary<long, long> offset2Id = new TreeBidiDictionary<long, long>();
             BidirectionalDictionary<long, long> offset2Id = new ();
-            for(int i = 0; i < propertyCount; i++)
+            for (int i = 0; i < propertyCount; i++)
             {
                 /* Read the property ID. */
                 long id = (int)leis.ReadUInt();
@@ -189,17 +187,18 @@ namespace NPOI.HPSF
                 offset2Id.Add(off, id);
             }
 
-            long? cpOffset = offset2Id.ContainsValue((long)PropertyIDMap.PID_CODEPAGE) ? 
-                offset2Id.GetKey((long)PropertyIDMap.PID_CODEPAGE) : null;
+            long? cpOffset = offset2Id.ContainsValue((long)PropertyIDMap.PID_CODEPAGE)
+                ? offset2Id.GetKey((long)PropertyIDMap.PID_CODEPAGE)
+                : null;
             /* Look for the codepage. */
             int codepage = -1;
-            if(cpOffset.HasValue)
+            if (cpOffset.HasValue)
             {
                 /* Read the property's value type. It must be VT_I2. */
                 leis.SetReadIndex((int)(this._offset + cpOffset.Value));
                 long type = leis.ReadUInt();
 
-                if(type != Variant.VT_I2)
+                if (type != Variant.VT_I2)
                 {
                     throw new HPSFRuntimeException
                         ("Value type of property ID 1 is not VT_I2 but " + type + ".");
@@ -210,10 +209,9 @@ namespace NPOI.HPSF
                 Codepage = codepage;
             }
 
-
             /* Pass 2: Read all properties - including the codepage property,
-             * if available. */
-            foreach(KeyValuePair<long, long> me in offset2Id)
+            * if available. */
+            foreach (KeyValuePair<long, long> me in offset2Id)
             {
                 long off = me.Key;
                 long id = me.Value;
@@ -240,7 +238,7 @@ namespace NPOI.HPSF
                         }
                         catch (RuntimeException e)
                         {
-                            //LOG.log(POILogger.INFO, "Dictionary fallback failed - ignoring property");
+                            // LOG.log(POILogger.INFO, "Dictionary fallback failed - ignoring property");
                         }
                     }
                 }
@@ -252,8 +250,8 @@ namespace NPOI.HPSF
             sectionBytes.Write(src, (int)_offset, size);
             padSectionBytes();
             /*
-             * Extract the dictionary (if available).
-             */
+            * Extract the dictionary (if available).
+            */
             dictionary = (Dictionary<long, String>) GetProperty(0);
         }
 
@@ -305,7 +303,7 @@ namespace NPOI.HPSF
         public void SetFormatID(byte[] formatID)
         {
             ClassID fid = FormatID;
-            if(fid == null)
+            if (fid == null)
             {
                 fid = new ClassID();
                 FormatID = (fid);
@@ -338,7 +336,7 @@ namespace NPOI.HPSF
         public void SetProperties(Property[] properties)
         {
             this.properties.Clear();
-            foreach(Property p in properties)
+            foreach (Property p in properties)
             {
                 SetProperty(p);
             }
@@ -351,7 +349,7 @@ namespace NPOI.HPSF
         /// <c>true</c>.
         /// </summary>
         /// <param name="id">The property's ID</param>
-        /// 
+        ///
         /// <return>property's value</return>
         public Object GetProperty(long id)
         {
@@ -376,7 +374,7 @@ namespace NPOI.HPSF
         /// </summary>
         /// <param name="id">The property's ID</param>
         /// <param name="value">The property's value.</param>
-        /// 
+        ///
         /// @see #setProperty(int, long, Object)
         /// @see #getProperty
         public void SetProperty(int id, int value)
@@ -384,14 +382,12 @@ namespace NPOI.HPSF
             SetProperty(id, Variant.VT_I4, value);
         }
 
-
-
         /// <summary>
         /// Sets the long value of the property with the specified ID.
         /// </summary>
         /// <param name="id">The property's ID</param>
         /// <param name="value">The property's value.</param>
-        /// 
+        ///
         /// @see #setProperty(int, long, Object)
         /// @see #getProperty
         public void SetProperty(int id, long value)
@@ -399,22 +395,18 @@ namespace NPOI.HPSF
             SetProperty(id, Variant.VT_I8, value);
         }
 
-
-
         /// <summary>
         /// Sets the bool value of the property with the specified ID.
         /// </summary>
         /// <param name="id">The property's ID</param>
         /// <param name="value">The property's value.</param>
-        /// 
+        ///
         /// @see #setProperty(int, long, Object)
         /// @see #getProperty
         public void SetProperty(int id, bool value)
         {
             SetProperty(id, Variant.VT_BOOL, value);
         }
-
-
 
         /// <summary>
         /// Sets the value and the variant type of the property with the
@@ -426,7 +418,7 @@ namespace NPOI.HPSF
         /// <param name="id">The property's ID.</param>
         /// <param name="variantType">The property's variant type.</param>
         /// <param name="value">The property's value.</param>
-        /// 
+        ///
         /// @see #setProperty(int, String)
         /// @see #getProperty
         /// @see Variant
@@ -435,20 +427,18 @@ namespace NPOI.HPSF
             SetProperty(new MutableProperty(id, variantType, value));
         }
 
-
-
         /// <summary>
         /// Sets a property.
         /// </summary>
         /// <param name="p">The property to be Set.</param>
-        /// 
+        ///
         /// @see #setProperty(int, long, Object)
         /// @see #getProperty
         /// @see Variant
         public void SetProperty(Property p)
         {
             Property old = properties.TryGetValue(p.ID, out Property value) ? value : null;
-            if(old == null || !old.Equals(p))
+            if (old == null || !old.Equals(p))
             {
                 properties[p.ID] = p;
                 sectionBytes.Reset();
@@ -464,35 +454,35 @@ namespace NPOI.HPSF
         /// </param>
         public void SetProperty(int id, Object value)
         {
-            if(value is String s)
+            if (value is String s)
             {
                 SetProperty(id, s);
             }
-            else if(value is long l)
+            else if (value is long l)
             {
                 SetProperty(id, l);
             }
-            else if(value is int i)
+            else if (value is int i)
             {
                 SetProperty(id, i);
             }
-            else if(value is short s1)
+            else if (value is short s1)
             {
                 SetProperty(id, s1);
             }
-            else if(value is Boolean b)
+            else if (value is Boolean b)
             {
                 SetProperty(id, b);
             }
-            else if(value is Date)
+            else if (value is Date)
             {
                 SetProperty(id, Variant.VT_FILETIME, value);
             }
             else
             {
                 throw new HPSFRuntimeException(
-                        "HPSF does not support properties of type " +
-                        value.GetType().Name + ".");
+                    "HPSF does not support properties of type "
+                    + value.GetType().Name + ".");
             }
         }
 
@@ -504,21 +494,21 @@ namespace NPOI.HPSF
         /// a real property value of 0.
         /// </summary>
         /// <param name="id">The property's ID</param>
-        /// 
+        ///
         /// <return>property's value</return>
         protected internal int GetPropertyIntValue(long id)
         {
             int i;
             Object o = GetProperty(id);
-            if(o == null)
+            if (o == null)
             {
                 return 0;
             }
-            if(!(o is long || o is int))
+            if (!(o is long || o is int))
             {
-                throw new HPSFRuntimeException
-                    ("This property is not an integer type, but " +
-                     o.GetType().Name + ".");
+                throw new HPSFRuntimeException(
+                    "This property is not an integer type, but "
+                    + o.GetType().Name + ".");
             }
             i = (int) o;
             return i;
@@ -532,12 +522,12 @@ namespace NPOI.HPSF
         /// a real property value of <c>false</c>.
         /// </summary>
         /// <param name="id">The property's ID</param>
-        /// 
+        ///
         /// <return>property's value</return>
         protected internal bool GetPropertyBooleanValue(int id)
         {
             object b = GetProperty(id);
-            if(b == null)
+            if (b == null)
             {
                 return false;
             }
@@ -550,7 +540,7 @@ namespace NPOI.HPSF
         /// </summary>
         /// <param name="id">The property's ID</param>
         /// <param name="value">The property's value</param>
-        /// 
+        ///
         /// @see #setProperty(int, long, Object)
         /// @see #getProperty
         /// @see Variant
@@ -606,11 +596,10 @@ namespace NPOI.HPSF
         {
             byte[] padArray = { 0, 0, 0 };
             /* Pad to multiple of 4 bytes so that even the Windows shell (explorer)
-             * shows custom properties. */
+            * shows custom properties. */
             int pad = (4 - ((int)sectionBytes.Position & 0x3)) & 0x3;
             sectionBytes.Write(padArray, 0, pad);
         }
-
 
         /// <summary>
         /// Checks whether the property which the last call to {@link
@@ -630,8 +619,6 @@ namespace NPOI.HPSF
             return wasNull;
         }
 
-
-
         /// <summary>
         /// Returns the PID string associated with a property ID. The ID
         /// is first looked up in the {@link Section}'s private
@@ -639,16 +626,16 @@ namespace NPOI.HPSF
         /// SectionIDMap#getPIDString}.
         /// </summary>
         /// <param name="pid">The property ID</param>
-        /// 
+        ///
         /// <return>property ID's string value</return>
         public String GetPIDString(long pid)
         {
             String s = null;
-            if(dictionary != null)
+            if (dictionary != null)
             {
                 s = (string) dictionary[pid];
             }
-            if(s == null)
+            if (s == null)
             {
                 s = SectionIDMap.GetPIDString(FormatID, pid);
             }
@@ -662,7 +649,7 @@ namespace NPOI.HPSF
         public void Clear()
         {
             Property[] properties = Properties;
-            for(int i = 0; i < properties.Length; i++)
+            for (int i = 0; i < properties.Length; i++)
             {
                 Property p = properties[i];
                 RemoveProperty(p.ID);
@@ -704,18 +691,18 @@ namespace NPOI.HPSF
         /// </return>
         public override bool Equals(Object o)
         {
-            if(o == null || o is not Section section)
+            if (o == null || o is not Section section)
             {
                 return false;
             }
 
-            if(!section.FormatID.Equals(FormatID))
+            if (!section.FormatID.Equals(FormatID))
             {
                 return false;
             }
 
             /* Compare all properties except the dictionary (id 0) and
-             * the codepage (id 1 / ignored) as they must be handled specially. */
+            * the codepage (id 1 / ignored) as they must be handled specially. */
             HashSet<long> propIds = [.. properties.Keys, .. section.properties.Keys];
             propIds.Remove(0L);
             propIds.Remove(1L);
@@ -738,14 +725,14 @@ namespace NPOI.HPSF
 
         static bool CompareDictionaries(Dictionary<long, string> dict1, IDictionary dict2)
         {
-            if(dict1.Count != dict2.Count)
+            if (dict1.Count != dict2.Count)
             {
                 return false;
             }
 
-            foreach(KeyValuePair<long, string> pair in dict1)
+            foreach (KeyValuePair<long, string> pair in dict1)
             {
-                if(!dict2.Contains(pair.Key) || !Equals(pair.Value, dict2[pair.Key]))
+                if (!dict2.Contains(pair.Key) || !Equals(pair.Value, dict2[pair.Key]))
                 {
                     return false;
                 }
@@ -759,7 +746,7 @@ namespace NPOI.HPSF
         /// <param name="id">The ID of the property to be removed</param>
         public void RemoveProperty(long id)
         {
-            if(properties.Remove(id))
+            if (properties.Remove(id))
             {
                 sectionBytes.Reset();
             }
@@ -776,7 +763,7 @@ namespace NPOI.HPSF
         private static Property[] Remove(Property[] pa, int i)
         {
             Property[] h = new Property[pa.Length - 1];
-            if(i > 0)
+            if (i > 0)
             {
                 System.Array.Copy(pa, 0, h, 0, i);
             }
@@ -797,7 +784,7 @@ namespace NPOI.HPSF
         /// </para>
         /// </summary>
         /// <param name="out">The stream to write into.</param>
-        /// 
+        ///
         /// <return>number of bytes written, i.e. the section's size.</return>
         /// <exception name="IOException">if an I/O error occurs</exception>
         /// <exception name="WritingNotSupportedException">if HPSF does not yet support
@@ -807,7 +794,7 @@ namespace NPOI.HPSF
         {
 
             /* Check whether we have already generated the bytes making out the
-             * section. */
+            * section. */
             if (sectionBytes.Position > 0)
             {
                 out1.Write(sectionBytes.ToByteArray(), 0, (int)sectionBytes.Length);
@@ -815,14 +802,14 @@ namespace NPOI.HPSF
             }
 
             /* Writing the section's dictionary it tricky. If there is a dictionary
-             * (property 0) the codepage property (property 1) must be set, too. */
+            * (property 0) the codepage property (property 1) must be set, too. */
             int codepage = Codepage;
             if (codepage == -1)
             {
-                //String msg =
+                // String msg =
                 //    "The codepage property is not set although a dictionary is present. "+
                 //    "Defaulting to ISO-8859-1.";
-                //LOG.log(POILogger.WARN, msg);
+                // LOG.log(POILogger.WARN, msg);
                 codepage = Property.DEFAULT_CODEPAGE;
             }
 
@@ -830,21 +817,21 @@ namespace NPOI.HPSF
             MemoryStream propertyStream = new MemoryStream();
 
             /* The property list is established here. After each property that has
-             * been written to "propertyStream", a property list entry is written to
-             * "propertyListStream". */
+            * been written to "propertyStream", a property list entry is written to
+            * "propertyListStream". */
             MemoryStream propertyListStream = new MemoryStream();
 
             /* Maintain the current position in the list. */
             int position = 0;
 
             /* Increase the position variable by the size of the property list so
-             * that it points behind the property list and to the beginning of the
-             * properties themselves. */
+            * that it points behind the property list and to the beginning of the
+            * properties themselves. */
             position += 2 * LittleEndianConsts.INT_SIZE + PropertyCount * 2 * LittleEndianConsts.INT_SIZE;
 
             /* Write the properties and the property list into their respective
-             * streams: */
-            foreach(Property p in properties.Values)
+            * streams: */
+            foreach (Property p in properties.Values)
             {
                 long id = p.ID;
 
@@ -852,28 +839,28 @@ namespace NPOI.HPSF
                 LittleEndian.PutUInt(id, propertyListStream);
                 LittleEndian.PutUInt(position, propertyListStream);
                 /* If the property ID is not equal 0 we write the property and all
-                 * is fine. However, if it equals 0 we have to write the section's
-                 * dictionary which has an implicit type only and an explicit
-                 * value. */
-                if(id != 0)
+                * is fine. However, if it equals 0 we have to write the section's
+                * dictionary which has an implicit type only and an explicit
+                * value. */
+                if (id != 0)
                 {
                     /* Write the property and update the position to the next
-                     * property. */
+                    * property. */
                     position += p.Write(propertyStream, Codepage);
                 }
                 else
                 {
-                    if(codepage == -1)
+                    if (codepage == -1)
                     {
                         throw new IllegalPropertySetDataException("Codepage (property 1) is undefined.");
                     }
                     position += WriteDictionary(propertyStream, codepage);
                 }
             }
-            
+
             /* Write the section: */
-            int streamLength = LittleEndianConsts.INT_SIZE * 2 + 
-                (int)propertyListStream.Length + (int)propertyStream.Length;
+            int streamLength = LittleEndianConsts.INT_SIZE * 2
+                + (int)propertyListStream.Length + (int)propertyStream.Length;
 
             /* Write the section's length: */
             LittleEndian.PutInt(streamLength, out1);
@@ -891,24 +878,24 @@ namespace NPOI.HPSF
         }
 
         /**
-         * Reads a dictionary.
-         *
-         * @param leis The byte stream containing the bytes making out the dictionary.
-         * @param length The dictionary contains at most this many bytes.
-         * @param codepage The codepage of the string values.
-         *
-         * @return {@code true} if dictionary was read successful, {@code false} otherwise
-         *
-         * @throws UnsupportedEncodingException if the dictionary's codepage is not
-         *         (yet) supported.
-         */
+        * Reads a dictionary.
+        *
+        * @param leis The byte stream containing the bytes making out the dictionary.
+        * @param length The dictionary contains at most this many bytes.
+        * @param codepage The codepage of the string values.
+        *
+        * @return {@code true} if dictionary was read successful, {@code false} otherwise
+        *
+        * @throws UnsupportedEncodingException if the dictionary's codepage is not
+        *         (yet) supported.
+        */
         private bool ReadDictionary(LittleEndianByteArrayInputStream leis, int length, int codepage)
         {
             Dictionary<long,String> dic = new Dictionary<long,String>();
 
             /*
-             * Read the number of dictionary entries.
-             */
+            * Read the number of dictionary entries.
+            */
             long nrEntries = leis.ReadUInt();
 
             long id = -1;
@@ -924,10 +911,10 @@ namespace NPOI.HPSF
                 id = leis.ReadUInt();
 
                 /* The value (a string). The length is the either the
-                 * number of (two-byte) characters if the character set is Unicode
-                 * or the number of bytes if the character set is not Unicode.
-                 * The length includes terminating 0x00 bytes which we have to strip
-                 * off to create a Java string. */
+                * number of (two-byte) characters if the character set is Unicode
+                * or the number of bytes if the character set is not Unicode.
+                * The length includes terminating 0x00 bytes which we have to strip
+                * off to create a Java string. */
                 long sLength = leis.ReadUInt();
 
                 /* Read the string - Strip 0x00 characters from the end of the string. */
@@ -935,12 +922,12 @@ namespace NPOI.HPSF
                 int nrBytes = (int)((sLength-1) * (cp == CodePageUtil.CP_UNICODE ? 2 : 1));
                 if (nrBytes > 0xFFFFFF)
                 {
-                    //LOG.log(POILogger.WARN, errMsg);
+                    // LOG.log(POILogger.WARN, errMsg);
                     isCorrupted = true;
                     break;
                 }
 
-                try 
+                try
                 {
                     byte[] buf = IOUtils.SafelyAllocate(nrBytes, MAX_RECORD_LENGTH);
                     leis.ReadFully(buf, 0, nrBytes);
@@ -954,10 +941,10 @@ namespace NPOI.HPSF
                     leis.Skip(pad);
 
                     dic[id] = str;
-                } 
+                }
                 catch (RuntimeException ex)
                 {
-                    //LOG.log(POILogger.WARN, errMsg, ex);
+                    // LOG.log(POILogger.WARN, errMsg, ex);
                     isCorrupted = true;
                     break;
                 }
@@ -980,7 +967,7 @@ namespace NPOI.HPSF
             Dictionary<long,String> dic = Dictionary;
             LittleEndian.PutUInt(dic.Count, out1);
             int length = LittleEndianConsts.INT_SIZE;
-            foreach(KeyValuePair<long, string> ls in dic)
+            foreach (KeyValuePair<long, string> ls in dic)
             {
                 LittleEndian.PutUInt(ls.Key, out1);
                 length += LittleEndianConsts.INT_SIZE;
@@ -993,7 +980,7 @@ namespace NPOI.HPSF
                 out1.Write(bytes, 0, bytes.Length);
                 length += bytes.Length;
 
-                if(codepage == CodePageUtil.CP_UNICODE)
+                if (codepage == CodePageUtil.CP_UNICODE)
                 {
                     int pad = (4 - (length & 0x3)) & 0x3;
                     out1.Write(padding, 0, pad);
@@ -1016,49 +1003,46 @@ namespace NPOI.HPSF
         /// method.
         /// </summary>
         /// <param name="dictionary">The dictionary</param>
-        /// 
+        ///
         /// <exception name="IllegalPropertySetDataException">if the dictionary's key and
         /// value types are not correct.
         /// </exception>
-        /// 
+        ///
         /// @see Section#getDictionary()
         public void SetDictionary(Dictionary<long, String> dictionary)
         {
 
-            if(dictionary != null)
+            if (dictionary != null)
             {
-                if(this.dictionary == null)
+                if (this.dictionary == null)
                 {
                     this.dictionary = new Dictionary<long, String>();
                 }
-                foreach(var kv in dictionary)
+                foreach (var kv in dictionary)
                 {
                     this.dictionary[kv.Key] = kv.Value;
                 }
-                
+
                 /* If the codepage property (ID 1) for the strings (keys and values)
-                 * used in the dictionary is not yet defined, set it to ISO-8859-1. */
+                * used in the dictionary is not yet defined, set it to ISO-8859-1. */
                 int cp = Codepage;
                 if (cp == -1)
                 {
                     Codepage = Property.DEFAULT_CODEPAGE;
                 }
                 /* Set the dictionary property (ID 0). Please note that the second
-                 * parameter in the method call below is unused because dictionaries
-                 * don't have a type. */
+                * parameter in the method call below is unused because dictionaries
+                * don't have a type. */
                 SetProperty(PropertyIDMap.PID_DICTIONARY, -1, dictionary);
-
             }
             else
             {
                 /* Setting the dictionary to null means to remove property 0.
-                 * However, it does not mean to remove property 1 (codepage). */
+                * However, it does not mean to remove property 1 (codepage). */
                 RemoveProperty(PropertyIDMap.PID_DICTIONARY);
                 this.dictionary = null;
             }
         }
-
-
 
         /// <summary>
         /// </summary>
@@ -1068,15 +1052,13 @@ namespace NPOI.HPSF
             long hashCode = 0;
             hashCode += FormatID.GetHashCode();
             Property[] pa = Properties;
-            for(int i = 0; i < pa.Length; i++)
+            for (int i = 0; i < pa.Length; i++)
             {
                 hashCode += pa[i].GetHashCode();
             }
             int returnHashCode = (int)(hashCode & 0x0ffffffffL);
             return returnHashCode;
         }
-
-
 
         /// <summary>
         /// </summary>
@@ -1106,7 +1088,7 @@ namespace NPOI.HPSF
             {
                 codepage = Property.DEFAULT_CODEPAGE;
             }
-            foreach(Property p in pa)
+            foreach (Property p in pa)
             {
                 b.Append(p.ToString(codepage, idMap));
                 b.Append(",\n");
@@ -1115,8 +1097,6 @@ namespace NPOI.HPSF
             b.Append(']');
             return b.ToString();
         }
-
-
 
         /// <summary>
         /// Gets the section's dictionary. A dictionary allows an application to
@@ -1128,16 +1108,16 @@ namespace NPOI.HPSF
         /// <return>dictionary or <c>null</c> if the section does not have
         /// a dictionary.
         /// </return>
-        public Dictionary<long, String> Dictionary 
+        public Dictionary<long, String> Dictionary
         {
             get
             {
-                if(dictionary == null)
+                if (dictionary == null)
                 {
                     dictionary = (Dictionary<long, String>)GetProperty(PropertyIDMap.PID_DICTIONARY);
                 }
                 return dictionary;
-            }    
+            }
         }
 
         /// <summary>
@@ -1149,7 +1129,7 @@ namespace NPOI.HPSF
             get
             {
                 object codepage = GetProperty(PropertyIDMap.PID_CODEPAGE);
-                if(codepage == null)
+                if (codepage == null)
                 {
                     return -1;
                 }
@@ -1163,4 +1143,3 @@ namespace NPOI.HPSF
         }
     }
 }
-

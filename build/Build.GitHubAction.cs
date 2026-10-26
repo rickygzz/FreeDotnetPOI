@@ -47,7 +47,9 @@ class CustomGitHubActionsAttribute : GitHubActionsAttribute
         foreach (var step in newSteps)
         {
             if (step is GitHubActionsArtifactStep artifactStep)
+            {
                 artifactStep.Name = "FreeDotnetPOI-nupkg";
+            }
         }
 
         job.Steps = newSteps.ToArray();
@@ -85,10 +87,14 @@ class GitHubActionsJobContinueOnError : GitHubActionsJob
             writer.WriteLine($"runs-on: {Image.GetValue()}");
 
             if (ContinueOnError)
+            {
                 writer.WriteLine("continue-on-error: true");
+            }
 
             if (TimeoutMinutes > 0)
+            {
                 writer.WriteLine($"timeout-minutes: {TimeoutMinutes}");
+            }
 
             if (!ConcurrencyGroup.IsNullOrWhiteSpace() || ConcurrencyCancelInProgress)
             {
@@ -97,11 +103,15 @@ class GitHubActionsJobContinueOnError : GitHubActionsJob
                 {
                     var group = ConcurrencyGroup;
                     if (group.IsNullOrWhiteSpace())
+                    {
                         group = "${{ github.workflow }} @ ${{ github.event.pull_request.head.label || github.head_ref || github.run_id }}";
+                    }
 
                     writer.WriteLine($"group: {group}");
                     if (ConcurrencyCancelInProgress)
+                    {
                         writer.WriteLine("cancel-in-progress: true");
+                    }
                 }
             }
 

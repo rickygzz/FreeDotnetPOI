@@ -1,18 +1,18 @@
 /* ====================================================================
-   Licensed to the Apache Software Foundation (ASF) under one or more
-   contributor license agreements.  See the NOTICE file distributed with
-   this work for additional information regarding copyright ownership.
-   The ASF licenses this file to You under the Apache License, Version 2.0
-   (the "License"); you may not use this file except in compliance with
-   the License.  You may obtain a copy of the License at
+    Licensed to the Apache Software Foundation (ASF) under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The ASF licenses this file to You under the Apache License, Version 2.0
+    (the "License"); you may not use this file except in compliance with
+    the License.  You may obtain a copy of the License at
 
-       http://www.apache.org/licenses/LICENSE-2.0
+        http://www.apache.org/licenses/LICENSE-2.0
 
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
 ==================================================================== */
 
 namespace NPOI.HPSF
@@ -58,7 +58,7 @@ namespace NPOI.HPSF
         /// </exception>
         public SummaryInformation(PropertySet ps) : base(ps)
         {
-            if(!IsSummaryInformation)
+            if (!IsSummaryInformation)
             {
                 throw new UnexpectedPropertySetTypeException("Not a " + GetType().Name);
             }
@@ -107,7 +107,6 @@ namespace NPOI.HPSF
             set => Set1stProperty(PropertyIDMap.PID_TITLE, value);
         }
 
-
         /// <summary>
         /// Removes the title.
         /// </summary>
@@ -115,8 +114,6 @@ namespace NPOI.HPSF
         {
             Remove1stProperty(PropertyIDMap.PID_TITLE);
         }
-
-
 
         /// <summary>
         /// get or set the subject (or <c>null</c>).
@@ -136,8 +133,6 @@ namespace NPOI.HPSF
             Remove1stProperty(PropertyIDMap.PID_SUBJECT);
         }
 
-
-
         /// <summary>
         /// get or set the author (or <c>null</c>).
         /// </summary>
@@ -148,7 +143,6 @@ namespace NPOI.HPSF
             set => Set1stProperty(PropertyIDMap.PID_AUTHOR, value);
         }
 
-
         /// <summary>
         /// Removes the author.
         /// </summary>
@@ -156,8 +150,6 @@ namespace NPOI.HPSF
         {
             Remove1stProperty(PropertyIDMap.PID_AUTHOR);
         }
-
-
 
         /// <summary>
         /// get or set the keywords (or <c>null</c>).
@@ -169,7 +161,6 @@ namespace NPOI.HPSF
             set => Set1stProperty(PropertyIDMap.PID_KEYWORDS, value);
         }
 
-
         /// <summary>
         /// Removes the keywords.
         /// </summary>
@@ -177,8 +168,6 @@ namespace NPOI.HPSF
         {
             Remove1stProperty(PropertyIDMap.PID_KEYWORDS);
         }
-
-
 
         /// <summary>
         /// get or set the comments (or <c>null</c>).
@@ -198,7 +187,6 @@ namespace NPOI.HPSF
             Remove1stProperty(PropertyIDMap.PID_COMMENTS);
         }
 
-
         /// <summary>
         /// get or set the template (or <c>null</c>).
         /// </summary>
@@ -216,8 +204,6 @@ namespace NPOI.HPSF
         {
             Remove1stProperty(PropertyIDMap.PID_TEMPLATE);
         }
-
-
 
         /// <summary>
         /// get or set the last author (or <c>null</c>).
@@ -237,8 +223,6 @@ namespace NPOI.HPSF
             Remove1stProperty(PropertyIDMap.PID_LASTAUTHOR);
         }
 
-
-
         /// <summary>
         /// get or set the revision number (or <c>null</c>).
         /// </summary>
@@ -256,8 +240,6 @@ namespace NPOI.HPSF
         {
             Remove1stProperty(PropertyIDMap.PID_REVNUMBER);
         }
-
-
 
         /// <summary>
         /// get or set the total time spent in editing the document (or
@@ -289,8 +271,6 @@ namespace NPOI.HPSF
             Remove1stProperty(PropertyIDMap.PID_EDITTIME);
         }
 
-
-
         /// <summary>
         /// get or set the last printed time (or <c>null</c>).
         /// </summary>
@@ -309,8 +289,6 @@ namespace NPOI.HPSF
             Remove1stProperty(PropertyIDMap.PID_LASTPRINTED);
         }
 
-
-
         /// <summary>
         /// get or set the creation time (or <c>null</c>).
         /// </summary>
@@ -321,7 +299,6 @@ namespace NPOI.HPSF
             set => FirstSection.SetProperty(PropertyIDMap.PID_CREATE_DTM, Variant.VT_FILETIME, value);
         }
 
-
         /// <summary>
         /// Removes the creation time.
         /// </summary>
@@ -329,8 +306,6 @@ namespace NPOI.HPSF
         {
             Remove1stProperty(PropertyIDMap.PID_CREATE_DTM);
         }
-
-
 
         /// <summary>
         /// get or set the last save time (or <c>null</c>).
@@ -342,7 +317,6 @@ namespace NPOI.HPSF
             set => FirstSection.SetProperty(PropertyIDMap.PID_LASTSAVE_DTM, Variant.VT_FILETIME, value);
         }
 
-
         /// <summary>
         /// Remove the total time spent in editing the document.
         /// </summary>
@@ -350,8 +324,6 @@ namespace NPOI.HPSF
         {
             Remove1stProperty(PropertyIDMap.PID_LASTSAVE_DTM);
         }
-
-
 
         /// <summary>
         /// get or set the page count or 0 if the {@link SummaryInformation} does
@@ -374,8 +346,6 @@ namespace NPOI.HPSF
             Remove1stProperty(PropertyIDMap.PID_PAGECOUNT);
         }
 
-
-
         /// <summary>
         /// get or set the word count or 0 if the {@link SummaryInformation} does
         /// not contain a word count.
@@ -387,7 +357,6 @@ namespace NPOI.HPSF
             set => Set1stProperty(PropertyIDMap.PID_WORDCOUNT, value);
         }
 
-
         /// <summary>
         /// Removes the word count.
         /// </summary>
@@ -395,8 +364,6 @@ namespace NPOI.HPSF
         {
             Remove1stProperty(PropertyIDMap.PID_WORDCOUNT);
         }
-
-
 
         /// <summary>
         /// get or set the character count or 0 if the {@link SummaryInformation}
@@ -416,8 +383,6 @@ namespace NPOI.HPSF
         {
             Remove1stProperty(PropertyIDMap.PID_CHARCOUNT);
         }
-
-
 
         /// <summary>
         /// <para>
@@ -449,13 +414,13 @@ namespace NPOI.HPSF
             get
             {
                 byte[] data = Thumbnail;
-                if(data == null)
+                if (data == null)
+                {
                     return null;
+                }
                 return new Thumbnail(data);
             }
-
         }
-
 
         /// <summary>
         /// Removes the thumbnail.
@@ -464,8 +429,6 @@ namespace NPOI.HPSF
         {
             Remove1stProperty(PropertyIDMap.PID_THUMBNAIL);
         }
-
-
 
         /// <summary>
         /// get or set the application name (or <c>null</c>).
@@ -477,7 +440,6 @@ namespace NPOI.HPSF
             set => Set1stProperty(PropertyIDMap.PID_APPNAME, value);
         }
 
-
         /// <summary>
         /// Removes the application name.
         /// </summary>
@@ -485,8 +447,6 @@ namespace NPOI.HPSF
         {
             Remove1stProperty(PropertyIDMap.PID_APPNAME);
         }
-
-
 
         /// <summary>
         /// <para>
@@ -531,7 +491,5 @@ namespace NPOI.HPSF
         {
             Remove1stProperty(PropertyIDMap.PID_SECURITY);
         }
-
     }
 }
-

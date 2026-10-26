@@ -3,13 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace NPOI.StyleViewer
+namespace NPOI.StyleViewer;
+
+internal class WordStyle
 {
-    internal class WordStyle
-    {
-        public string TypeName { get; set; }
+    public string TypeName { get; set; }
 
-        public Dictionary<string, string> Styles = new Dictionary<string, string>();
-
-    }
+    public Dictionary<string, string> Styles = new Dictionary<string, string>();
 }

@@ -1,9 +1,8 @@
-﻿namespace NPOI.HPSF
+﻿namespace NPOI.HPSF;
+
+public class IndirectPropertyName : CodePageString
 {
-    public class IndirectPropertyName : CodePageString
+    internal IndirectPropertyName()
     {
-        internal IndirectPropertyName()
-        {
-        }
     }
 }
