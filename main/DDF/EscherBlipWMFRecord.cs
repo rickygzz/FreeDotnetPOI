@@ -61,8 +61,7 @@ public class EscherBlipWMFRecord : EscherBlipRecord
     /// The number of bytes Read from the byte array.
     /// </returns>
     public override int FillFields(byte[] data, int offset,
-                                IEscherRecordFactory recordFactory
-                                )
+        IEscherRecordFactory recordFactory)
     {
         int bytesAfterHeader = ReadHeader(data, offset);
         int pos = offset + HEADER_SIZE;
@@ -317,7 +316,12 @@ public class EscherBlipWMFRecord : EscherBlipRecord
                 extraData = e.ToString();
             }
             StringBuilder builder = new StringBuilder();
-            builder.Append(tab).Append(FormatXmlRecordHeader(GetType().Name, HexDump.ToHex(RecordId), HexDump.ToHex(Version), HexDump.ToHex(Instance)))
+            builder.Append(tab)
+                .Append(FormatXmlRecordHeader(
+                    GetType().Name,
+                    HexDump.ToHex(RecordId),
+                    HexDump.ToHex(Version),
+                    HexDump.ToHex(Instance)))
                 .Append(tab).Append("\t").Append("<SecondaryUID>0x").Append(HexDump.ToHex(field_1_secondaryUID)).Append("</SecondaryUID>\n")
                 .Append(tab).Append("\t").Append("<CacheOfSize>").Append(field_2_cacheOfSize).Append("</CacheOfSize>\n")
                 .Append(tab).Append("\t").Append("<BoundaryTop>").Append(field_3_boundaryTop).Append("</BoundaryTop>\n")
@@ -389,7 +393,10 @@ public class EscherBlipWMFRecord : EscherBlipRecord
                     try
                     {
                         while ((c = zIn.ReadByte()) != -1)
+                        {
                             out1.WriteByte((byte)c);
+                        }
+
                         return out1.ToArray();
                     }
                     catch (IOException e)

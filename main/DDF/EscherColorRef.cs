@@ -121,21 +121,20 @@ public class SysIndexProcedure
     * field, Set it to the minimum intensity. If the color component being modified is greater
     * than or equal to the parameter, Set it to the maximum intensity.
     */
-    THRESHOLD = new SysIndexProcedure(0x06),
+    THRESHOLD = new(0x06),
 
     /*
     * After making other modifications, invert the color.
     * This enum value is only for documentation and won't be directly returned.
     */
-    INVERT_AFTER = new SysIndexProcedure(0x20),
+    INVERT_AFTER = new(0x20),
 
     /*
     * After making other modifications, invert the color by toggling just the high bit of each
     * color channel.
     * This enum value is only for documentation and won't be directly returned.
     */
-    INVERT_HIGHBIT_AFTER = new SysIndexProcedure(0x40)
-    ;
+    INVERT_HIGHBIT_AFTER = new(0x40);
     internal BitField mask;
     internal SysIndexProcedure(int mask)
     {

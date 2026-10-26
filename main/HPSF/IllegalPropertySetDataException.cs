@@ -1,4 +1,4 @@
-/* ====================================================================
+﻿/* ====================================================================
     Licensed To the Apache Software Foundation (ASF) under one or more
     contributor license agreements.  See the NOTICE file distributed with
     this work for Additional information regarding copyright ownership.
@@ -73,8 +73,9 @@ public class IllegalPropertySetDataException : HPSFRuntimeException
     /// </summary>
     /// <param name="msg"> The exception's message string</param>
     /// <param name="reason">This exception's underlying reason</param>
-    public IllegalPropertySetDataException(String msg,
-                                            Exception reason)
+    public IllegalPropertySetDataException(
+        String msg,
+        Exception reason)
         : base(msg, reason)
     {
     }

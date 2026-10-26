@@ -386,7 +386,9 @@ public class EscherDump
                 byte[] buf = new byte[nDumpSize];
                 int Read = in1.Read(buf, 0, buf.Length);
                 while (Read != -1 && Read < nDumpSize)
+                {
                     Read += in1.Read(buf, Read, buf.Length);
+                }
 
                 using (MemoryStream bin = new MemoryStream(buf))
                 {
@@ -443,12 +445,11 @@ public class EscherDump
         public String name;
     }
     /// <summary>
-    /// Returns a property name given a property id.  This is used only by the
-    /// old escher dump routine.
+    ///     Returns a property name given a property id.  This is used only by the old escher dump routine.
     /// </summary>
     /// <param name="propertyId">The property number for the name</param>
     /// <returns>A descriptive name.</returns>
-    private static String PropertyName(short propertyId)
+    private static string PropertyName(short propertyId)
     {
         PropName[] props = new PropName[] {
             new PropName(4, "transform.rotation"),
@@ -743,7 +744,7 @@ public class EscherDump
     /// </summary>
     /// <param name="b">blip id</param>
     /// <returns> A description.</returns>
-    private static String GetBlipType(byte b)
+    private static string GetBlipType(byte b)
     {
         switch (b)
         {
@@ -779,7 +780,7 @@ public class EscherDump
     /// Straight conversion from OO.  Converts a type of float.
     /// </summary>
     /// <param name="n32">The N32.</param>
-    private static String Dec1616(int n32)
+    private static string Dec1616(int n32)
     {
         String result = "";
         result += (short)(n32 >> 16);

@@ -1,4 +1,4 @@
-/* ====================================================================
+﻿/* ====================================================================
     Licensed To the Apache Software Foundation (ASF) under one or more
     contributor license agreements.  See the NOTICE file distributed with
     this work for Additional information regarding copyright ownership.
@@ -48,8 +48,9 @@ public abstract class UnsupportedVariantTypeException : VariantTypeException
     /// </summary>
     /// <param name="variantType">The unsupported variant type</param>
     /// <param name="value">The value who's variant type is not yet supported</param>
-    public UnsupportedVariantTypeException(long variantType,
-                                            Object value)
+    public UnsupportedVariantTypeException(
+        long variantType,
+        Object value)
         : base(variantType, value,
             "HPSF does not yet support the variant type " + variantType
             + " (" + Variant.GetVariantName(variantType) + ", "

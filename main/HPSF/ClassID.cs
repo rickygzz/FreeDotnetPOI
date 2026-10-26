@@ -97,7 +97,9 @@ public class ClassID
     {
         bytes = new byte[LENGTH];
         for (int i = 0; i < LENGTH; i++)
+        {
             bytes[i] = 0x00;
+        }
     }
 
     /**
@@ -135,7 +137,9 @@ public class ClassID
         set
         {
             for (int i = 0; i < this.bytes.Length; i++)
+            {
                 this.bytes[i] = value[i];
+            }
         }
     }
 
@@ -165,7 +169,9 @@ public class ClassID
 
         /* Read 8 bytes. */
         for (int i = 8; i < 16; i++)
+        {
             bytes[i] = src[i + offset];
+        }
 
         return bytes;
     }
@@ -203,7 +209,9 @@ public class ClassID
 
         /* Write 8 bytes. */
         for (int i = 8; i < 16; i++)
+        {
             dst[i + offset] = bytes[i];
+        }
     }
 
     /// <summary>
@@ -245,8 +253,7 @@ public class ClassID
             && o.bytes[12] == bytes[12]
             && o.bytes[13] == bytes[13]
             && o.bytes[14] == bytes[14]
-            && o.bytes[15] == bytes[15]
-            ;
+            && o.bytes[15] == bytes[15];
     }
 
     /// <summary>

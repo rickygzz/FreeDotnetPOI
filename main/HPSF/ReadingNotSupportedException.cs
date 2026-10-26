@@ -1,4 +1,4 @@
-/* ====================================================================
+﻿/* ====================================================================
     Licensed To the Apache Software Foundation (ASF) under one or more
     contributor license agreements.  See the NOTICE file distributed with
     this work for Additional information regarding copyright ownership.
@@ -47,8 +47,10 @@ public class ReadingNotSupportedException : UnsupportedVariantTypeException
     /// </summary>
     /// <param name="variantType">The unsupported variant type</param>
     /// <param name="value">The value who's variant type is not yet supported</param>
-    public ReadingNotSupportedException(long variantType,
-                                        Object value):base(variantType, value)
+    public ReadingNotSupportedException(
+        long variantType,
+        Object value)
+        : base(variantType, value)
     {
     }
 }

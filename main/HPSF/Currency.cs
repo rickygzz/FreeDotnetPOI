@@ -24,9 +24,9 @@ internal sealed class Currency
 
     private readonly byte[] _value = new byte[SIZE];
 
-    internal Currency() {}
+    internal Currency() { }
 
-    internal void Read( LittleEndianByteArrayInputStream lei )
+    internal void Read(LittleEndianByteArrayInputStream lei)
     {
         lei.ReadFully(_value);
     }

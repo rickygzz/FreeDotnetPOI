@@ -24,9 +24,10 @@ internal class GUID
     private short _data2;
     private short _data3;
     private long _data4;
-    internal GUID() {}
+    internal GUID() { }
 
-    internal void Read( LittleEndianByteArrayInputStream lei ) {
+    internal void Read(LittleEndianByteArrayInputStream lei)
+    {
         _data1 = lei.ReadInt();
         _data2 = lei.ReadShort();
         _data3 = lei.ReadShort();

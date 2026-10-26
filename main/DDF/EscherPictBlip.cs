@@ -291,14 +291,14 @@ public class EscherPictBlip : EscherBlipRecord
         String extraData = "";
         StringBuilder builder = new StringBuilder();
         builder.Append(tab).Append(FormatXmlRecordHeader(GetType().Name, HexDump.ToHex(RecordId), HexDump.ToHex(Version), HexDump.ToHex(Instance)))
-                .Append(tab).Append("\t").Append("<UID>0x").Append(HexDump.ToHex(field_1_UID)).Append("</UID>\n")
-                .Append(tab).Append("\t").Append("<UncompressedSize>0x").Append(HexDump.ToHex(field_2_cb)).Append("</UncompressedSize>\n")
-                .Append(tab).Append("\t").Append("<Bounds>").Append(Bounds).Append("</Bounds>\n")
-                .Append(tab).Append("\t").Append("<SizeInEMU>").Append(SizeEMU).Append("</SizeInEMU>\n")
-                .Append(tab).Append("\t").Append("<CompressedSize>0x").Append(HexDump.ToHex(field_5_cbSave)).Append("</CompressedSize>\n")
-                .Append(tab).Append("\t").Append("<Compression>0x").Append(HexDump.ToHex(field_6_fCompression)).Append("</Compression>\n")
-                .Append(tab).Append("\t").Append("<Filter>0x").Append(HexDump.ToHex(field_7_fFilter)).Append("</Filter>\n")
-                .Append(tab).Append("\t").Append("<ExtraData>").Append(extraData).Append("</ExtraData>\n");
+            .Append(tab).Append("\t").Append("<UID>0x").Append(HexDump.ToHex(field_1_UID)).Append("</UID>\n")
+            .Append(tab).Append("\t").Append("<UncompressedSize>0x").Append(HexDump.ToHex(field_2_cb)).Append("</UncompressedSize>\n")
+            .Append(tab).Append("\t").Append("<Bounds>").Append(Bounds).Append("</Bounds>\n")
+            .Append(tab).Append("\t").Append("<SizeInEMU>").Append(SizeEMU).Append("</SizeInEMU>\n")
+            .Append(tab).Append("\t").Append("<CompressedSize>0x").Append(HexDump.ToHex(field_5_cbSave)).Append("</CompressedSize>\n")
+            .Append(tab).Append("\t").Append("<Compression>0x").Append(HexDump.ToHex(field_6_fCompression)).Append("</Compression>\n")
+            .Append(tab).Append("\t").Append("<Filter>0x").Append(HexDump.ToHex(field_7_fFilter)).Append("</Filter>\n")
+            .Append(tab).Append("\t").Append("<ExtraData>").Append(extraData).Append("</ExtraData>\n");
         builder.Append(tab).Append("</").Append(GetType().Name).Append(">\n");
         return builder.ToString();
     }

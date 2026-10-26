@@ -26,9 +26,9 @@ public class Decimal
     private int field_4_hi32;
     private long field_5_lo64;
 
-    internal Decimal() {}
+    internal Decimal() { }
 
-    internal void Read( LittleEndianByteArrayInputStream lei )
+    internal void Read(LittleEndianByteArrayInputStream lei)
     {
         field_1_wReserved = lei.ReadShort();
         field_2_scale = (byte)lei.ReadByte();

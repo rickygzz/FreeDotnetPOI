@@ -146,7 +146,7 @@ public class DefaultEscherRecordFactory : IEscherRecordFactory
             catch
             {
                 throw new RecordFormatException(
-                        "Unable to determine record types");
+                    "Unable to determine record types");
             }
             ConstructorInfo ci;
             try
@@ -166,8 +166,7 @@ public class DefaultEscherRecordFactory : IEscherRecordFactory
     public static bool IsContainer(short options, short recordId)
     {
         if (recordId >= EscherContainerRecord.DGG_CONTAINER
-            && recordId
-            <= EscherContainerRecord.SOLVER_CONTAINER)
+            && recordId <= EscherContainerRecord.SOLVER_CONTAINER)
         {
             return true;
         }

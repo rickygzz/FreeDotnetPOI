@@ -1,4 +1,4 @@
-
+﻿
 /* ====================================================================
     Licensed to the Apache Software Foundation (ASF) under one or more
     contributor license agreements.  See the NOTICE file distributed with
@@ -18,9 +18,9 @@
 
 namespace NPOI.DDF;
 
-using NPOI.Util;
 using System;
 using System.Text;
+using NPOI.Util;
 
 /// <summary>
 /// Represents a bool property.  The actual utility of this property is in doubt because many
@@ -70,8 +70,9 @@ public class EscherBoolProperty : EscherSimpleProperty
     {
         StringBuilder builder = new StringBuilder();
         builder.Append(tab).Append("<").Append(GetType().Name).Append(" id=\"0x").Append(HexDump.ToHex(Id))
-                .Append("\" name=\"").Append(Name).Append("\" simpleValue=\"").Append(PropertyValue).Append("\" blipId=\"")
-                .Append(IsBlipId).Append("\" value=\"").Append(IsTrue).Append("\"").Append("/>\n");
+            .Append("\" name=\"").Append(Name).Append("\" simpleValue=\"").Append(PropertyValue).Append("\" blipId=\"")
+            .Append(IsBlipId).Append("\" value=\"").Append(IsTrue).Append("\"").Append("/>\n");
+
         return builder.ToString();
     }
 }

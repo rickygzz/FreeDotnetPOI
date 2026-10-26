@@ -17,7 +17,6 @@
 
 namespace NPOI.HPSF;
 
-
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -130,9 +129,9 @@ public class Section
         // search for beginning of size field
         if (src[offFix] == 0)
         {
-            for (int i = 0; i < 3 && src[offFix] == 0; i++, offFix++);
+            for (int i = 0; i < 3 && src[offFix] == 0; i++, offFix++) ;
             // cross check with propertyCount field and the property list field
-            for (int i = 0; i < 3 && (src[offFix + 3] != 0 || src[offFix + 7] != 0 || src[offFix + 11] != 0); i++, offFix--);
+            for (int i = 0; i < 3 && (src[offFix + 3] != 0 || src[offFix + 7] != 0 || src[offFix + 11] != 0); i++, offFix--) ;
         }
 
         this._offset = offFix;
@@ -175,7 +174,8 @@ public class Section
         */
         /* Pass 1: Read the property list. */
         // TreeBidiDictionary<long, long> offset2Id = new TreeBidiDictionary<long, long>();
-        BidirectionalDictionary<long, long> offset2Id = new ();
+        BidirectionalDictionary<long, long> offset2Id = new();
+
         for (int i = 0; i < propertyCount; i++)
         {
             /* Read the property ID. */
@@ -252,7 +252,7 @@ public class Section
         /*
         * Extract the dictionary (if available).
         */
-        dictionary = (Dictionary<long, String>) GetProperty(0);
+        dictionary = (Dictionary<long, String>)GetProperty(0);
     }
 
     /// <summary>
@@ -510,7 +510,7 @@ public class Section
                 "This property is not an integer type, but "
                 + o.GetType().Name + ".");
         }
-        i = (int) o;
+        i = (int)o;
         return i;
     }
 
@@ -531,7 +531,7 @@ public class Section
         {
             return false;
         }
-        return (bool) b;
+        return (bool)b;
     }
 
     /// <summary>
@@ -633,7 +633,7 @@ public class Section
         String s = null;
         if (dictionary != null)
         {
-            s = (string) dictionary[pid];
+            s = (string)dictionary[pid];
         }
         if (s == null)
         {
@@ -707,7 +707,8 @@ public class Section
         propIds.Remove(0L);
         propIds.Remove(1L);
 
-        foreach (long id in propIds) {
+        foreach (long id in propIds)
+        {
             properties.TryGetValue(id, out Property p1);
             section.properties.TryGetValue(id, out Property p2);
             if (p1 == null || p2 == null || !p1.Equals(p2))
@@ -891,7 +892,7 @@ public class Section
     */
     private bool ReadDictionary(LittleEndianByteArrayInputStream leis, int length, int codepage)
     {
-        Dictionary<long,String> dic = new Dictionary<long,String>();
+        Dictionary<long, string> dic = new Dictionary<long, string>();
 
         /*
         * Read the number of dictionary entries.
@@ -919,7 +920,7 @@ public class Section
 
             /* Read the string - Strip 0x00 characters from the end of the string. */
             int cp = (codepage == -1) ? Property.DEFAULT_CODEPAGE : codepage;
-            int nrBytes = (int)((sLength-1) * (cp == CodePageUtil.CP_UNICODE ? 2 : 1));
+            int nrBytes = (int)((sLength - 1) * (cp == CodePageUtil.CP_UNICODE ? 2 : 1));
             if (nrBytes > 0xFFFFFF)
             {
                 // LOG.log(POILogger.WARN, errMsg);
@@ -936,7 +937,7 @@ public class Section
                 int pad = 1;
                 if (cp == CodePageUtil.CP_UNICODE)
                 {
-                    pad = 2+((4 - ((nrBytes+2) & 0x3)) & 0x3);
+                    pad = 2 + ((4 - ((nrBytes + 2) & 0x3)) & 0x3);
                 }
                 leis.Skip(pad);
 
@@ -964,7 +965,7 @@ public class Section
     private int WriteDictionary(MemoryStream out1, int codepage)
     {
         byte[] padding = new byte[4];
-        Dictionary<long,String> dic = Dictionary;
+        Dictionary<long, string> dic = Dictionary;
         LittleEndian.PutUInt(dic.Count, out1);
         int length = LittleEndianConsts.INT_SIZE;
         foreach (KeyValuePair<long, string> ls in dic)
@@ -972,7 +973,7 @@ public class Section
             LittleEndian.PutUInt(ls.Key, out1);
             length += LittleEndianConsts.INT_SIZE;
 
-            String value = ls.Value+"\0";
+            String value = ls.Value + "\0";
             LittleEndian.PutUInt(value.Length, out1);
             length += LittleEndianConsts.INT_SIZE;
 
@@ -1069,7 +1070,7 @@ public class Section
     }
     public String ToString(PropertyIDMap idMap)
     {
-        using var b= ZString.CreateStringBuilder();
+        using var b = ZString.CreateStringBuilder();
         Property[] pa = Properties;
         b.Append("\n\n\n");
         b.Append(GetType().Name);

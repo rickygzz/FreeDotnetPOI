@@ -14,8 +14,8 @@ using System.Collections.Generic;
     TimeoutMinutes = 20,
     CacheKeyFiles = [],
     ReadPermissions = [GitHubActionsPermissions.Contents],
-    PublishCondition = "runner.os == 'Linux'"
-)]
+    PublishCondition = "runner.os == 'Linux'")
+]
 [CustomGitHubActions("PR",
     GitHubActionsImage.WindowsLatest,
     GitHubActionsImage.UbuntuLatest,
@@ -25,8 +25,8 @@ using System.Collections.Generic;
     CacheKeyFiles = [],
     ConcurrencyCancelInProgress = true,
     ReadPermissions = [GitHubActionsPermissions.Contents],
-    PublishCondition = "runner.os == 'Linux'"
-)]
+    PublishCondition = "runner.os == 'Linux'")
+]
 partial class Build;
 
 class CustomGitHubActionsAttribute : GitHubActionsAttribute

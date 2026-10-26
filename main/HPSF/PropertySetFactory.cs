@@ -96,7 +96,7 @@ public class PropertySetFactory
     {
         stream.Mark(PropertySet.OFFSET_HEADER + ClassID.LENGTH+1);
         LittleEndianInputStream leis = new LittleEndianInputStream(stream);
-        int byteOrder =  leis.ReadUShort();
+        int byteOrder = leis.ReadUShort();
         int format = leis.ReadUShort();
         _ = leis.ReadUInt();
         byte[] clsIdBuf = new byte[ClassID.LENGTH];

@@ -27,13 +27,13 @@ internal class UnicodeString
     //   .getLogger( UnicodeString.class );
     // arbitrarily selected; may need to increase
     private static int MAX_RECORD_LENGTH = 100_000;
-    internal UnicodeString() {}
+    internal UnicodeString() { }
     private byte[] _value;
 
     internal void Read(LittleEndianByteArrayInputStream lei)
     {
         int length = lei.ReadInt();
-        int unicodeBytes = length*2;
+        int unicodeBytes = length * 2;
         _value = IOUtils.SafelyAllocate(unicodeBytes, MAX_RECORD_LENGTH);
 
         // If Length is zero, this field MUST be zero bytes in length. If Length is
@@ -50,7 +50,7 @@ internal class UnicodeString
 
         lei.ReadFully(_value);
 
-        if (_value[unicodeBytes-2] != 0 || _value[unicodeBytes-1] != 0)
+        if (_value[unicodeBytes - 2] != 0 || _value[unicodeBytes - 1] != 0)
         {
             string msg = "UnicodeString started at offset #" + offset + " is not NULL-terminated";
             throw new IllegalPropertySetDataException(msg);
@@ -71,8 +71,10 @@ internal class UnicodeString
             return null;
         }
 
-        String result = StringUtil.GetFromUnicodeLE(_value, 0,
-                _value.Length >> 1);
+        String result = StringUtil.GetFromUnicodeLE(
+            _value,
+            0,
+            _value.Length >> 1);
 
         int terminator = result.IndexOf('\0');
         if (terminator == -1)
@@ -93,15 +95,15 @@ internal class UnicodeString
         return result.Substring(0, terminator);
     }
 
-    internal void SetJavaValue(string string1 )
+    internal void SetJavaValue(string string1)
     {
         _value = CodePageUtil.GetBytesInCodePage(string1 + "\0", CodePageUtil.CP_UNICODE);
     }
 
-    internal int Write( Stream out1 )
+    internal int Write(Stream out1)
     {
-        LittleEndian.PutUInt( _value.Length / 2, out1 );
-        out1.Write( _value, 0, _value.Length );
+        LittleEndian.PutUInt(_value.Length / 2, out1);
+        out1.Write(_value, 0, _value.Length);
         return LittleEndianConsts.INT_SIZE + _value.Length;
     }
 }

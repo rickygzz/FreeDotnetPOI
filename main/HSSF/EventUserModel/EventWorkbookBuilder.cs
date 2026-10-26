@@ -55,8 +55,10 @@ public class EventWorkbookBuilder
     /// <param name="bounds">The BoundSheetRecords in your file</param>
     /// <param name="sst">TThe SSTRecord in your file.</param>
     /// <returns>A stub Workbook suitable for use with HSSFFormulaParser</returns>
-    public static InternalWorkbook CreateStubWorkbook(ExternSheetRecord[] externs,
-            BoundSheetRecord[] bounds, SSTRecord sst)
+    public static InternalWorkbook CreateStubWorkbook(
+        ExternSheetRecord[] externs,
+        BoundSheetRecord[] bounds,
+        SSTRecord sst)
     {
         List<Record> wbRecords = new List<Record>();
 
@@ -77,8 +79,10 @@ public class EventWorkbookBuilder
         //  preceded by a SupBookRecord
         if (externs != null)
         {
-            wbRecords.Add(SupBookRecord.CreateInternalReferences(
+            wbRecords.Add(
+                SupBookRecord.CreateInternalReferences(
                     (short)externs.Length));
+
             for (int i = 0; i < externs.Length; i++)
             {
                 wbRecords.Add(externs[i]);
@@ -98,8 +102,9 @@ public class EventWorkbookBuilder
     /// <param name="externs">The ExternSheetRecords in your file</param>
     /// <param name="bounds">A stub Workbook suitable for use with HSSFFormulaParser</param>
     /// <returns>A stub Workbook suitable for use with {@link HSSFFormulaParser}</returns>
-    public static InternalWorkbook CreateStubWorkbook(ExternSheetRecord[] externs,
-            BoundSheetRecord[] bounds)
+    public static InternalWorkbook CreateStubWorkbook(
+        ExternSheetRecord[] externs,
+        BoundSheetRecord[] bounds)
     {
         return CreateStubWorkbook(externs, bounds, null);
     }
@@ -132,8 +137,7 @@ public class EventWorkbookBuilder
         public BoundSheetRecord[] GetBoundSheetRecords()
         {
             return (BoundSheetRecord[])boundSheetRecords.ToArray(
-                    typeof(BoundSheetRecord)
-            );
+                typeof(BoundSheetRecord));
         }
         /// <summary>
         /// Gets the extern sheet records.
@@ -141,8 +145,7 @@ public class EventWorkbookBuilder
         public ExternSheetRecord[] GetExternSheetRecords()
         {
             return (ExternSheetRecord[])externSheetRecords.ToArray(
-                    typeof(ExternSheetRecord)
-            );
+                typeof(ExternSheetRecord));
         }
         /// <summary>
         /// Gets the SST record.
@@ -176,8 +179,7 @@ public class EventWorkbookBuilder
         {
             return CreateStubWorkbook(
                 GetExternSheetRecords(), GetBoundSheetRecords(),
-                GetSSTRecord()
-            );
+                GetSSTRecord());
         }
 
         /// <summary>

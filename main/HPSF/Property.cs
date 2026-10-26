@@ -92,9 +92,8 @@ public class Property
     /// </summary>
     /// <param name="p">The property to copy.</param>
     public Property(Property p)
-            : this(p.id, p.type, p._value)
+        : this(p.id, p.type, p._value)
     {
-        ;
     }
 
     /// <summary>
@@ -139,7 +138,7 @@ public class Property
         */
         if (id == 0)
         {
-            _value = ReadDictionary(src, offset, length, codepage);
+            _value = Property.ReadDictionary(src, offset, length, codepage);
             return;
         }
 
@@ -240,7 +239,7 @@ public class Property
     /// <exception cref="UnsupportedEncodingException">if the dictionary's codepage is not
     /// (yet) supported.
     /// </exception>
-    protected Dictionary<object, object> ReadDictionary(byte[] src, long offset, int length, int codepage)
+    protected static Dictionary<object, object> ReadDictionary(byte[] src, long offset, int length, int codepage)
     {
         /* Check whether "offset" points into the "src" array". */
         if (offset < 0 || offset > src.Length)
@@ -277,7 +276,7 @@ public class Property
 
                 /* Read the string. */
                 StringBuilder b = new StringBuilder();
-                switch(codepage)
+                switch (codepage)
                 {
                     case -1:
                         /* Without a codepage the length is equal to the number of
@@ -323,7 +322,7 @@ public class Property
                 m.Add(id, b.ToString());
             }
         }
-        catch(SystemException)
+        catch (SystemException)
         {
             // POILogger l = POILogFactory.GetLogger(getClass());
             // l.log(POILogger.WARN,
@@ -358,19 +357,19 @@ public class Property
 
         /* Variable length: */
         int PADDING = 4; /* Pad to multiples of 4. */
-        switch ((int) type)
+        switch ((int)type)
         {
             case Variant.VT_LPSTR:
-            {
-                int l = ((String)_value).Length + 1;
-                int r = l % PADDING;
-                if (r > 0)
                 {
-                    l += PADDING - r;
+                    int l = ((String)_value).Length + 1;
+                    int r = l % PADDING;
+                    if (r > 0)
+                    {
+                        l += PADDING - r;
+                    }
+                    length += l;
+                    break;
                 }
-                length += l;
-                break;
-            }
             case Variant.VT_EMPTY:
                 break;
             default:
@@ -424,13 +423,13 @@ public class Property
 
         if (_value is byte[] thisVal)
         {
-            byte[] otherVal = (byte[]) pValue;
+            byte[] otherVal = (byte[])pValue;
             int len = unpaddedLength(thisVal);
             if (len != unpaddedLength(otherVal))
             {
                 return false;
             }
-            for (int i=0; i<len; i++)
+            for (int i = 0; i < len; i++)
             {
                 if (thisVal[i] != otherVal[i])
                 {
@@ -447,11 +446,14 @@ public class Property
     /// </summary>
     /// <param name="buf">the bytes</param>
     /// <returns>the truncated size with a maximum of 4 bytes shorter (3 bytes + trailing 0 of strings)</returns>
-    private static int unpaddedLength(byte[] buf) {
+    private static int unpaddedLength(byte[] buf)
+    {
         int len;
-        for (len = buf.Length; len > 0 && len > buf.Length-4 && buf[len-1] == 0; len--);
+        for (len = buf.Length; len > 0 && len > buf.Length - 4 && buf[len - 1] == 0; len--) ;
+
         return len;
     }
+
     private static bool typesAreEqual(long t1, long t2)
     {
         return (t1 == t2
@@ -471,7 +473,7 @@ public class Property
         {
             hashCode += _value.GetHashCode();
         }
-        return (int) (hashCode & 0x0ffffffffL);
+        return (int)(hashCode & 0x0ffffffffL);
     }
 
     /// <summary>
@@ -484,15 +486,17 @@ public class Property
 
     public string ToString(int codepage, PropertyIDMap idMap)
     {
-        using var b= ZString.CreateStringBuilder();
+        using var b = ZString.CreateStringBuilder();
         b.Append("Property[");
         b.Append("id: ");
         b.Append(id);
         string idName = (idMap == null) ? null : idMap.Get(id)?.ToString();
-        if (idName == null) {
+        if (idName == null)
+        {
             idName = PropertyIDMap.FallbackProperties[id];
         }
-        if (idName != null) {
+        if (idName != null)
+        {
             b.Append(" (");
             b.Append(idName);
             b.Append(")");
@@ -519,8 +523,12 @@ public class Property
             }
 
             // skip length field
-            if (bos.Length > 2*LittleEndianConsts.INT_SIZE) {
-                string hex = HexDump.Dump(bos.ToArray(), -2*LittleEndianConsts.INT_SIZE, 2*LittleEndianConsts.INT_SIZE);
+            if (bos.Length > 2 * LittleEndianConsts.INT_SIZE)
+            {
+                string hex = HexDump.Dump(
+                    bos.ToArray(),
+                    -2 * LittleEndianConsts.INT_SIZE,
+                    2 * LittleEndianConsts.INT_SIZE);
                 b.Append(hex);
             }
         }
@@ -528,7 +536,8 @@ public class Property
         {
             b.Append("\n");
             byte[] bytes = (byte[])value;
-            if (bytes.Length > 0) {
+            if (bytes.Length > 0)
+            {
                 string hex = HexDump.Dump(bytes, 0L, 0);
                 b.Append(hex);
             }
@@ -536,10 +545,12 @@ public class Property
         else if (value is DateTime d)
         {
             long filetime = Filetime.DateToFileTime(d);
-            if (Filetime.IsUndefined(d)) {
+            if (Filetime.IsUndefined(d))
+            {
                 b.Append("<undefined>");
             }
-            else if ((filetime >>> 32) == 0) {
+            else if ((filetime >>> 32) == 0)
+            {
                 // if the upper dword isn't Set, we deal with time intervals
                 // long l = filetime*100;
                 // TimeUnit tu = TimeUnit.NANOSECONDS;
@@ -553,14 +564,22 @@ public class Property
 
                 // string str = String.format(Locale.ROOT, "%02d:%02d:%02d.%03d",hr,min,sec,ms);
                 TimeSpan ts = new TimeSpan(filetime);
-                string str = string.Format("{0:D2}:{0:D2}:{0:D2}.{0:D3}",ts.Hours,ts.Minutes,ts.Seconds, ts.Milliseconds);
+                string str = string.Format(
+                    "{0:D2}:{0:D2}:{0:D2}.{0:D3}",
+                    ts.Hours,
+                    ts.Minutes,
+                    ts.Seconds,
+                    ts.Milliseconds);
                 b.Append(str);
-            } else {
+            }
+            else
+            {
                 // use ISO-8601 timestamp format
                 b.Append(d.ToString("u"));
             }
         }
-        else if (type == Variant.VT_EMPTY || type == Variant.VT_NULL || value == null) {
+        else if (type == Variant.VT_EMPTY || type == Variant.VT_NULL || value == null)
+        {
             b.Append("null");
         }
         else
@@ -568,7 +587,7 @@ public class Property
             b.Append(value.ToString());
 
             string decoded = decodeValueFromID();
-            if(decoded != null)
+            if (decoded != null)
             {
                 b.Append(" (");
                 b.Append(decoded);
@@ -593,7 +612,8 @@ public class Property
     {
         try
         {
-            switch ((int)ID) {
+            switch ((int)ID)
+            {
                 case PropertyIDMap.PID_CODEPAGE:
                     return CodePageUtil.CodepageToEncoding((int)Value);
                 case PropertyIDMap.PID_LOCALE:

@@ -1,18 +1,18 @@
 ﻿/* ====================================================================
-   Licensed to the Apache Software Foundation (ASF) Under one or more
-   contributor license agreements.  See the NOTICE file distributed with
-   this work for Additional information regarding copyright ownership.
-   The ASF licenses this file to You Under the Apache License, Version 2.0
-   (the "License"); you may not use this file except in compliance with
-   the License.  You may obtain a copy of the License at
+    Licensed to the Apache Software Foundation (ASF) Under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for Additional information regarding copyright ownership.
+    The ASF licenses this file to You Under the Apache License, Version 2.0
+    (the "License"); you may not use this file except in compliance with
+    the License.  You may obtain a copy of the License at
 
-       http://www.apache.org/licenses/LICENSE-2.0
+        http://www.apache.org/licenses/LICENSE-2.0
 
-   Unless required by applicable law or agreed to in writing, software
-   distributed Under the License is distributed on an "AS Is" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations Under the License.
+    Unless required by applicable law or agreed to in writing, software
+    distributed Under the License is distributed on an "AS Is" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations Under the License.
 ==================================================================== */
 
 namespace NPOI.HSSF.Model;
@@ -21,7 +21,7 @@ using NPOI.DDF;
 using System;
 using System.Collections;
 
-//ready to remove at NPOI 2.8
+// ready to remove at NPOI 2.8
 [Obsolete("deprecated in POI 3.15-beta2, scheduled for removal in 3.17, use DrawingManager2 instead")]
 public class DrawingManager
 {
@@ -49,16 +49,15 @@ public class DrawingManager
     }
 
     /**
-     * Allocates new shape id for the new drawing Group id.
-     *
-     * @return a new shape id.
-     */
+    * Allocates new shape id for the new drawing Group id.
+    *
+    * @return a new shape id.
+    */
     public int AllocateShapeId(short drawingGroupId)
     {
         // Get the last shape id for this drawing Group.
         EscherDgRecord dg = (EscherDgRecord)dgMap[drawingGroupId];
         int lastShapeId = dg.LastMSOSPID;
-
 
         // Have we run out of shapes for this cluster?
         int newShapeId = 0;
@@ -82,7 +81,7 @@ public class DrawingManager
                     if (c.NumShapeIdsUsed != 1024)
                     {
                         // Increment the number of shapes used for this cluster.
-                        //c.IncrementShapeId();
+                        // c.IncrementShapeId();
                     }
                 }
                 // If the last shape id = -1 then we know to Find a free block;
@@ -114,12 +113,13 @@ public class DrawingManager
         return newShapeId;
     }
 
-
     public short FindNewDrawingGroupId()
     {
         short dgId = 1;
         while (DrawingGroupExists(dgId))
+        {
             dgId++;
+        }
         return dgId;
     }
 
@@ -128,7 +128,9 @@ public class DrawingManager
         for (int i = 0; i < dgg.FileIdClusters.Length; i++)
         {
             if (dgg.FileIdClusters[i].DrawingGroupId == dgId)
+            {
                 return true;
+            }
         }
         return false;
     }
@@ -147,5 +149,4 @@ public class DrawingManager
             return dgg;
         }
     }
-
 }

@@ -174,9 +174,7 @@ public class ExcelExtractor : POIOLE2TextExtractor, IExcelExtractor
                 // Header text, if there is any
                 if (sheet.Header != null && includeHeadersFooters)
                 {
-                    text.Append(
-                            ExtractHeaderFooter(sheet.Header)
-                    );
+                    text.Append(ExtractHeaderFooter(sheet.Header));
                 }
 
                 int firstRow = sheet.FirstRowNum;
@@ -248,12 +246,10 @@ public class ExcelExtractor : POIOLE2TextExtractor, IExcelExtractor
                                                 else
                                                 {
                                                     text.Append(
-                                                            _formatter.FormatRawCellContents(
-                                                                cell.NumericCellValue,
-                                                                style.DataFormat,
-                                                                style.GetDataFormatString()
-                                                            )
-                                                    );
+                                                        _formatter.FormatRawCellContents(
+                                                            cell.NumericCellValue,
+                                                            style.DataFormat,
+                                                            style.GetDataFormatString()));
                                                 }
                                                 break;
                                             case CellType.Boolean:
@@ -295,8 +291,7 @@ public class ExcelExtractor : POIOLE2TextExtractor, IExcelExtractor
                 if (sheet.Footer != null && includeHeadersFooters)
                 {
                     text.Append(
-                            ExtractHeaderFooter(sheet.Footer)
-                    );
+                        ExtractHeaderFooter(sheet.Footer));
                 }
             }
 
@@ -308,7 +303,8 @@ public class ExcelExtractor : POIOLE2TextExtractor, IExcelExtractor
     /// Extracts the header footer.
     /// </summary>
     /// <param name="hf">The header or footer</param>
-    public static String ExtractHeaderFooter(NPOI.SS.UserModel.IHeaderFooter hf)
+    public static String ExtractHeaderFooter(
+        NPOI.SS.UserModel.IHeaderFooter hf)
     {
         using var text = ZString.CreateStringBuilder();
 

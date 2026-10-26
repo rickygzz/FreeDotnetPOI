@@ -120,9 +120,13 @@ public class InternalChart
             {
                 HeaderFooterRecord hf = (HeaderFooterRecord)rec;
                 if (hf.IsCurrentSheet)
+                {
                     _headerFooter = hf;
+                }
                 else
+                {
                     _sviewHeaderFooters.Add(hf);
+                }
             }
             else if (recSid == ProtectRecord.sid)
             {
@@ -130,7 +134,6 @@ public class InternalChart
             }
             records.Add(rec);
         }
-
     }
 
     private sealed class PLSAggregateVisitor : RecordVisitor
@@ -154,8 +157,9 @@ public class InternalChart
     {
         if (rec != null)
         {
-            throw new RecordFormatException("Duplicate PageSettingsBlock record (sid=0x"
-                    + StringUtil.ToHexString(rec.Sid) + ")");
+            throw new RecordFormatException(
+                "Duplicate PageSettingsBlock record (sid=0x"
+                + StringUtil.ToHexString(rec.Sid) + ")");
         }
     }
 
@@ -177,12 +181,11 @@ public class InternalChart
         }
     }
 
-
     /**
-     * Gets the size of the margin in inches.
-     * @param margin which margin to Get
-     * @return the size of the margin
-     */
+    * Gets the size of the margin in inches.
+    * @param margin which margin to Get
+    * @return the size of the margin
+    */
     public double GetMargin(MarginType margin)
     {
         IMargin m = GetMarginRec(margin);
@@ -208,10 +211,10 @@ public class InternalChart
     }
 
     /**
-     * Sets the size of the margin in inches.
-     * @param margin which margin to Get
-     * @param size the size of the margin
-     */
+    * Sets the size of the margin in inches.
+    * @param margin which margin to Get
+    * @param size the size of the margin
+    */
     public void SetMargin(MarginType margin, double size)
     {
         IMargin m = GetMarginRec(margin);
@@ -260,39 +263,39 @@ public class InternalChart
         records.Add((RightMarginRecord)CreateMarginRecord(MarginType.RightMargin, 0.7));
         records.Add((TopMarginRecord)CreateMarginRecord(MarginType.TopMargin, 0.7));
         records.Add((BottomMarginRecord)CreateMarginRecord(MarginType.BottomMargin, 0.7));
-        //ignore pls
+        // ignore pls
 
         records.Add(CreatePrintSetupRecord());
         records.Add(CreatePrintSizeRecord());
         records.Add(CreateFontBasisRecord1());
         records.Add(CreateFontBasisRecord2());
-        //records.Add(CreateHeaderFooterRecord()); //ignore this record
+        // records.Add(CreateHeaderFooterRecord()); //ignore this record
         records.Add(new ProtectRecord(false));
-        //records.Add(CreateDrawingRecord());
+        // records.Add(CreateDrawingRecord());
         records.Add(new UnitsRecord());
 
-        //CHARTFOMATS = Chart Begin *2FONTLIST Scl PlotGrowth [FRAME] *SERIESFORMAT *SS
-        //ShtProps *2DFTTEXT AxesUsed 1*2AXISPARENT [CrtLayout12A] [DAT] *ATTACHEDLABEL
-        //[CRTMLFRT] *([DataLabExt StartObject] ATTACHEDLABEL [EndObject]) [TEXTPROPS] *2CRTMLFRT End
+        // CHARTFOMATS = Chart Begin *2FONTLIST Scl PlotGrowth [FRAME] *SERIESFORMAT *SS
+        // ShtProps *2DFTTEXT AxesUsed 1*2AXISPARENT [CrtLayout12A] [DAT] *ATTACHEDLABEL
+        // [CRTMLFRT] *([DataLabExt StartObject] ATTACHEDLABEL [EndObject]) [TEXTPROPS] *2CRTMLFRT End
         records.Add(CreateChartRecord(0, 0, 32341968, 14745600));
         records.Add(new BeginRecord());
         records.Add(CreateSCLRecord(1, 1));
         records.Add(CreatePlotGrowthRecord(65536, 65536));
-        //Frame
+        // Frame
         records.Add(CreateFrameRecord1());
         records.Add(new BeginRecord());
         records.Add(CreateLineFormatRecord(true));
         records.Add(CreateAreaFormatRecord1());
         records.Add(new EndRecord());
 
-        //an empty chart has no SERIESFORMAT
-        //CreateSERIESFORMAT(records);
-        //an empty chart has no SS
-        //CreateSS(records);
+        // an empty chart has no SERIESFORMAT
+        // CreateSERIESFORMAT(records);
+        // an empty chart has no SS
+        // CreateSS(records);
 
         records.Add(CreateShtPropsRecord());
 
-        //*2 DFTTEXT
+        // *2 DFTTEXT
         CreateRuleDFTTEXT(records);
         CreateRuleDFTTEXT(records);
 
@@ -300,7 +303,7 @@ public class InternalChart
 
         // 1*2AXISPARENT
         CreateRuleAXISPARENT(records);
-        //SERIESDATA
+        // SERIESDATA
         CreateRuleSERIESDATA(records);
 
         records.Add(new EOFRecord());
@@ -316,7 +319,6 @@ public class InternalChart
     /// <summary>
     /// SERIESDATA = Dimensions 3(SIIndex *(Number / BoolErr / Blank / Label))
     /// </summary>
-    /// <param name="records"></param>
     private static void CreateRuleSERIESDATA(List<Record.Record> records)
     {
         throw new NotImplementedException();
@@ -337,7 +339,6 @@ public class InternalChart
     ///      CrtLink [SeriesList] [Chart3d] [LD] [2DROPBAR] *4(CrtLine LineFormat) *2DFTTEXT [DataLabExtContents] [SS] *4SHAPEPROPS End
     /// LD = Legend Begin Pos ATTACHEDLABEL [FRAME] [CrtLayout12] [TEXTPROPS] [CRTMLFRT] End
     /// </summary>
-    /// <param name="records"></param>
     private static void CreateRuleAXISPARENT(List<Record.Record> records)
     {
         records.Add(CreateAxisParentRecord());
@@ -481,7 +482,6 @@ public class InternalChart
         return r;
     }
 
-
     private static LegendRecord CreateLegendRecord()
     {
         LegendRecord r = new LegendRecord();
@@ -535,15 +535,14 @@ public class InternalChart
     /// <summary>
     /// DFTTEXT = [DataLabExt StartObject] DefaultText ATTACHEDLABEL [EndObject]
     /// </summary>
-    /// <param name="records"></param>
     private static void CreateRuleDFTTEXT(List<Record.Record> records)
     {
-        //[DataLabExt StartObject]
+        // [DataLabExt StartObject]
 
         records.Add(CreateDefaultTextRecord());
-        //ATTACHEDLABEL
+        // ATTACHEDLABEL
         CreateRuleATTACHEDLABEL(records);
-        //[EndObject]
+        // [EndObject]
     }
     private static DefaultTextRecord CreateDefaultTextRecord()
     {
@@ -593,12 +592,12 @@ public class InternalChart
         r.IsAutoColor = (true);
         r.ShowKey = (false);
         r.ShowValue = (false);
-        //r.IsVertical = (false);
+        // r.IsVertical = (false);
         r.IsAutoGeneratedText = (true);
         r.IsGenerated = (true);
         r.IsAutoLabelDeleted = (false);
         r.IsAutoBackground = (true);
-        //r.Rotation = ((short)0);
+        // r.Rotation = ((short)0);
         r.ShowCategoryLabelAsPercentage = (false);
         r.ShowValueAsPercentage = (false);
         r.ShowBubbleSizes = (false);
@@ -628,18 +627,18 @@ public class InternalChart
     private static ShtPropsRecord CreateShtPropsRecord()
     {
         ShtPropsRecord r = new ShtPropsRecord();
-        r.Flags = 2;  //set bit fPlotVisOnly 1
+        r.Flags = 2;  // set bit fPlotVisOnly 1
         return r;
     }
 
     #region SERIESFORMAT
 
-    //SERIESFORMAT = Series Begin 4AI *SS (SerToCrt / (SerParent (SerAuxTrend / SerAuxErrBar)))
-    //*(LegendException [Begin ATTACHEDLABEL [TEXTPROPS] End]) End
+    // SERIESFORMAT = Series Begin 4AI *SS (SerToCrt / (SerParent (SerAuxTrend / SerAuxErrBar)))
+    // *(LegendException [Begin ATTACHEDLABEL [TEXTPROPS] End]) End
     private static void CreateRuleSERIESFORMAT(List<Record.Record> records)
     {
 
-        //Series
+        // Series
         records.Add(CreateSeriesRecord());
         records.Add(new BeginRecord());
         //  4AI
@@ -648,9 +647,9 @@ public class InternalChart
         records.Add(CreateDataFormatRecord());
         records.Add(new BeginRecord());
         records.Add(CreateChart3DBarShapeRecord());
-        records.Add(new EndRecord()); //end dataformat
+        records.Add(new EndRecord()); // end dataformat
 
-        records.Add(new EndRecord());  //end series
+        records.Add(new EndRecord());  // end series
     }
     private static SeriesRecord CreateSeriesRecord()
     {
@@ -674,13 +673,13 @@ public class InternalChart
         return r;
     }
     #region SS
-    //SS = DataFormat Begin [Chart3DBarShape] [LineFormat AreaFormat PieFormat] [SerFmt]
-    //[GELFRAME] [MarkerFormat] [AttachedLabel] *2SHAPEPROPS [CRTMLFRT] End
+    // SS = DataFormat Begin [Chart3DBarShape] [LineFormat AreaFormat PieFormat] [SerFmt]
+    // [GELFRAME] [MarkerFormat] [AttachedLabel] *2SHAPEPROPS [CRTMLFRT] End
     private static void CreateRuleSS(List<NPOI.HSSF.Record.Record> records)
     {
         records.Add(CreateDataFormatRecord());
         records.Add(new BeginRecord());
-        //Chart3DBarShape
+        // Chart3DBarShape
         records.Add(CreateChart3DBarShapeRecord());
 
         records.Add(new EndRecord());
@@ -696,16 +695,16 @@ public class InternalChart
     #endregion
     #endregion
 
-
     private static DrawingRecord CreateDrawingRecord()
     {
-        //throw new NotImplementedException();
-        byte[] drawingData = HexRead.ReadFromString("0F 00 02 F0 48 00 00 00 30 00 08 F0 " +
-                                        "08 00 00 00 01 00 00 00 00 0C 00 00 0F 00 03 F0 " +
-                                        "30 00 00 00 0F 00 04 F0 28 00 00 00 01 00 09 F0 " +
-                                        "10 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 " +
-                                        "00 00 00 00 02 00 0A F0 08 00 00 00 00 0C 00 00 " +
-                                        "05 00 00 00");
+        // throw new NotImplementedException();
+        byte[] drawingData = HexRead.ReadFromString(
+            "0F 00 02 F0 48 00 00 00 30 00 08 F0 "
+            + "08 00 00 00 01 00 00 00 00 0C 00 00 0F 00 03 F0 "
+            + "30 00 00 00 0F 00 04 F0 28 00 00 00 01 00 09 F0 "
+            + "10 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 "
+            + "00 00 00 00 02 00 0A F0 08 00 00 00 00 0C 00 00 "
+            + "05 00 00 00");
 
         DrawingRecord retval = new DrawingRecord();
         retval.SetData(drawingData);
@@ -799,7 +798,6 @@ public class InternalChart
         return r;
     }
 
-
     private static FbiRecord CreateFontBasisRecord1()
     {
         FbiRecord r = new FbiRecord();
@@ -819,7 +817,7 @@ public class InternalChart
         return r;
     }
 
-    //CHARTFORMATS
+    // CHARTFORMATS
 
     private static ChartRecord CreateChartRecord(int x, int y, int width, int height)
     {

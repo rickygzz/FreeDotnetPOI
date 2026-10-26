@@ -20,8 +20,8 @@ namespace NPOI.DDF;
 
 using System;
 using System.Collections;
-using NPOI.Util;
 using System.Collections.Generic;
+using NPOI.Util;
 
 /// <summary>
 /// Generates a property given a reference into the byte array storing that property.
@@ -38,7 +38,7 @@ public class EscherPropertyFactory
     /// <param name="data">The byte array containing the property</param>
     /// <param name="offset">The starting offset into the byte array</param>
     /// <param name="numProperties">The new properties</param>
-    public List<EscherProperty> CreateProperties(byte[] data, int offset, short numProperties)
+    public static List<EscherProperty> CreateProperties(byte[] data, int offset, short numProperties)
     {
         List<EscherProperty> results = new List<EscherProperty>();
 
@@ -102,7 +102,7 @@ public class EscherPropertyFactory
                     if (leftover < complexData.Length)
                     {
                         throw new InvalidOperationException("Could not read complex escher property, lenght was " + complexData.Length + ", but had only "
-                           + leftover + " bytes left");
+                            + leftover + " bytes left");
                     }
                     Array.Copy(data, pos, complexData, 0, complexData.Length);
                     pos += complexData.Length;

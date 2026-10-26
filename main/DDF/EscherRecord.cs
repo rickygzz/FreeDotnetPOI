@@ -334,7 +334,7 @@ abstract public class EscherRecord : ICloneable
     {
         StringBuilder builder = new StringBuilder();
         builder.Append("<").Append(className).Append(" recordId=\"0x").Append(recordId).Append("\" version=\"0x")
-                .Append(version).Append("\" instance=\"0x").Append(instance).Append("\" size=\"").Append(RecordSize).Append("\">\n");
+            .Append(version).Append("\" instance=\"0x").Append(instance).Append("\" size=\"").Append(RecordSize).Append("\">\n");
         return builder.ToString();
     }
 

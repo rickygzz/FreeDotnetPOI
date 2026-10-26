@@ -1,4 +1,4 @@
-
+﻿
 /* ====================================================================
     Licensed to the Apache Software Foundation (ASF) under one or more
     contributor license agreements.  See the NOTICE file distributed with
@@ -18,10 +18,10 @@
 
 namespace NPOI.DDF;
 
-using NPOI.Util;
 using System;
 using System.IO;
 using System.Text;
+using NPOI.Util;
 
 /// <summary>
 /// @author Glen Stampoultzis
@@ -79,6 +79,7 @@ public class EscherBlipRecord : EscherRecord
         Array.Copy(field_pictureData, 0, data, offset + 4, field_pictureData.Length);
 
         listener.AfterRecordSerialize(offset + 4 + field_pictureData.Length, RecordId, field_pictureData.Length + 4, this);
+
         return field_pictureData.Length + 4;
     }
 
@@ -167,8 +168,13 @@ public class EscherBlipRecord : EscherRecord
     {
         String extraData = HexDump.ToHex(field_pictureData, 32);
         StringBuilder builder = new StringBuilder();
-        builder.Append(tab).Append(FormatXmlRecordHeader(GetType().Name, HexDump.ToHex(RecordId), HexDump.ToHex(Version), HexDump.ToHex(Instance)))
-                .Append(tab).Append("\t").Append("<ExtraData>").Append(extraData).Append("</ExtraData>\n");
+        builder.Append(tab)
+            .Append(FormatXmlRecordHeader(
+                GetType().Name,
+                HexDump.ToHex(RecordId),
+                HexDump.ToHex(Version),
+                HexDump.ToHex(Instance)))
+            .Append(tab).Append("\t").Append("<ExtraData>").Append(extraData).Append("</ExtraData>\n");
         builder.Append(tab).Append("</").Append(GetType().Name).Append(">\n");
         return builder.ToString();
     }

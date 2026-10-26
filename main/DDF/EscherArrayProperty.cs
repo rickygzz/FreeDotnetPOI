@@ -158,17 +158,17 @@ public class EscherArrayProperty : EscherComplexProperty, IEnumerable<byte[]>
         results.Append("}" + nl);
 
         return "propNum: " + PropertyNumber
-                + ", propName: " + EscherProperties.GetPropertyName(PropertyNumber)
-                + ", complex: " + IsComplex
-                + ", blipId: " + IsBlipId
-                + ", data: " + nl + results.ToString();
+            + ", propName: " + EscherProperties.GetPropertyName(PropertyNumber)
+            + ", complex: " + IsComplex
+            + ", blipId: " + IsBlipId
+            + ", data: " + nl + results.ToString();
     }
     public override String ToXml(String tab)
     {
         StringBuilder builder = new StringBuilder();
         builder.Append(tab).Append("<").Append(GetType().Name).Append(" id=\"0x").Append(HexDump.ToHex(Id))
-                .Append("\" name=\"").Append(Name).Append("\" blipId=\"")
-                .Append(IsBlipId.ToString().ToLower()).Append("\">\n");
+            .Append("\" name=\"").Append(Name).Append("\" blipId=\"")
+            .Append(IsBlipId.ToString().ToLower()).Append("\">\n");
         for (int i = 0; i < NumberOfElementsInArray; i++)
         {
             builder.Append("\t").Append(tab).Append("<Element>").Append(HexDump.ToHex(GetElement(i))).Append("</Element>\n");
