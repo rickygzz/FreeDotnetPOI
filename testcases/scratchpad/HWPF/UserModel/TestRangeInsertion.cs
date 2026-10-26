@@ -1,18 +1,18 @@
 /* ====================================================================
-   Licensed to the Apache Software Foundation (ASF) under one or more
-   contributor license agreements.  See the NOTICE file distributed with
-   this work for Additional information regarding copyright ownership.
-   The ASF licenses this file to You under the Apache License, Version 2.0
-   (the "License"); you may not use this file except in compliance with
-   the License.  You may obtain a copy of the License at
+    Licensed to the Apache Software Foundation (ASF) under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for Additional information regarding copyright ownership.
+    The ASF licenses this file to You under the Apache License, Version 2.0
+    (the "License"); you may not use this file except in compliance with
+    the License.  You may obtain a copy of the License at
 
-       http://www.apache.org/licenses/LICENSE-2.0
+        http://www.apache.org/licenses/LICENSE-2.0
 
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
 ==================================================================== */
 
 using TestCases.HWPF;
@@ -21,116 +21,114 @@ using NPOI.HWPF;
 using NPOI.HWPF.UserModel;
 using NUnit.Framework;
 
-namespace TestCases.HWPF.UserModel
+namespace TestCases.HWPF.UserModel;
+
+/**
+*	Test to see if Range.insertBefore() works even if the Range Contains a
+*	CharacterRun that uses Unicode characters.
+*
+* TODO - re-enable me when unicode paragraph stuff is fixed!
+*/
+[TestFixture]
+public class TestRangeInsertion
 {
 
+    // u201c and u201d are "smart-quotes"
+    private String originalText =
+        "It is used to confirm that text insertion works even if Unicode characters (such as \u201c\u2014\u201d (U+2014), \u201c\u2e8e\u201d (U+2E8E), or \u201c\u2714\u201d (U+2714)) are present.\r";
+    private String textToInsert = "Look at me!  I'm cool!  ";
+    private int insertionPoint = 122;
+
+    private String illustrativeDocFile;
+
+    [SetUp]
+    public void SetUp()
+    {
+        illustrativeDocFile = "testRangeInsertion.doc";
+    }
+
     /**
-     *	Test to see if Range.insertBefore() works even if the Range Contains a
-     *	CharacterRun that uses Unicode characters.
-     *
-     * TODO - re-enable me when unicode paragraph stuff is fixed!
-     */
-    [TestFixture]
-    public class TestRangeInsertion
+    * Test just opening the files
+    */
+    [Test]
+    public void TestOpen()
     {
 
-        // u201c and u201d are "smart-quotes"
-        private String originalText =
-            "It is used to confirm that text insertion works even if Unicode characters (such as \u201c\u2014\u201d (U+2014), \u201c\u2e8e\u201d (U+2E8E), or \u201c\u2714\u201d (U+2714)) are present.\r";
-        private String textToInsert = "Look at me!  I'm cool!  ";
-        private int insertionPoint = 122;
+        HWPFTestDataSamples.OpenSampleFile(illustrativeDocFile);
+    }
 
-        private String illustrativeDocFile;
+    /**
+    * Test (more "Confirm" than test) that we have the general structure that we expect to have.
+    */
+    [Test]
+    public void TestDocStructure()
+    {
 
-        [SetUp]
-        public void SetUp()
-        {
-            illustrativeDocFile = "testRangeInsertion.doc";
-        }
+        HWPFDocument daDoc = HWPFTestDataSamples.OpenSampleFile(illustrativeDocFile);
 
-        /**
-         * Test just opening the files
-         */
-        [Test]
-        public void TestOpen()
-        {
+        Range range = daDoc.GetRange();
 
-            HWPFTestDataSamples.OpenSampleFile(illustrativeDocFile);
-        }
+        Assert.AreEqual(1, range.NumSections);
+        Section section = range.GetSection(0);
 
-        /**
-         * Test (more "Confirm" than test) that we have the general structure that we expect to have.
-         */
-        [Test]
-        public void TestDocStructure()
-        {
+        Assert.AreEqual(3, section.NumParagraphs);
+        Paragraph para = section.GetParagraph(2);
+        Assert.AreEqual(originalText, para.Text);
 
-            HWPFDocument daDoc = HWPFTestDataSamples.OpenSampleFile(illustrativeDocFile);
+        Assert.AreEqual(3, para.NumCharacterRuns);
+        String text =
+            para.GetCharacterRun(0).Text
+            + para.GetCharacterRun(1).Text
+            + para.GetCharacterRun(2).Text
+        ;
 
-            Range range = daDoc.GetRange();
+        Assert.AreEqual(originalText, text);
 
-            Assert.AreEqual(1, range.NumSections);
-            Section section = range.GetSection(0);
+        Assert.AreEqual(insertionPoint, para.StartOffset);
+    }
 
-            Assert.AreEqual(3, section.NumParagraphs);
-            Paragraph para = section.GetParagraph(2);
-            Assert.AreEqual(originalText, para.Text);
+    /**
+    * Test that we can insert text in our CharacterRun with Unicode text.
+    */
+    [Test]
+    public void TestRangeInsert()
+    {
 
-            Assert.AreEqual(3, para.NumCharacterRuns);
-            String text =
-                para.GetCharacterRun(0).Text +
-                para.GetCharacterRun(1).Text +
-                para.GetCharacterRun(2).Text
-            ;
+        HWPFDocument daDoc = HWPFTestDataSamples.OpenSampleFile(illustrativeDocFile);
 
-            Assert.AreEqual(originalText, text);
+        // if (false)
+        // { // TODO - delete or resurrect this code
+        //    Range range1 = daDoc.GetRange();
+        //    Section section1 = range1.GetSection(0);
+        //    Paragraph para1 = section1.GetParagraph(2);
+        //    String text1 = para1.GetCharacterRun(0).Text + para1.GetCharacterRun(1).Text +
+        //    para1.GetCharacterRun(2).Text;
 
-            Assert.AreEqual(insertionPoint, para.StartOffset);
-        }
+        //    Console.WriteLine(text1);
+        // }
 
-        /**
-         * Test that we can insert text in our CharacterRun with Unicode text.
-         */
-        [Test]
-        public void TestRangeInsert()
-        {
+        Range range = new Range(insertionPoint, (insertionPoint + 2), daDoc);
+        range.InsertBefore(textToInsert);
 
-            HWPFDocument daDoc = HWPFTestDataSamples.OpenSampleFile(illustrativeDocFile);
+        // we need to let the model re-calculate the Range before we Evaluate it
+        range = daDoc.GetRange();
 
-            //if (false)
-            //{ // TODO - delete or resurrect this code
-            //    Range range1 = daDoc.GetRange();
-            //    Section section1 = range1.GetSection(0);
-            //    Paragraph para1 = section1.GetParagraph(2);
-            //    String text1 = para1.GetCharacterRun(0).Text + para1.GetCharacterRun(1).Text +
-            //    para1.GetCharacterRun(2).Text;
+        Assert.AreEqual(1, range.NumSections);
+        Section section = range.GetSection(0);
 
-            //    Console.WriteLine(text1);
-            //}
+        Assert.AreEqual(3, section.NumParagraphs);
+        Paragraph para = section.GetParagraph(2);
+        Assert.AreEqual((textToInsert + originalText), para.Text);
 
-            Range range = new Range(insertionPoint, (insertionPoint + 2), daDoc);
-            range.InsertBefore(textToInsert);
+        Assert.AreEqual(3, para.NumCharacterRuns);
+        String text =
+            para.GetCharacterRun(0).Text
+            + para.GetCharacterRun(1).Text
+            + para.GetCharacterRun(2).Text
+        ;
 
-            // we need to let the model re-calculate the Range before we Evaluate it
-            range = daDoc.GetRange();
+        // Console.WriteLine(text);
 
-            Assert.AreEqual(1, range.NumSections);
-            Section section = range.GetSection(0);
-
-            Assert.AreEqual(3, section.NumParagraphs);
-            Paragraph para = section.GetParagraph(2);
-            Assert.AreEqual((textToInsert + originalText), para.Text);
-
-            Assert.AreEqual(3, para.NumCharacterRuns);
-            String text =
-                para.GetCharacterRun(0).Text +
-                para.GetCharacterRun(1).Text +
-                para.GetCharacterRun(2).Text
-            ;
-
-            // Console.WriteLine(text);
-
-            Assert.AreEqual((textToInsert + originalText), text);
-        }
+        Assert.AreEqual((textToInsert + originalText), text);
     }
 }

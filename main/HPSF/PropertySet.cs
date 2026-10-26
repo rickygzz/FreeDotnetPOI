@@ -1,18 +1,18 @@
 /* ====================================================================
-   Licensed to the Apache Software Foundation (ASF) under one or more
-   contributor license agreements.  See the NOTICE file distributed with
-   this work for additional information regarding copyright ownership.
-   The ASF licenses this file to You under the Apache License, Version 2.0
-   (the "License"); you may not use this file except in compliance with
-   the License.  You may obtain a copy of the License at
+    Licensed to the Apache Software Foundation (ASF) under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The ASF licenses this file to You under the Apache License, Version 2.0
+    (the "License"); you may not use this file except in compliance with
+    the License.  You may obtain a copy of the License at
 
-       http://www.apache.org/licenses/LICENSE-2.0
+        http://www.apache.org/licenses/LICENSE-2.0
 
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
 ==================================================================== */
 
 namespace NPOI.HPSF
@@ -25,7 +25,7 @@ namespace NPOI.HPSF
     using System.Collections.Generic;
     using System.Linq;
     using System.IO;
-    using System.Text; 
+    using System.Text;
     using Cysharp.Text;
 
     /// <summary>
@@ -111,7 +111,6 @@ namespace NPOI.HPSF
             ClassID.LENGTH +                /* Class ID      */
             LittleEndianConsts.INT_SIZE;    /* Section count */
 
-
         /// <summary>
         /// Specifies this <see cref="PropertySet"/>'s byte order. See the
         /// HPFS documentation for details!
@@ -141,7 +140,6 @@ namespace NPOI.HPSF
         /// </summary>
         private List<Section> sections = new List<Section>();
 
-
         /// <summary>
         /// Constructs a <c>PropertySet</c> instance. Its
         /// primary task is to initialize the field with their proper values.
@@ -156,18 +154,16 @@ namespace NPOI.HPSF
             format = FORMAT_ASSERTION;
 
             /* Initialize "osVersion" field as if the property has been created on
-             * a Win32 platform, whether this is the case or not. */
+            * a Win32 platform, whether this is the case or not. */
             osVersion = (OS_WIN32 << 16) | 0x0A04;
 
             /* Initialize the "classID" field. */
             classID = new ClassID();
 
             /* Initialize the sections. Since property Set must have at least
-             * one section it is added right here. */
+            * one section it is added right here. */
             AddSection(new MutableSection());
         }
-
-
 
         /// <summary>
         /// <para>
@@ -200,7 +196,7 @@ namespace NPOI.HPSF
         /// </exception>
         public PropertySet(InputStream stream)
         {
-            if(!IsPropertySetStream(stream))
+            if (!IsPropertySetStream(stream))
             {
                 throw new NoPropertySetStreamException();
             }
@@ -208,8 +204,6 @@ namespace NPOI.HPSF
             byte[] buffer = IOUtils.ToByteArray(stream);
             Init(buffer, 0, buffer.Length);
         }
-
-
 
         /// <summary>
         /// Creates a <see cref="PropertySet"/> instance from a byte array that
@@ -227,7 +221,7 @@ namespace NPOI.HPSF
         public PropertySet(byte[] stream, int offset, int length)
         {
 
-            if(!IsPropertySetStream(stream, offset, length))
+            if (!IsPropertySetStream(stream, offset, length))
             {
                 throw new NoPropertySetStreamException();
             }
@@ -262,12 +256,11 @@ namespace NPOI.HPSF
             Format = ps.Format;
             OSVersion = ps.OSVersion;
             ClassID = ps.ClassID;
-            foreach(Section section in ps.Sections)
+            foreach (Section section in ps.Sections)
             {
                 sections.Add(new MutableSection(section));
             }
         }
-
 
         /// <summary>
         /// get or set the property Set stream's low-level "byte order" field.
@@ -286,7 +279,6 @@ namespace NPOI.HPSF
             get { return format; }
             set { format = value; }
         }
-
 
         /// <summary>
         /// get or set the property Set stream's low-level "OS version" field.
@@ -315,7 +307,6 @@ namespace NPOI.HPSF
             {
                 return sections.Count;
             }
-
         }
 
         /// <summary>
@@ -326,11 +317,9 @@ namespace NPOI.HPSF
             get
             {
                 return sections;
-                //return sections.AsReadOnly();
+                // return sections.AsReadOnly();
             }
         }
-
-
 
         /// <summary>
         /// Adds a section to this property Set.
@@ -361,7 +350,6 @@ namespace NPOI.HPSF
             get { return null; }
         }
 
-
         /// <summary>
         /// Checks whether an {@link InputStream} is in the Horrible
         /// Property Set Format.
@@ -383,13 +371,13 @@ namespace NPOI.HPSF
         {
 
             /*
-             * Read at most this many bytes.
-             */
+            * Read at most this many bytes.
+            */
             int BUFFER_SIZE = 50;
 
             /*
-             * Read a couple of bytes from the stream.
-             */
+            * Read a couple of bytes from the stream.
+            */
             try
             {
                 byte[] buffer = IOUtils.PeekFirstNBytes(stream, BUFFER_SIZE);
@@ -401,8 +389,6 @@ namespace NPOI.HPSF
                 return false;
             }
         }
-
-
 
         /// <summary>
         /// Checks whether a byte array is in the Horrible Property Set Format.
@@ -420,19 +406,19 @@ namespace NPOI.HPSF
             /* FIXME (3): Ensure that at most "length" bytes are read. */
 
             /*
-             * Read the header fields of the stream. They must always be
-             * there.
-             */
+            * Read the header fields of the stream. They must always be
+            * there.
+            */
             int o = offset;
             int byteOrder = LittleEndian.GetUShort(src, o);
             o += LittleEndianConsts.SHORT_SIZE;
-            if(byteOrder != BYTE_ORDER_ASSERTION)
+            if (byteOrder != BYTE_ORDER_ASSERTION)
             {
                 return false;
             }
             int format = LittleEndian.GetUShort(src, o);
             o += LittleEndianConsts.SHORT_SIZE;
-            if(format != FORMAT_ASSERTION)
+            if (format != FORMAT_ASSERTION)
             {
                 return false;
             }
@@ -443,8 +429,6 @@ namespace NPOI.HPSF
             long sectionCount = LittleEndian.GetUInt(src, o);
             return (sectionCount >= 0);
         }
-
-
 
         /// <summary>
         /// Initializes this <see cref="PropertySet"/> instance from a byte
@@ -466,8 +450,8 @@ namespace NPOI.HPSF
             /* FIXME (3): Ensure that at most "length" bytes are read. */
 
             /*
-             * Read the stream's header fields.
-             */
+            * Read the stream's header fields.
+            */
             int o = offset;
             byteOrder = LittleEndian.GetUShort(src, o);
             o += LittleEndianConsts.SHORT_SIZE;
@@ -479,29 +463,29 @@ namespace NPOI.HPSF
             o += ClassID.LENGTH;
             int sectionCount = LittleEndian.GetInt(src, o);
             o += LittleEndianConsts.INT_SIZE;
-            if(sectionCount < 0)
+            if (sectionCount < 0)
             {
                 throw new HPSFRuntimeException("Section count " + sectionCount + " is negative.");
             }
 
             /*
-             * Read the sections, which are following the header. They
-             * start with an array of section descriptions. Each one
-             * consists of a format ID telling what the section contains
-             * and an offset telling how many bytes from the start of the
-             * stream the section begins.
-             * 
-             * Most property Sets have only one section. The Document
-             * Summary Information stream has 2. Everything else is a rare
-             * exception and is no longer fostered by Microsoft.
-             */
+            * Read the sections, which are following the header. They
+            * start with an array of section descriptions. Each one
+            * consists of a format ID telling what the section contains
+            * and an offset telling how many bytes from the start of the
+            * stream the section begins.
+            *
+            * Most property Sets have only one section. The Document
+            * Summary Information stream has 2. Everything else is a rare
+            * exception and is no longer fostered by Microsoft.
+            */
 
             /*
-             * Loop over the section descriptor array. Each descriptor
-             * consists of a ClassID and a DWord, and we have to increment
-             * "offset" accordingly.
-             */
-            for(int i = 0; i < sectionCount; i++)
+            * Loop over the section descriptor array. Each descriptor
+            * consists of a ClassID and a DWord, and we have to increment
+            * "offset" accordingly.
+            */
+            for (int i = 0; i < sectionCount; i++)
             {
                 Section s = new MutableSection(src, o);
                 o += ClassID.LENGTH + LittleEndianConsts.INT_SIZE;
@@ -534,14 +518,14 @@ namespace NPOI.HPSF
             int offset = OFFSET_HEADER;
 
             /* Write the section list, i.e. the references to the sections. Each
-             * entry in the section list consist of the section's class ID and the
-             * section's offset relative to the beginning of the stream. */
+            * entry in the section list consist of the section's class ID and the
+            * section's offset relative to the beginning of the stream. */
             offset += nrSections * (ClassID.LENGTH + LittleEndianConsts.INT_SIZE);
             int sectionsBegin = offset;
-            foreach(Section section in Sections)
+            foreach (Section section in Sections)
             {
                 ClassID formatID = section.FormatID;
-                if(formatID == null)
+                if (formatID == null)
                 {
                     throw new NoFormatIDException();
                 }
@@ -554,7 +538,7 @@ namespace NPOI.HPSF
                 catch(HPSFRuntimeException ex)
                 {
                     Exception cause = ex.InnerException;
-                    if(cause is UnsupportedEncodingException)
+                    if (cause is UnsupportedEncodingException)
                     {
                         throw new IllegalPropertySetDataException(cause);
                     }
@@ -564,7 +548,7 @@ namespace NPOI.HPSF
 
             /* Write the sections themselves. */
             offset = sectionsBegin;
-            foreach(Section section in Sections)
+            foreach (Section section in Sections)
             {
                 offset += section.Write(out1);
             }
@@ -580,13 +564,13 @@ namespace NPOI.HPSF
         /// <param name="name">The document's name. If there is already a document with the
         /// same name in the directory the latter will be overwritten.
         /// </param>
-        /// 
+        ///
         /// <exception cref="WritingNotSupportedException">if the filesystem doesn't support writing</exception>
         /// <exception cref="IOException">if the old entry can't be deleted or the new entry be written</exception>
         public void Write(DirectoryEntry dir, String name)
         {
             /* If there is already an entry with the same name, remove it. */
-            if(dir.HasEntry(name))
+            if (dir.HasEntry(name))
             {
                 Entry e = dir.GetEntry(name);
                 e.Delete();
@@ -605,7 +589,7 @@ namespace NPOI.HPSF
         /// the <see cref="MutablePropertySet"/> only.
         /// </summary>
         /// <return>contents of this property Set stream</return>
-        /// 
+        ///
         /// <exception cref="WritingNotSupportedException">if HPSF does not yet support writing
         /// of a property's variant type.
         /// </exception>
@@ -630,7 +614,7 @@ namespace NPOI.HPSF
         /// best to return it as a String
         /// </summary>
         /// <param name="propertyId">the property id</param>
-        /// 
+        ///
         /// <return>property as a String, or null if unavailable</return>
         protected String GetPropertyStringValue(int propertyId)
         {
@@ -642,22 +626,22 @@ namespace NPOI.HPSF
         /// Return the string representation of a property value
         /// </summary>
         /// <param name="propertyValue">the property value</param>
-        /// 
+        ///
         /// <return>property value as a String, or null if unavailable</return>
         public static String GetPropertyStringValue(Object propertyValue)
         {
             // Normal cases
-            if(propertyValue == null)
+            if (propertyValue == null)
             {
                 return null;
             }
-            if(propertyValue is String value)
+            if (propertyValue is String value)
             {
                 return value;
             }
 
             // Do our best with some edge cases
-            if(propertyValue is byte[] data)
+            if (propertyValue is byte[] data)
             {
                 switch(data.Length)
                 {
@@ -671,7 +655,7 @@ namespace NPOI.HPSF
                         return LittleEndian.GetUInt(data).ToString();
                     default:
                         // Maybe it's a string? who knows!
-                        try 
+                        try
                         {
                             return CodePageUtil.GetStringFromCodePage(data, Property.DEFAULT_CODEPAGE);
                         }
@@ -691,8 +675,8 @@ namespace NPOI.HPSF
         /// <return>true if this <see cref="PropertySet"/>
         /// represents a Summary Information, else <c>false</c>.
         /// </return>
-        public bool IsSummaryInformation => sections.Count != 0 && 
-            matchesSummary(FirstSection.FormatID, SectionIDMap.SUMMARY_INFORMATION_ID);
+        public bool IsSummaryInformation => sections.Count != 0
+            && matchesSummary(FirstSection.FormatID, SectionIDMap.SUMMARY_INFORMATION_ID);
 
         /// <summary>
         /// Checks whether this <see cref="PropertySet"/> is a Document Summary Information.
@@ -700,8 +684,8 @@ namespace NPOI.HPSF
         /// <return>true if this <see cref="PropertySet"/>
         /// represents a Document Summary Information, else <c>false</c>.
         /// </return>
-        public bool IsDocumentSummaryInformation => sections.Count != 0 && 
-            matchesSummary(FirstSection.FormatID, SectionIDMap.DOCUMENT_SUMMARY_INFORMATION_ID); 
+        public bool IsDocumentSummaryInformation => sections.Count != 0
+            && matchesSummary(FirstSection.FormatID, SectionIDMap.DOCUMENT_SUMMARY_INFORMATION_ID);
 
         internal static bool matchesSummary(ClassID actual, params ClassID[] expected) {
             foreach (ClassID sum in expected)
@@ -715,11 +699,9 @@ namespace NPOI.HPSF
         }
         private bool matchesSummary(byte[] summaryBytes)
         {
-            return !(sections.Count == 0) &&
-                Arrays.Equals(FirstSection.FormatID.Bytes, summaryBytes);
+            return !(sections.Count == 0)
+                && Arrays.Equals(FirstSection.FormatID.Bytes, summaryBytes);
         }
-
-
 
         /// <summary>
         /// Convenience method returning the {@link Property} array contained in this
@@ -733,7 +715,6 @@ namespace NPOI.HPSF
         /// more or less than one <see cref="Section"/>.
         /// </exception>
         public Property[] Properties => FirstSection.Properties;
-
 
         /// <summary>
         /// Convenience method returning the value of the property with the specified ID.
@@ -749,8 +730,6 @@ namespace NPOI.HPSF
         {
             return FirstSection.GetProperty(id);
         }
-
-
 
         /// <summary>
         /// Convenience method returning the value of a bool property with the
@@ -768,8 +747,6 @@ namespace NPOI.HPSF
 
             return FirstSection.GetPropertyBooleanValue(id);
         }
-
-
 
         /// <summary>
         /// Convenience method returning the value of the numeric
@@ -789,10 +766,8 @@ namespace NPOI.HPSF
             return FirstSection.GetPropertyIntValue(id);
         }
 
-
-
         /// <summary>
-        /// Checks whether the property which the last call to <see cref="GetPropertyIntValue"/> 
+        /// Checks whether the property which the last call to <see cref="GetPropertyIntValue"/>
         /// or <see cref="Property"/> tried to access
         /// was available or not. This information might be important for
         /// callers of <see cref="GetPropertyIntValue"/> since the latter
@@ -808,7 +783,6 @@ namespace NPOI.HPSF
         /// </exception>
         public bool WasNull => FirstSection.WasNull();
 
-
         /// <summary>
         /// Gets the <see cref="PropertySet"/>'s first section.
         /// </summary>
@@ -817,16 +791,13 @@ namespace NPOI.HPSF
         {
             get
             {
-                if(sections.Count==0)
+                if (sections.Count==0)
                 {
                     throw new MissingSectionException("Property Set does not contain any sections.");
                 }
                 return sections[0];
             }
-
         }
-
-
 
         /// <summary>
         /// If the <see cref="PropertySet"/> has only a single section this method returns it.
@@ -837,7 +808,7 @@ namespace NPOI.HPSF
             get
             {
                 int sectionCount = SectionCount;
-                if(sectionCount != 1)
+                if (sectionCount != 1)
                 {
                     throw new NoSingleSectionException("Property Set contains " + sectionCount + " sections.");
                 }
@@ -845,20 +816,18 @@ namespace NPOI.HPSF
             }
         }
 
-
-
         /// <summary>
         /// Returns <c>true</c> if the <c>PropertySet</c> is equal
         /// to the specified parameter, else <c>false</c>.
         /// </summary>
         /// <param name="o">the object to compare this <c>PropertySet</c> with</param>
-        /// 
+        ///
         /// <return>true if the objects are equal, <c>false</c>
         /// if not
         /// </return>
         public override bool Equals(object o)
         {
-            if(o == null || o is not PropertySet ps)
+            if (o == null || o is not PropertySet ps)
             {
                 return false;
             }
@@ -873,11 +842,11 @@ namespace NPOI.HPSF
             int osVersion2 = OSVersion;
             int sectionCount1 = ps.SectionCount;
             int sectionCount2 = SectionCount;
-            if(byteOrder1 != byteOrder2 ||
-                !classID1.Equals(classID2) ||
-                format1 != format2 ||
-                osVersion1 != osVersion2 ||
-                sectionCount1 != sectionCount2)
+            if (byteOrder1 != byteOrder2
+                || !classID1.Equals(classID2)
+                || format1 != format2
+                || osVersion1 != osVersion2
+                || sectionCount1 != sectionCount2)
             {
                 return false;
             }
@@ -894,14 +863,12 @@ namespace NPOI.HPSF
             throw new NotImplementedException("FIXME: Not yet implemented.");
         }
 
-
-
         /// <summary>
         /// </summary>
         /// @see Object#toString()
         public override String ToString()
         {
-           using var b= ZString.CreateStringBuilder();
+            using var b= ZString.CreateStringBuilder();
             int sectionCount = SectionCount;
             b.Append(GetType().Name);
             b.Append('[');
@@ -916,7 +883,7 @@ namespace NPOI.HPSF
             b.Append(", sectionCount: ");
             b.Append(sectionCount);
             b.Append(", sections: [\n");
-            foreach(Section section in Sections)
+            foreach (Section section in Sections)
             {
                 b.Append(section.ToString(PropertySetIDMap));
             }
@@ -924,7 +891,6 @@ namespace NPOI.HPSF
             b.Append(']');
             return b.ToString();
         }
-
 
         protected void Remove1stProperty(long id)
         {
@@ -959,4 +925,3 @@ namespace NPOI.HPSF
         }
     }
 }
-

@@ -3,46 +3,55 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace DocPartViewer
+namespace DocPartViewer;
+
+public enum ZipEntryType
 {
-    public enum ZipEntryType
+    File, Directory
+}
+public class ZipEntryData : IComparer<ZipEntryData>, IComparable<ZipEntryData>
+{
+    public ZipEntryType Type
     {
-        File, Directory
+        get;
+        set;
     }
-    public class ZipEntryData : IComparer<ZipEntryData>, IComparable<ZipEntryData>
+    public string Name { get; set; }
+    public string Content { get; set; }
+    private List<ZipEntryData> childData = new List<ZipEntryData>();
+    public List<ZipEntryData> ChildData
     {
-        public ZipEntryType Type
+        get { return childData; }
+    }
+
+    public int Compare(ZipEntryData x, ZipEntryData y)
+    {
+        if (x == null && y != null)
         {
-            get;
-            set;
+            return -1;
         }
-        public string Name { get; set; }
-        public string Content { get; set; }
-        private List<ZipEntryData> childData = new List<ZipEntryData>();
-        public List<ZipEntryData> ChildData
+        if (x != null && y == null)
         {
-            get { return childData; }
+            return 1;
+        }
+        if (x == null && y == null)
+        {
+            return 0;
+        }
+        if (x.Type == ZipEntryType.Directory && y.Type == ZipEntryType.File)
+        {
+            return -1;
+        }
+        if (x.Type == ZipEntryType.File && y.Type == ZipEntryType.Directory)
+        {
+            return 1;
         }
 
-        public int Compare(ZipEntryData x, ZipEntryData y)
-        {
-            if (x == null && y != null)
-                return -1;
-            if (x != null && y == null)
-                return 1;
-            if (x == null && y == null)
-                return 0;
-            if (x.Type == ZipEntryType.Directory && y.Type == ZipEntryType.File)
-                return -1;
-            if (x.Type == ZipEntryType.File && y.Type == ZipEntryType.Directory)
-                return 1;
+        return string.Compare(x.Name, y.Name);
+    }
 
-            return string.Compare(x.Name, y.Name);
-        }
-
-        public int CompareTo(ZipEntryData other)
-        {
-            return Compare(this, other);
-        }
+    public int CompareTo(ZipEntryData other)
+    {
+        return Compare(this, other);
     }
 }

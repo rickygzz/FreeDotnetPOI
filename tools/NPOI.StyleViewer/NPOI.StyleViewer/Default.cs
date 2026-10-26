@@ -10,49 +10,47 @@ using System.Windows.Forms;
 using System.Xml;
 using System.IO;
 
-namespace NPOI.StyleViewer
+namespace NPOI.StyleViewer;
+
+public partial class Default : Form
 {
-    public partial class Default : Form
+    public Default()
     {
-        public Default()
-        {
-            InitializeComponent();
-        }
+        InitializeComponent();
+    }
 
-        private void Default_Load(object sender, EventArgs e)
+    private void Default_Load(object sender, EventArgs e)
+    {
+        if (StyleDocumentInitializer.Load() && StyleDocumentInitializer.IsReady)
         {
-            if (StyleDocumentInitializer.Load() && StyleDocumentInitializer.IsReady)
+            foreach (WordStyle style in StyleDocumentInitializer.StyleSet.OrderBy(p => p.TypeName).ToList())
             {
-                foreach (WordStyle style in StyleDocumentInitializer.StyleSet.OrderBy(p => p.TypeName).ToList())
+                TreeNode T = new TreeNode(style.TypeName);
+
+                foreach (var item in style.Styles.OrderBy(p=>p.Key).ToList())
                 {
-                    TreeNode T = new TreeNode(style.TypeName);
-
-                    foreach (var item in style.Styles.OrderBy(p=>p.Key).ToList())
-                    {
-                        T.Nodes.Add(item.Key);
-                    }
-
-                    tvWordStyle.Nodes.Add(T);
+                    T.Nodes.Add(item.Key);
                 }
-            }
 
-            tvWordStyle.ExpandAll();
+                tvWordStyle.Nodes.Add(T);
+            }
         }
 
-        private void tvWordStyle_AfterSelect(object sender, TreeViewEventArgs e)
+        tvWordStyle.ExpandAll();
+    }
+
+    private void tvWordStyle_AfterSelect(object sender, TreeViewEventArgs e)
+    {
+        if (tvWordStyle.SelectedNode.Parent != null)
         {
-            if (tvWordStyle.SelectedNode.Parent != null)
-            {
-                var TypeName = tvWordStyle.SelectedNode.Parent.Text;
-                var StyleID = tvWordStyle.SelectedNode.Text;
+            var TypeName = tvWordStyle.SelectedNode.Parent.Text;
+            var StyleID = tvWordStyle.SelectedNode.Text;
 
-                rtxtStyleXml.Text = StyleDocumentInitializer.GetXmlByStyleID(TypeName, StyleID);
-
-            }
-            else
-            {
-                rtxtStyleXml.Text = string.Empty;
-            }
+            rtxtStyleXml.Text = StyleDocumentInitializer.GetXmlByStyleID(TypeName, StyleID);
+        }
+        else
+        {
+            rtxtStyleXml.Text = string.Empty;
         }
     }
 }

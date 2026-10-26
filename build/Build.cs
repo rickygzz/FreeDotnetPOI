@@ -102,8 +102,9 @@ partial class Build : NukeBuild
                 .SetDeterministic(IsServerBuild)
                 .SetContinuousIntegrationBuild(IsServerBuild)
                 .SetVerbosity(DotNetVerbosity.minimal)
-                // obsolete missing XML documentation comment, XML comment on not valid language element, XML comment has badly formed XML, no matching tag in XML comment
-                // need to use escaped separator in order for this to work
+                // obsolete missing XML documentation comment, XML comment on not valid language element, XML comment
+                // has badly formed XML, no matching tag in XML comment need to use escaped separator in order for this
+                // to work
                 .AddProperty("NoWarn", string.Join("%3B", new [] { 169, 612, 618, 1591, 1587, 1570, 1572, 1573, 1574 }))
                 .SetProjectFile(Solution)
                 // ensure we don't generate too much output in CI run
@@ -113,7 +114,6 @@ partial class Build : NukeBuild
             );
 
             // copy files from projects in order to get them to be part of pack
-
         });
 
     Target Test => _ => _
@@ -159,8 +159,9 @@ partial class Build : NukeBuild
                     .SetOutputDirectory(ArtifactsDirectory)
                     .SetDeterministic(IsServerBuild)
                     .SetContinuousIntegrationBuild(IsServerBuild)
-                    // obsolete missing XML documentation comment, XML comment on not valid language element, XML comment has badly formed XML, no matching tag in XML comment
-                    // need to use escaped separator in order for this to work
+                    // obsolete missing XML documentation comment, XML comment on not valid language element, XML
+                    // comment has badly formed XML, no matching tag in XML comment need to use escaped separator in
+                    // order for this to work
                     .AddProperty("NoWarn", string.Join("%3B", new[] { 169, 612, 618, 1591, 1587, 1570, 1572, 1573, 1574 }))
                     .SetProperty("EnablePackageValidation", "false")
                     // ensure we don't generate too much output in CI run
