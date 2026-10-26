@@ -9,6 +9,7 @@ It only handles the "col" and "row" parameters.
 namespace NPOI.SS.Formula.Functions
 {
     using NPOI.SS.Formula.Eval;
+    using NPOI.SS.Formula.Functions.Text;
 
     public class Cell : Function2Arg
     {

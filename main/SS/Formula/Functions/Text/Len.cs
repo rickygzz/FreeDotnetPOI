@@ -15,21 +15,20 @@
 * limitations Under the License.
 */
 
-namespace NPOI.SS.Formula.Functions
+namespace NPOI.SS.Formula.Functions.Text;
+
+using System;
+using NPOI.SS.Formula.Eval;
+
+/**
+ * @author Amol S. Deshmukh &lt; amolweb at ya hoo dot com &gt;
+ *
+ */
+public class Len : SingleArgTextFunc
 {
-    using System;
-    using NPOI.SS.Formula.Eval;
 
-    /**
-     * @author Amol S. Deshmukh &lt; amolweb at ya hoo dot com &gt;
-     *
-     */
-    public class Len : SingleArgTextFunc
+    public override ValueEval Evaluate(String arg)
     {
-
-        public override ValueEval Evaluate(String arg)
-        {
-            return new NumberEval(arg.Length);
-        }
+        return new NumberEval(arg.Length);
     }
 }

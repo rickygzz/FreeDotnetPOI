@@ -17,6 +17,7 @@
 
 using NPOI.SS.Formula.Eval;
 using NPOI.SS.Formula.Functions;
+using NPOI.SS.Formula.Functions.Text;
 using NPOI.SS.Formula.UDF;
 using System;
 using System.Collections.Generic;

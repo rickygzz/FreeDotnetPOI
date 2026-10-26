@@ -15,44 +15,43 @@
  * limitations Under the License.
  */
 
-namespace NPOI.SS.Formula.Functions
-{
-    using System;
-    using NPOI.SS.Formula.Eval;
-    using System.Text; 
+namespace NPOI.SS.Formula.Functions.Text;
+
+using System;
+using NPOI.SS.Formula.Eval;
+using System.Text;
 using Cysharp.Text;
-    using System.Globalization;
+using System.Globalization;
 
-    /// <summary>
-    /// Implementation of the PROPER function:
-    /// Normalizes all words (separated by non-word characters) by
-    /// making the first letter upper and the rest lower case.
-    /// </summary>
-    public class Proper : SingleArgTextFunc
+/// <summary>
+/// Implementation of the PROPER function:
+/// Normalizes all words (separated by non-word characters) by
+/// making the first letter upper and the rest lower case.
+/// </summary>
+public class Proper : SingleArgTextFunc
+{
+    public override ValueEval Evaluate(String text)
     {
-        public override ValueEval Evaluate(String text)
+        using var sb = ZString.CreateStringBuilder();
+
+        bool shouldMakeUppercase = true;
+
+        foreach (char ch in text.ToCharArray())
         {
-            using var sb = ZString.CreateStringBuilder();
 
-            bool shouldMakeUppercase = true;
-
-            foreach (char ch in text.ToCharArray())
+            // Note: we are using String.toUpperCase() here on purpose as it handles certain things
+            // better than Character.toUpperCase(), e.g. German "scharfes s" is translated
+            // to "SS" (i.e. two characters), if uppercased properly!
+            if (shouldMakeUppercase)
             {
-
-                // Note: we are using String.toUpperCase() here on purpose as it handles certain things
-                // better than Character.toUpperCase(), e.g. German "scharfes s" is translated
-                // to "SS" (i.e. two characters), if uppercased properly!
-                if (shouldMakeUppercase)
-                {
-                    sb.Append(ch.ToString().ToUpper(CultureInfo.CurrentCulture));
-                }
-                else
-                {
-                    sb.Append(ch.ToString().ToLower(CultureInfo.CurrentCulture));
-                }
-                shouldMakeUppercase = !char.IsLetter(ch);
+                sb.Append(ch.ToString().ToUpper(CultureInfo.CurrentCulture));
             }
-            return new StringEval(sb.ToString());
+            else
+            {
+                sb.Append(ch.ToString().ToLower(CultureInfo.CurrentCulture));
+            }
+            shouldMakeUppercase = !char.IsLetter(ch);
         }
+        return new StringEval(sb.ToString());
     }
 }

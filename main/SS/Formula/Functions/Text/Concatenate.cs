@@ -18,29 +18,27 @@
  * Created on May 15, 2005
  *
  */
-namespace NPOI.SS.Formula.Functions
-{
-    using System.Text; 
+namespace NPOI.SS.Formula.Functions.Text;
+
 using Cysharp.Text;
-    using NPOI.SS.Formula.Eval;
+using NPOI.SS.Formula.Eval;
 
-    /**
-     * @author Amol S. Deshmukh &lt; amolweb at ya hoo dot com &gt;
-     *
-     */
-    public class Concatenate : TextFunction
+/**
+ * @author Amol S. Deshmukh &lt; amolweb at ya hoo dot com &gt;
+ *
+ */
+public class Concatenate : TextFunction
+{
+
+
+    public override ValueEval EvaluateFunc(ValueEval[] args, int srcCellRow, int srcCellCol)
     {
+        using var sb = ZString.CreateStringBuilder();
 
-
-        public override ValueEval EvaluateFunc(ValueEval[] args, int srcCellRow, int srcCellCol)
-        {
-            using var sb = ZString.CreateStringBuilder();
-
-            for(int i=0, iSize=args.Length; i<iSize; i++) {
+        for(int i=0, iSize=args.Length; i<iSize; i++) {
 				sb.Append(EvaluateStringArg(args[i], srcCellRow, srcCellCol));
 			}
 			return new StringEval(sb.ToString());
 
-        }
     }
 }

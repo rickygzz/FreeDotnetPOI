@@ -25,6 +25,7 @@ using NPOI.SS.Formula.Functions.Boolean;
 using NPOI.SS.Formula.Functions.Logical;
 using NPOI.SS.Formula.Functions.Matrix;
 using NPOI.SS.Formula.Functions.Numeric;
+using NPOI.SS.Formula.Functions.Text;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
