@@ -1,4 +1,4 @@
-/* ====================================================================
+﻿/* ====================================================================
     Licensed to the Apache Software Foundation (ASF) under one or more
     contributor license agreements.  See the NOTICE file distributed with
     this work for additional information regarding copyright ownership.
@@ -17,6 +17,7 @@
 
 namespace NPOI.HSSF.Extractor;
 
+using System;
 using Cysharp.Text;
 using NPOI;
 using NPOI.HSSF.UserModel;
@@ -24,7 +25,6 @@ using NPOI.POIFS.FileSystem;
 using NPOI.SS.Extractor;
 using NPOI.SS.Formula.Eval;
 using NPOI.SS.UserModel;
-using System;
 
 /// <summary>
 /// A text extractor for Excel files.
@@ -41,8 +41,9 @@ public class ExcelExtractor : POIOLE2TextExtractor, IExcelExtractor
     private bool includeCellComments = false;
     private bool includeBlankCells = false;
     private bool includeHeadersFooters = true;
+
     /// <summary>
-    /// Initializes a new instance of the <see cref="ExcelExtractor"/> class.
+    ///     Initializes a new instance of the <see cref="ExcelExtractor"/> class.
     /// </summary>
     /// <param name="wb">The wb.</param>
     public ExcelExtractor(HSSFWorkbook wb)
@@ -65,10 +66,12 @@ public class ExcelExtractor : POIOLE2TextExtractor, IExcelExtractor
     /// </summary>
     public bool IncludeHeadersFooters
     {
-        get {
+        get
+        {
             return this.includeHeadersFooters;
         }
-        set {
+        set
+        {
             this.includeHeadersFooters = value;
         }
     }
@@ -78,7 +81,8 @@ public class ExcelExtractor : POIOLE2TextExtractor, IExcelExtractor
     /// <value>if set to <c>true</c> [include sheet names].</value>
     public bool IncludeSheetNames
     {
-        get {
+        get
+        {
             return this.includeSheetNames;
         }
         set

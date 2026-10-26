@@ -31,7 +31,7 @@ using NPOI.Util;
 /// Low level model implementation of a Sheet (one workbook Contains many sheets)
 /// This file Contains the low level binary records starting at the sheets BOF and
 /// ending with the sheets EOF.  Use HSSFSheet for a high level representation.
-/// 
+///
 /// The structures of the highlevel API use references to this to perform most of their
 /// operations.  Its probably Unwise to use these low level structures directly Unless you
 /// really know what you're doing.  I recommend you Read the Microsoft Excel 97 Developer's
@@ -286,7 +286,7 @@ public class InternalSheet
                 // This happens three times in test sample file "29982.xls"
                 // Also several times in bugzilla samples 46840-23373 and 46840-23374
                 records.Add(new CustomViewSettingsRecordAggregate(rs));
-                continue;                    
+                continue;
             }
 
             if (PageSettingsBlock.IsComponentRecord(recSid))
@@ -318,7 +318,7 @@ public class InternalSheet
                 _mergedCellsTable.Read(rs);
                 continue;
             }
-            
+
             if (recSid == BOFRecord.sid)
             {
                 ChartSubstreamRecordAggregate chartAgg = new ChartSubstreamRecordAggregate(rs);
@@ -342,7 +342,7 @@ public class InternalSheet
                 continue;
             }
 
-            
+
             if (recSid == UncalcedRecord.sid)
             {
                 // don't Add UncalcedRecord to the list
@@ -434,7 +434,7 @@ public class InternalSheet
             }
             dimsloc = FindFirstRecordLocBySid(WindowTwoRecord.sid);
             _dimensions = rra.CreateDimensions();
-            records.Insert(dimsloc, _dimensions);                
+            records.Insert(dimsloc, _dimensions);
         }
         if (rra == null)
         {
@@ -449,14 +449,15 @@ public class InternalSheet
         //    log.Log(POILogger.DEBUG, "sheet createSheet (existing file) exited");
 
     }
-    private sealed class RecordVisitor1:RecordVisitor
+    private sealed class RecordVisitor1 : RecordVisitor
     {
         readonly List<RecordBase> _records;
         public RecordVisitor1(List<RecordBase> recs)
         {
-            _records=recs;
+            _records = recs;
         }
-        public void VisitRecord(Record r) {
+        public void VisitRecord(Record r)
+        {
             _records.Add(r);
         }
     }
@@ -1050,7 +1051,7 @@ public class InternalSheet
     /// <returns>record containing a DeltaRecord</returns>
     private static DeltaRecord CreateDelta()
     {
-        return new DeltaRecord(DeltaRecord.DEFAULT_VALUE);            
+        return new DeltaRecord(DeltaRecord.DEFAULT_VALUE);
     }
 
     /// <summary>
@@ -1236,8 +1237,8 @@ public class InternalSheet
     public short DefaultRowHeight
     {
         get { return defaultrowheight.RowHeight; }
-        set 
-        { 
+        set
+        {
             defaultrowheight.RowHeight = (value);
             // set the bit that specifies that the default settings for the row height have been changed.
             defaultrowheight.OptionFlags = (short)1;
@@ -1296,7 +1297,7 @@ public class InternalSheet
      */
     public void SetColumnWidth(int column, double width)
     {
-        if (width > 255 * 256) 
+        if (width > 255 * 256)
                throw new ArgumentException("The maximum column width for an individual cell is 255 characters.");
         SetColumn(column, null, width, null, null, null);
     }
@@ -1400,13 +1401,13 @@ public class InternalSheet
     }
 
     /**
-     * Creates the WindowTwo Record and Sets it to:  
-     * options        = 0x6b6 
-     * toprow         = 0 
-     * leftcol        = 0 
-     * headercolor    = 0x40 
-     * pagebreakzoom  = 0x0 
-     * normalzoom     = 0x0 
+     * Creates the WindowTwo Record and Sets it to:
+     * options        = 0x6b6
+     * toprow         = 0
+     * leftcol        = 0
+     * headercolor    = 0x40
+     * pagebreakzoom  = 0x0
+     * normalzoom     = 0x0
      * @see org.apache.poi.hssf.record.WindowTwoRecord
      * @see org.apache.poi.hssf.record.Record
      * @return record containing a WindowTwoRecord
@@ -1742,7 +1743,7 @@ public class InternalSheet
             }
             return !gridset.Gridset;
         }
-        set 
+        set
         {
             gridset.Gridset = !value;
         }
@@ -1936,7 +1937,7 @@ public class InternalSheet
      * @see org.apache.poi.hssf.record.Record
      * @return a ScenarioProtectRecord
      */
-    
+
     protected ScenarioProtectRecord CreateScenarioProtect()
     {
         //if (log.Check(POILogger.DEBUG))
@@ -1946,12 +1947,12 @@ public class InternalSheet
         retval.Protect = (false);
         return retval;
     }
-    
+
     //'Worksheet Protection Block'<br/>
     //Aggregate object is always present, but possibly empty.
     [NonSerialized]
     private WorksheetProtectionBlock _protectionBlock = new WorksheetProtectionBlock();
-    
+
     public WorksheetProtectionBlock ProtectionBlock
     {
         get
@@ -2107,7 +2108,6 @@ public class InternalSheet
         }
     }
 
-
     /**
      * Shifts the horizontal page breaks for the indicated count
      * @param startingRow
@@ -2234,10 +2234,10 @@ public class InternalSheet
     }
 
     /**
-* 'initial sheet records' are between INDEX and the 'Row Blocks'
-* @param bofRecordIndex index of record after which INDEX record is to be placed
-* @return count of bytes from end of INDEX record to first ROW record.
-*/
+    * 'initial sheet records' are between INDEX and the 'Row Blocks'
+    * @param bofRecordIndex index of record after which INDEX record is to be placed
+    * @return count of bytes from end of INDEX record to first ROW record.
+    */
     private int GetSizeOfInitialSheetRecords(int bofRecordIndex)
     {
 

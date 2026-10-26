@@ -1,4 +1,4 @@
-/* ====================================================================
+﻿/* ====================================================================
    Licensed to the Apache Software Foundation (ASF) under one or more
    contributor license agreements.  See the NOTICE file distributed with
    this work for additional information regarding copyright ownership.
@@ -15,75 +15,73 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.HSSF.Model
-{
-    using System;
+namespace NPOI.HSSF.Model;
 
-    using NPOI.HSSF.UserModel;
-    using NPOI.SS.Formula;
-    using NPOI.SS.Formula.PTG;
+using System;
+using NPOI.HSSF.UserModel;
+using NPOI.SS.Formula;
+using NPOI.SS.Formula.PTG;
+
+
+/**
+ * HSSF wrapper for the {@link FormulaParser} and {@link FormulaRenderer}
+ *
+ * @author Josh Micich
+ */
+public class HSSFFormulaParser
+{
+
+    private static HSSFEvaluationWorkbook CreateParsingWorkbook(HSSFWorkbook book)
+    {
+        return HSSFEvaluationWorkbook.Create(book);
+    }
+
+    private HSSFFormulaParser()
+    {
+        // no instances of this class
+    }
+
+    /**
+     * Convenience method for parsing cell formulas. see {@link #parse(String, HSSFWorkbook, int)}
+     */
+    public static Ptg[] Parse(String formula, HSSFWorkbook workbook)
+    {
+        return Parse(formula, workbook, FormulaType.Cell);
+    }
+
+    /**
+     * @param formulaType a constant from {@link FormulaType}
+     * @return the parsed formula tokens
+     */
+    public static Ptg[] Parse(String formula, HSSFWorkbook workbook, FormulaType formulaType)
+    {
+        return FormulaParser.Parse(formula, CreateParsingWorkbook(workbook), formulaType, -1);
+    }
+    /**
+     * @param formula     the formula to parse
+     * @param workbook    the parent workbook
+     * @param formulaType a constant from {@link FormulaType}
+     * @param sheetIndex  the 0-based index of the sheet this formula belongs to.
+     * The sheet index is required to resolve sheet-level names. <code>-1</code> means that
+     * the scope of the name will be ignored and  the parser will match named ranges only by name
+     *
+     * @return the parsed formula tokens
+     */
+    public static Ptg[] Parse(String formula, HSSFWorkbook workbook, FormulaType formulaType, int sheetIndex)
+    {
+        return FormulaParser.Parse(formula, CreateParsingWorkbook(workbook), formulaType, sheetIndex, -1);
+    }
 
 
     /**
-     * HSSF wrapper for the {@link FormulaParser} and {@link FormulaRenderer} 
-     * 
-     * @author Josh Micich
+     * Static method to convert an array of {@link Ptg}s in RPN order
+     * to a human readable string format in infix mode.
+     * @param book  used for defined names and 3D references
+     * @param ptgs  must not be <c>null</c>
+     * @return a human readable String
      */
-    public class HSSFFormulaParser
+    public static String ToFormulaString(HSSFWorkbook book, Ptg[] ptgs)
     {
-
-        private static HSSFEvaluationWorkbook CreateParsingWorkbook(HSSFWorkbook book)
-        {
-            return HSSFEvaluationWorkbook.Create(book);
-        }
-
-        private HSSFFormulaParser()
-        {
-            // no instances of this class
-        }
-
-        /**
-         * Convenience method for parsing cell formulas. see {@link #parse(String, HSSFWorkbook, int)}
-         */
-        public static Ptg[] Parse(String formula, HSSFWorkbook workbook)
-        {
-            return Parse(formula, workbook, FormulaType.Cell);
-        }
-
-        /**
-         * @param formulaType a constant from {@link FormulaType}
-         * @return the parsed formula tokens
-         */
-        public static Ptg[] Parse(String formula, HSSFWorkbook workbook, FormulaType formulaType)
-        {
-            return FormulaParser.Parse(formula, CreateParsingWorkbook(workbook), formulaType, -1);
-        }
-        /**
-         * @param formula     the formula to parse
-         * @param workbook    the parent workbook
-         * @param formulaType a constant from {@link FormulaType}
-         * @param sheetIndex  the 0-based index of the sheet this formula belongs to.
-         * The sheet index is required to resolve sheet-level names. <code>-1</code> means that
-         * the scope of the name will be ignored and  the parser will match named ranges only by name
-         *
-         * @return the parsed formula tokens
-         */
-        public static Ptg[] Parse(String formula, HSSFWorkbook workbook, FormulaType formulaType, int sheetIndex)
-        {
-            return FormulaParser.Parse(formula, CreateParsingWorkbook(workbook), formulaType, sheetIndex, -1);
-        }
-
-
-        /**
-         * Static method to convert an array of {@link Ptg}s in RPN order
-         * to a human readable string format in infix mode.
-         * @param book  used for defined names and 3D references
-         * @param ptgs  must not be <c>null</c>
-         * @return a human readable String
-         */
-        public static String ToFormulaString(HSSFWorkbook book, Ptg[] ptgs)
-        {
-            return FormulaRenderer.ToFormulaString(HSSFEvaluationWorkbook.Create(book), ptgs);
-        }
+        return FormulaRenderer.ToFormulaString(HSSFEvaluationWorkbook.Create(book), ptgs);
     }
 }

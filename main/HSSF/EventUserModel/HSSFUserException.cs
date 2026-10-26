@@ -1,4 +1,4 @@
-/* ====================================================================
+﻿/* ====================================================================
     Licensed to the Apache Software Foundation (ASF) Under one or more
     contributor license agreements.  See the NOTICE file distributed with
     this work for Additional information regarding copyright ownership.
@@ -18,6 +18,7 @@
 namespace NPOI.HSSF.EventUserModel;
 
 using System;
+
 /// <summary>
 /// This exception Is provided as a way for API users to throw
 /// exceptions from their event handling code. By doing so they

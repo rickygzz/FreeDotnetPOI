@@ -1,4 +1,4 @@
-/* ====================================================================
+﻿/* ====================================================================
     Licensed to the Apache Software Foundation (ASF) under one or more
     contributor license agreements.  See the NOTICE file distributed with
     this work for additional information regarding copyright ownership.
@@ -17,6 +17,10 @@
 
 namespace NPOI.HSSF.Extractor;
 
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Text;
 using NPOI;
 using NPOI.HPSF;
 using NPOI.HSSF.EventUserModel;
@@ -25,10 +29,6 @@ using NPOI.HSSF.Record;
 using NPOI.HSSF.UserModel;
 using NPOI.POIFS.FileSystem;
 using NPOI.SS.Util;
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Text;
 
 /// <summary>
 /// A text extractor for Excel files, that is based
@@ -60,8 +60,10 @@ public class EventBasedExcelExtractor : POIOLE2TextExtractor
     /// <value>The doc summary information.</value>
     public override DocumentSummaryInformation DocSummaryInformation
     {
-        get {
-            throw new NotImplementedException("Metadata extraction not supported in streaming mode, please use ExcelExtractor");
+        get
+        {
+            throw new NotImplementedException(
+                "Metadata extraction not supported in streaming mode, please use ExcelExtractor");
         }
     }
     /// <summary>
@@ -73,7 +75,8 @@ public class EventBasedExcelExtractor : POIOLE2TextExtractor
     {
         get
         {
-            throw new NotImplementedException("Metadata extraction not supported in streaming mode, please use ExcelExtractor");
+            throw new NotImplementedException(
+                "Metadata extraction not supported in streaming mode, please use ExcelExtractor");
         }
     }
 
@@ -135,7 +138,7 @@ public class EventBasedExcelExtractor : POIOLE2TextExtractor
     /// </summary>
     private TextListener TriggerExtraction()
     {
-        TextListener tl = new TextListener(includeSheetNames,formulasNotResults);
+        TextListener tl = new TextListener(includeSheetNames, formulasNotResults);
         FormatTrackingHSSFListener ft = new FormatTrackingHSSFListener(tl);
         tl.ft = ft;
 

@@ -1,4 +1,4 @@
-
+﻿
 /* ====================================================================
     Licensed to the Apache Software Foundation (ASF) Under one or more
     contributor license agreements.  See the NOTICE file distributed with
@@ -64,7 +64,7 @@ public class HSSFRequest
             list = new ArrayList(
                 1);   // probably most people will use one listener
             list.Add(lsnr);
-            records[sid]=list;
+            records[sid] = list;
         }
     }
 

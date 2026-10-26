@@ -1,4 +1,4 @@
-/* ====================================================================
+﻿/* ====================================================================
     Licensed to the Apache Software Foundation (ASF) under one or more
     contributor license agreements.  See the NOTICE file distributed with
     this work for Additional information regarding copyright ownership.
@@ -158,22 +158,25 @@ public class EventWorkbookBuilder
         public HSSFWorkbook GetStubHSSFWorkbook()
         {
             // Create a base workbook
-                HSSFWorkbook wb = HSSFWorkbook.Create(GetStubWorkbook());
-                // Stub the sheets, so sheet name lookups work
-                foreach (BoundSheetRecord bsr in boundSheetRecords) {
-                    wb.CreateSheet(bsr.Sheetname);
-                }
-                // Ready for Formula use!
-                return wb;
+            HSSFWorkbook wb = HSSFWorkbook.Create(GetStubWorkbook());
+            // Stub the sheets, so sheet name lookups work
+            foreach (BoundSheetRecord bsr in boundSheetRecords)
+            {
+                wb.CreateSheet(bsr.Sheetname);
+            }
+
+            // Ready for Formula use!
+            return wb;
         }
+
         /// <summary>
         /// Gets the stub workbook.
         /// </summary>
         public InternalWorkbook GetStubWorkbook()
         {
             return CreateStubWorkbook(
-                    GetExternSheetRecords(), GetBoundSheetRecords(),
-                    GetSSTRecord()
+                GetExternSheetRecords(), GetBoundSheetRecords(),
+                GetSSTRecord()
             );
         }
 
