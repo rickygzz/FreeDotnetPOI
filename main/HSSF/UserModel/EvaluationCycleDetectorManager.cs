@@ -15,33 +15,32 @@
    limitations Under the License.
 ==================================================================== */
 
-namespace NPOI.HSSF.UserModel
+namespace NPOI.HSSF.UserModel;
+
+using System;
+
+/**
+ * This class makes an <c>EvaluationCycleDetector</c> instance available to
+ * each thRead via a <c>ThReadLocal</c> in order to avoid Adding a parameter
+ * to a few protected methods within <c>HSSFFormulaEvaluator</c>.
+ * 
+ * @author Josh Micich
+ */
+class EvaluationCycleDetectorManager
 {
-    using System;
+    [ThreadStatic]
+    static EvaluationCycleDetector ecd = new EvaluationCycleDetector();
 
     /**
-     * This class makes an <c>EvaluationCycleDetector</c> instance available to
-     * each thRead via a <c>ThReadLocal</c> in order to avoid Adding a parameter
-     * to a few protected methods within <c>HSSFFormulaEvaluator</c>.
-     * 
-     * @author Josh Micich
+     * @return
      */
-    class EvaluationCycleDetectorManager
+    public static EvaluationCycleDetector GetTracker()
     {
-        [ThreadStatic]
-        static EvaluationCycleDetector ecd = new EvaluationCycleDetector();
+        return ecd;
+    }
 
-        /**
-         * @return
-         */
-        public static EvaluationCycleDetector GetTracker()
-        {
-            return ecd;
-        }
-
-        private EvaluationCycleDetectorManager()
-        {
-            // no instances of this class
-        }
+    private EvaluationCycleDetectorManager()
+    {
+        // no instances of this class
     }
 }

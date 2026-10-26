@@ -15,59 +15,54 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.HSSF.UserModel.helpers
+namespace NPOI.HSSF.UserModel.Helpers;
+
+using NPOI.HSSF.UserModel;
+using NPOI.SS.Formula;
+using NPOI.SS.UserModel;
+using NPOI.SS.UserModel.Helpers;
+using NPOI.Util;
+using System;
+
+/**
+ * Helper for Shifting rows up or down
+ * 
+ * When possible, code should be implemented in the RowShifter abstract class to avoid duplication with {@link NPOI.XSSF.UserModel.helpers.XSSFRowShifter}
+ */
+public class HSSFRowShifter : RowShifter
 {
-    using System;
+    private static POILogger logger = POILogFactory.GetLogger(typeof(HSSFRowShifter));
 
-    using NPOI.HSSF.UserModel;
-    using NPOI.HSSF.UserModel.Helpers;
-    using NPOI.SS.Formula;
-    using NPOI.SS.Formula.Eval;
-    using NPOI.SS.UserModel;
-    using NPOI.SS.UserModel.Helpers;
-    using NPOI.Util;
-
-    /**
-     * Helper for Shifting rows up or down
-     * 
-     * When possible, code should be implemented in the RowShifter abstract class to avoid duplication with {@link NPOI.XSSF.UserModel.helpers.XSSFRowShifter}
-     */
-    public class HSSFRowShifter : RowShifter
+    public HSSFRowShifter(HSSFSheet sh)
+            : base(sh)
     {
-        private static POILogger logger = POILogFactory.GetLogger(typeof(HSSFRowShifter));
+        ;
+    }
 
-        public HSSFRowShifter(HSSFSheet sh)
-                : base(sh)
-        {
-            ;
-        }
+    public override void UpdateNamedRanges(FormulaShifter Shifter)
+    {
+        throw new NotImplementedException("HSSFRowShifter.updateNamedRanges");
+    }
 
-        public override void UpdateNamedRanges(FormulaShifter Shifter)
-        {
-            throw new NotImplementedException("HSSFRowShifter.updateNamedRanges");
-        }
-
-        public override void UpdateFormulas(FormulaShifter Shifter)
-        {
-            throw new NotImplementedException("updateFormulas");
-        }
+    public override void UpdateFormulas(FormulaShifter Shifter)
+    {
+        throw new NotImplementedException("updateFormulas");
+    }
 
 
-        public override void UpdateRowFormulas(IRow row, FormulaShifter formulaShifter)
-        {
-            HSSFRowColShifter.UpdateRowFormulas(row, formulaShifter);
-        }
+    public override void UpdateRowFormulas(IRow row, FormulaShifter formulaShifter)
+    {
+        HSSFRowColShifter.UpdateRowFormulas(row, formulaShifter);
+    }
 
-        public override void UpdateConditionalFormatting(FormulaShifter Shifter)
-        {
-            throw new NotImplementedException("updateConditionalFormatting");
-        }
+    public override void UpdateConditionalFormatting(FormulaShifter Shifter)
+    {
+        throw new NotImplementedException("updateConditionalFormatting");
+    }
 
-        public override void UpdateHyperlinks(FormulaShifter Shifter)
-        {
-            throw new NotImplementedException("updateHyperlinks");
-        }
-
+    public override void UpdateHyperlinks(FormulaShifter Shifter)
+    {
+        throw new NotImplementedException("updateHyperlinks");
     }
 
 }

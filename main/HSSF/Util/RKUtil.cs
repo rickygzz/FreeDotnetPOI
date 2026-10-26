@@ -17,61 +17,60 @@
 
 using System;
 
-namespace NPOI.HSSF.Util
+namespace NPOI.HSSF.Util;
+
+
+/**
+ * Utility class for helping convert RK numbers.
+ *
+ * @author Andrew C. Oliver (acoliver at apache dot org)
+ * @author Glen Stampoultzis (glens at apache.org)
+ * @author Rolf-Jürgen Moll
+ *
+ * @see org.apache.poi.hssf.record.MulRKRecord
+ * @see org.apache.poi.hssf.record.RKRecord
+ */
+public class RKUtil
 {
 
     /**
-     * Utility class for helping convert RK numbers.
-     *
-     * @author Andrew C. Oliver (acoliver at apache dot org)
-     * @author Glen Stampoultzis (glens at apache.org)
-     * @author Rolf-Jürgen Moll
-     *
-     * @see org.apache.poi.hssf.record.MulRKRecord
-     * @see org.apache.poi.hssf.record.RKRecord
+     * Do the dirty work of decoding; made a private static method to
+     * facilitate testing the algorithm
      */
-    public class RKUtil
+
+    public static double DecodeNumber(int number)
     {
+        long raw_number = number;
 
-        /**
-         * Do the dirty work of decoding; made a private static method to
-         * facilitate testing the algorithm
-         */
+        // mask off the two low-order bits, 'cause they're not part of
+        // the number
+        raw_number = raw_number >> 2;
+        double rvalue = 0;
 
-        public static double DecodeNumber(int number)
+        if ((number & 0x02) == 0x02)
         {
-            long raw_number = number;
+            // ok, it's just a plain ol' int; we can handle this
+            // trivially by casting
+            rvalue = (double)(raw_number);
+        }
+        else
+        {
 
-            // mask off the two low-order bits, 'cause they're not part of
-            // the number
-            raw_number = raw_number >> 2;
-            double rvalue = 0;
+            // also trivial, but not as obvious ... left Shift the
+            // bits high and use that clever static method in double
+            // to convert the resulting bit image to a double
+            rvalue = BitConverter.Int64BitsToDouble(raw_number << 34);
+        }
+        if ((number & 0x01) == 0x01)
+        {
 
-            if ((number & 0x02) == 0x02)
-            {
-                // ok, it's just a plain ol' int; we can handle this
-                // trivially by casting
-                rvalue = (double)(raw_number);
-            }
-            else
-            {
-
-                // also trivial, but not as obvious ... left Shift the
-                // bits high and use that clever static method in double
-                // to convert the resulting bit image to a double
-                rvalue = BitConverter.Int64BitsToDouble(raw_number << 34);
-            }
-            if ((number & 0x01) == 0x01)
-            {
-
-                // low-order bit says divide by 100, and so we do. Why?
-                // 'cause that's what the algorithm says. Can't fight city
-                // hall, especially if it's the city of Redmond
-                rvalue /= 100;
-            }
-
-            return rvalue;
+            // low-order bit says divide by 100, and so we do. Why?
+            // 'cause that's what the algorithm says. Can't fight city
+            // hall, especially if it's the city of Redmond
+            rvalue /= 100;
         }
 
+        return rvalue;
     }
+
 }

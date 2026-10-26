@@ -15,198 +15,197 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.HSSF.Record
+namespace NPOI.HSSF.Record;
+
+using System;
+using System.Text;
+using NPOI.Util;
+using NPOI.SS.Util;
+/**
+ * DATATABLE (0x0236)<p/>
+ *
+ * TableRecord - The record specifies a data table.
+ * This record Is preceded by a single Formula record that
+ *  defines the first cell in the data table, which should
+ *  only contain a single Ptg, {@link TblPtg}.
+ *
+ * See p536 of the June 08 binary docs
+ */
+public class TableRecord : SharedValueRecordBase
 {
-    using System;
-    using System.Text;
-    using NPOI.Util;
-    using NPOI.SS.Util;
-    /**
-     * DATATABLE (0x0236)<p/>
-     *
-     * TableRecord - The record specifies a data table.
-     * This record Is preceded by a single Formula record that
-     *  defines the first cell in the data table, which should
-     *  only contain a single Ptg, {@link TblPtg}.
-     *
-     * See p536 of the June 08 binary docs
-     */
-    public class TableRecord : SharedValueRecordBase
+    public const short sid = 0x0236;
+
+    private static BitField alwaysCalc = BitFieldFactory.GetInstance(0x0001);
+    private static BitField calcOnOpen = BitFieldFactory.GetInstance(0x0002);
+    private static BitField rowOrColInpCell = BitFieldFactory.GetInstance(0x0004);
+    private static BitField oneOrTwoVar = BitFieldFactory.GetInstance(0x0008);
+    private static BitField rowDeleted = BitFieldFactory.GetInstance(0x0010);
+    private static BitField colDeleted = BitFieldFactory.GetInstance(0x0020);
+
+    private int field_5_flags;
+    private int field_6_res;
+    private int field_7_rowInputRow;
+    private int field_8_colInputRow;
+    private int field_9_rowInputCol;
+    private int field_10_colInputCol;
+
+    public TableRecord(RecordInputStream in1)
+        : base(in1)
     {
-        public const short sid = 0x0236;
 
-        private static BitField alwaysCalc = BitFieldFactory.GetInstance(0x0001);
-        private static BitField calcOnOpen = BitFieldFactory.GetInstance(0x0002);
-        private static BitField rowOrColInpCell = BitFieldFactory.GetInstance(0x0004);
-        private static BitField oneOrTwoVar = BitFieldFactory.GetInstance(0x0008);
-        private static BitField rowDeleted = BitFieldFactory.GetInstance(0x0010);
-        private static BitField colDeleted = BitFieldFactory.GetInstance(0x0020);
+        field_5_flags = in1.ReadByte();
+        field_6_res = in1.ReadByte();
+        field_7_rowInputRow = in1.ReadShort();
+        field_8_colInputRow = in1.ReadShort();
+        field_9_rowInputCol = in1.ReadShort();
+        field_10_colInputCol = in1.ReadShort();
+    }
 
-        private int field_5_flags;
-        private int field_6_res;
-        private int field_7_rowInputRow;
-        private int field_8_colInputRow;
-        private int field_9_rowInputCol;
-        private int field_10_colInputCol;
+    public TableRecord(CellRangeAddress8Bit range)
+        : base(range)
+    {
 
-        public TableRecord(RecordInputStream in1)
-            : base(in1)
+        field_6_res = 0;
+    }
+
+    public int Flags
+    {
+        get
         {
-
-            field_5_flags = in1.ReadByte();
-            field_6_res = in1.ReadByte();
-            field_7_rowInputRow = in1.ReadShort();
-            field_8_colInputRow = in1.ReadShort();
-            field_9_rowInputCol = in1.ReadShort();
-            field_10_colInputCol = in1.ReadShort();
+            return field_5_flags;
         }
-
-        public TableRecord(CellRangeAddress8Bit range)
-            : base(range)
+        set { field_5_flags = value; }
+    }
+    public int RowInputRow
+    {
+        get
         {
+            return field_7_rowInputRow;
+        }
+        set { field_7_rowInputRow = value; }
+    }
 
-            field_6_res = 0;
-        }
-
-        public int Flags
+    public int ColInputRow
+    {
+        get
         {
-            get
-            {
-                return field_5_flags;
-            }
-            set { field_5_flags = value; }
+            return field_8_colInputRow;
         }
-        public int RowInputRow
-        {
-            get
-            {
-                return field_7_rowInputRow;
-            }
-            set { field_7_rowInputRow = value; }
-        }
-
-        public int ColInputRow
-        {
-            get
-            {
-                return field_8_colInputRow;
-            }
-            set { field_8_colInputRow = value; }
-        }
+        set { field_8_colInputRow = value; }
+    }
 
 
-        public int RowInputCol
+    public int RowInputCol
+    {
+        get
         {
-            get
-            {
-                return field_9_rowInputCol;
-            }
-            set { field_9_rowInputCol = value; }
+            return field_9_rowInputCol;
         }
-        public int ColInputCol
+        set { field_9_rowInputCol = value; }
+    }
+    public int ColInputCol
+    {
+        get
         {
-            get
-            {
-                return field_10_colInputCol;
-            }
-            set { field_10_colInputCol = value; }
+            return field_10_colInputCol;
         }
+        set { field_10_colInputCol = value; }
+    }
 
 
-        public bool IsAlwaysCalc
+    public bool IsAlwaysCalc
+    {
+        get
         {
-            get
-            {
-                return alwaysCalc.IsSet(field_5_flags);
-            }
-            set { field_5_flags = alwaysCalc.SetBoolean(field_5_flags, value); }
+            return alwaysCalc.IsSet(field_5_flags);
         }
+        set { field_5_flags = alwaysCalc.SetBoolean(field_5_flags, value); }
+    }
 
 
-        public bool IsRowOrColInpCell
+    public bool IsRowOrColInpCell
+    {
+        get
         {
-            get
-            {
-                return rowOrColInpCell.IsSet(field_5_flags);
-            }
-            set { field_5_flags = rowOrColInpCell.SetBoolean(field_5_flags, value); }
+            return rowOrColInpCell.IsSet(field_5_flags);
         }
+        set { field_5_flags = rowOrColInpCell.SetBoolean(field_5_flags, value); }
+    }
 
-        public bool IsOneNotTwoVar
+    public bool IsOneNotTwoVar
+    {
+        get
         {
-            get
-            {
-                return oneOrTwoVar.IsSet(field_5_flags);
-            }
-            set { field_5_flags = oneOrTwoVar.SetBoolean(field_5_flags, value); }
+            return oneOrTwoVar.IsSet(field_5_flags);
         }
+        set { field_5_flags = oneOrTwoVar.SetBoolean(field_5_flags, value); }
+    }
 
-        public bool IsColDeleted
+    public bool IsColDeleted
+    {
+        get
         {
-            get
-            {
-                return colDeleted.IsSet(field_5_flags);
-            }
-            set { field_5_flags = colDeleted.SetBoolean(field_5_flags, value); }
+            return colDeleted.IsSet(field_5_flags);
         }
+        set { field_5_flags = colDeleted.SetBoolean(field_5_flags, value); }
+    }
 
-        public bool IsRowDeleted
+    public bool IsRowDeleted
+    {
+        get
         {
-            get
-            {
-                return rowDeleted.IsSet(field_5_flags);
-            }
-            set { field_5_flags = rowDeleted.SetBoolean(field_5_flags, value); }
+            return rowDeleted.IsSet(field_5_flags);
         }
+        set { field_5_flags = rowDeleted.SetBoolean(field_5_flags, value); }
+    }
 
-        public override short Sid
+    public override short Sid
+    {
+        get
         {
-            get
-            {
-                return sid;
-            }
+            return sid;
         }
-        protected override int ExtraDataSize
+    }
+    protected override int ExtraDataSize
+    {
+        get
         {
-            get
-            {
-                return
-                2 // 2 byte fields
-                + 8; // 4 short fields
-            }
+            return
+            2 // 2 byte fields
+            + 8; // 4 short fields
         }
-        protected override void SerializeExtraData(ILittleEndianOutput out1)
-        {
-            out1.WriteByte(field_5_flags);
-            out1.WriteByte(field_6_res);
-            out1.WriteShort(field_7_rowInputRow);
-            out1.WriteShort(field_8_colInputRow);
-            out1.WriteShort(field_9_rowInputCol);
-            out1.WriteShort(field_10_colInputCol);
-        }
+    }
+    protected override void SerializeExtraData(ILittleEndianOutput out1)
+    {
+        out1.WriteByte(field_5_flags);
+        out1.WriteByte(field_6_res);
+        out1.WriteShort(field_7_rowInputRow);
+        out1.WriteShort(field_8_colInputRow);
+        out1.WriteShort(field_9_rowInputCol);
+        out1.WriteShort(field_10_colInputCol);
+    }
 
-        public override String ToString()
-        {
-            StringBuilder buffer = new StringBuilder();
-            buffer.Append("[TABLE]\n");
-            buffer.Append("    .range    = ").Append(Range.ToString()).Append("\n");
-            buffer.Append("    .flags    = ").Append(HexDump.ByteToHex(field_5_flags)).Append("\n");
-            buffer.Append("    .alwaysClc= ").Append(IsAlwaysCalc).Append("\n");
-            buffer.Append("    .reserved = ").Append(HexDump.IntToHex(field_6_res)).Append("\n");
-            CellReference crRowInput = cr(field_7_rowInputRow, field_8_colInputRow);
-            CellReference crColInput = cr(field_9_rowInputCol, field_10_colInputCol);
-            buffer.Append("    .rowInput = ").Append(crRowInput.FormatAsString()).Append("\n");
-            buffer.Append("    .colInput = ").Append(crColInput.FormatAsString()).Append("\n");
-            buffer.Append("[/TABLE]\n");
-            return buffer.ToString();
-        }
+    public override String ToString()
+    {
+        StringBuilder buffer = new StringBuilder();
+        buffer.Append("[TABLE]\n");
+        buffer.Append("    .range    = ").Append(Range.ToString()).Append("\n");
+        buffer.Append("    .flags    = ").Append(HexDump.ByteToHex(field_5_flags)).Append("\n");
+        buffer.Append("    .alwaysClc= ").Append(IsAlwaysCalc).Append("\n");
+        buffer.Append("    .reserved = ").Append(HexDump.IntToHex(field_6_res)).Append("\n");
+        CellReference crRowInput = cr(field_7_rowInputRow, field_8_colInputRow);
+        CellReference crColInput = cr(field_9_rowInputCol, field_10_colInputCol);
+        buffer.Append("    .rowInput = ").Append(crRowInput.FormatAsString()).Append("\n");
+        buffer.Append("    .colInput = ").Append(crColInput.FormatAsString()).Append("\n");
+        buffer.Append("[/TABLE]\n");
+        return buffer.ToString();
+    }
 
-        private static CellReference cr(int rowIx, int colIxAndFlags)
-        {
-            int colIx = colIxAndFlags & 0x00FF;
-            bool IsRowAbs = (colIxAndFlags & 0x8000) == 0;
-            bool IsColAbs = (colIxAndFlags & 0x4000) == 0;
-            return new CellReference(rowIx, colIx, IsRowAbs, IsColAbs);
-        }
+    private static CellReference cr(int rowIx, int colIxAndFlags)
+    {
+        int colIx = colIxAndFlags & 0x00FF;
+        bool IsRowAbs = (colIxAndFlags & 0x8000) == 0;
+        bool IsColAbs = (colIxAndFlags & 0x4000) == 0;
+        return new CellReference(rowIx, colIx, IsRowAbs, IsColAbs);
     }
 }

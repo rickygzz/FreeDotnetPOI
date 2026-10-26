@@ -14,19 +14,18 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 ==================================================================== */
-namespace NPOI
-{
-    using System;
+namespace NPOI;
 
-    /**
-     * Base class of all the exceptions that POI throws in the event
-     * that it's given a file that isn't supported
-     */
-    public abstract class UnsupportedFileFormatException : ArgumentException
+using System;
+
+/**
+ * Base class of all the exceptions that POI throws in the event
+ * that it's given a file that isn't supported
+ */
+public abstract class UnsupportedFileFormatException : ArgumentException
+{
+    public UnsupportedFileFormatException(String s)
+        : base(s)
     {
-        public UnsupportedFileFormatException(String s)
-            : base(s)
-        {
-        }
     }
 }

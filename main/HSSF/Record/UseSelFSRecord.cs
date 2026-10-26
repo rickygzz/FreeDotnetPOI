@@ -18,101 +18,100 @@
 
 
 
-namespace NPOI.HSSF.Record
+namespace NPOI.HSSF.Record;
+
+using System;
+using System.Text;
+using NPOI.Util;
+
+/**
+ * Title:        Use Natural Language Formulas Flag
+ * Description:  Tells the GUI if this was written by something that can use
+ *               "natural language" formulas. HSSF can't.
+ * REFERENCE:  PG 420 Microsoft Excel 97 Developer's Kit (ISBN: 1-57231-498-2)
+ * @author Andrew C. Oliver (acoliver at apache dot org)
+ * @version 2.0-pre
+ */
+
+public class UseSelFSRecord
+   : StandardRecord
 {
-    using System;
-    using System.Text;
-    using NPOI.Util;
+    public const short sid = 0x160;
+
+    private static readonly BitField useNaturalLanguageFormulasFlag = BitFieldFactory.GetInstance(0x0001);
+    private readonly int _options;
+
+    public UseSelFSRecord(int options)
+    {
+        _options = options;
+    }
 
     /**
-     * Title:        Use Natural Language Formulas Flag
-     * Description:  Tells the GUI if this was written by something that can use
-     *               "natural language" formulas. HSSF can't.
-     * REFERENCE:  PG 420 Microsoft Excel 97 Developer's Kit (ISBN: 1-57231-498-2)
-     * @author Andrew C. Oliver (acoliver at apache dot org)
-     * @version 2.0-pre
+     * Constructs a UseSelFS record and Sets its fields appropriately.
+     * @param in the RecordInputstream to Read the record from
      */
 
-    public class UseSelFSRecord
-       : StandardRecord
+    public UseSelFSRecord(RecordInputStream in1) :
+        this(in1.ReadUShort())
     {
-        public const short sid = 0x160;
+    }
+    public UseSelFSRecord(bool b)
+        : this(0)
+    {
+        _options = useNaturalLanguageFormulasFlag.SetBoolean(_options, b);
+    }
+    // /**
+    // * turn the flag on or off
+    // *
+    // * @param flag  whether to use natural language formulas or not
+    // * @see #TRUE
+    // * @see #FALSE
+    // */
 
-        private static readonly BitField useNaturalLanguageFormulasFlag = BitFieldFactory.GetInstance(0x0001);
-        private readonly int _options;
+    //public void SetFlag(short flag)
+    //{
+    //    field_1_flag = flag;
+    //}
 
-        public UseSelFSRecord(int options)
+    // /**
+    // * returns whether we use natural language formulas or not
+    // *
+    // * @return whether to use natural language formulas or not
+    // * @see #TRUE
+    // * @see #FALSE
+    // */
+
+    //public short GetFlag()
+    //{
+    //    return field_1_flag;
+    //}
+
+    public override String ToString()
+    {
+        StringBuilder buffer = new StringBuilder();
+
+        buffer.Append("[USESELFS]\n");
+        buffer.Append("    .flag            = ")
+            .Append(HexDump.ShortToHex(_options)).Append("\n");
+        buffer.Append("[/USESELFS]\n");
+        return buffer.ToString();
+    }
+
+    public override void Serialize(ILittleEndianOutput out1)
+    {
+        out1.WriteShort(_options);
+    }
+
+    protected override int DataSize
+    {
+        get
         {
-            _options = options;
+            return 2;
         }
+    }
 
-        /**
-         * Constructs a UseSelFS record and Sets its fields appropriately.
-         * @param in the RecordInputstream to Read the record from
-         */
-
-        public UseSelFSRecord(RecordInputStream in1) :
-            this(in1.ReadUShort())
-        {
-        }
-        public UseSelFSRecord(bool b)
-            : this(0)
-        {
-            _options = useNaturalLanguageFormulasFlag.SetBoolean(_options, b);
-        }
-        // /**
-        // * turn the flag on or off
-        // *
-        // * @param flag  whether to use natural language formulas or not
-        // * @see #TRUE
-        // * @see #FALSE
-        // */
-
-        //public void SetFlag(short flag)
-        //{
-        //    field_1_flag = flag;
-        //}
-
-        // /**
-        // * returns whether we use natural language formulas or not
-        // *
-        // * @return whether to use natural language formulas or not
-        // * @see #TRUE
-        // * @see #FALSE
-        // */
-
-        //public short GetFlag()
-        //{
-        //    return field_1_flag;
-        //}
-
-        public override String ToString()
-        {
-            StringBuilder buffer = new StringBuilder();
-
-            buffer.Append("[USESELFS]\n");
-            buffer.Append("    .flag            = ")
-                .Append(HexDump.ShortToHex(_options)).Append("\n");
-            buffer.Append("[/USESELFS]\n");
-            return buffer.ToString();
-        }
-
-        public override void Serialize(ILittleEndianOutput out1)
-        {
-            out1.WriteShort(_options);
-        }
-
-        protected override int DataSize
-        {
-            get
-            {
-                return 2;
-            }
-        }
-
-        public override short Sid
-        {
-            get { return sid; }
-        }
+    public override short Sid
+    {
+        get { return sid; }
     }
 }

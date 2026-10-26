@@ -15,95 +15,90 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.HSSF.UserModel
+namespace NPOI.HSSF.UserModel;
+
+using NPOI.HSSF.Record;
+using NPOI.HSSF.Record.CF;
+using NPOI.SS.UserModel;
+using ExtendedColorR = NPOI.HSSF.Record.Common.ExtendedColor;
+/**
+ * High level representation for Color Scale / Color Gradient 
+ *  Formatting component of Conditional Formatting Settings
+ */
+public class HSSFColorScaleFormatting : IColorScaleFormatting
 {
-    using System;
+    private HSSFSheet sheet;
+    private CFRule12Record cfRule12Record;
+    private ColorGradientFormatting colorFormatting;
 
-    using NPOI.HSSF.Record;
-    using NPOI.HSSF.Record.CF;
-    using NPOI.HSSF.Record.Common;
-    using NPOI.SS.UserModel;
-    using ExtendedColorR = NPOI.HSSF.Record.Common.ExtendedColor;
-    /**
-     * High level representation for Color Scale / Color Gradient 
-     *  Formatting component of Conditional Formatting Settings
-     */
-    public class HSSFColorScaleFormatting : IColorScaleFormatting
+    protected internal HSSFColorScaleFormatting(CFRule12Record cfRule12Record, HSSFSheet sheet)
     {
-        private HSSFSheet sheet;
-        private CFRule12Record cfRule12Record;
-        private ColorGradientFormatting colorFormatting;
+        this.sheet = sheet;
+        this.cfRule12Record = cfRule12Record;
+        this.colorFormatting = this.cfRule12Record.ColorGradientFormatting;
+    }
 
-        protected internal HSSFColorScaleFormatting(CFRule12Record cfRule12Record, HSSFSheet sheet)
+    public int NumControlPoints
+    {
+        get
         {
-            this.sheet = sheet;
-            this.cfRule12Record = cfRule12Record;
-            this.colorFormatting = this.cfRule12Record.ColorGradientFormatting;
+            return colorFormatting.NumControlPoints;
         }
-
-        public int NumControlPoints
+        set
         {
-            get
-            {
-                return colorFormatting.NumControlPoints;
-            }
-            set
-            {
-                colorFormatting.NumControlPoints = (value);
-            }
-        }
-
-        public IColor[] Colors
-        {
-            get
-            {
-                ExtendedColorR[] colors = colorFormatting.Colors;
-                HSSFExtendedColor[] hcolors = new HSSFExtendedColor[colors.Length];
-                for (int i = 0; i < colors.Length; i++)
-                {
-                    hcolors[i] = new HSSFExtendedColor(colors[i]);
-                }
-                return hcolors;
-            }
-            set
-            {
-                ExtendedColorR[] cr = new ExtendedColorR[value.Length];
-                for (int i = 0; i < value.Length; i++)
-                {
-                    cr[i] = ((HSSFExtendedColor)value[i]).ExtendedColor;
-                }
-                colorFormatting.Colors = (/*setter*/cr);
-            }
-        }
-
-        public IConditionalFormattingThreshold[] Thresholds
-        {
-            get
-            {
-                Threshold[] t = colorFormatting.Thresholds;
-                HSSFConditionalFormattingThreshold[] ht = new HSSFConditionalFormattingThreshold[t.Length];
-                for (int i = 0; i < t.Length; i++)
-                {
-                    ht[i] = new HSSFConditionalFormattingThreshold(t[i], sheet);
-                }
-                return ht;
-            }
-            set
-            {
-                ColorGradientThreshold[] t = new ColorGradientThreshold[value.Length];
-                for (int i = 0; i < t.Length; i++)
-                {
-                    HSSFConditionalFormattingThreshold hssfT = (HSSFConditionalFormattingThreshold)value[i];
-                    t[i] = (ColorGradientThreshold)hssfT.Threshold;
-                }
-                colorFormatting.Thresholds = (/*setter*/t);
-            }
-        }
-
-        public IConditionalFormattingThreshold CreateThreshold()
-        {
-            return new HSSFConditionalFormattingThreshold(new ColorGradientThreshold(), sheet);
+            colorFormatting.NumControlPoints = (value);
         }
     }
 
+    public IColor[] Colors
+    {
+        get
+        {
+            ExtendedColorR[] colors = colorFormatting.Colors;
+            HSSFExtendedColor[] hcolors = new HSSFExtendedColor[colors.Length];
+            for (int i = 0; i < colors.Length; i++)
+            {
+                hcolors[i] = new HSSFExtendedColor(colors[i]);
+            }
+            return hcolors;
+        }
+        set
+        {
+            ExtendedColorR[] cr = new ExtendedColorR[value.Length];
+            for (int i = 0; i < value.Length; i++)
+            {
+                cr[i] = ((HSSFExtendedColor)value[i]).ExtendedColor;
+            }
+            colorFormatting.Colors = (/*setter*/cr);
+        }
+    }
+
+    public IConditionalFormattingThreshold[] Thresholds
+    {
+        get
+        {
+            Threshold[] t = colorFormatting.Thresholds;
+            HSSFConditionalFormattingThreshold[] ht = new HSSFConditionalFormattingThreshold[t.Length];
+            for (int i = 0; i < t.Length; i++)
+            {
+                ht[i] = new HSSFConditionalFormattingThreshold(t[i], sheet);
+            }
+            return ht;
+        }
+        set
+        {
+            ColorGradientThreshold[] t = new ColorGradientThreshold[value.Length];
+            for (int i = 0; i < t.Length; i++)
+            {
+                HSSFConditionalFormattingThreshold hssfT = (HSSFConditionalFormattingThreshold)value[i];
+                t[i] = (ColorGradientThreshold)hssfT.Threshold;
+            }
+            colorFormatting.Thresholds = (/*setter*/t);
+        }
+    }
+
+    public IConditionalFormattingThreshold CreateThreshold()
+    {
+        return new HSSFConditionalFormattingThreshold(new ColorGradientThreshold(), sheet);
+    }
 }

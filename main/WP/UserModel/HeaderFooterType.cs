@@ -15,30 +15,29 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.WP.UserModel
+namespace NPOI.WP.UserModel;
+
+/**
+ * @since POI v3.16 beta 1
+ */
+public enum HeaderFooterType : int
 {
     /**
-     * @since POI v3.16 beta 1
+     * This is the default header or Footer, It is displayed on every page where
+     * a more specific header or footer is not specified. It is always displayed
+     * on ODD pages that are not the first page of the section.
      */
-    public enum HeaderFooterType : int
-    {
-        /**
-         * This is the default header or Footer, It is displayed on every page where
-         * a more specific header or footer is not specified. It is always displayed
-         * on ODD pages that are not the first page of the section.
-         */
-        DEFAULT = 2,
+    DEFAULT = 2,
 
-        /**
-         * This is an even page header or footer, it is displayed on even pages that
-         * are not the first page of the section.
-         */
-        EVEN = 1,
+    /**
+     * This is an even page header or footer, it is displayed on even pages that
+     * are not the first page of the section.
+     */
+    EVEN = 1,
 
-        /**
-         * This is a first page header or footer It is displayed on the first page
-         * of the section.
-         */
-        FIRST = 3,
-    }
+    /**
+     * This is a first page header or footer It is displayed on the first page
+     * of the section.
+     */
+    FIRST = 3,
 }

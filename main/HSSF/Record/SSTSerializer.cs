@@ -15,90 +15,89 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.HSSF.Record
+namespace NPOI.HSSF.Record;
+
+using NPOI.HSSF.Record.Cont;
+using NPOI.Util;
+
+/**
+ * This class handles serialization of SST records.  It utilizes the record processor
+ * class write individual records. This has been refactored from the SSTRecord class.
+ *
+ * @author Glen Stampoultzis (glens at apache.org)
+ */
+public class SSTSerializer
 {
-    using NPOI.HSSF.Record.Cont;
-    using NPOI.Util;
 
-    /**
-     * This class handles serialization of SST records.  It utilizes the record processor
-     * class write individual records. This has been refactored from the SSTRecord class.
-     *
-     * @author Glen Stampoultzis (glens at apache.org)
-     */
-    public class SSTSerializer
+    private readonly int _numStrings;
+    private readonly int _numUniqueStrings;
+
+    private readonly IntMapper<UnicodeString> strings;
+
+    /** OffSets from the beginning of the SST record (even across continuations) */
+    private readonly int[] bucketAbsoluteOffsets;
+    /** OffSets relative the start of the current SST or continue record */
+    private readonly int[] bucketRelativeOffsets;
+    // fix warning CS0169 "never used": int startOfSST, startOfRecord;
+
+    public SSTSerializer(IntMapper<UnicodeString> strings, int numStrings, int numUniqueStrings)
     {
+        this.strings = strings;
+        _numStrings = numStrings;
+        _numUniqueStrings = numUniqueStrings;
 
-        private readonly int _numStrings;
-        private readonly int _numUniqueStrings;
+        int infoRecs = ExtSSTRecord.GetNumberOfInfoRecsForStrings(strings.Size);
+        this.bucketAbsoluteOffsets = new int[infoRecs];
+        this.bucketRelativeOffsets = new int[infoRecs];
+    }
 
-        private readonly IntMapper<UnicodeString> strings;
+    public void Serialize(ContinuableRecordOutput out1)
+    {
+        out1.WriteInt(_numStrings);
+        out1.WriteInt(_numUniqueStrings);
 
-        /** OffSets from the beginning of the SST record (even across continuations) */
-        private readonly int[] bucketAbsoluteOffsets;
-        /** OffSets relative the start of the current SST or continue record */
-        private readonly int[] bucketRelativeOffsets;
-        // fix warning CS0169 "never used": int startOfSST, startOfRecord;
-
-        public SSTSerializer(IntMapper<UnicodeString> strings, int numStrings, int numUniqueStrings)
+        for (int k = 0; k < strings.Size; k++)
         {
-            this.strings = strings;
-            _numStrings = numStrings;
-            _numUniqueStrings = numUniqueStrings;
-
-            int infoRecs = ExtSSTRecord.GetNumberOfInfoRecsForStrings(strings.Size);
-            this.bucketAbsoluteOffsets = new int[infoRecs];
-            this.bucketRelativeOffsets = new int[infoRecs];
-        }
-
-        public void Serialize(ContinuableRecordOutput out1)
-        {
-            out1.WriteInt(_numStrings);
-            out1.WriteInt(_numUniqueStrings);
-
-            for (int k = 0; k < strings.Size; k++)
+            if (k % ExtSSTRecord.DEFAULT_BUCKET_SIZE == 0)
             {
-                if (k % ExtSSTRecord.DEFAULT_BUCKET_SIZE == 0)
+                int rOff = out1.TotalSize;
+                int index = k / ExtSSTRecord.DEFAULT_BUCKET_SIZE;
+                if (index < ExtSSTRecord.MAX_BUCKETS)
                 {
-                    int rOff = out1.TotalSize;
-                    int index = k / ExtSSTRecord.DEFAULT_BUCKET_SIZE;
-                    if (index < ExtSSTRecord.MAX_BUCKETS)
-                    {
-                        //Excel only indexes the first 128 buckets.
-                        bucketAbsoluteOffsets[index] = rOff;
-                        bucketRelativeOffsets[index] = rOff;
-                    }
+                    //Excel only indexes the first 128 buckets.
+                    bucketAbsoluteOffsets[index] = rOff;
+                    bucketRelativeOffsets[index] = rOff;
                 }
-                UnicodeString s = GetUnicodeString(k);
-                s.Serialize(out1);
             }
+            UnicodeString s = GetUnicodeString(k);
+            s.Serialize(out1);
         }
+    }
 
 
-        private UnicodeString GetUnicodeString(int index)
+    private UnicodeString GetUnicodeString(int index)
+    {
+        return GetUnicodeString(strings, index);
+    }
+
+    private static UnicodeString GetUnicodeString(IntMapper<UnicodeString> strings, int index)
+    {
+        return (UnicodeString)strings[index];
+    }
+
+    public int[] BucketAbsoluteOffsets
+    {
+        get
         {
-            return GetUnicodeString(strings, index);
+            return bucketAbsoluteOffsets;
         }
+    }
 
-        private static UnicodeString GetUnicodeString(IntMapper<UnicodeString> strings, int index)
+    public int[] BucketRelativeOffsets
+    {
+        get
         {
-            return (UnicodeString)strings[index];
-        }
-
-        public int[] BucketAbsoluteOffsets
-        {
-            get
-            {
-                return bucketAbsoluteOffsets;
-            }
-        }
-
-        public int[] BucketRelativeOffsets
-        {
-            get
-            {
-                return bucketRelativeOffsets;
-            }
+            return bucketRelativeOffsets;
         }
     }
 }

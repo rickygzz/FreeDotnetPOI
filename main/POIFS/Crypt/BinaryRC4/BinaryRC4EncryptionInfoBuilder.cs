@@ -15,94 +15,92 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.POIFS.Crypt.BinaryRC4
+namespace NPOI.POIFS.Crypt.BinaryRC4;
+
+using System;
+using System.Diagnostics;
+using NPOI.POIFS.Crypt;
+using NPOI.Util;
+
+public class BinaryRC4EncryptionInfoBuilder : IEncryptionInfoBuilder
 {
-    using System;
-    using System.Diagnostics;
-    using NPOI.POIFS.Crypt;
-    using NPOI.Util;
 
-    public class BinaryRC4EncryptionInfoBuilder : IEncryptionInfoBuilder
+    EncryptionInfo info;
+    BinaryRC4EncryptionHeader header;
+    BinaryRC4EncryptionVerifier verifier;
+    BinaryRC4Decryptor decryptor;
+    BinaryRC4Encryptor encryptor;
+
+    public BinaryRC4EncryptionInfoBuilder()
     {
-
-        EncryptionInfo info;
-        BinaryRC4EncryptionHeader header;
-        BinaryRC4EncryptionVerifier verifier;
-        BinaryRC4Decryptor decryptor;
-        BinaryRC4Encryptor encryptor;
-
-        public BinaryRC4EncryptionInfoBuilder()
-        {
-        }
-
-        public void Initialize(EncryptionInfo info, ILittleEndianInput dis)
-        {
-            this.info = info;
-            int vMajor = info.VersionMajor;
-            int vMinor = info.VersionMinor;
-            Debug.Assert(vMajor == 1 && vMinor == 1);
-
-            header = new BinaryRC4EncryptionHeader();
-            verifier = new BinaryRC4EncryptionVerifier(dis);
-            decryptor = new BinaryRC4Decryptor(this);
-            encryptor = new BinaryRC4Encryptor(this);
-        }
-
-        public void Initialize(EncryptionInfo info,
-            CipherAlgorithm cipherAlgorithm, HashAlgorithm hashAlgorithm,
-            int keyBits, int blockSize, ChainingMode chainingMode)
-        {
-            this.info = info;
-            header = new BinaryRC4EncryptionHeader();
-            verifier = new BinaryRC4EncryptionVerifier();
-            decryptor = new BinaryRC4Decryptor(this);
-            encryptor = new BinaryRC4Encryptor(this);
-        }
-
-        public BinaryRC4EncryptionHeader GetHeader()
-        {
-            return header;
-        }
-
-        public BinaryRC4EncryptionVerifier GetVerifier()
-        {
-            return verifier;
-        }
-
-        public BinaryRC4Decryptor GetDecryptor()
-        {
-            return decryptor;
-        }
-
-        public BinaryRC4Encryptor GetEncryptor()
-        {
-            return encryptor;
-        }
-
-        public EncryptionInfo GetEncryptionInfo()
-        {
-            return info;
-        }
-
-        EncryptionHeader IEncryptionInfoBuilder.GetHeader()
-        {
-            return GetHeader();
-        }
-
-        EncryptionVerifier IEncryptionInfoBuilder.GetVerifier()
-        {
-            return GetVerifier();
-        }
-
-        Decryptor IEncryptionInfoBuilder.GetDecryptor()
-        {
-            return GetDecryptor();
-        }
-
-        Encryptor IEncryptionInfoBuilder.GetEncryptor()
-        {
-            return GetEncryptor();
-        }
     }
 
+    public void Initialize(EncryptionInfo info, ILittleEndianInput dis)
+    {
+        this.info = info;
+        int vMajor = info.VersionMajor;
+        int vMinor = info.VersionMinor;
+        Debug.Assert(vMajor == 1 && vMinor == 1);
+
+        header = new BinaryRC4EncryptionHeader();
+        verifier = new BinaryRC4EncryptionVerifier(dis);
+        decryptor = new BinaryRC4Decryptor(this);
+        encryptor = new BinaryRC4Encryptor(this);
+    }
+
+    public void Initialize(EncryptionInfo info,
+        CipherAlgorithm cipherAlgorithm, HashAlgorithm hashAlgorithm,
+        int keyBits, int blockSize, ChainingMode chainingMode)
+    {
+        this.info = info;
+        header = new BinaryRC4EncryptionHeader();
+        verifier = new BinaryRC4EncryptionVerifier();
+        decryptor = new BinaryRC4Decryptor(this);
+        encryptor = new BinaryRC4Encryptor(this);
+    }
+
+    public BinaryRC4EncryptionHeader GetHeader()
+    {
+        return header;
+    }
+
+    public BinaryRC4EncryptionVerifier GetVerifier()
+    {
+        return verifier;
+    }
+
+    public BinaryRC4Decryptor GetDecryptor()
+    {
+        return decryptor;
+    }
+
+    public BinaryRC4Encryptor GetEncryptor()
+    {
+        return encryptor;
+    }
+
+    public EncryptionInfo GetEncryptionInfo()
+    {
+        return info;
+    }
+
+    EncryptionHeader IEncryptionInfoBuilder.GetHeader()
+    {
+        return GetHeader();
+    }
+
+    EncryptionVerifier IEncryptionInfoBuilder.GetVerifier()
+    {
+        return GetVerifier();
+    }
+
+    Decryptor IEncryptionInfoBuilder.GetDecryptor()
+    {
+        return GetDecryptor();
+    }
+
+    Encryptor IEncryptionInfoBuilder.GetEncryptor()
+    {
+        return GetEncryptor();
+    }
 }

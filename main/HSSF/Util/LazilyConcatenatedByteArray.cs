@@ -15,81 +15,78 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.HSSF.Util
+namespace NPOI.HSSF.Util;
+
+using System;
+using System.Collections.Generic;
+
+/**
+ * Utility for delaying the concatenation of multiple byte arrays.  Doing this up-front
+ * causes significantly more copying, which for a large number of byte arrays can cost
+ * a large amount of time.
+ */
+public class LazilyConcatenatedByteArray
 {
-    using System;
-    using System.Collections.Generic;
+    private List<byte[]> arrays = new List<byte[]>(1);
 
     /**
-     * Utility for delaying the concatenation of multiple byte arrays.  Doing this up-front
-     * causes significantly more copying, which for a large number of byte arrays can cost
-     * a large amount of time.
+     * Clears the array (sets the concatenated length back to zero.
      */
-    public class LazilyConcatenatedByteArray
+    public void Clear()
     {
-        private List<byte[]> arrays = new List<byte[]>(1);
-
-        /**
-         * Clears the array (sets the concatenated length back to zero.
-         */
-        public void Clear()
-        {
-            arrays.Clear();
-        }
-
-        /**
-         * Concatenates an array onto the end of our array.
-         * This is a relatively fast operation.
-         *
-         * @param array the array to concatenate.
-         * @throws ArgumentException if {@code array} is {@code null}.
-         */
-        public void Concatenate(byte[] array)
-        {
-            if (array == null)
-            {
-                throw new ArgumentException("array cannot be null");
-            }
-            arrays.Add(array);
-        }
-
-        /**
-         * Gets the concatenated contents as a single byte array.
-         *
-         * This is a slower operation, but the concatenated array is stored off as a single
-         * array again so that subsequent calls will not perform Additional copying.
-         *
-         * @return the byte array.  Returns {@code null} if no data has been placed into it.
-         */
-        public byte[] ToArray()
-        {
-            if (arrays.Count==0)
-            {
-                return null;
-            }
-            else if (arrays.Count > 1)
-            {
-                int totalLength = 0;
-                foreach (byte[] array in arrays)
-                {
-                    totalLength += array.Length;
-                }
-
-                byte[] concatenated = new byte[totalLength];
-                int destPos = 0;
-                foreach (byte[] array in arrays)
-                {
-                    Array.Copy(array, 0, concatenated, destPos, array.Length);
-                    destPos += array.Length;
-                }
-
-                arrays.Clear();
-                arrays.Add(concatenated);
-            }
-
-            return arrays[(0)];
-        }
+        arrays.Clear();
     }
 
+    /**
+     * Concatenates an array onto the end of our array.
+     * This is a relatively fast operation.
+     *
+     * @param array the array to concatenate.
+     * @throws ArgumentException if {@code array} is {@code null}.
+     */
+    public void Concatenate(byte[] array)
+    {
+        if (array == null)
+        {
+            throw new ArgumentException("array cannot be null");
+        }
+        arrays.Add(array);
+    }
 
+    /**
+     * Gets the concatenated contents as a single byte array.
+     *
+     * This is a slower operation, but the concatenated array is stored off as a single
+     * array again so that subsequent calls will not perform Additional copying.
+     *
+     * @return the byte array.  Returns {@code null} if no data has been placed into it.
+     */
+    public byte[] ToArray()
+    {
+        if (arrays.Count==0)
+        {
+            return null;
+        }
+        else if (arrays.Count > 1)
+        {
+            int totalLength = 0;
+            foreach (byte[] array in arrays)
+            {
+                totalLength += array.Length;
+            }
+
+            byte[] concatenated = new byte[totalLength];
+            int destPos = 0;
+            foreach (byte[] array in arrays)
+            {
+                Array.Copy(array, 0, concatenated, destPos, array.Length);
+                destPos += array.Length;
+            }
+
+            arrays.Clear();
+            arrays.Add(concatenated);
+        }
+
+        return arrays[(0)];
+    }
 }

@@ -17,128 +17,127 @@
 ==================================================================== */
 
 
-namespace NPOI.HSSF.Record
+namespace NPOI.HSSF.Record;
+
+
+using System;
+using System.Text;
+using NPOI.Util;
+
+using NPOI.HSSF.Record;
+
+/**
+ * Specifies the window's zoom magnification.  If this record Isn't present then the windows zoom is 100%. see p384 Excel Dev Kit
+ * NOTE: This source is automatically generated please do not modify this file.  Either subclass or
+ *       Remove the record in src/records/definitions.
+
+ * @author Andrew C. Oliver (acoliver at apache.org)
+ */
+public class SCLRecord
+   : StandardRecord
 {
+    public const short sid = 0xa0;
+    private short field_1_numerator;
+    private short field_2_denominator;
 
-    using System;
-    using System.Text;
-    using NPOI.Util;
 
-    using NPOI.HSSF.Record;
-
-    /**
-     * Specifies the window's zoom magnification.  If this record Isn't present then the windows zoom is 100%. see p384 Excel Dev Kit
-     * NOTE: This source is automatically generated please do not modify this file.  Either subclass or
-     *       Remove the record in src/records/definitions.
-
-     * @author Andrew C. Oliver (acoliver at apache.org)
-     */
-    public class SCLRecord
-       : StandardRecord
+    public SCLRecord()
     {
-        public const short sid = 0xa0;
-        private short field_1_numerator;
-        private short field_2_denominator;
-
-
-        public SCLRecord()
-        {
-
-        }
-
-        /**
-         * Constructs a SCL record and Sets its fields appropriately.
-         *
-         * @param in the RecordInputstream to Read the record from
-         */
-
-        public SCLRecord(RecordInputStream in1)
-        {
-
-            field_1_numerator = in1.ReadShort();
-            field_2_denominator = in1.ReadShort();
-        }
-
-        public override String ToString()
-        {
-            StringBuilder buffer = new StringBuilder();
-
-            buffer.Append("[SCL]\n");
-            buffer.Append("    .numerator            = ")
-                .Append("0x").Append(HexDump.ToHex(Numerator))
-                .Append(" (").Append(Numerator).Append(" )");
-            buffer.Append(Environment.NewLine);
-            buffer.Append("    .denominator          = ")
-                .Append("0x").Append(HexDump.ToHex(Denominator))
-                .Append(" (").Append(Denominator).Append(" )");
-            buffer.Append(Environment.NewLine);
-
-            buffer.Append("[/SCL]\n");
-            return buffer.ToString();
-        }
-
-        public override void Serialize(ILittleEndianOutput out1) {
-            out1.WriteShort(field_1_numerator);
-            out1.WriteShort(field_2_denominator);
-        }
-
-        /**
-         * Size of record (exluding 4 byte header)
-         */
-        protected override int DataSize
-        {
-            get { return 2 + 2; }
-        }
-
-        public override short Sid
-        {
-            get { return sid; }
-        }
-
-        public override Object Clone()
-        {
-            SCLRecord rec = new SCLRecord();
-
-            rec.field_1_numerator = field_1_numerator;
-            rec.field_2_denominator = field_2_denominator;
-            return rec;
-        }
-
-
-
-
-        /**
-         * Get the numerator field for the SCL record.
-         */
-        public short Numerator
-        {
-            get
-            {
-                return field_1_numerator;
-            }
-            set 
-            {
-                this.field_1_numerator = value;
-            }
-        }
-
-        /**
-         * Get the denominator field for the SCL record.
-         */
-        public short Denominator
-        {
-            get
-            {
-                return field_2_denominator;
-            }
-            set 
-            {
-                this.field_2_denominator = value;
-            }
-        }
-
 
     }
+
+    /**
+     * Constructs a SCL record and Sets its fields appropriately.
+     *
+     * @param in the RecordInputstream to Read the record from
+     */
+
+    public SCLRecord(RecordInputStream in1)
+    {
+
+        field_1_numerator = in1.ReadShort();
+        field_2_denominator = in1.ReadShort();
+    }
+
+    public override String ToString()
+    {
+        StringBuilder buffer = new StringBuilder();
+
+        buffer.Append("[SCL]\n");
+        buffer.Append("    .numerator            = ")
+            .Append("0x").Append(HexDump.ToHex(Numerator))
+            .Append(" (").Append(Numerator).Append(" )");
+        buffer.Append(Environment.NewLine);
+        buffer.Append("    .denominator          = ")
+            .Append("0x").Append(HexDump.ToHex(Denominator))
+            .Append(" (").Append(Denominator).Append(" )");
+        buffer.Append(Environment.NewLine);
+
+        buffer.Append("[/SCL]\n");
+        return buffer.ToString();
+    }
+
+    public override void Serialize(ILittleEndianOutput out1) {
+        out1.WriteShort(field_1_numerator);
+        out1.WriteShort(field_2_denominator);
+    }
+
+    /**
+     * Size of record (exluding 4 byte header)
+     */
+    protected override int DataSize
+    {
+        get { return 2 + 2; }
+    }
+
+    public override short Sid
+    {
+        get { return sid; }
+    }
+
+    public override Object Clone()
+    {
+        SCLRecord rec = new SCLRecord();
+
+        rec.field_1_numerator = field_1_numerator;
+        rec.field_2_denominator = field_2_denominator;
+        return rec;
+    }
+
+
+
+
+    /**
+     * Get the numerator field for the SCL record.
+     */
+    public short Numerator
+    {
+        get
+        {
+            return field_1_numerator;
+        }
+        set 
+        {
+            this.field_1_numerator = value;
+        }
+    }
+
+    /**
+     * Get the denominator field for the SCL record.
+     */
+    public short Denominator
+    {
+        get
+        {
+            return field_2_denominator;
+        }
+        set 
+        {
+            this.field_2_denominator = value;
+        }
+    }
+
+
 }
 
 

@@ -15,70 +15,61 @@
    limitations under the License.
 ==================================================================== */
 
+namespace NPOI.POIFS.Crypt.XOR;
+
+using NPOI.POIFS.Crypt;
 using NPOI.POIFS.Crypt.Standard;
 using NPOI.Util;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace NPOI.POIFS.Crypt.XOR
+public class XOREncryptionVerifier : EncryptionVerifier, EncryptionRecord
 {
-    using NPOI.POIFS.Crypt;
-    using NPOI.POIFS.Crypt.Standard;
-    using NPOI.Util;
+    private int encryptedKey;
+    private int encryptedVerifier;
 
-    public class XOREncryptionVerifier : EncryptionVerifier, EncryptionRecord
+    public XOREncryptionVerifier()
     {
-        private int encryptedKey;
-        private int encryptedVerifier;
+    }
 
-        public XOREncryptionVerifier()
-        {
-        }
+    public XOREncryptionVerifier(ILittleEndianInput is1)
+    {
+        encryptedKey = is1.ReadUShort();
+        encryptedVerifier = is1.ReadUShort();
+    }
 
-        public XOREncryptionVerifier(ILittleEndianInput is1)
-        {
-            encryptedKey = is1.ReadUShort();
-            encryptedVerifier = is1.ReadUShort();
-        }
+    protected XOREncryptionVerifier(XOREncryptionVerifier other) 
+    {
+        encryptedKey = other.encryptedKey;
+        encryptedVerifier = other.encryptedVerifier;
+    }
 
-        protected XOREncryptionVerifier(XOREncryptionVerifier other) 
-        {
-            encryptedKey = other.encryptedKey;
-            encryptedVerifier = other.encryptedVerifier;
-        }
+    public int GetEncryptedKey()
+    {
+        return encryptedKey;
+    }
 
-        public int GetEncryptedKey()
-        {
-            return encryptedKey;
-        }
+    public void SetEncryptedKey(byte[] encryptedKey)
+    {
+        this.encryptedKey = LittleEndian.GetUShort(encryptedKey);
+    }
 
-        public void SetEncryptedKey(byte[] encryptedKey)
-        {
-            this.encryptedKey = LittleEndian.GetUShort(encryptedKey);
-        }
+    public int GetEncryptedVerifier()
+    {
+        return encryptedVerifier;
+    }
 
-        public int GetEncryptedVerifier()
-        {
-            return encryptedVerifier;
-        }
+    public void SetEncryptedVerifier(byte[] encryptedVerifier)
+    {
+        this.encryptedVerifier = LittleEndian.GetUShort(encryptedVerifier);
+    }
 
-        public void SetEncryptedVerifier(byte[] encryptedVerifier)
-        {
-            this.encryptedVerifier = LittleEndian.GetUShort(encryptedVerifier);
-        }
+    public void Write(LittleEndianByteArrayOutputStream bos)
+    {
+        bos.WriteShort(encryptedKey);
+        bos.WriteShort(encryptedVerifier);
+    }
 
-        public void Write(LittleEndianByteArrayOutputStream bos)
-        {
-            bos.WriteShort(encryptedKey);
-            bos.WriteShort(encryptedVerifier);
-        }
-
-        public XOREncryptionVerifier Copy()
-        {
-            return new XOREncryptionVerifier(this);
-        }
+    public XOREncryptionVerifier Copy()
+    {
+        return new XOREncryptionVerifier(this);
     }
 }

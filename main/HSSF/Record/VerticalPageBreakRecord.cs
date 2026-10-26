@@ -16,61 +16,60 @@
    limitations Under the License.
 ==================================================================== */
 
-namespace NPOI.HSSF.Record
+namespace NPOI.HSSF.Record;
+
+using System;
+using System.Collections.Generic;
+
+/**
+ * VerticalPageBreak record that stores page breaks at columns
+ * 
+ * This class Is just used so that SID Compares work properly in the RecordFactory
+ * @see PageBreakRecord
+ * @author Danny Mui (dmui at apache dot org) 
+ */
+public class VerticalPageBreakRecord : PageBreakRecord
 {
-    using System;
-    using System.Collections.Generic;
+
+
+    public new const short sid = 0x001A;
 
     /**
-     * VerticalPageBreak record that stores page breaks at columns
      * 
-     * This class Is just used so that SID Compares work properly in the RecordFactory
-     * @see PageBreakRecord
-     * @author Danny Mui (dmui at apache dot org) 
      */
-    public class VerticalPageBreakRecord : PageBreakRecord
+    public VerticalPageBreakRecord()
     {
 
+    }
 
-        public new const short sid = 0x001A;
 
-        /**
-         * 
-         */
-        public VerticalPageBreakRecord()
+    /**
+     * @param in the RecordInputstream to Read the record from
+     */
+    public VerticalPageBreakRecord(RecordInputStream in1)
+        : base(in1)
+    {
+
+    }
+
+    /* (non-Javadoc)
+     * @see org.apache.poi.hssf.record.Record#Sid
+     */
+    public override short Sid
+    {
+        get { return sid; }
+    }
+
+
+    public override Object Clone()
+    {
+        PageBreakRecord result = new VerticalPageBreakRecord();
+        IEnumerator<Break> iterator = GetBreaksEnumerator();
+        while (iterator.MoveNext())
         {
-
+            Break original = iterator.Current;
+            result.AddBreak(original.main, original.subFrom, original.subTo);
         }
-
-
-        /**
-         * @param in the RecordInputstream to Read the record from
-         */
-        public VerticalPageBreakRecord(RecordInputStream in1)
-            : base(in1)
-        {
-
-        }
-
-        /* (non-Javadoc)
-         * @see org.apache.poi.hssf.record.Record#Sid
-         */
-        public override short Sid
-        {
-            get { return sid; }
-        }
-
-
-        public override Object Clone()
-        {
-            PageBreakRecord result = new VerticalPageBreakRecord();
-            IEnumerator<Break> iterator = GetBreaksEnumerator();
-            while (iterator.MoveNext())
-            {
-                Break original = iterator.Current;
-                result.AddBreak(original.main, original.subFrom, original.subTo);
-            }
-            return result;
-        }
+        return result;
     }
 }

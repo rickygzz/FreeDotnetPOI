@@ -15,111 +15,109 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.HSSF.UserModel
+namespace NPOI.HSSF.UserModel;
+
+using System;
+
+using NPOI.HSSF.Record;
+using NPOI.HSSF.Record.CF;
+using NPOI.SS.UserModel;
+
+/**
+ * High level representation for DataBar / Data-Bar Formatting 
+ *  component of Conditional Formatting Settings
+ */
+public class HSSFDataBarFormatting : IDataBarFormatting
 {
-    using System;
+    private HSSFSheet sheet;
+    private CFRule12Record cfRule12Record;
+    private DataBarFormatting databarFormatting;
 
-    using NPOI.HSSF.Record;
-    using NPOI.HSSF.Record.CF;
-    using NPOI.SS.UserModel;
-
-    /**
-     * High level representation for DataBar / Data-Bar Formatting 
-     *  component of Conditional Formatting Settings
-     */
-    public class HSSFDataBarFormatting : IDataBarFormatting
+    protected internal HSSFDataBarFormatting(CFRule12Record cfRule12Record, HSSFSheet sheet)
     {
-        private HSSFSheet sheet;
-        private CFRule12Record cfRule12Record;
-        private DataBarFormatting databarFormatting;
+        this.sheet = sheet;
+        this.cfRule12Record = cfRule12Record;
+        this.databarFormatting = this.cfRule12Record.DataBarFormatting;
+    }
 
-        protected internal HSSFDataBarFormatting(CFRule12Record cfRule12Record, HSSFSheet sheet)
+    public bool IsLeftToRight
+    {
+        get
         {
-            this.sheet = sheet;
-            this.cfRule12Record = cfRule12Record;
-            this.databarFormatting = this.cfRule12Record.DataBarFormatting;
+            return !databarFormatting.IsReversed;
         }
-
-        public bool IsLeftToRight
+        set
         {
-            get
-            {
-                return !databarFormatting.IsReversed;
-            }
-            set
-            {
-                databarFormatting.IsReversed = value;
-            }
-        }
-
-        public int WidthMin
-        {
-            get
-            {
-                return databarFormatting.PercentMin;
-            }
-            set
-            {
-                databarFormatting.PercentMin = (byte)value;
-            }
-        }
-
-        public int WidthMax
-        {
-            get
-            {
-                return databarFormatting.PercentMax;
-            }
-            set
-            {
-                databarFormatting.PercentMax = (byte)value;
-            }
-        }
-
-        public IColor Color
-        {
-            get
-            {
-                return new HSSFExtendedColor(databarFormatting.Color);
-            }
-            set
-            {
-                HSSFExtendedColor hcolor = (HSSFExtendedColor)value;
-                databarFormatting.Color = (/*setter*/hcolor.ExtendedColor);
-            }
-        }
-
-        public IConditionalFormattingThreshold MinThreshold
-        {
-            get
-            {
-                return new HSSFConditionalFormattingThreshold(databarFormatting.ThresholdMin, sheet);
-            }
-        }
-        public IConditionalFormattingThreshold MaxThreshold
-        {
-            get
-            {
-                return new HSSFConditionalFormattingThreshold(databarFormatting.ThresholdMax, sheet);
-            }
-        }
-
-        public bool IsIconOnly
-        {
-            get
-            {
-                return databarFormatting.IsIconOnly;
-            }
-            set
-            {
-                databarFormatting.IsIconOnly = value;
-            }
-        }
-
-        public HSSFConditionalFormattingThreshold CreateThreshold()
-        {
-            return new HSSFConditionalFormattingThreshold(new DataBarThreshold(), sheet);
+            databarFormatting.IsReversed = value;
         }
     }
 
+    public int WidthMin
+    {
+        get
+        {
+            return databarFormatting.PercentMin;
+        }
+        set
+        {
+            databarFormatting.PercentMin = (byte)value;
+        }
+    }
+
+    public int WidthMax
+    {
+        get
+        {
+            return databarFormatting.PercentMax;
+        }
+        set
+        {
+            databarFormatting.PercentMax = (byte)value;
+        }
+    }
+
+    public IColor Color
+    {
+        get
+        {
+            return new HSSFExtendedColor(databarFormatting.Color);
+        }
+        set
+        {
+            HSSFExtendedColor hcolor = (HSSFExtendedColor)value;
+            databarFormatting.Color = (/*setter*/hcolor.ExtendedColor);
+        }
+    }
+
+    public IConditionalFormattingThreshold MinThreshold
+    {
+        get
+        {
+            return new HSSFConditionalFormattingThreshold(databarFormatting.ThresholdMin, sheet);
+        }
+    }
+    public IConditionalFormattingThreshold MaxThreshold
+    {
+        get
+        {
+            return new HSSFConditionalFormattingThreshold(databarFormatting.ThresholdMax, sheet);
+        }
+    }
+
+    public bool IsIconOnly
+    {
+        get
+        {
+            return databarFormatting.IsIconOnly;
+        }
+        set
+        {
+            databarFormatting.IsIconOnly = value;
+        }
+    }
+
+    public HSSFConditionalFormattingThreshold CreateThreshold()
+    {
+        return new HSSFConditionalFormattingThreshold(new DataBarThreshold(), sheet);
+    }
 }

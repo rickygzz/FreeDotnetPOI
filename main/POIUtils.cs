@@ -15,11 +15,10 @@
    limitations under the License.
 ==================================================================== */
 using NPOI.POIFS.FileSystem;
+using SixLabors.ImageSharp.PixelFormats;
+using System;
 using System.Collections;
 using System.Collections.Generic;
-using System;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.PixelFormats;
 
 namespace NPOI.Util
 {

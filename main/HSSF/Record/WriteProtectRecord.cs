@@ -17,65 +17,64 @@
 ==================================================================== */
 
 
-namespace NPOI.HSSF.Record
+namespace NPOI.HSSF.Record;
+
+using System;
+using System.Text;
+using NPOI.Util;
+
+/**
+ * Title:        Write Protect Record
+ * Description:  Indicated that the sheet/workbook Is Write protected. 
+ * REFERENCE:  PG 425 Microsoft Excel 97 Developer's Kit (ISBN: 1-57231-498-2)
+ * @version 3.0-pre
+ */
+
+public class WriteProtectRecord
+   : StandardRecord
 {
-    using System;
-    using System.Text;
-    using NPOI.Util;
+    public const short sid = 0x86;
+
+    public WriteProtectRecord()
+    {
+    }
 
     /**
-     * Title:        Write Protect Record
-     * Description:  Indicated that the sheet/workbook Is Write protected. 
-     * REFERENCE:  PG 425 Microsoft Excel 97 Developer's Kit (ISBN: 1-57231-498-2)
-     * @version 3.0-pre
+     * Constructs a WriteAccess record and Sets its fields appropriately.
+     * @param in the RecordInputstream to Read the record from
      */
 
-    public class WriteProtectRecord
-       : StandardRecord
+    public WriteProtectRecord(RecordInputStream in1)
     {
-        public const short sid = 0x86;
-
-        public WriteProtectRecord()
+        if (in1.Remaining == 2)
         {
+            in1.ReadShort();
         }
+    }
 
-        /**
-         * Constructs a WriteAccess record and Sets its fields appropriately.
-         * @param in the RecordInputstream to Read the record from
-         */
+    public override String ToString()
+    {
+        StringBuilder buffer = new StringBuilder();
 
-        public WriteProtectRecord(RecordInputStream in1)
-        {
-            if (in1.Remaining == 2)
-            {
-                in1.ReadShort();
-            }
-        }
+        buffer.Append("[WritePROTECT]\n");
+        buffer.Append("[/WritePROTECT]\n");
+        return buffer.ToString();
+    }
 
-        public override String ToString()
-        {
-            StringBuilder buffer = new StringBuilder();
+    public override void Serialize(ILittleEndianOutput out1)
+    {
+    }
 
-            buffer.Append("[WritePROTECT]\n");
-            buffer.Append("[/WritePROTECT]\n");
-            return buffer.ToString();
-        }
-
-        public override void Serialize(ILittleEndianOutput out1)
-        {
-        }
-
-       protected override int DataSize
+   protected override int DataSize
+   {
+       get
        {
-           get
-           {
-               return 0;
-           }
+           return 0;
        }
+   }
 
-        public override short Sid
-        {
-            get { return sid; }
-        }
+    public override short Sid
+    {
+        get { return sid; }
     }
 }

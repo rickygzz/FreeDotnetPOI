@@ -16,145 +16,144 @@
 ==================================================================== */
 
 
-namespace NPOI.HSSF.UserModel
+namespace NPOI.HSSF.UserModel;
+
+using NPOI.DDF;
+using System;
+
+public class HSSFChildAnchor : HSSFAnchor
 {
-    using NPOI.DDF;
-    using System;
-
-    public class HSSFChildAnchor : HSSFAnchor
+    private EscherChildAnchorRecord _escherChildAnchor;
+    /**
+     * create anchor from existing file
+     * @param escherChildAnchorRecord
+     */
+    public HSSFChildAnchor(EscherChildAnchorRecord escherChildAnchorRecord)
     {
-        private EscherChildAnchorRecord _escherChildAnchor;
-        /**
-         * create anchor from existing file
-         * @param escherChildAnchorRecord
-         */
-        public HSSFChildAnchor(EscherChildAnchorRecord escherChildAnchorRecord)
+        this._escherChildAnchor = escherChildAnchorRecord;
+    }
+    public HSSFChildAnchor()
+    {
+        _escherChildAnchor = new EscherChildAnchorRecord();
+    }
+    /**
+    * create anchor from scratch
+    * @param dx1 x coordinate of the left up corner
+    * @param dy1 y coordinate of the left up corner
+    * @param dx2 x coordinate of the right down corner
+    * @param dy2 y coordinate of the right down corner
+    */
+    public HSSFChildAnchor(int dx1, int dy1, int dx2, int dy2)
+        : base(Math.Min(dx1, dx2), Math.Min(dy1, dy2), Math.Max(dx1, dx2), Math.Max(dy1, dy2))
+    {
+        if (dx1 > dx2)
         {
-            this._escherChildAnchor = escherChildAnchorRecord;
+            _isHorizontallyFlipped = true;
         }
-        public HSSFChildAnchor()
+        if (dy1 > dy2)
         {
-            _escherChildAnchor = new EscherChildAnchorRecord();
+            _isVerticallyFlipped = true;
         }
-        /**
-        * create anchor from scratch
-        * @param dx1 x coordinate of the left up corner
-        * @param dy1 y coordinate of the left up corner
-        * @param dx2 x coordinate of the right down corner
-        * @param dy2 y coordinate of the right down corner
-        */
-        public HSSFChildAnchor(int dx1, int dy1, int dx2, int dy2)
-            : base(Math.Min(dx1, dx2), Math.Min(dy1, dy2), Math.Max(dx1, dx2), Math.Max(dy1, dy2))
-        {
-            if (dx1 > dx2)
-            {
-                _isHorizontallyFlipped = true;
-            }
-            if (dy1 > dy2)
-            {
-                _isVerticallyFlipped = true;
-            }
-        }
-        /**
-         * @param dx1 x coordinate of the left up corner
-         * @param dy1 y coordinate of the left up corner
-         * @param dx2 x coordinate of the right down corner
-         * @param dy2 y coordinate of the right down corner
-         */
-        public void SetAnchor(int dx1, int dy1, int dx2, int dy2)
-        {
-            this.Dx1 = Math.Min(dx1, dx2);
-            this.Dy1 = Math.Min(dy1, dy2);
-            this.Dx2 = Math.Max(dx1, dx2);
-            this.Dy2 = Math.Max(dy1, dy2);
-        }
+    }
+    /**
+     * @param dx1 x coordinate of the left up corner
+     * @param dy1 y coordinate of the left up corner
+     * @param dx2 x coordinate of the right down corner
+     * @param dy2 y coordinate of the right down corner
+     */
+    public void SetAnchor(int dx1, int dy1, int dx2, int dy2)
+    {
+        this.Dx1 = Math.Min(dx1, dx2);
+        this.Dy1 = Math.Min(dy1, dy2);
+        this.Dx2 = Math.Max(dx1, dx2);
+        this.Dy2 = Math.Max(dy1, dy2);
+    }
 
-        public override bool IsHorizontallyFlipped
-        {
-            get 
-            { 
-                return _isHorizontallyFlipped; 
-            }
+    public override bool IsHorizontallyFlipped
+    {
+        get 
+        { 
+            return _isHorizontallyFlipped; 
         }
+    }
 
-        public override bool IsVerticallyFlipped
-        {
-            get 
-            { 
-                return _isVerticallyFlipped; 
-            }
+    public override bool IsVerticallyFlipped
+    {
+        get 
+        { 
+            return _isVerticallyFlipped; 
         }
-        public override int Dx1
+    }
+    public override int Dx1
+    {
+        get
         {
-            get
-            {
-                return _escherChildAnchor.Dx1;
-            }
-            set
-            {
-                _escherChildAnchor.Dx1 = (short)value;
-            }
+            return _escherChildAnchor.Dx1;
         }
-        public override int Dx2
+        set
         {
-            get
-            {
-                return _escherChildAnchor.Dx2;
-            }
-            set
-            {
-                _escherChildAnchor.Dx2 = (short)value;
-            }
+            _escherChildAnchor.Dx1 = (short)value;
         }
-        public override int Dy1
+    }
+    public override int Dx2
+    {
+        get
         {
-            get
-            {
-                return _escherChildAnchor.Dy1;
-            }
-            set
-            {
-                _escherChildAnchor.Dy1 = (short)value;
-            }
+            return _escherChildAnchor.Dx2;
         }
-        public override int Dy2
+        set
         {
-            get
-            {
-                return _escherChildAnchor.Dy2;
-            }
-            set
-            {
-                _escherChildAnchor.Dy2 = (short)value;
-            }
+            _escherChildAnchor.Dx2 = (short)value;
         }
-        public override bool Equals(object obj)
+    }
+    public override int Dy1
+    {
+        get
         {
-            if (obj == null)
-                return false;
-            if (obj == this)
-                return true;
-            if (obj.GetType() != GetType())
-                return false;
-            HSSFChildAnchor anchor = (HSSFChildAnchor)obj;
+            return _escherChildAnchor.Dy1;
+        }
+        set
+        {
+            _escherChildAnchor.Dy1 = (short)value;
+        }
+    }
+    public override int Dy2
+    {
+        get
+        {
+            return _escherChildAnchor.Dy2;
+        }
+        set
+        {
+            _escherChildAnchor.Dy2 = (short)value;
+        }
+    }
+    public override bool Equals(object obj)
+    {
+        if (obj == null)
+            return false;
+        if (obj == this)
+            return true;
+        if (obj.GetType() != GetType())
+            return false;
+        HSSFChildAnchor anchor = (HSSFChildAnchor)obj;
 
-            return anchor.Dx1 == Dx1 && anchor.Dx2 == Dx2 && anchor.Dy1 == Dy1
-                    && anchor.Dy2 == Dy2;
-        }
+        return anchor.Dx1 == Dx1 && anchor.Dx2 == Dx2 && anchor.Dy1 == Dy1
+                && anchor.Dy2 == Dy2;
+    }
 
-        public override int GetHashCode()
-        {
-            return Dx1.GetHashCode() ^ Dx2.GetHashCode() ^ Dy1.GetHashCode()
-                    ^ Dy2.GetHashCode();
-        }
+    public override int GetHashCode()
+    {
+        return Dx1.GetHashCode() ^ Dx2.GetHashCode() ^ Dy1.GetHashCode()
+                ^ Dy2.GetHashCode();
+    }
 
-        internal override EscherRecord GetEscherAnchor()
-        {
-            return _escherChildAnchor;
-        }
-        protected override void CreateEscherAnchor()
-        {
-            _escherChildAnchor = new EscherChildAnchorRecord();
-        }
+    internal override EscherRecord GetEscherAnchor()
+    {
+        return _escherChildAnchor;
+    }
+    protected override void CreateEscherAnchor()
+    {
+        _escherChildAnchor = new EscherChildAnchorRecord();
     }
 }

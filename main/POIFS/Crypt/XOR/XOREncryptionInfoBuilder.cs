@@ -16,89 +16,83 @@
 ==================================================================== */
 
 using NPOI.Util;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace NPOI.POIFS.Crypt.XOR
+namespace NPOI.POIFS.Crypt.XOR;
+
+internal class XOREncryptionInfoBuilder : IEncryptionInfoBuilder
 {
-    internal class XOREncryptionInfoBuilder : IEncryptionInfoBuilder
+    EncryptionInfo info;
+    XOREncryptionHeader header;
+    XOREncryptionVerifier verifier;
+    XORDecryptor decryptor;
+    XOREncryptor encryptor;
+
+    public XOREncryptionInfoBuilder()
     {
-        EncryptionInfo info;
-        XOREncryptionHeader header;
-        XOREncryptionVerifier verifier;
-        XORDecryptor decryptor;
-        XOREncryptor encryptor;
+    }
 
-        public XOREncryptionInfoBuilder()
-        {
-        }
+    public void Initialize(EncryptionInfo info, ILittleEndianInput dis)
+    {
+        this.info = info;
+        header = new XOREncryptionHeader();
+        verifier = new XOREncryptionVerifier(dis);
+        decryptor = new XORDecryptor(this);
+        encryptor = new XOREncryptor(this);
+    }
 
-        public void Initialize(EncryptionInfo info, ILittleEndianInput dis)
-        {
-            this.info = info;
-            header = new XOREncryptionHeader();
-            verifier = new XOREncryptionVerifier(dis);
-            decryptor = new XORDecryptor(this);
-            encryptor = new XOREncryptor(this);
-        }
+    public void Initialize(EncryptionInfo info,
+        CipherAlgorithm cipherAlgorithm, HashAlgorithm hashAlgorithm,
+        int keyBits, int blockSize, ChainingMode chainingMode)
+    {
+        this.info = info;
+        header = new XOREncryptionHeader();
+        verifier = new XOREncryptionVerifier();
+        decryptor = new XORDecryptor(this);
+        encryptor = new XOREncryptor(this);
+    }
 
-        public void Initialize(EncryptionInfo info,
-            CipherAlgorithm cipherAlgorithm, HashAlgorithm hashAlgorithm,
-            int keyBits, int blockSize, ChainingMode chainingMode)
-        {
-            this.info = info;
-            header = new XOREncryptionHeader();
-            verifier = new XOREncryptionVerifier();
-            decryptor = new XORDecryptor(this);
-            encryptor = new XOREncryptor(this);
-        }
+    public XOREncryptionHeader GetHeader()
+    {
+        return header;
+    }
 
-        public XOREncryptionHeader GetHeader()
-        {
-            return header;
-        }
+    public XOREncryptionVerifier GetVerifier()
+    {
+        return verifier;
+    }
 
-        public XOREncryptionVerifier GetVerifier()
-        {
-            return verifier;
-        }
+    public XORDecryptor GetDecryptor()
+    {
+        return decryptor;
+    }
 
-        public XORDecryptor GetDecryptor()
-        {
-            return decryptor;
-        }
+    public XOREncryptor GetEncryptor()
+    {
+        return encryptor;
+    }
 
-        public XOREncryptor GetEncryptor()
-        {
-            return encryptor;
-        }
+    public EncryptionInfo GetEncryptionInfo()
+    {
+        return info;
+    }
 
-        public EncryptionInfo GetEncryptionInfo()
-        {
-            return info;
-        }
+    EncryptionHeader IEncryptionInfoBuilder.GetHeader()
+    {
+        return GetHeader();
+    }
 
-        EncryptionHeader IEncryptionInfoBuilder.GetHeader()
-        {
-            return GetHeader();
-        }
+    EncryptionVerifier IEncryptionInfoBuilder.GetVerifier()
+    {
+        return GetVerifier();
+    }
 
-        EncryptionVerifier IEncryptionInfoBuilder.GetVerifier()
-        {
-            return GetVerifier();
-        }
+    Decryptor IEncryptionInfoBuilder.GetDecryptor()
+    {
+        return GetDecryptor();
+    }
 
-        Decryptor IEncryptionInfoBuilder.GetDecryptor()
-        {
-            return GetDecryptor();
-        }
-
-        Encryptor IEncryptionInfoBuilder.GetEncryptor()
-        {
-            return GetEncryptor();
-        }
+    Encryptor IEncryptionInfoBuilder.GetEncryptor()
+    {
+        return GetEncryptor();
     }
 }

@@ -15,24 +15,23 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.POIFS.Crypt
+namespace NPOI.POIFS.Crypt;
+
+using System;
+
+public class ChainingMode
 {
-    using System;
+    // ecb - only for standard encryption
+    public static readonly ChainingMode ecb = new ChainingMode("ECB", 1);
+    public static readonly ChainingMode cbc = new ChainingMode("CBC", 2);
+    /* Cipher feedback chaining (CFB), with an 8-bit window */
+    public static readonly ChainingMode cfb = new ChainingMode("CFB8", 3);
 
-    public class ChainingMode
+    public String jceId { get; set; }
+    public int ecmaId { get; set; }
+    public ChainingMode(String jceId, int ecmaId)
     {
-        // ecb - only for standard encryption
-        public static readonly ChainingMode ecb = new ChainingMode("ECB", 1);
-        public static readonly ChainingMode cbc = new ChainingMode("CBC", 2);
-        /* Cipher feedback chaining (CFB), with an 8-bit window */
-        public static readonly ChainingMode cfb = new ChainingMode("CFB8", 3);
-
-        public String jceId { get; set; }
-        public int ecmaId { get; set; }
-        public ChainingMode(String jceId, int ecmaId)
-        {
-            this.jceId = jceId;
-            this.ecmaId = ecmaId;
-        }
+        this.jceId = jceId;
+        this.ecmaId = ecmaId;
     }
 }

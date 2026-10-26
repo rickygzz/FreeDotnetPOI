@@ -15,58 +15,55 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.HSSF.UserModel
+namespace NPOI.HSSF.UserModel;
+
+using NPOI.HSSF.Record.CF;
+using NPOI.SS.UserModel;
+using System;
+
+/**
+ * High level representation for Icon / Multi-State / Databar /
+ *  Colour Scale change thresholds
+ */
+public class HSSFConditionalFormattingThreshold : IConditionalFormattingThreshold
 {
-    using System;
+    private Threshold threshold;
+    private HSSFSheet sheet;
+    private HSSFWorkbook workbook;
 
-    using NPOI.HSSF.Record.CF;
-    using NPOI.SS.UserModel;
-
-    /**
-     * High level representation for Icon / Multi-State / Databar /
-     *  Colour Scale change thresholds
-     */
-    public class HSSFConditionalFormattingThreshold : IConditionalFormattingThreshold
+    protected internal HSSFConditionalFormattingThreshold(Threshold threshold, HSSFSheet sheet)
     {
-        private Threshold threshold;
-        private HSSFSheet sheet;
-        private HSSFWorkbook workbook;
+        this.threshold = threshold;
+        this.sheet = sheet;
+        this.workbook = sheet.Workbook as HSSFWorkbook;
+    }
+    protected internal Threshold Threshold
+    {
+        get { return threshold; }
+    }
 
-        protected internal HSSFConditionalFormattingThreshold(Threshold threshold, HSSFSheet sheet)
+    public RangeType RangeType
+    {
+        get
         {
-            this.threshold = threshold;
-            this.sheet = sheet;
-            this.workbook = sheet.Workbook as HSSFWorkbook;
+            return RangeType.ById(threshold.Type);
         }
-        protected internal Threshold Threshold
+        set
         {
-            get { return threshold; }
-        }
-
-        public RangeType RangeType
-        {
-            get
-            {
-                return RangeType.ById(threshold.Type);
-            }
-            set
-            {
-                threshold.Type = (byte)value.id;
-            }
-        }
-
-
-        public String Formula
-        {
-            get { return HSSFConditionalFormattingRule.ToFormulaString(threshold.ParsedExpression, workbook); }
-            set { threshold.ParsedExpression = NPOI.HSSF.Record.CFRuleBase.ParseFormula(value, sheet); }
-        }
-
-        public double? Value
-        {
-            get { return threshold.Value; }
-            set { threshold.Value = (value); }
+            threshold.Type = (byte)value.id;
         }
     }
 
+
+    public String Formula
+    {
+        get { return HSSFConditionalFormattingRule.ToFormulaString(threshold.ParsedExpression, workbook); }
+        set { threshold.ParsedExpression = NPOI.HSSF.Record.CFRuleBase.ParseFormula(value, sheet); }
+    }
+
+    public double? Value
+    {
+        get { return threshold.Value; }
+        set { threshold.Value = (value); }
+    }
 }

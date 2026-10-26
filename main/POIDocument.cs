@@ -17,15 +17,14 @@
 
 namespace NPOI;
 
-using System;
-using System.IO;
-using System.Collections;
-using NPOI.POIFS.FileSystem;
 using NPOI.HPSF;
-using System.Collections.Generic;
 using NPOI.POIFS.Crypt;
-using NPOI.Util;
 using NPOI.POIFS.Crypt.CryptoAPI;
+using NPOI.POIFS.FileSystem;
+using NPOI.Util;
+using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Security;
 using System.Security.Cryptography;
 

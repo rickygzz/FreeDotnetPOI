@@ -15,51 +15,50 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.HSSF.UserModel
+namespace NPOI.HSSF.UserModel;
+
+using NPOI.SS.Formula;
+using NPOI.SS.UserModel;
+
+/**
+ * HSSF wrapper for a sheet under evaluation
+ * 
+ * @author Josh Micich
+ */
+public class HSSFEvaluationSheet : IEvaluationSheet
 {
-    using NPOI.SS.Formula;
-    using NPOI.SS.UserModel;
 
-    /**
-     * HSSF wrapper for a sheet under evaluation
-     * 
-     * @author Josh Micich
-     */
-    public class HSSFEvaluationSheet : IEvaluationSheet
+    private readonly HSSFSheet _hs;
+
+    public HSSFEvaluationSheet(HSSFSheet hs)
     {
+        _hs = hs;
+    }
 
-        private readonly HSSFSheet _hs;
+    public HSSFSheet HSSFSheet
+    {
+        get
+        {
+            return _hs;
+        }
+    }
+    public IEvaluationCell GetCell(int rowIndex, int columnIndex)
+    {
+        HSSFRow row = (HSSFRow)_hs.GetRow(rowIndex);
+        if (row == null)
+        {
+            return null;
+        }
+        ICell cell = (HSSFCell)row.GetCell(columnIndex);
+        if (cell == null)
+        {
+            return null;
+        }
+        return new HSSFEvaluationCell(cell, this);
+    }
 
-        public HSSFEvaluationSheet(HSSFSheet hs)
-        {
-            _hs = hs;
-        }
-
-        public HSSFSheet HSSFSheet
-        {
-            get
-            {
-                return _hs;
-            }
-        }
-        public IEvaluationCell GetCell(int rowIndex, int columnIndex)
-        {
-            HSSFRow row = (HSSFRow)_hs.GetRow(rowIndex);
-            if (row == null)
-            {
-                return null;
-            }
-            ICell cell = (HSSFCell)row.GetCell(columnIndex);
-            if (cell == null)
-            {
-                return null;
-            }
-            return new HSSFEvaluationCell(cell, this);
-        }
-
-        public void ClearAllCachedResultValues()
-        {
-            // nothing to do
-        }
+    public void ClearAllCachedResultValues()
+    {
+        // nothing to do
     }
 }

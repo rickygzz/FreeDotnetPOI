@@ -15,391 +15,390 @@
    limitations Under the License.
 ==================================================================== */
 
-namespace NPOI.HSSF.UserModel
+namespace NPOI.HSSF.UserModel;
+
+using NPOI.HSSF.Record;
+using NPOI.HSSF.Record.CF;
+using NPOI.HSSF.Util;
+using NPOI.SS.UserModel;
+
+/**
+ * High level representation for Border Formatting component
+ * of Conditional Formatting Settings
+ * 
+ * @author Dmitriy Kumshayev
+ *
+ */
+public class HSSFBorderFormatting : IBorderFormatting
 {
-    using NPOI.HSSF.Record;
-    using NPOI.HSSF.Record.CF;
-    using NPOI.HSSF.Util;
-    using NPOI.SS.UserModel;
+    private HSSFWorkbook workbook;
+    private CFRuleBase cfRuleRecord;
+    private BorderFormatting borderFormatting;
 
-    /**
-     * High level representation for Border Formatting component
-     * of Conditional Formatting Settings
-     * 
-     * @author Dmitriy Kumshayev
-     *
-     */
-    public class HSSFBorderFormatting : IBorderFormatting
+    public HSSFBorderFormatting(CFRuleBase cfRuleRecord, HSSFWorkbook workbook)
     {
-        private HSSFWorkbook workbook;
-        private CFRuleBase cfRuleRecord;
-        private BorderFormatting borderFormatting;
+        this.workbook = workbook;
+        this.cfRuleRecord = cfRuleRecord;
+        this.borderFormatting = cfRuleRecord.BorderFormatting;
+    }
 
-        public HSSFBorderFormatting(CFRuleBase cfRuleRecord, HSSFWorkbook workbook)
-        {
-            this.workbook = workbook;
-            this.cfRuleRecord = cfRuleRecord;
-            this.borderFormatting = cfRuleRecord.BorderFormatting;
-        }
+    public BorderFormatting GetBorderFormattingBlock()
+    {
+        return borderFormatting;
+    }
 
-        public BorderFormatting GetBorderFormattingBlock()
+    public BorderStyle BorderBottom
+    {
+        get { return borderFormatting.BorderBottom; }
+        set
         {
-            return borderFormatting;
+            borderFormatting.BorderBottom = value;
+            if (value != BorderStyle.None)
+                cfRuleRecord.IsBottomBorderModified = true;
+            else
+                cfRuleRecord.IsBottomBorderModified = (false);
         }
+    }
 
-        public BorderStyle BorderBottom
-        {
-            get { return borderFormatting.BorderBottom; }
-            set
-            {
-                borderFormatting.BorderBottom = value;
-                if (value != BorderStyle.None)
-                    cfRuleRecord.IsBottomBorderModified = true;
-                else
-                    cfRuleRecord.IsBottomBorderModified = (false);
+    public BorderStyle BorderDiagonal
+    {
+        get { return borderFormatting.BorderDiagonal; }
+        set {
+            borderFormatting.BorderDiagonal = value;
+            if (value != BorderStyle.None) {
+                cfRuleRecord.IsBottomLeftTopRightBorderModified = true;
+                cfRuleRecord.IsTopLeftBottomRightBorderModified = true;
             }
-        }
+            else
+            {
+                cfRuleRecord.IsBottomLeftTopRightBorderModified = (false);
+                cfRuleRecord.IsTopLeftBottomRightBorderModified = (false);
+            }
 
-        public BorderStyle BorderDiagonal
-        {
-            get { return borderFormatting.BorderDiagonal; }
-            set {
-                borderFormatting.BorderDiagonal = value;
-                if (value != BorderStyle.None) {
-                    cfRuleRecord.IsBottomLeftTopRightBorderModified = true;
-                    cfRuleRecord.IsTopLeftBottomRightBorderModified = true;
-                }
-                else
-                {
-                    cfRuleRecord.IsBottomLeftTopRightBorderModified = (false);
-                    cfRuleRecord.IsTopLeftBottomRightBorderModified = (false);
-                }
+        }
+    }
 
+    public BorderStyle BorderLeft
+    {
+        get { return borderFormatting.BorderLeft; }
+        set {
+            borderFormatting.BorderLeft = value;
+            if (value != BorderStyle.None)
+                cfRuleRecord.IsLeftBorderModified = true;
+            else
+            {
+                cfRuleRecord.IsLeftBorderModified = (false);
             }
         }
+    }
 
-        public BorderStyle BorderLeft
-        {
-            get { return borderFormatting.BorderLeft; }
-            set {
-                borderFormatting.BorderLeft = value;
-                if (value != BorderStyle.None)
-                    cfRuleRecord.IsLeftBorderModified = true;
-                else
-                {
-                    cfRuleRecord.IsLeftBorderModified = (false);
-                }
+    public BorderStyle BorderRight
+    {
+        get { return borderFormatting.BorderRight; }
+        set {
+            borderFormatting.BorderRight = value;
+            if (value != BorderStyle.None)
+                cfRuleRecord.IsRightBorderModified = true;
+            else
+            {
+                cfRuleRecord.IsRightBorderModified = (false);
             }
         }
+    }
 
-        public BorderStyle BorderRight
-        {
-            get { return borderFormatting.BorderRight; }
-            set {
-                borderFormatting.BorderRight = value;
-                if (value != BorderStyle.None)
-                    cfRuleRecord.IsRightBorderModified = true;
-                else
-                {
-                    cfRuleRecord.IsRightBorderModified = (false);
-                }
+    public BorderStyle BorderTop
+    {
+        get { return borderFormatting.BorderTop; }
+        set {
+            borderFormatting.BorderTop = value;
+            if (value != BorderStyle.None)
+                cfRuleRecord.IsTopBorderModified = true;
+            else
+            {
+                cfRuleRecord.IsTopBorderModified = (false);
             }
         }
+    }
 
-        public BorderStyle BorderTop
+    public short BottomBorderColor
+    {
+        get{return borderFormatting.BottomBorderColor;}
+        set
         {
-            get { return borderFormatting.BorderTop; }
-            set {
-                borderFormatting.BorderTop = value;
-                if (value != BorderStyle.None)
-                    cfRuleRecord.IsTopBorderModified = true;
-                else
-                {
-                    cfRuleRecord.IsTopBorderModified = (false);
-                }
+            borderFormatting.BottomBorderColor=(value);
+            if (value != 0)
+            {
+                cfRuleRecord.IsBottomBorderModified = (true);
+            }
+            else
+            {
+                cfRuleRecord.IsBottomBorderModified = (false);
             }
         }
+    }
+    public IColor BottomBorderColorColor
+    {
+        get
+        {
+            return workbook.GetCustomPalette().GetColor(borderFormatting.BottomBorderColor);
+        }
+        set
+        {
+            HSSFColor hcolor = HSSFColor.ToHSSFColor(value);
+            if (hcolor == null)
+            {
+                BottomBorderColor = ((short)0);
+            }
+            else
+            {
+                BottomBorderColor = (hcolor.Indexed);
+            }
+        }
+    }
+    public short DiagonalBorderColor
+    {
+        get{return borderFormatting.DiagonalBorderColor;}
+        set
+        {
+            borderFormatting.DiagonalBorderColor=(value);
+            if (value != 0)
+            {
+                cfRuleRecord.IsBottomLeftTopRightBorderModified = (true);
+                cfRuleRecord.IsTopLeftBottomRightBorderModified = (true);
+            }
+            else
+            {
+                cfRuleRecord.IsBottomLeftTopRightBorderModified = (false);
+                cfRuleRecord.IsTopLeftBottomRightBorderModified = (false);
+            }
+        }
+    }
 
-        public short BottomBorderColor
+    public IColor DiagonalBorderColorColor
+    {
+        get
         {
-            get{return borderFormatting.BottomBorderColor;}
-            set
+            return workbook.GetCustomPalette().GetColor(borderFormatting.DiagonalBorderColor);
+        }
+        set
+        {
+            HSSFColor hcolor = HSSFColor.ToHSSFColor(value);
+            if (hcolor == null)
             {
-                borderFormatting.BottomBorderColor=(value);
-                if (value != 0)
-                {
-                    cfRuleRecord.IsBottomBorderModified = (true);
-                }
-                else
-                {
-                    cfRuleRecord.IsBottomBorderModified = (false);
-                }
+                DiagonalBorderColor = ((short)0);
+            }
+            else
+            {
+                DiagonalBorderColor = (hcolor.Indexed);
             }
         }
-        public IColor BottomBorderColorColor
-        {
-            get
-            {
-                return workbook.GetCustomPalette().GetColor(borderFormatting.BottomBorderColor);
-            }
-            set
-            {
-                HSSFColor hcolor = HSSFColor.ToHSSFColor(value);
-                if (hcolor == null)
-                {
-                    BottomBorderColor = ((short)0);
-                }
-                else
-                {
-                    BottomBorderColor = (hcolor.Indexed);
-                }
-            }
-        }
-        public short DiagonalBorderColor
-        {
-            get{return borderFormatting.DiagonalBorderColor;}
-            set
-            {
-                borderFormatting.DiagonalBorderColor=(value);
-                if (value != 0)
-                {
-                    cfRuleRecord.IsBottomLeftTopRightBorderModified = (true);
-                    cfRuleRecord.IsTopLeftBottomRightBorderModified = (true);
-                }
-                else
-                {
-                    cfRuleRecord.IsBottomLeftTopRightBorderModified = (false);
-                    cfRuleRecord.IsTopLeftBottomRightBorderModified = (false);
-                }
-            }
-        }
+    }
 
-        public IColor DiagonalBorderColorColor
+    public short LeftBorderColor
+    {
+        get{return borderFormatting.LeftBorderColor;}
+        set
         {
-            get
+            borderFormatting.LeftBorderColor=(value);
+            if (value != 0)
             {
-                return workbook.GetCustomPalette().GetColor(borderFormatting.DiagonalBorderColor);
+                cfRuleRecord.IsLeftBorderModified = (true);
             }
-            set
+            else
             {
-                HSSFColor hcolor = HSSFColor.ToHSSFColor(value);
-                if (hcolor == null)
-                {
-                    DiagonalBorderColor = ((short)0);
-                }
-                else
-                {
-                    DiagonalBorderColor = (hcolor.Indexed);
-                }
+                cfRuleRecord.IsLeftBorderModified = (false);
             }
         }
+    }
+    public IColor LeftBorderColorColor
+    {
+        get
+        {
+            return workbook.GetCustomPalette().GetColor(borderFormatting.LeftBorderColor);
+        }
+        set
+        {
+            HSSFColor hcolor = HSSFColor.ToHSSFColor(value);
+            if (hcolor == null)
+            {
+                LeftBorderColor = ((short)0);
+            }
+            else
+            {
+                LeftBorderColor = (hcolor.Indexed);
+            }
+        }
+        
+    }
+    public short RightBorderColor
+    {
+        get{return borderFormatting.RightBorderColor;}
+        set
+        {
+            borderFormatting.RightBorderColor=(value);
+            if (value != 0)
+            {
+                cfRuleRecord.IsRightBorderModified = (true);
+            }
+            else
+            {
+                cfRuleRecord.IsRightBorderModified = (false);
+            }
+        }
+    }
+    public IColor RightBorderColorColor
+    {
+        get
+        {
+            return workbook.GetCustomPalette().GetColor(borderFormatting.RightBorderColor);
+        }
+        set
+        {
+            HSSFColor hcolor = HSSFColor.ToHSSFColor(value);
+            if (hcolor == null)
+            {
+                RightBorderColor = ((short)0);
+            }
+            else
+            {
+                RightBorderColor = (hcolor.Indexed);
+            }
+        }
+    }
+    public short TopBorderColor
+    {
+        get{return borderFormatting.TopBorderColor;}
+        set
+        {
+            borderFormatting.TopBorderColor=(value);
+            if (value != 0)
+            {
+                cfRuleRecord.IsTopBorderModified = (true);
+            }
+            else
+            {
+                cfRuleRecord.IsTopBorderModified = (false);
+            }
+        }
+    }
+    public IColor TopBorderColorColor
+    {
+        get
+        {
+            return workbook.GetCustomPalette().GetColor(borderFormatting.TopBorderColor);
+        }
+        set
+        {
+            HSSFColor hcolor = HSSFColor.ToHSSFColor(value);
+            if (hcolor == null)
+            {
+                TopBorderColor = ((short)0);
+            }
+            else
+            {
+                TopBorderColor = (hcolor.Indexed);
+            }
+        }
+    }
+    public bool IsBackwardDiagonalOn
+    {
+        get{return borderFormatting.IsBackwardDiagonalOn;}
+        set
+        {
+            borderFormatting.IsBackwardDiagonalOn=value;
+            if (value)
+            {
+                cfRuleRecord.IsTopLeftBottomRightBorderModified = (value);
+            }
+        }
+    }
 
-        public short LeftBorderColor
+    public bool IsForwardDiagonalOn
+    {
+        get { return borderFormatting.IsForwardDiagonalOn; }
+        set
         {
-            get{return borderFormatting.LeftBorderColor;}
-            set
+            borderFormatting.IsForwardDiagonalOn=(value);
+            if (value)
             {
-                borderFormatting.LeftBorderColor=(value);
-                if (value != 0)
-                {
-                    cfRuleRecord.IsLeftBorderModified = (true);
-                }
-                else
-                {
-                    cfRuleRecord.IsLeftBorderModified = (false);
-                }
+                cfRuleRecord.IsBottomLeftTopRightBorderModified = (value);
             }
         }
-        public IColor LeftBorderColorColor
-        {
-            get
-            {
-                return workbook.GetCustomPalette().GetColor(borderFormatting.LeftBorderColor);
-            }
-            set
-            {
-                HSSFColor hcolor = HSSFColor.ToHSSFColor(value);
-                if (hcolor == null)
-                {
-                    LeftBorderColor = ((short)0);
-                }
-                else
-                {
-                    LeftBorderColor = (hcolor.Indexed);
-                }
-            }
-            
-        }
-        public short RightBorderColor
-        {
-            get{return borderFormatting.RightBorderColor;}
-            set
-            {
-                borderFormatting.RightBorderColor=(value);
-                if (value != 0)
-                {
-                    cfRuleRecord.IsRightBorderModified = (true);
-                }
-                else
-                {
-                    cfRuleRecord.IsRightBorderModified = (false);
-                }
-            }
-        }
-        public IColor RightBorderColorColor
-        {
-            get
-            {
-                return workbook.GetCustomPalette().GetColor(borderFormatting.RightBorderColor);
-            }
-            set
-            {
-                HSSFColor hcolor = HSSFColor.ToHSSFColor(value);
-                if (hcolor == null)
-                {
-                    RightBorderColor = ((short)0);
-                }
-                else
-                {
-                    RightBorderColor = (hcolor.Indexed);
-                }
-            }
-        }
-        public short TopBorderColor
-        {
-            get{return borderFormatting.TopBorderColor;}
-            set
-            {
-                borderFormatting.TopBorderColor=(value);
-                if (value != 0)
-                {
-                    cfRuleRecord.IsTopBorderModified = (true);
-                }
-                else
-                {
-                    cfRuleRecord.IsTopBorderModified = (false);
-                }
-            }
-        }
-        public IColor TopBorderColorColor
-        {
-            get
-            {
-                return workbook.GetCustomPalette().GetColor(borderFormatting.TopBorderColor);
-            }
-            set
-            {
-                HSSFColor hcolor = HSSFColor.ToHSSFColor(value);
-                if (hcolor == null)
-                {
-                    TopBorderColor = ((short)0);
-                }
-                else
-                {
-                    TopBorderColor = (hcolor.Indexed);
-                }
-            }
-        }
-        public bool IsBackwardDiagonalOn
-        {
-            get{return borderFormatting.IsBackwardDiagonalOn;}
-            set
-            {
-                borderFormatting.IsBackwardDiagonalOn=value;
-                if (value)
-                {
-                    cfRuleRecord.IsTopLeftBottomRightBorderModified = (value);
-                }
-            }
-        }
+    }
 
-        public bool IsForwardDiagonalOn
+    /// <summary>
+    /// HSSF doesn't support table borders, so always <see cref="BorderStyle.NONE" />
+    /// </summary>
+    /// <see cref="IBorderFormatting.BorderVertical" />
+    public BorderStyle BorderVertical { get => BorderStyle.None; set { /*nothing, Not available for HSSF.*/ ; } }
+
+    /// <summary>
+    /// HSSF doesn't support table borders, so always <see cref="BorderStyle.NONE" />
+    /// </summary>
+    /// <see cref="IBorderFormatting.BorderHorizontal" />
+    public BorderStyle BorderHorizontal { get => BorderStyle.None; set { /*nothing, Not available for HSSF.*/ ; } }
+
+    /// <summary>
+    /// HSSF Doesn't support table borders, so always <see cref="HSSFColorPredefined.AUTOMATIC" />
+    /// </summary>
+    /// <see cref="IBorderFormatting.VerticalBorderColor" />
+    public short VerticalBorderColor
+    {
+        get
         {
-            get { return borderFormatting.IsForwardDiagonalOn; }
-            set
-            {
-                borderFormatting.IsForwardDiagonalOn=(value);
-                if (value)
-                {
-                    cfRuleRecord.IsBottomLeftTopRightBorderModified = (value);
-                }
-            }
+            return HSSFColor.Automatic.Index;
         }
-
-        /// <summary>
-        /// HSSF doesn't support table borders, so always <see cref="BorderStyle.NONE" />
-        /// </summary>
-        /// <see cref="IBorderFormatting.BorderVertical" />
-        public BorderStyle BorderVertical { get => BorderStyle.None; set { /*nothing, Not available for HSSF.*/ ; } }
-
-        /// <summary>
-        /// HSSF doesn't support table borders, so always <see cref="BorderStyle.NONE" />
-        /// </summary>
-        /// <see cref="IBorderFormatting.BorderHorizontal" />
-        public BorderStyle BorderHorizontal { get => BorderStyle.None; set { /*nothing, Not available for HSSF.*/ ; } }
-
-        /// <summary>
-        /// HSSF Doesn't support table borders, so always <see cref="HSSFColorPredefined.AUTOMATIC" />
-        /// </summary>
-        /// <see cref="IBorderFormatting.VerticalBorderColor" />
-        public short VerticalBorderColor
+        set
         {
-            get
-            {
-                return HSSFColor.Automatic.Index;
-            }
-            set
-            {
-                //nothing, Not available for HSSF.
-            }
+            //nothing, Not available for HSSF.
         }
+    }
 
-        /// <summary>
-        /// HSSF Doesn't support table borders, so always <see cref="HSSFColorPredefined.AUTOMATIC" />
-        /// </summary>
-        /// <see cref="IBorderFormatting.VerticalBorderColorColor" />
-        public IColor VerticalBorderColorColor
+    /// <summary>
+    /// HSSF Doesn't support table borders, so always <see cref="HSSFColorPredefined.AUTOMATIC" />
+    /// </summary>
+    /// <see cref="IBorderFormatting.VerticalBorderColorColor" />
+    public IColor VerticalBorderColorColor
+    {
+        get
         {
-            get
-            {
-                return HSSFColor.Automatic.GetInstance();
-            }
-            set
-            {
-                //nothing, Not available for HSSF.
-            }
+            return HSSFColor.Automatic.GetInstance();
         }
-
-        /// <summary>
-        /// HSSF Doesn't support table borders, so always <see cref="HSSFColorPredefined.AUTOMATIC" />
-        /// </summary>
-        /// <see cref="NPOI.SS.UserModel.BorderFormatting.HorizontalBorderColor" />
-        public short HorizontalBorderColor
+        set
         {
-            get
-            {
-                return HSSFColor.Automatic.Index;
-            }
-            set
-            {
-                //nothing, Not available for HSSF.
-            }
+            //nothing, Not available for HSSF.
         }
+    }
 
-        /// <summary>
-        /// HSSF Doesn't support table borders, so always <see cref="HSSFColorPredefined.AUTOMATIC" />
-        /// </summary>
-        /// <see cref="NPOI.SS.UserModel.BorderFormatting.HorizontalBorderColorColor" />
-        public IColor HorizontalBorderColorColor
+    /// <summary>
+    /// HSSF Doesn't support table borders, so always <see cref="HSSFColorPredefined.AUTOMATIC" />
+    /// </summary>
+    /// <see cref="NPOI.SS.UserModel.BorderFormatting.HorizontalBorderColor" />
+    public short HorizontalBorderColor
+    {
+        get
         {
-            get
-            {
-                return HSSFColor.Automatic.GetInstance();
-            }
-            set
-            {
-                //nothing, Not available for HSSF.
-            }
+            return HSSFColor.Automatic.Index;
+        }
+        set
+        {
+            //nothing, Not available for HSSF.
+        }
+    }
+
+    /// <summary>
+    /// HSSF Doesn't support table borders, so always <see cref="HSSFColorPredefined.AUTOMATIC" />
+    /// </summary>
+    /// <see cref="NPOI.SS.UserModel.BorderFormatting.HorizontalBorderColorColor" />
+    public IColor HorizontalBorderColorColor
+    {
+        get
+        {
+            return HSSFColor.Automatic.GetInstance();
+        }
+        set
+        {
+            //nothing, Not available for HSSF.
         }
     }
 }

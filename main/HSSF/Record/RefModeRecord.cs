@@ -17,89 +17,88 @@
 ==================================================================== */
 
 
-namespace NPOI.HSSF.Record
+namespace NPOI.HSSF.Record;
+
+using System;
+using System.Text;
+using NPOI.Util;
+
+
+/**
+ * Title:        RefMode Record
+ * Description:  Describes which reference mode to use
+ * REFERENCE:  PG 376 Microsoft Excel 97 Developer's Kit (ISBN: 1-57231-498-2)
+ * @author Andrew C. Oliver (acoliver at apache dot org)
+ * @author Jason Height (jheight at chariot dot net dot au)
+ * @version 2.0-pre
+ */
+
+public class RefModeRecord
+   : StandardRecord
 {
-    using System;
-    using System.Text;
-    using NPOI.Util;
+    public const short sid = 0xf;
+    public const short USE_A1_MODE = 1;
+    public const short USE_R1C1_MODE = 0;
+    private short field_1_mode;
+
+    public RefModeRecord()
+    {
+    }
+
+    /**
+     * Constructs a RefMode record and Sets its fields appropriately.
+     * @param in the RecordInputstream to Read the record from
+     */
+
+    public RefModeRecord(RecordInputStream in1)
+    {
+        field_1_mode = in1.ReadShort();
+    }
 
 
     /**
-     * Title:        RefMode Record
-     * Description:  Describes which reference mode to use
-     * REFERENCE:  PG 376 Microsoft Excel 97 Developer's Kit (ISBN: 1-57231-498-2)
-     * @author Andrew C. Oliver (acoliver at apache dot org)
-     * @author Jason Height (jheight at chariot dot net dot au)
-     * @version 2.0-pre
+     * Get the reference mode to use (HSSF uses/assumes A1)
+     * @return mode to use
+     * @see #USE_A1_MODE
+     * @see #USE_R1C1_MODE
      */
 
-    public class RefModeRecord
-       : StandardRecord
+    public short Mode
     {
-        public const short sid = 0xf;
-        public const short USE_A1_MODE = 1;
-        public const short USE_R1C1_MODE = 0;
-        private short field_1_mode;
+        get { return field_1_mode; }
+        set { field_1_mode = value; }
+    }
 
-        public RefModeRecord()
-        {
-        }
+    public override String ToString()
+    {
+        StringBuilder buffer = new StringBuilder();
 
-        /**
-         * Constructs a RefMode record and Sets its fields appropriately.
-         * @param in the RecordInputstream to Read the record from
-         */
+        buffer.Append("[REFMODE]\n");
+        buffer.Append("    .mode           = ")
+            .Append(StringUtil.ToHexString(Mode)).Append("\n");
+        buffer.Append("[/REFMODE]\n");
+        return buffer.ToString();
+    }
 
-        public RefModeRecord(RecordInputStream in1)
-        {
-            field_1_mode = in1.ReadShort();
-        }
+    public override short Sid
+    {
+        get { return sid; }
+    }
 
+    public override Object Clone()
+    {
+        RefModeRecord rec = new RefModeRecord();
+        rec.field_1_mode = field_1_mode;
+        return rec;
+    }
 
-        /**
-         * Get the reference mode to use (HSSF uses/assumes A1)
-         * @return mode to use
-         * @see #USE_A1_MODE
-         * @see #USE_R1C1_MODE
-         */
+    protected override int DataSize
+    {
+        get { return 2; }
+    }
 
-        public short Mode
-        {
-            get { return field_1_mode; }
-            set { field_1_mode = value; }
-        }
-
-        public override String ToString()
-        {
-            StringBuilder buffer = new StringBuilder();
-
-            buffer.Append("[REFMODE]\n");
-            buffer.Append("    .mode           = ")
-                .Append(StringUtil.ToHexString(Mode)).Append("\n");
-            buffer.Append("[/REFMODE]\n");
-            return buffer.ToString();
-        }
-
-        public override short Sid
-        {
-            get { return sid; }
-        }
-
-        public override Object Clone()
-        {
-            RefModeRecord rec = new RefModeRecord();
-            rec.field_1_mode = field_1_mode;
-            return rec;
-        }
-
-        protected override int DataSize
-        {
-            get { return 2; }
-        }
-
-        public override void Serialize(ILittleEndianOutput out1)
-        {
-            out1.WriteShort(Mode);
-        }
+    public override void Serialize(ILittleEndianOutput out1)
+    {
+        out1.WriteShort(Mode);
     }
 }
