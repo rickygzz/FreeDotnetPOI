@@ -15,31 +15,30 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.SS.UserModel
+namespace NPOI.SS.UserModel;
+
+/// <summary>
+/// Interface for classes providing differential style definitions, such as conditional format rules
+/// and table/pivot table styles.
+/// </summary>
+/// @since 3.17 beta 1
+public interface IDifferentialStyleProvider
 {
     /// <summary>
-    /// Interface for classes providing differential style definitions, such as conditional format rules
-    /// and table/pivot table styles.
+    /// border formatting object  if defined,  <c>null</c> otherwise
     /// </summary>
-    /// @since 3.17 beta 1
-    public interface IDifferentialStyleProvider
-    {
-        /// <summary>
-        /// border formatting object  if defined,  <c>null</c> otherwise
-        /// </summary>
-        IBorderFormatting BorderFormatting { get; }
-        /// <summary>
-        /// font formatting object  if defined,  <c>null</c> otherwise
-        /// </summary>
-        IFontFormatting FontFormatting { get; }
-        /// <summary>
-        /// pattern formatting object if defined, <c>null</c> otherwise
-        /// </summary>
-        IPatternFormatting PatternFormatting { get; }
-        /// <summary>
-        /// number format defined for this rule, or null if the cell default should be used
-        /// </summary>
-        ExcelNumberFormat NumberFormat { get; }
-        int StripeSize { get; }
-    }
+    IBorderFormatting BorderFormatting { get; }
+    /// <summary>
+    /// font formatting object  if defined,  <c>null</c> otherwise
+    /// </summary>
+    IFontFormatting FontFormatting { get; }
+    /// <summary>
+    /// pattern formatting object if defined, <c>null</c> otherwise
+    /// </summary>
+    IPatternFormatting PatternFormatting { get; }
+    /// <summary>
+    /// number format defined for this rule, or null if the cell default should be used
+    /// </summary>
+    ExcelNumberFormat NumberFormat { get; }
+    int StripeSize { get; }
 }

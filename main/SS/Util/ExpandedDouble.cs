@@ -16,97 +16,97 @@
 ==================================================================== */
 
 using System;
-namespace NPOI.SS.Util
+
+namespace NPOI.SS.Util;
+
+
+using NPOI.Util;
+/*
+ * Represents a 64 bit IEEE double quantity expressed with both decimal and binary exponents
+ * Does not handle negative numbers or zero
+ * <p/>
+ * The value of a {@link ExpandedDouble} is given by<br/>
+ * <c> a &times; 2<sup>b</sup></c>
+ * <br/>
+ * where:<br/>
+ *
+ * <c>a</c> = <i>significand</i><br/>
+ * <c>b</c> = <i>binaryExponent</i> - bitLength(significand) + 1<br/>
+ *
+ * @author Josh Micich
+ */
+public class ExpandedDouble
 {
+    private static readonly BigInteger BI_FRAC_MASK = new BigInteger(IEEEDouble.FRAC_MASK);
+    private static readonly BigInteger BI_IMPLIED_FRAC_MSB = new BigInteger(IEEEDouble.FRAC_ASSUMED_HIGH_BIT);
 
-    using NPOI.Util;
-    /*
-     * Represents a 64 bit IEEE double quantity expressed with both decimal and binary exponents
-     * Does not handle negative numbers or zero
-     * <p/>
-     * The value of a {@link ExpandedDouble} is given by<br/>
-     * <c> a &times; 2<sup>b</sup></c>
-     * <br/>
-     * where:<br/>
-     *
-     * <c>a</c> = <i>significand</i><br/>
-     * <c>b</c> = <i>binaryExponent</i> - bitLength(significand) + 1<br/>
-     *
-     * @author Josh Micich
-     */
-    public class ExpandedDouble
+    private static BigInteger GetFrac(long rawBits)
     {
-        private static readonly BigInteger BI_FRAC_MASK = new BigInteger(IEEEDouble.FRAC_MASK);
-        private static readonly BigInteger BI_IMPLIED_FRAC_MSB = new BigInteger(IEEEDouble.FRAC_ASSUMED_HIGH_BIT);
+        return (new BigInteger(rawBits)&BI_FRAC_MASK|BI_IMPLIED_FRAC_MSB)<<11;
+    }
 
-        private static BigInteger GetFrac(long rawBits)
+
+    public static ExpandedDouble FromRawBitsAndExponent(long rawBits, int exp)
+    {
+        return new ExpandedDouble(GetFrac(rawBits), exp);
+    }
+
+    /**
+     * Always 64 bits long (MSB, bit-63 is '1')
+     */
+    private readonly BigInteger _significand;
+    private readonly int _binaryExponent;
+
+    public ExpandedDouble(long rawBits)
+    {
+        int biasedExp = (int)(rawBits >> 52);
+        if (biasedExp == 0)
         {
-            return (new BigInteger(rawBits)&BI_FRAC_MASK|BI_IMPLIED_FRAC_MSB)<<11;
+            // sub-normal numbers
+            BigInteger frac = new BigInteger(rawBits)&BI_FRAC_MASK;
+            int expAdj = 64 - frac.BitLength();
+            _significand = frac<<expAdj;
+            _binaryExponent = (biasedExp & 0x07FF) - 1023 - expAdj;
         }
-
-
-        public static ExpandedDouble FromRawBitsAndExponent(long rawBits, int exp)
+        else
         {
-            return new ExpandedDouble(GetFrac(rawBits), exp);
-        }
-
-        /**
-         * Always 64 bits long (MSB, bit-63 is '1')
-         */
-        private readonly BigInteger _significand;
-        private readonly int _binaryExponent;
-
-        public ExpandedDouble(long rawBits)
-        {
-            int biasedExp = (int)(rawBits >> 52);
-            if (biasedExp == 0)
-            {
-                // sub-normal numbers
-                BigInteger frac = new BigInteger(rawBits)&BI_FRAC_MASK;
-                int expAdj = 64 - frac.BitLength();
-                _significand = frac<<expAdj;
-                _binaryExponent = (biasedExp & 0x07FF) - 1023 - expAdj;
-            }
-            else
-            {
-                BigInteger frac = GetFrac(rawBits);
-                _significand = frac;
-                _binaryExponent = (biasedExp & 0x07FF) - 1023;
-            }
-        }
-
-        public ExpandedDouble(BigInteger frac, int binaryExp)
-        {
-            if (frac.BitLength() != 64)
-            {
-                throw new ArgumentException("bad bit length");
-            }
+            BigInteger frac = GetFrac(rawBits);
             _significand = frac;
-            _binaryExponent = binaryExp;
+            _binaryExponent = (biasedExp & 0x07FF) - 1023;
         }
+    }
 
-
-        /**
-         * Convert to an equivalent {@link NormalisedDecimal} representation having 15 decimal digits of precision in the
-         * non-fractional bits of the significand.
-         */
-        public NormalisedDecimal NormaliseBaseTen()
+    public ExpandedDouble(BigInteger frac, int binaryExp)
+    {
+        if (frac.BitLength() != 64)
         {
-            return NormalisedDecimal.Create(_significand, _binaryExponent);
+            throw new ArgumentException("bad bit length");
         }
+        _significand = frac;
+        _binaryExponent = binaryExp;
+    }
 
-        /**
-         * @return the number of non-fractional bits after the MSB of the significand
-         */
-        public int GetBinaryExponent()
-        {
-            return _binaryExponent;
-        }
 
-        public BigInteger GetSignificand()
-        {
-            return _significand;
-        }
+    /**
+     * Convert to an equivalent {@link NormalisedDecimal} representation having 15 decimal digits of precision in the
+     * non-fractional bits of the significand.
+     */
+    public NormalisedDecimal NormaliseBaseTen()
+    {
+        return NormalisedDecimal.Create(_significand, _binaryExponent);
+    }
+
+    /**
+     * @return the number of non-fractional bits after the MSB of the significand
+     */
+    public int GetBinaryExponent()
+    {
+        return _binaryExponent;
+    }
+
+    public BigInteger GetSignificand()
+    {
+        return _significand;
     }
 }
 

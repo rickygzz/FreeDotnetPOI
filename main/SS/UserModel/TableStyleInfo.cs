@@ -15,40 +15,39 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.SS.UserModel
+namespace NPOI.SS.UserModel;
+
+/// <summary>
+/// style information for a specific table instance, referencing the document style
+/// and indicating which optional portions of the style to apply.
+/// </summary>
+/// @since 3.17 beta 1
+public interface ITableStyleInfo
 {
     /// <summary>
-    /// style information for a specific table instance, referencing the document style
-    /// and indicating which optional portions of the style to apply.
+    /// true if alternating column styles should be applied
     /// </summary>
-    /// @since 3.17 beta 1
-    public interface ITableStyleInfo
-    {
-        /// <summary>
-        /// true if alternating column styles should be applied
-        /// </summary>
-        bool IsShowColumnStripes { get; set; }
-        /// <summary>
-        /// return true if alternating row styles should be applied
-        /// </summary>
-        bool IsShowRowStripes { get; set; }
-        /// <summary>
-        /// return true if the distinct first column style should be applied
-        /// </summary>
-        bool IsShowFirstColumn { get; set; }
+    bool IsShowColumnStripes { get; set; }
+    /// <summary>
+    /// return true if alternating row styles should be applied
+    /// </summary>
+    bool IsShowRowStripes { get; set; }
+    /// <summary>
+    /// return true if the distinct first column style should be applied
+    /// </summary>
+    bool IsShowFirstColumn { get; set; }
 
-        /// <summary>
-        /// return true if the distinct last column style should be applied
-        /// </summary>
-        bool IsShowLastColumn { get; set; }
-        /// <summary>
-        /// return the name of the style (may reference a built-in style)
-        /// </summary>
-        string Name { get; set; }
+    /// <summary>
+    /// return true if the distinct last column style should be applied
+    /// </summary>
+    bool IsShowLastColumn { get; set; }
+    /// <summary>
+    /// return the name of the style (may reference a built-in style)
+    /// </summary>
+    string Name { get; set; }
 
-        /// <summary>
-        /// style definition
-        /// </summary>
-        ITableStyle Style { get; }
-    }
+    /// <summary>
+    /// style definition
+    /// </summary>
+    ITableStyle Style { get; }
 }

@@ -16,33 +16,32 @@
 ==================================================================== */
 
 
-namespace NPOI.SS.UserModel
+namespace NPOI.SS.UserModel;
+
+/// <summary>
+/// Common interface for anchors.
+/// 
+/// An anchor is what specifics the position of a shape within a client object
+/// or within another containing shape.
+/// </summary>
+public interface IChildAnchor
 {
     /// <summary>
-    /// Common interface for anchors.
-    /// 
-    /// An anchor is what specifics the position of a shape within a client object
-    /// or within another containing shape.
+    /// get or set x coordinate of the left up corner
     /// </summary>
-    public interface IChildAnchor
-    {
-        /// <summary>
-        /// get or set x coordinate of the left up corner
-        /// </summary>
-        int Dx1 { get; set; }
+    int Dx1 { get; set; }
 
-        /// <summary>
-        /// get or set y coordinate of the left up corner
-        /// </summary>
-        int Dy1 {  get; set; }
+    /// <summary>
+    /// get or set y coordinate of the left up corner
+    /// </summary>
+    int Dy1 {  get; set; }
 
-        /// <summary>
-        /// get or set x coordinate of the right down corner
-        /// </summary>
-        int Dx2 { get; set; }
-        /// <summary>
-        /// get or set y coordinate of the right down corner
-        /// </summary>
-        int Dy2 { get; set; }
-    }
+    /// <summary>
+    /// get or set x coordinate of the right down corner
+    /// </summary>
+    int Dx2 { get; set; }
+    /// <summary>
+    /// get or set y coordinate of the right down corner
+    /// </summary>
+    int Dy2 { get; set; }
 }

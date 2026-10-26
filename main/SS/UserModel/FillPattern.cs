@@ -15,71 +15,70 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.SS.UserModel
+namespace NPOI.SS.UserModel;
+
+
+/**
+ * The enumeration value indicating the style of fill pattern being used for a cell format.
+ * 
+ */
+public enum FillPattern : short
 {
 
-    /**
-     * The enumeration value indicating the style of fill pattern being used for a cell format.
-     * 
-     */
-    public enum FillPattern : short
-    {
+    /**  No background */
+    NoFill = 0,
 
-        /**  No background */
-        NoFill = 0,
+    /**  Solidly Filled */
+    SolidForeground = 1,
 
-        /**  Solidly Filled */
-        SolidForeground = 1,
+    /**  Small fine dots */
+    FineDots = 2,
 
-        /**  Small fine dots */
-        FineDots = 2,
+    /**  Wide dots */
+    AltBars = 3,
 
-        /**  Wide dots */
-        AltBars = 3,
+    /**  Sparse dots */
+    SparseDots = 4,
 
-        /**  Sparse dots */
-        SparseDots = 4,
+    /**  Thick horizontal bands */
+    ThickHorizontalBands = 5,
 
-        /**  Thick horizontal bands */
-        ThickHorizontalBands = 5,
+    /**  Thick vertical bands */
+    ThickVerticalBands = 6,
 
-        /**  Thick vertical bands */
-        ThickVerticalBands = 6,
+    /**  Thick backward facing diagonals */
+    ThickBackwardDiagonals = 7,
 
-        /**  Thick backward facing diagonals */
-        ThickBackwardDiagonals = 7,
+    /**  Thick forward facing diagonals */
+    ThickForwardDiagonals = 8,
 
-        /**  Thick forward facing diagonals */
-        ThickForwardDiagonals = 8,
+    /**  Large spots */
+    BigSpots = 9,
 
-        /**  Large spots */
-        BigSpots = 9,
+    /**  Brick-like layout */
+    Bricks = 10,
 
-        /**  Brick-like layout */
-        Bricks = 10,
+    /**  Thin horizontal bands */
+    ThinHorizontalBands = 11,
 
-        /**  Thin horizontal bands */
-        ThinHorizontalBands = 11,
+    /**  Thin vertical bands */
+    ThinVerticalBands = 12,
 
-        /**  Thin vertical bands */
-        ThinVerticalBands = 12,
+    /**  Thin backward diagonal */
+    ThinBackwardDiagonals = 13,
 
-        /**  Thin backward diagonal */
-        ThinBackwardDiagonals = 13,
+    /**  Thin forward diagonal */
+    ThinForwardDiagonals = 14,
 
-        /**  Thin forward diagonal */
-        ThinForwardDiagonals = 14,
+    /**  Squares */
+    Squares = 15,
 
-        /**  Squares */
-        Squares = 15,
+    /**  Diamonds */
+    Diamonds = 16,
 
-        /**  Diamonds */
-        Diamonds = 16,
+    /**  Less Dots */
+    LessDots = 17,
 
-        /**  Less Dots */
-        LessDots = 17,
-
-        /**  Least Dots */
-        LeastDots = 18
-    }
+    /**  Least Dots */
+    LeastDots = 18
 }

@@ -14,38 +14,35 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 ==================================================================== */
-namespace NPOI.SS.UserModel
+namespace NPOI.SS.UserModel;
+
+using NPOI.SS.Util;
+using System;
+
+/**
+ * @author <a href="rjankiraman@emptoris.com">Radhakrishnan J</a>
+ * 
+ */
+public interface IDataValidationHelper
 {
-    using System;
 
-    using NPOI.SS.Util;
+    IDataValidationConstraint CreateFormulaListConstraint(String listFormula);
 
-    /**
-     * @author <a href="rjankiraman@emptoris.com">Radhakrishnan J</a>
-     * 
-     */
-    public interface IDataValidationHelper
-    {
+    IDataValidationConstraint CreateExplicitListConstraint(String[] listOfValues);
 
-        IDataValidationConstraint CreateFormulaListConstraint(String listFormula);
+    IDataValidationConstraint CreateNumericConstraint(int validationType, int operatorType, String formula1, String formula2);
 
-        IDataValidationConstraint CreateExplicitListConstraint(String[] listOfValues);
+    IDataValidationConstraint CreateTextLengthConstraint(int operatorType, String formula1, String formula2);
 
-        IDataValidationConstraint CreateNumericConstraint(int validationType, int operatorType, String formula1, String formula2);
+    IDataValidationConstraint CreateDecimalConstraint(int operatorType, String formula1, String formula2);
 
-        IDataValidationConstraint CreateTextLengthConstraint(int operatorType, String formula1, String formula2);
+    IDataValidationConstraint CreateintConstraint(int operatorType, String formula1, String formula2);
 
-        IDataValidationConstraint CreateDecimalConstraint(int operatorType, String formula1, String formula2);
+    IDataValidationConstraint CreateDateConstraint(int operatorType, String formula1, String formula2, String dateFormat);
 
-        IDataValidationConstraint CreateintConstraint(int operatorType, String formula1, String formula2);
+    IDataValidationConstraint CreateTimeConstraint(int operatorType, String formula1, String formula2);
 
-        IDataValidationConstraint CreateDateConstraint(int operatorType, String formula1, String formula2, String dateFormat);
+    IDataValidationConstraint CreateCustomConstraint(String formula);
 
-        IDataValidationConstraint CreateTimeConstraint(int operatorType, String formula1, String formula2);
-
-        IDataValidationConstraint CreateCustomConstraint(String formula);
-
-        IDataValidation CreateValidation(IDataValidationConstraint constraint, CellRangeAddressList cellRangeAddressList);
-    }
-
+    IDataValidation CreateValidation(IDataValidationConstraint constraint, CellRangeAddressList cellRangeAddressList);
 }

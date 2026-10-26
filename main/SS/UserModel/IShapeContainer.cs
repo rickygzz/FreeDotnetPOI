@@ -16,13 +16,12 @@
 ==================================================================== */
 using System.Collections.Generic;
 
-namespace NPOI.SS.UserModel
+namespace NPOI.SS.UserModel;
+
+/// <summary>
+/// A common interface for shape groups.
+/// </summary>
+/// <typeparam name="T"></typeparam>
+public interface IShapeContainer<out T> : IEnumerable<T> where T : class, IShape
 {
-    /// <summary>
-    /// A common interface for shape groups.
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    public interface IShapeContainer<out T> : IEnumerable<T> where T : class, IShape
-    {
-    }
 }

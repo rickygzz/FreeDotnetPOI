@@ -15,147 +15,146 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.SS.UserModel
+namespace NPOI.SS.UserModel;
+
+using System;
+
+public enum FontUnderlineType : byte
 {
-    using System;
+    /**
+     * not underlined
+     */
+    None = 0,
+    /**
+     * single (normal) underline
+     */
+    Single = 1,
+    /**
+     * double underlined
+     */
+    Double = 2,
+    /**
+     * accounting style single underline
+     */
+    SingleAccounting = 0x21,
+    /**
+     * accounting style double underline
+     */
+    DoubleAccounting = 0x22
+}
 
-    public enum FontUnderlineType : byte
-    {
-        /**
-         * not underlined
-         */
-        None = 0,
-        /**
-         * single (normal) underline
-         */
-        Single = 1,
-        /**
-         * double underlined
-         */
-        Double = 2,
-        /**
-         * accounting style single underline
-         */
-        SingleAccounting = 0x21,
-        /**
-         * accounting style double underline
-         */
-        DoubleAccounting = 0x22
-    }
+public enum FontSuperScript:short
+{ 
 
-    public enum FontSuperScript:short
-    { 
-    
-        /**
-         * no type Offsetting (not super or subscript)
-         */
+    /**
+     * no type Offsetting (not super or subscript)
+     */
 
-        None = 0,
+    None = 0,
 
-        /**
-         * superscript
-         */
+    /**
+     * superscript
+     */
 
-        Super = 1,
+    Super = 1,
 
-        /**
-         * subscript
-         */
+    /**
+     * subscript
+     */
 
-        Sub = 2,
-    }
+    Sub = 2,
+}
 
-    public enum FontColor:short
-    {
-        /// <summary>
-        /// Allow accessing the Initial value.
-        /// </summary>
-        None = 0,
+public enum FontColor:short
+{
+    /// <summary>
+    /// Allow accessing the Initial value.
+    /// </summary>
+    None = 0,
 
-        /**
-         * normal type of black color.
-         */
+    /**
+     * normal type of black color.
+     */
 
-        Normal = 0x7fff,
+    Normal = 0x7fff,
 
-        /**
-         * Dark Red color
-         */
+    /**
+     * Dark Red color
+     */
 
-        Red = 0xa,
-    }
+    Red = 0xa,
+}
 
-    public interface IFont
-    {
+public interface IFont
+{
 
-        /// <summary>
-        /// get the name for the font (i.e. Arial)
-        /// </summary>
-        String FontName { get; set; }
+    /// <summary>
+    /// get the name for the font (i.e. Arial)
+    /// </summary>
+    String FontName { get; set; }
 
-        /// <summary>
-        ///  Get the font height in unit's of 1/20th of a point.
-        /// </summary>
-        /// <remarks>
-        /// Maybe you might want to use the GetFontHeightInPoints which matches to the familiar 10, 12, 14 etc..
-        /// </remarks>
-        /// <see cref="FontHeightInPoints"/>
-        double FontHeight { get; set; }
+    /// <summary>
+    ///  Get the font height in unit's of 1/20th of a point.
+    /// </summary>
+    /// <remarks>
+    /// Maybe you might want to use the GetFontHeightInPoints which matches to the familiar 10, 12, 14 etc..
+    /// </remarks>
+    /// <see cref="FontHeightInPoints"/>
+    double FontHeight { get; set; }
 
-        /// <summary>
-        /// Get the font height in points.
-        /// </summary>
-        /// <remarks>
-        /// This will return the same font height that is shown in Excel, such as 10 or 14 or 28.
-        /// </remarks>
-        /// <see cref="FontHeight"/>
-        double FontHeightInPoints { get; set; }
- 
-        /// <summary>
-        /// get whether to use italics or not
-        /// </summary>
-        bool IsItalic { get; set; }
+    /// <summary>
+    /// Get the font height in points.
+    /// </summary>
+    /// <remarks>
+    /// This will return the same font height that is shown in Excel, such as 10 or 14 or 28.
+    /// </remarks>
+    /// <see cref="FontHeight"/>
+    double FontHeightInPoints { get; set; }
 
-        /// <summary>
-        /// get whether to use a strikeout horizontal line through the text or not
-        /// </summary>
-        bool IsStrikeout { get; set; }
+    /// <summary>
+    /// get whether to use italics or not
+    /// </summary>
+    bool IsItalic { get; set; }
 
-        /**
-         * get the color for the font
-         * @return color to use
-         * @see #COLOR_NORMAL
-         * @see #COLOR_RED
-         * @see NPOI.HSSF.usermodel.HSSFPalette#GetColor(short)
-         */
-        short Color { get; set; }
+    /// <summary>
+    /// get whether to use a strikeout horizontal line through the text or not
+    /// </summary>
+    bool IsStrikeout { get; set; }
 
-        /// <summary>
-        ///  get type of text underlining to use
-        /// </summary>
-        FontSuperScript TypeOffset { get; set; }
+    /**
+     * get the color for the font
+     * @return color to use
+     * @see #COLOR_NORMAL
+     * @see #COLOR_RED
+     * @see NPOI.HSSF.usermodel.HSSFPalette#GetColor(short)
+     */
+    short Color { get; set; }
 
-        /// <summary>
-        /// get type of text underlining to use
-        /// </summary>
-        FontUnderlineType Underline { get; set; }
+    /// <summary>
+    ///  get type of text underlining to use
+    /// </summary>
+    FontSuperScript TypeOffset { get; set; }
 
-        /// <summary>
-        /// get character-set to use.
-        /// </summary>
-        /// <value>ANSI_CHARSET,DEFAULT_CHARSET,SYMBOL_CHARSET </value>
-        short Charset { get; set; }
+    /// <summary>
+    /// get type of text underlining to use
+    /// </summary>
+    FontUnderlineType Underline { get; set; }
 
-        /// <summary>
-        /// get the index within the Workbook (sequence within the collection of Font objects)
-        /// </summary>
-        short Index { get; }
+    /// <summary>
+    /// get character-set to use.
+    /// </summary>
+    /// <value>ANSI_CHARSET,DEFAULT_CHARSET,SYMBOL_CHARSET </value>
+    short Charset { get; set; }
 
-        bool IsBold { get; set; }
+    /// <summary>
+    /// get the index within the Workbook (sequence within the collection of Font objects)
+    /// </summary>
+    short Index { get; }
 
-        /// <summary>
-        /// Copies the style from another font into this one
-        /// </summary>
-        void CloneStyleFrom(IFont src);
-    }
+    bool IsBold { get; set; }
+
+    /// <summary>
+    /// Copies the style from another font into this one
+    /// </summary>
+    void CloneStyleFrom(IFont src);
 }

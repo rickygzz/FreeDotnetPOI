@@ -15,55 +15,53 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.SS.UserModel
+namespace NPOI.SS.UserModel;
+
+/**
+ * Specifies printed page order.
+ *
+ * @author Gisella Bronzetti
+ */
+public class PageOrder
 {
+
     /**
-     * Specifies printed page order.
-     *
-     * @author Gisella Bronzetti
+     * Order pages vertically first, then move horizontally.
      */
-    public class PageOrder
+    public static PageOrder DOWN_THEN_OVER;
+    /**
+     * Order pages horizontally first, then move vertically
+     */
+    public static PageOrder OVER_THEN_DOWN;
+
+
+    private readonly int order;
+
+    static PageOrder()
+    { 
+        _table = new PageOrder[3];
+        DOWN_THEN_OVER = new PageOrder(1);
+        OVER_THEN_DOWN = new PageOrder(2);
+    }
+
+    private PageOrder(int order)
     {
+        this.order = order;
+        _table[order] = this;
+    }
 
-        /**
-         * Order pages vertically first, then move horizontally.
-         */
-        public static PageOrder DOWN_THEN_OVER;
-        /**
-         * Order pages horizontally first, then move vertically
-         */
-        public static PageOrder OVER_THEN_DOWN;
-
-
-        private readonly int order;
-
-        static PageOrder()
-        { 
-            _table = new PageOrder[3];
-            DOWN_THEN_OVER = new PageOrder(1);
-            OVER_THEN_DOWN = new PageOrder(2);
-        }
-
-        private PageOrder(int order)
+    public int Value
+    {
+        get
         {
-            this.order = order;
-            _table[order] = this;
-        }
-
-        public int Value
-        {
-            get
-            {
-                return order;
-            }
-        }
-
-        private static readonly PageOrder[] _table;
-
-        public static PageOrder ValueOf(int value)
-        {
-            return _table[value];
+            return order;
         }
     }
 
+    private static readonly PageOrder[] _table;
+
+    public static PageOrder ValueOf(int value)
+    {
+        return _table[value];
+    }
 }

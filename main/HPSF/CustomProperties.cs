@@ -19,6 +19,7 @@ using System;
 using System.Collections.Generic;
 using NPOI.HPSF.Wellknown;
 using NPOI.Util;
+using NPOI.Util.Collections.BidirectionalDictionary;
 
 namespace NPOI.HPSF;
 
