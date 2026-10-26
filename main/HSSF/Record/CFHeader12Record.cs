@@ -1,4 +1,4 @@
-/* ====================================================================
+﻿/* ====================================================================
    Licensed to the Apache Software Foundation (ASF) under one or more
    contributor license agreements.  See the NOTICE file distributed with
    this work for Additional information regarding copyright ownership.
@@ -15,98 +15,97 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.HSSF.Record
+namespace NPOI.HSSF.Record;
+
+using System;
+
+using NPOI.HSSF.Record.Common;
+using NPOI.SS.Util;
+using NPOI.Util;
+
+/**
+ * Conditional Formatting Header v12 record CFHEADER12 (0x0879),
+ *  for conditional formattings introduced in Excel 2007 and newer.
+ */
+public class CFHeader12Record : CFHeaderBase, IFutureRecord, ICloneable
 {
-    using System;
+    public static short sid = 0x0879;
 
-    using NPOI.HSSF.Record.Common;
-    using NPOI.SS.Util;
-    using NPOI.Util;
+    private FtrHeader futureHeader;
 
-    /**
-     * Conditional Formatting Header v12 record CFHEADER12 (0x0879),
-     *  for conditional formattings introduced in Excel 2007 and newer.
-     */
-    public class CFHeader12Record : CFHeaderBase, IFutureRecord, ICloneable
+    /** Creates new CFHeaderRecord */
+    public CFHeader12Record()
     {
-        public static short sid = 0x0879;
-
-        private FtrHeader futureHeader;
-
-        /** Creates new CFHeaderRecord */
-        public CFHeader12Record()
-        {
-            CreateEmpty();
-            futureHeader = new FtrHeader();
-            futureHeader.RecordType = (/*setter*/sid);
-        }
-        public CFHeader12Record(CellRangeAddress[] regions, int nRules)
-                : base(regions, nRules)
-        {
-            ;
-            futureHeader = new FtrHeader();
-            futureHeader.RecordType = (/*setter*/sid);
-        }
-        public CFHeader12Record(RecordInputStream in1)
-        {
-            futureHeader = new FtrHeader(in1);
-            Read(in1);
-        }
+        CreateEmpty();
+        futureHeader = new FtrHeader();
+        futureHeader.RecordType = (/*setter*/sid);
+    }
+    public CFHeader12Record(CellRangeAddress[] regions, int nRules)
+            : base(regions, nRules)
+    {
+        ;
+        futureHeader = new FtrHeader();
+        futureHeader.RecordType = (/*setter*/sid);
+    }
+    public CFHeader12Record(RecordInputStream in1)
+    {
+        futureHeader = new FtrHeader(in1);
+        Read(in1);
+    }
 
 
-        protected override string RecordName
+    protected override string RecordName
+    {
+        get
         {
-            get
-            {
-                return "CFHEADER12";
-            }
+            return "CFHEADER12";
+        }
+    }
+
+    protected override int DataSize
+    {
+        get
+        {
+            return FtrHeader.GetDataSize() + base.DataSize;
         }
 
-        protected override int DataSize
-        {
-            get
-            {
-                return FtrHeader.GetDataSize() + base.DataSize;
-            }
+    }
+    public override void Serialize(ILittleEndianOutput out1)
+    {
+        // Sync the associated range
+        futureHeader.AssociatedRange = (EnclosingCellRange);
+        // Write the future header first
+        futureHeader.Serialize(out1);
+        // Then the rest of the CF Header details
+        base.Serialize(out1);
+    }
 
-        }
-        public override void Serialize(ILittleEndianOutput out1)
+    public override short Sid
+    {
+        get
         {
-            // Sync the associated range
-            futureHeader.AssociatedRange = (EnclosingCellRange);
-            // Write the future header first
-            futureHeader.Serialize(out1);
-            // Then the rest of the CF Header details
-            base.Serialize(out1);
+            return sid;
         }
+    }
 
-        public override short Sid
-        {
-            get
-            {
-                return sid;
-            }
-        }
+    public short GetFutureRecordType()
+    {
+        return futureHeader.RecordType;
+    }
+    public FtrHeader GetFutureHeader()
+    {
+        return futureHeader;
+    }
+    public CellRangeAddress GetAssociatedRange()
+    {
+        return futureHeader.AssociatedRange;
+    }
 
-        public short GetFutureRecordType()
-        {
-            return futureHeader.RecordType;
-        }
-        public FtrHeader GetFutureHeader()
-        {
-            return futureHeader;
-        }
-        public CellRangeAddress GetAssociatedRange()
-        {
-            return futureHeader.AssociatedRange;
-        }
-
-        public override object Clone()
-        {
-            CFHeader12Record result = new CFHeader12Record();
-            result.futureHeader = (FtrHeader)futureHeader.Clone();
-            base.CopyTo(result);
-            return result;
-        }
+    public override object Clone()
+    {
+        CFHeader12Record result = new CFHeader12Record();
+        result.futureHeader = (FtrHeader)futureHeader.Clone();
+        base.CopyTo(result);
+        return result;
     }
 }

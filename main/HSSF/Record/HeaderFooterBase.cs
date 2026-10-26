@@ -1,4 +1,4 @@
-/* ====================================================================
+﻿/* ====================================================================
    Licensed to the Apache Software Foundation (ASF) under one or more
    contributor license agreements.  See the NOTICE file distributed with
    this work for Additional information regarding copyright ownership.
@@ -15,124 +15,123 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.HSSF.Record
+namespace NPOI.HSSF.Record;
+
+using System;
+using NPOI.Util;
+
+/**
+ * Common header/footer base class
+ *
+ * @author Josh Micich
+ */
+public abstract class HeaderFooterBase : StandardRecord
 {
-    using System;
-    using NPOI.Util;
+    private bool field_2_hasMultibyte;
+    private String field_3_text;
 
-    /**
-     * Common header/footer base class
-     *
-     * @author Josh Micich
-     */
-    public abstract class HeaderFooterBase : StandardRecord
+    protected HeaderFooterBase(String text)
     {
-        private bool field_2_hasMultibyte;
-        private String field_3_text;
+        Text=(text);
+    }
 
-        protected HeaderFooterBase(String text)
+    protected HeaderFooterBase(RecordInputStream in1)
+    {
+        if (in1.Remaining > 0)
         {
-            Text=(text);
-        }
-
-        protected HeaderFooterBase(RecordInputStream in1)
-        {
-            if (in1.Remaining > 0)
-            {
-                int field_1_footer_len = in1.ReadShort();
-                //61287 -- if the footer_len == 0, there may not be a multibyte flag
+            int field_1_footer_len = in1.ReadShort();
+            //61287 -- if the footer_len == 0, there may not be a multibyte flag
 			    if (field_1_footer_len == 0)
-                {
+            {
 				    field_3_text = "";
 				    if (in1.Remaining == 0)
-                    {
+                {
 					    return;
 				    }
 			    }
-                field_2_hasMultibyte = in1.ReadByte() != 0x00;
+            field_2_hasMultibyte = in1.ReadByte() != 0x00;
 
-                if (field_2_hasMultibyte)
-                {
-                    field_3_text = in1.ReadUnicodeLEString(field_1_footer_len);
-                }
-                else
-                {
-                    field_3_text = in1.ReadCompressedUnicode(field_1_footer_len);
-                }
+            if (field_2_hasMultibyte)
+            {
+                field_3_text = in1.ReadUnicodeLEString(field_1_footer_len);
             }
             else
             {
-                // Note - this is unusual for BIFF records in general, but normal for header / footer records:
-                // when the text is empty string, the whole record is empty (just the 4 byte BIFF header)
-                field_3_text = "";
+                field_3_text = in1.ReadCompressedUnicode(field_1_footer_len);
             }
         }
-
-
-        /**
-         * get the length of the footer string
-         *
-         * @return length of the footer string
-         */
-        private int TextLength
+        else
         {
-            get
+            // Note - this is unusual for BIFF records in general, but normal for header / footer records:
+            // when the text is empty string, the whole record is empty (just the 4 byte BIFF header)
+            field_3_text = "";
+        }
+    }
+
+
+    /**
+     * get the length of the footer string
+     *
+     * @return length of the footer string
+     */
+    private int TextLength
+    {
+        get
+        {
+            return field_3_text.Length;
+        }
+    }
+
+    public String Text
+    {
+        get
+        {
+            return field_3_text;
+        }
+        set 
+        {
+            if (value == null)
             {
-                return field_3_text.Length;
+                throw new ArgumentException("text must not be null");
+            }
+            field_2_hasMultibyte = StringUtil.HasMultibyte(value);
+            field_3_text = value;
+
+            // Check it'll fit into the space in the record
+            if (this.DataSize > RecordInputStream.MAX_RECORD_DATA_SIZE)
+            {
+                throw new ArgumentException("Header/Footer string too long (limit is "
+                        + RecordInputStream.MAX_RECORD_DATA_SIZE + " bytes)");
+            }               
+        }
+    }
+
+    public override void Serialize(ILittleEndianOutput out1)
+    {
+        if (TextLength > 0)
+        {
+            out1.WriteShort(TextLength);
+            out1.WriteByte(field_2_hasMultibyte ? 0x01 : 0x00);
+            if (field_2_hasMultibyte)
+            {
+                StringUtil.PutUnicodeLE(field_3_text, out1);
+            }
+            else
+            {
+                StringUtil.PutCompressedUnicode(field_3_text, out1);
             }
         }
+    }
 
-        public String Text
+    protected override int DataSize
+    {
+        get
         {
-            get
+            if (TextLength< 1)
             {
-                return field_3_text;
+                return 0;
             }
-            set 
-            {
-                if (value == null)
-                {
-                    throw new ArgumentException("text must not be null");
-                }
-                field_2_hasMultibyte = StringUtil.HasMultibyte(value);
-                field_3_text = value;
-
-                // Check it'll fit into the space in the record
-                if (this.DataSize > RecordInputStream.MAX_RECORD_DATA_SIZE)
-                {
-                    throw new ArgumentException("Header/Footer string too long (limit is "
-                            + RecordInputStream.MAX_RECORD_DATA_SIZE + " bytes)");
-                }               
-            }
-        }
-
-        public override void Serialize(ILittleEndianOutput out1)
-        {
-            if (TextLength > 0)
-            {
-                out1.WriteShort(TextLength);
-                out1.WriteByte(field_2_hasMultibyte ? 0x01 : 0x00);
-                if (field_2_hasMultibyte)
-                {
-                    StringUtil.PutUnicodeLE(field_3_text, out1);
-                }
-                else
-                {
-                    StringUtil.PutCompressedUnicode(field_3_text, out1);
-                }
-            }
-        }
-
-        protected override int DataSize
-        {
-            get
-            {
-                if (TextLength< 1)
-                {
-                    return 0;
-                }
-                return 3 + TextLength * (field_2_hasMultibyte ? 2 : 1);
-            }
+            return 3 + TextLength * (field_2_hasMultibyte ? 2 : 1);
         }
     }
 }

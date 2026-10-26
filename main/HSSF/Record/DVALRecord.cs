@@ -1,4 +1,4 @@
-/* ====================================================================
+﻿/* ====================================================================
    Copyright 2002-2004   Apache Software Foundation
 
    Licensed Under the Apache License, Version 2.0 (the "License");

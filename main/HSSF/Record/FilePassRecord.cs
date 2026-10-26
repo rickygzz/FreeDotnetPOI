@@ -1,4 +1,4 @@
-/* ====================================================================
+﻿/* ====================================================================
    Licensed to the Apache Software Foundation (ASF) under one or more
    contributor license agreements.  See the NOTICE file distributed with
    this work for Additional information regarding copyright ownership.
@@ -15,129 +15,127 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.HSSF.Record
+namespace NPOI.HSSF.Record;
+
+using System;
+using NPOI.Util;
+using System.Text;
+using System.Diagnostics;
+using System.Collections.Generic;
+using System.IO;
+using NPOI.POIFS.Crypt;
+using NPOI.POIFS.Crypt.BinaryRC4;
+using NPOI.POIFS.Crypt.CryptoAPI;
+using NPOI.POIFS.Crypt.XOR;
+
+/**
+ * Title: File Pass Record (0x002F) <p>
+ *
+ * Description: Indicates that the record After this record are encrypted.
+ */
+public class FilePassRecord : StandardRecord
 {
-    using System;
-    using NPOI.Util;
-    using System.Text;
-    using System.Diagnostics;
-    using System.Collections.Generic;
-    using System.IO;
-    using NPOI.POIFS.Crypt;
-    using NPOI.POIFS.Crypt.BinaryRC4;
-    using NPOI.POIFS.Crypt.CryptoAPI;
-    using NPOI.POIFS.Crypt.XOR;
+    public const short sid = 0x002F;
+    private const int ENCRYPTION_XOR = 0;
+    private const int ENCRYPTION_OTHER = 1;
 
-    /**
-     * Title: File Pass Record (0x002F) <p>
-     *
-     * Description: Indicates that the record After this record are encrypted.
-     */
-    public class FilePassRecord : StandardRecord
+    private readonly int encryptionType;
+    private readonly EncryptionInfo encryptionInfo;
+
+    public FilePassRecord(EncryptionMode encryptionMode)
     {
-        public const short sid = 0x002F;
-        private const int ENCRYPTION_XOR = 0;
-        private const int ENCRYPTION_OTHER = 1;
+        encryptionType = (encryptionMode == EncryptionMode.XOR) ? ENCRYPTION_XOR : ENCRYPTION_OTHER;
+        encryptionInfo = new EncryptionInfo(encryptionMode);
+    }
 
-        private readonly int encryptionType;
-        private readonly EncryptionInfo encryptionInfo;
+    public FilePassRecord(RecordInputStream input)
+    {
+        encryptionType = input.ReadUShort();
 
-        public FilePassRecord(EncryptionMode encryptionMode)
+        EncryptionMode preferredMode;
+        switch (encryptionType)
         {
-            encryptionType = (encryptionMode == EncryptionMode.XOR) ? ENCRYPTION_XOR : ENCRYPTION_OTHER;
-            encryptionInfo = new EncryptionInfo(encryptionMode);
+            case ENCRYPTION_XOR:
+                preferredMode = EncryptionMode.XOR;
+                break;
+            case ENCRYPTION_OTHER:
+                preferredMode = EncryptionMode.CryptoAPI;
+                break;
+            default:
+                throw new EncryptedDocumentException("invalid encryption type");
         }
 
-        public FilePassRecord(RecordInputStream input)
+        try
         {
-            encryptionType = input.ReadUShort();
-
-            EncryptionMode preferredMode;
-            switch (encryptionType)
-            {
-                case ENCRYPTION_XOR:
-                    preferredMode = EncryptionMode.XOR;
-                    break;
-                case ENCRYPTION_OTHER:
-                    preferredMode = EncryptionMode.CryptoAPI;
-                    break;
-                default:
-                    throw new EncryptedDocumentException("invalid encryption type");
-            }
-
-            try
-            {
-                encryptionInfo = new EncryptionInfo(input, preferredMode);
-            }
-            catch (IOException e)
-            {
-                throw new EncryptedDocumentException(e);
-            }
+            encryptionInfo = new EncryptionInfo(input, preferredMode);
         }
-
-        // Replace the switch statement in Serialize with if/else, since switch requires constant values for case labels
-        public override void Serialize(ILittleEndianOutput output)
+        catch (IOException e)
         {
-            output.WriteShort(encryptionType);
-
-            byte[] data = new byte[1024];
-            var bos = new LittleEndianByteArrayOutputStream(data, 0);
-
-            if (encryptionInfo.EncryptionMode == EncryptionMode.XOR)
-            {
-                ((XOREncryptionHeader)encryptionInfo.Header).Write(bos);
-                ((XOREncryptionVerifier)encryptionInfo.Verifier).Write(bos);
-            }
-            else if (encryptionInfo.EncryptionMode == EncryptionMode.BinaryRC4)
-            {
-                output.WriteShort(encryptionInfo.VersionMajor);
-                output.WriteShort(encryptionInfo.VersionMinor);
-                ((BinaryRC4EncryptionHeader)encryptionInfo.Header).Write(bos);
-                ((BinaryRC4EncryptionVerifier)encryptionInfo.Verifier).Write(bos);
-            }
-            else if (encryptionInfo.EncryptionMode == EncryptionMode.CryptoAPI)
-            {
-                output.WriteShort(encryptionInfo.VersionMajor);
-                output.WriteShort(encryptionInfo.VersionMinor);
-                output.WriteInt(encryptionInfo.EncryptionFlags);
-                ((CryptoAPIEncryptionHeader)encryptionInfo.Header).Write(bos);
-                ((CryptoAPIEncryptionVerifier)encryptionInfo.Verifier).Write(bos);
-            }
-            else
-            {
-                throw new EncryptedDocumentException("not supported");
-            }
-
-            output.Write(data, 0, bos.WriteIndex);
-        }
-
-        protected override int DataSize
-        {
-            get
-            {
-                using (MemoryStream bos = new MemoryStream())
-                using (var leos = new LittleEndianOutputStream(bos))
-                {
-                    Serialize(leos);
-                    return (int)bos.Length;
-                }
-            }
-        }
-
-        public EncryptionInfo GetEncryptionInfo()
-        {
-            return encryptionInfo;
-        }
-
-        public override short Sid
-        {
-            get { return sid; }
-        }
-
-        public override String ToString()
-        {
-            return $"[FILEPASS] encryptionType={encryptionType} encryptionInfo={encryptionInfo}";
+            throw new EncryptedDocumentException(e);
         }
     }
 
+    // Replace the switch statement in Serialize with if/else, since switch requires constant values for case labels
+    public override void Serialize(ILittleEndianOutput output)
+    {
+        output.WriteShort(encryptionType);
+
+        byte[] data = new byte[1024];
+        var bos = new LittleEndianByteArrayOutputStream(data, 0);
+
+        if (encryptionInfo.EncryptionMode == EncryptionMode.XOR)
+        {
+            ((XOREncryptionHeader)encryptionInfo.Header).Write(bos);
+            ((XOREncryptionVerifier)encryptionInfo.Verifier).Write(bos);
+        }
+        else if (encryptionInfo.EncryptionMode == EncryptionMode.BinaryRC4)
+        {
+            output.WriteShort(encryptionInfo.VersionMajor);
+            output.WriteShort(encryptionInfo.VersionMinor);
+            ((BinaryRC4EncryptionHeader)encryptionInfo.Header).Write(bos);
+            ((BinaryRC4EncryptionVerifier)encryptionInfo.Verifier).Write(bos);
+        }
+        else if (encryptionInfo.EncryptionMode == EncryptionMode.CryptoAPI)
+        {
+            output.WriteShort(encryptionInfo.VersionMajor);
+            output.WriteShort(encryptionInfo.VersionMinor);
+            output.WriteInt(encryptionInfo.EncryptionFlags);
+            ((CryptoAPIEncryptionHeader)encryptionInfo.Header).Write(bos);
+            ((CryptoAPIEncryptionVerifier)encryptionInfo.Verifier).Write(bos);
+        }
+        else
+        {
+            throw new EncryptedDocumentException("not supported");
+        }
+
+        output.Write(data, 0, bos.WriteIndex);
+    }
+
+    protected override int DataSize
+    {
+        get
+        {
+            using (MemoryStream bos = new MemoryStream())
+            using (var leos = new LittleEndianOutputStream(bos))
+            {
+                Serialize(leos);
+                return (int)bos.Length;
+            }
+        }
+    }
+
+    public EncryptionInfo GetEncryptionInfo()
+    {
+        return encryptionInfo;
+    }
+
+    public override short Sid
+    {
+        get { return sid; }
+    }
+
+    public override String ToString()
+    {
+        return $"[FILEPASS] encryptionType={encryptionType} encryptionInfo={encryptionInfo}";
+    }
 }

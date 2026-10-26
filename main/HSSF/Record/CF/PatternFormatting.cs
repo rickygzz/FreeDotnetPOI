@@ -1,4 +1,4 @@
-
+﻿
 /* ====================================================================
    Licensed to the Apache Software Foundation (ASF) Under one or more
    contributor license agreements.  See the NOTICE file distributed with
@@ -23,132 +23,131 @@
  * Created on January 22, 2008, 10:05 PM
  */
 
-namespace NPOI.HSSF.Record.CF
+namespace NPOI.HSSF.Record.CF;
+
+using System;
+using System.Text;
+using NPOI.HSSF.Record;
+using NPOI.SS.UserModel;
+using NPOI.Util;
+
+
+/**
+ * Pattern Formatting Block of the Conditional Formatting Rule Record.
+ * 
+ * @author Dmitriy Kumshayev
+ */
+
+public class PatternFormatting : ICloneable
 {
-    using System;
-    using System.Text;
-    using NPOI.HSSF.Record;
-    using NPOI.SS.UserModel;
-    using NPOI.Util;
+    public PatternFormatting()
+    {
+        field_15_pattern_style = (short)0;
+        field_16_pattern_color_indexes = (short)0;
+    }
+
+    /** Creates new FontFormatting */
+    public PatternFormatting(RecordInputStream in1)
+    {
+        field_15_pattern_style = in1.ReadShort();
+        field_16_pattern_color_indexes = in1.ReadShort();
+    }
+    public int DataLength
+    {
+        get
+        {
+            return 4;
+        }
+    }
+    // PATTERN FORMATING BLOCK
+    // For Pattern Styles see constants at HSSFCellStyle (from NO_Fill to LEAST_DOTS)
+    private short field_15_pattern_style;
+    private static BitField FillPatternStyle = BitFieldFactory.GetInstance(0xFC00);
+
+    private short field_16_pattern_color_indexes;
+    private static BitField patternColorIndex = BitFieldFactory.GetInstance(0x007F);
+    private static BitField patternBackgroundColorIndex = BitFieldFactory.GetInstance(0x3F80);
+
+    /**
+     * Get the Fill pattern 
+     * @return Fill pattern
+     */
+
+    public FillPattern FillPattern {
+        get {
+            return (FillPattern) FillPatternStyle.GetShortValue (field_15_pattern_style);
+        }
+        set {
+            field_15_pattern_style = FillPatternStyle.SetShortValue (field_15_pattern_style, (short) value); 
+        }
+    }
 
 
     /**
-     * Pattern Formatting Block of the Conditional Formatting Rule Record.
-     * 
-     * @author Dmitriy Kumshayev
+     * Get the background Fill color
+     * @see org.apache.poi.hssf.usermodel.HSSFPalette#GetColor(short)
+     * @return Fill color
      */
-
-    public class PatternFormatting : ICloneable
+    public short FillBackgroundColor
     {
-        public PatternFormatting()
+        get
         {
-            field_15_pattern_style = (short)0;
-            field_16_pattern_color_indexes = (short)0;
+            return patternBackgroundColorIndex.GetShortValue(field_16_pattern_color_indexes);
         }
+        set { 
+            field_16_pattern_color_indexes = 
+                patternBackgroundColorIndex.SetShortValue(field_16_pattern_color_indexes, value); 
+        }
+    }
 
-        /** Creates new FontFormatting */
-        public PatternFormatting(RecordInputStream in1)
+    /**
+     * Get the foreground Fill color
+     * @see org.apache.poi.hssf.usermodel.HSSFPalette#GetColor(short)
+     * @return Fill color
+     */
+    public short FillForegroundColor
+    {
+        get
         {
-            field_15_pattern_style = in1.ReadShort();
-            field_16_pattern_color_indexes = in1.ReadShort();
+            return patternColorIndex.GetShortValue(field_16_pattern_color_indexes);
         }
-        public int DataLength
+        set 
         {
-            get
-            {
-                return 4;
-            }
+            field_16_pattern_color_indexes = patternColorIndex.SetShortValue(field_16_pattern_color_indexes, value);
         }
-        // PATTERN FORMATING BLOCK
-        // For Pattern Styles see constants at HSSFCellStyle (from NO_Fill to LEAST_DOTS)
-        private short field_15_pattern_style;
-        private static BitField FillPatternStyle = BitFieldFactory.GetInstance(0xFC00);
+    }
 
-        private short field_16_pattern_color_indexes;
-        private static BitField patternColorIndex = BitFieldFactory.GetInstance(0x007F);
-        private static BitField patternBackgroundColorIndex = BitFieldFactory.GetInstance(0x3F80);
+    public override String ToString()
+    {
+        StringBuilder buffer = new StringBuilder();
+        buffer.Append("    [Pattern Formatting]\n");
+        buffer.Append("          .Fillpattern= ").Append(StringUtil.ToHexString((int) FillPattern)).Append("\n");
+        buffer.Append("          .fgcoloridx= ").Append(StringUtil.ToHexString(FillForegroundColor)).Append("\n");
+        buffer.Append("          .bgcoloridx= ").Append(StringUtil.ToHexString(FillBackgroundColor)).Append("\n");
+        buffer.Append("    [/Pattern Formatting]\n");
+        return buffer.ToString();
+    }
 
-        /**
-         * Get the Fill pattern 
-         * @return Fill pattern
-         */
+    public Object Clone()
+    {
+        PatternFormatting rec = new PatternFormatting();
+        rec.field_15_pattern_style = field_15_pattern_style;
+        rec.field_16_pattern_color_indexes = field_16_pattern_color_indexes;
+        return rec;
+    }
 
-        public FillPattern FillPattern {
-            get {
-                return (FillPattern) FillPatternStyle.GetShortValue (field_15_pattern_style);
-            }
-            set {
-                field_15_pattern_style = FillPatternStyle.SetShortValue (field_15_pattern_style, (short) value); 
-            }
-        }
+    public int Serialize(int offset, byte[] data)
+    {
+        LittleEndian.PutShort(data, offset, field_15_pattern_style);
+        offset += 2;
+        LittleEndian.PutShort(data, offset, field_16_pattern_color_indexes);
+        offset += 2;
+        return 4;
+    }
 
-
-        /**
-         * Get the background Fill color
-         * @see org.apache.poi.hssf.usermodel.HSSFPalette#GetColor(short)
-         * @return Fill color
-         */
-        public short FillBackgroundColor
-        {
-            get
-            {
-                return patternBackgroundColorIndex.GetShortValue(field_16_pattern_color_indexes);
-            }
-            set { 
-                field_16_pattern_color_indexes = 
-                    patternBackgroundColorIndex.SetShortValue(field_16_pattern_color_indexes, value); 
-            }
-        }
-
-        /**
-         * Get the foreground Fill color
-         * @see org.apache.poi.hssf.usermodel.HSSFPalette#GetColor(short)
-         * @return Fill color
-         */
-        public short FillForegroundColor
-        {
-            get
-            {
-                return patternColorIndex.GetShortValue(field_16_pattern_color_indexes);
-            }
-            set 
-            {
-                field_16_pattern_color_indexes = patternColorIndex.SetShortValue(field_16_pattern_color_indexes, value);
-            }
-        }
-
-        public override String ToString()
-        {
-            StringBuilder buffer = new StringBuilder();
-            buffer.Append("    [Pattern Formatting]\n");
-            buffer.Append("          .Fillpattern= ").Append(StringUtil.ToHexString((int) FillPattern)).Append("\n");
-            buffer.Append("          .fgcoloridx= ").Append(StringUtil.ToHexString(FillForegroundColor)).Append("\n");
-            buffer.Append("          .bgcoloridx= ").Append(StringUtil.ToHexString(FillBackgroundColor)).Append("\n");
-            buffer.Append("    [/Pattern Formatting]\n");
-            return buffer.ToString();
-        }
-
-        public Object Clone()
-        {
-            PatternFormatting rec = new PatternFormatting();
-            rec.field_15_pattern_style = field_15_pattern_style;
-            rec.field_16_pattern_color_indexes = field_16_pattern_color_indexes;
-            return rec;
-        }
-
-        public int Serialize(int offset, byte[] data)
-        {
-            LittleEndian.PutShort(data, offset, field_15_pattern_style);
-            offset += 2;
-            LittleEndian.PutShort(data, offset, field_16_pattern_color_indexes);
-            offset += 2;
-            return 4;
-        }
-
-        public void Serialize(ILittleEndianOutput out1)
-        {
-            out1.WriteShort(field_15_pattern_style);
-            out1.WriteShort(field_16_pattern_color_indexes);
-        }
+    public void Serialize(ILittleEndianOutput out1)
+    {
+        out1.WriteShort(field_15_pattern_style);
+        out1.WriteShort(field_16_pattern_color_indexes);
     }
 }

@@ -1,4 +1,4 @@
-/* ====================================================================
+﻿/* ====================================================================
    Licensed to the Apache Software Foundation (ASF) Under one or more
    contributor license agreements.  See the NOTICE file distributed with
    this work for Additional information regarding copyright ownership.
@@ -14,90 +14,89 @@
    See the License for the specific language governing permissions and
    limitations Under the License.
 ==================================================================== */
-namespace NPOI.HSSF.Record
+namespace NPOI.HSSF.Record;
+
+
+using System;
+using NPOI.Util;
+/**
+ * DrawingRecord (0x00EC)<p/>
+ *
+ */
+public class DrawingRecord : StandardRecord, ICloneable
 {
+    public const short sid = 0xEC;
+    private static byte[] EMPTY_BYTE_ARRAY = [];
+    private byte[] recordData;
+    private byte[] contd;
 
-    using System;
-    using NPOI.Util;
-    /**
-     * DrawingRecord (0x00EC)<p/>
-     *
-     */
-    public class DrawingRecord : StandardRecord, ICloneable
+    public DrawingRecord()
     {
-        public const short sid = 0xEC;
-        private static byte[] EMPTY_BYTE_ARRAY = [];
-        private byte[] recordData;
-        private byte[] contd;
+        recordData = EMPTY_BYTE_ARRAY;
+    }
 
-        public DrawingRecord()
-        {
-            recordData = EMPTY_BYTE_ARRAY;
-        }
+    public DrawingRecord(RecordInputStream in1)
+    {
+        recordData = in1.ReadRemainder();
+    }
+    [Obsolete]
+    public void ProcessContinueRecord(byte[] record)
+    {
+        //don't merge continue record with the drawing record, it must be Serialized Separately
+        contd = record;
+    }
 
-        public DrawingRecord(RecordInputStream in1)
-        {
-            recordData = in1.ReadRemainder();
-        }
-        [Obsolete]
-        public void ProcessContinueRecord(byte[] record)
-        {
-            //don't merge continue record with the drawing record, it must be Serialized Separately
-            contd = record;
-        }
+    public override void Serialize(ILittleEndianOutput out1)
+    {
+        out1.Write(recordData);
+    }
 
-        public override void Serialize(ILittleEndianOutput out1)
+    protected override int DataSize
+    {
+        get
         {
-            out1.Write(recordData);
+            return recordData.Length;
         }
+    }
 
-        protected override int DataSize
+    public override short Sid
+    {
+        get { return sid; }
+    }
+    public byte[] RecordData
+    {
+        get
         {
-            get
-            {
-                return recordData.Length;
-            }
+            return recordData;
         }
+    }
+    public void SetData(byte[] thedata)
+    {
+        if (thedata == null)
+        {
+            throw new ArgumentException("data must not be null");
+        }
+        recordData = thedata;
+    }
+    /**
+     * Cloning of drawing records must be executed through HSSFPatriarch, because all id's must be changed
+     * @return cloned drawing records
+     */
+    public override Object Clone()
+    {
+        DrawingRecord rec = new DrawingRecord();
 
-        public override short Sid
+        rec.recordData = (byte[])recordData.Clone();// new byte[recordData.Length];
+        if (contd != null)
         {
-            get { return sid; }
-        }
-        public byte[] RecordData
-        {
-            get
-            {
-                return recordData;
-            }
-        }
-        public void SetData(byte[] thedata)
-        {
-            if (thedata == null)
-            {
-                throw new ArgumentException("data must not be null");
-            }
-            recordData = thedata;
-        }
-        /**
-         * Cloning of drawing records must be executed through HSSFPatriarch, because all id's must be changed
-         * @return cloned drawing records
-         */
-        public override Object Clone()
-        {
-            DrawingRecord rec = new DrawingRecord();
-
-            rec.recordData = (byte[])recordData.Clone();// new byte[recordData.Length];
-            if (contd != null)
-            {
-                rec.contd = (byte[])contd.Clone();
-            }
-
-            return rec;
+            rec.contd = (byte[])contd.Clone();
         }
 
-        public override String ToString()
-        {
-            return "DrawingRecord[" + recordData.Length + "]";
-        }
+        return rec;
+    }
+
+    public override String ToString()
+    {
+        return "DrawingRecord[" + recordData.Length + "]";
     }
 }

@@ -1,4 +1,4 @@
-/* ====================================================================
+﻿/* ====================================================================
    Licensed to the Apache Software Foundation (ASF) under one or more
    contributor license agreements.  See the NOTICE file distributed with
    this work for Additional information regarding copyright ownership.
@@ -15,58 +15,56 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.HSSF.Record.Common
+namespace NPOI.HSSF.Record.Common;
+
+using System;
+using System.Text;
+using NPOI.HSSF.Record;
+using NPOI.Util;
+
+/**
+ * Title: FeatSmartTag (Smart Tag Shared Feature) common record part
+ * 
+ * This record part specifies Smart Tag data for a sheet, stored as part
+ *  of a Shared Feature. It can be found in records such as  {@link FeatRecord}.
+ * It is made up of a hash, and a Set of Factoid Data that Makes up
+ *  the smart tags.
+ * For more details, see page 669 of the Excel binary file
+ *  format documentation.
+ */
+public class FeatSmartTag : SharedFeature
 {
-    using System;
-    using System.Text;
-    using NPOI.HSSF.Record;
-    using NPOI.Util;
+    // TODO - process
+    private byte[] data;
 
-    /**
-     * Title: FeatSmartTag (Smart Tag Shared Feature) common record part
-     * 
-     * This record part specifies Smart Tag data for a sheet, stored as part
-     *  of a Shared Feature. It can be found in records such as  {@link FeatRecord}.
-     * It is made up of a hash, and a Set of Factoid Data that Makes up
-     *  the smart tags.
-     * For more details, see page 669 of the Excel binary file
-     *  format documentation.
-     */
-    public class FeatSmartTag : SharedFeature
+    public FeatSmartTag()
     {
-        // TODO - process
-        private byte[] data;
+        data = [];
+    }
 
-        public FeatSmartTag()
-        {
-            data = [];
-        }
+    public FeatSmartTag(RecordInputStream in1)
+    {
+        data = in1.ReadRemainder();
+    }
 
-        public FeatSmartTag(RecordInputStream in1)
-        {
-            data = in1.ReadRemainder();
-        }
+    public override String ToString()
+    {
+        StringBuilder buffer = new StringBuilder();
+        buffer.Append(" [FEATURE SMART TAGS]\n");
+        buffer.Append(" [/FEATURE SMART TAGS]\n");
+        return buffer.ToString();
+    }
 
-        public override String ToString()
+    public int DataSize
+    {
+        get
         {
-            StringBuilder buffer = new StringBuilder();
-            buffer.Append(" [FEATURE SMART TAGS]\n");
-            buffer.Append(" [/FEATURE SMART TAGS]\n");
-            return buffer.ToString();
-        }
-
-        public int DataSize
-        {
-            get
-            {
-                return data.Length;
-            }
-        }
-
-        public void Serialize(ILittleEndianOutput out1)
-        {
-            out1.Write(data);
+            return data.Length;
         }
     }
 
+    public void Serialize(ILittleEndianOutput out1)
+    {
+        out1.Write(data);
+    }
 }

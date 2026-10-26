@@ -1,4 +1,4 @@
-
+﻿
 /* ====================================================================
    Licensed to the Apache Software Foundation (ASF) Under one or more
    contributor license agreements.  See the NOTICE file distributed with
@@ -18,87 +18,86 @@
 
 
 
-namespace NPOI.HSSF.Record
+namespace NPOI.HSSF.Record;
+
+using System;
+using System.Text;
+using NPOI.Util;
+
+
+
+/**
+ * The Group marker record is used as a position holder for Groups.
+
+ * @author Glen Stampoultzis (glens at apache.org)
+ */
+public class GroupMarkerSubRecord : SubRecord, ICloneable
 {
-    using System;
-    using System.Text;
-    using NPOI.Util;
+    //arbitrarily selected; may need to increase
+    private static int MAX_RECORD_LENGTH = 100_000;
+    public const short sid = 0x06;
 
+    private byte[] reserved;    // would really love to know what goes in here.
+    private static byte[] EMPTY_BYTE_ARRAY = [];
 
+    public GroupMarkerSubRecord()
+    {
+        reserved = EMPTY_BYTE_ARRAY;
+    }
 
     /**
-     * The Group marker record is used as a position holder for Groups.
-
-     * @author Glen Stampoultzis (glens at apache.org)
+     * Constructs a Group marker record and Sets its fields appropriately.
+     *
+     * @param in the RecordInputstream to Read the record from
      */
-    public class GroupMarkerSubRecord : SubRecord, ICloneable
+
+    public GroupMarkerSubRecord(ILittleEndianInput in1, int size)
     {
-        //arbitrarily selected; may need to increase
-        private static int MAX_RECORD_LENGTH = 100_000;
-        public const short sid = 0x06;
-
-        private byte[] reserved;    // would really love to know what goes in here.
-        private static byte[] EMPTY_BYTE_ARRAY = [];
-
-        public GroupMarkerSubRecord()
-        {
-            reserved = EMPTY_BYTE_ARRAY;
-        }
-
-        /**
-         * Constructs a Group marker record and Sets its fields appropriately.
-         *
-         * @param in the RecordInputstream to Read the record from
-         */
-
-        public GroupMarkerSubRecord(ILittleEndianInput in1, int size)
-        {
-            byte[] buf = IOUtils.SafelyAllocate(size, MAX_RECORD_LENGTH);
-            in1.ReadFully(buf);
-            reserved = buf;
-        }
-
-        public override String ToString()
-        {
-            StringBuilder buffer = new StringBuilder();
-
-            String nl = Environment.NewLine;
-            buffer.Append("[ftGmo]" + nl);
-            buffer.Append("  reserved = ").Append(HexDump.ToHex(reserved)).Append(nl);
-            buffer.Append("[/ftGmo]" + nl);
-            return buffer.ToString();
-        }
-
-        public override void Serialize(ILittleEndianOutput out1)
-        {
-            out1.WriteShort(sid);
-            out1.WriteShort(reserved.Length);
-            out1.Write(reserved);
-        }
-
-        /**
-         * Size of record (exluding 4 byte header)
-         */
-        public override int DataSize
-        {
-            get { return reserved.Length; }
-        }
-
-        public override short Sid
-        {
-            get { return sid; }
-        }
-
-        public override Object Clone()
-        {
-            GroupMarkerSubRecord rec = new GroupMarkerSubRecord();
-            rec.reserved = new byte[reserved.Length];
-            for (int i = 0; i < reserved.Length; i++)
-                rec.reserved[i] = reserved[i];
-            return rec;
-        }
-
-
-
+        byte[] buf = IOUtils.SafelyAllocate(size, MAX_RECORD_LENGTH);
+        in1.ReadFully(buf);
+        reserved = buf;
     }
+
+    public override String ToString()
+    {
+        StringBuilder buffer = new StringBuilder();
+
+        String nl = Environment.NewLine;
+        buffer.Append("[ftGmo]" + nl);
+        buffer.Append("  reserved = ").Append(HexDump.ToHex(reserved)).Append(nl);
+        buffer.Append("[/ftGmo]" + nl);
+        return buffer.ToString();
+    }
+
+    public override void Serialize(ILittleEndianOutput out1)
+    {
+        out1.WriteShort(sid);
+        out1.WriteShort(reserved.Length);
+        out1.Write(reserved);
+    }
+
+    /**
+     * Size of record (exluding 4 byte header)
+     */
+    public override int DataSize
+    {
+        get { return reserved.Length; }
+    }
+
+    public override short Sid
+    {
+        get { return sid; }
+    }
+
+    public override Object Clone()
+    {
+        GroupMarkerSubRecord rec = new GroupMarkerSubRecord();
+        rec.reserved = new byte[reserved.Length];
+        for (int i = 0; i < reserved.Length; i++)
+            rec.reserved[i] = reserved[i];
+        return rec;
+    }
+
+
+
 }

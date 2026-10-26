@@ -1,4 +1,4 @@
-/* ====================================================================
+﻿/* ====================================================================
    Licensed to the Apache Software Foundation (ASF) under one or more
    contributor license agreements.  See the NOTICE file distributed with
    this work for Additional information regarding copyright ownership.
@@ -15,161 +15,160 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.HSSF.Record.CF
+namespace NPOI.HSSF.Record.CF;
+
+using System;
+using System.Text;
+using NPOI.SS.Formula;
+using NPOI.SS.Formula.PTG;
+using NPOI.SS.UserModel;
+using NPOI.Util;
+
+/**
+ * Threshold / value (CFVO) for Changes in Conditional Formatting
+ */
+public abstract class Threshold
 {
-    using System;
-    using System.Text;
-    using NPOI.SS.Formula;
-    using NPOI.SS.Formula.PTG;
-    using NPOI.SS.UserModel;
-    using NPOI.Util;
+    private byte type;
+    private Formula formula;
+    private double? value;
 
-    /**
-     * Threshold / value (CFVO) for Changes in Conditional Formatting
-     */
-    public abstract class Threshold
+    protected Threshold()
     {
-        private byte type;
-        private Formula formula;
-        private double? value;
+        type = (byte)RangeType.NUMBER.id;
+        formula = Formula.Create(null);
+        value = 0d;
+    }
 
-        protected Threshold()
+    /** Creates new Threshold */
+    protected Threshold(ILittleEndianInput in1)
+    {
+        type = (byte)in1.ReadByte();
+        short formulaLen = in1.ReadShort();
+        if (formulaLen > 0)
         {
-            type = (byte)RangeType.NUMBER.id;
+            formula = Formula.Read(formulaLen, in1);
+        }
+        else
+        {
             formula = Formula.Create(null);
-            value = 0d;
         }
+        // Value is only there for non-formula, non min/max thresholds
+        if (formulaLen == 0 && type != RangeType.MIN.id &&
+                type != RangeType.MAX.id && 
+                type != RangeType.AUTOMIN.id &&
+                type != RangeType.AUTOMAX.id)
+        {
+            value = in1.ReadDouble();
+        }
+    }
 
-        /** Creates new Threshold */
-        protected Threshold(ILittleEndianInput in1)
+    public byte Type
+    {
+        get
         {
-            type = (byte)in1.ReadByte();
-            short formulaLen = in1.ReadShort();
-            if (formulaLen > 0)
-            {
-                formula = Formula.Read(formulaLen, in1);
-            }
-            else
-            {
-                formula = Formula.Create(null);
-            }
-            // Value is only there for non-formula, non min/max thresholds
-            if (formulaLen == 0 && type != RangeType.MIN.id &&
-                    type != RangeType.MAX.id && 
-                    type != RangeType.AUTOMIN.id &&
-                    type != RangeType.AUTOMAX.id)
-            {
-                value = in1.ReadDouble();
-            }
+            return type;
         }
+        set
+        {
+            this.type = value;
 
-        public byte Type
-        {
-            get
+            // Ensure the value presence / absence is consistent for the new type
+            if (type == RangeType.MIN.id || type == RangeType.MAX.id ||
+                   type == RangeType.FORMULA.id || 
+                   type== RangeType.AUTOMIN.id ||
+                   type==RangeType.AUTOMAX.id)
             {
-                return type;
+                this.value = null;
             }
-            set
+            else if (this.value == null)
             {
-                this.type = value;
+                this.value = 0d;
+            }
+        }
+    }
+    public void SetType(int type)
+    {
+        this.type = (byte)type;
+    }
 
-                // Ensure the value presence / absence is consistent for the new type
-                if (type == RangeType.MIN.id || type == RangeType.MAX.id ||
-                       type == RangeType.FORMULA.id || 
-                       type== RangeType.AUTOMIN.id ||
-                       type==RangeType.AUTOMAX.id)
-                {
-                    this.value = null;
-                }
-                else if (this.value == null)
-                {
-                    this.value = 0d;
-                }
-            }
-        }
-        public void SetType(int type)
+    protected Formula Formula
+    {
+        get
         {
-            this.type = (byte)type;
+            return formula;
         }
-
-        protected Formula Formula
-        {
-            get
+    }
+    public Ptg[] ParsedExpression
+    {
+        get { return formula.Tokens; }
+        set {
+            formula = Formula.Create(value);
+            if (value.Length > 0)
             {
-                return formula;
+                this.value = null;
             }
         }
-        public Ptg[] ParsedExpression
-        {
-            get { return formula.Tokens; }
-            set {
-                formula = Formula.Create(value);
-                if (value.Length > 0)
-                {
-                    this.value = null;
-                }
-            }
-        }
+    }
 
-        public double? Value
+    public double? Value
+    {
+        get
         {
-            get
-            {
-                return this.value;
-            }
-            set
-            {
-                this.value = value;
-            }
+            return this.value;
         }
-
-        public virtual int DataLength
+        set
         {
-            get
-            {
-                int len = 1 + formula.EncodedSize;
-                if (value != null)
-                {
-                    len += 8;
-                }
-                return len;
-            }
-            
+            this.value = value;
         }
+    }
 
-        public override String ToString()
+    public virtual int DataLength
+    {
+        get
         {
-            StringBuilder buffer = new StringBuilder();
-            buffer.Append("    [CF Threshold]\n");
-            buffer.Append("          .type    = ").Append(HexDump.ToHex(type)).Append("\n");
-            buffer.Append("          .Formula = ").Append(Arrays.ToString(formula.Tokens)).Append("\n");
-            buffer.Append("          .value   = ").Append(value).Append("\n");
-            buffer.Append("    [/CF Threshold]\n");
-            return buffer.ToString();
-        }
-
-        public void CopyTo(Threshold rec)
-        {
-            rec.type = type;
-            rec.formula = formula;
-            rec.value = value;
-        }
-
-        public virtual void Serialize(ILittleEndianOutput out1)
-        {
-            out1.WriteByte(type);
-            if (formula.Tokens.Length == 0)
-            {
-                out1.WriteShort(0);
-            }
-            else
-            {
-                formula.Serialize(out1);
-            }
+            int len = 1 + formula.EncodedSize;
             if (value != null)
             {
-                out1.WriteDouble(value.Value);
+                len += 8;
             }
+            return len;
+        }
+        
+    }
+
+    public override String ToString()
+    {
+        StringBuilder buffer = new StringBuilder();
+        buffer.Append("    [CF Threshold]\n");
+        buffer.Append("          .type    = ").Append(HexDump.ToHex(type)).Append("\n");
+        buffer.Append("          .Formula = ").Append(Arrays.ToString(formula.Tokens)).Append("\n");
+        buffer.Append("          .value   = ").Append(value).Append("\n");
+        buffer.Append("    [/CF Threshold]\n");
+        return buffer.ToString();
+    }
+
+    public void CopyTo(Threshold rec)
+    {
+        rec.type = type;
+        rec.formula = formula;
+        rec.value = value;
+    }
+
+    public virtual void Serialize(ILittleEndianOutput out1)
+    {
+        out1.WriteByte(type);
+        if (formula.Tokens.Length == 0)
+        {
+            out1.WriteShort(0);
+        }
+        else
+        {
+            formula.Serialize(out1);
+        }
+        if (value != null)
+        {
+            out1.WriteDouble(value.Value);
         }
     }
 }

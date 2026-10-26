@@ -1,4 +1,4 @@
-/* ====================================================================
+﻿/* ====================================================================
    Licensed to the Apache Software Foundation (ASF) under one or more
    contributor license agreements.  See the NOTICE file distributed with
    this work for additional information regarding copyright ownership.
@@ -15,72 +15,71 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.HSSF.Record.Chart
+namespace NPOI.HSSF.Record.Chart;
+
+using System;
+using System.IO;
+using System.Text;
+using NPOI.Util;
+
+
+/**
+ * DATALABEXT - Chart Data Label Extension (0x086A) <br/>
+ * 
+ * @author Patrick Cheng
+ */
+public class DataLabelExtensionRecord : StandardRecord
 {
-    using System;
-    using System.IO;
-    using System.Text;
-    using NPOI.Util;
+    public static short sid = 0x086A;
 
+    private int rt;
+    private int grbitFrt;
+    private byte[] unused = new byte[8];
 
-    /**
-     * DATALABEXT - Chart Data Label Extension (0x086A) <br/>
-     * 
-     * @author Patrick Cheng
-     */
-    public class DataLabelExtensionRecord : StandardRecord
+    public DataLabelExtensionRecord(RecordInputStream in1)
     {
-        public static short sid = 0x086A;
+        rt = in1.ReadShort();
+        grbitFrt = in1.ReadShort();
+        in1.ReadFully(unused);
+    }
 
-        private int rt;
-        private int grbitFrt;
-        private byte[] unused = new byte[8];
 
-        public DataLabelExtensionRecord(RecordInputStream in1)
+    protected override int DataSize
+    {
+        get
         {
-            rt = in1.ReadShort();
-            grbitFrt = in1.ReadShort();
-            in1.ReadFully(unused);
+            return 2 + 2 + 8;
         }
+    }
 
 
-        protected override int DataSize
+    public override short Sid
+    {
+        get
         {
-            get
-            {
-                return 2 + 2 + 8;
-            }
+            return sid;
         }
+    }
 
 
-        public override short Sid
-        {
-            get
-            {
-                return sid;
-            }
-        }
+    public override void Serialize(ILittleEndianOutput out1)
+    {
+        out1.WriteShort(rt);
+        out1.WriteShort(grbitFrt);
+        out1.Write(unused);
+    }
 
 
-        public override void Serialize(ILittleEndianOutput out1)
-        {
-            out1.WriteShort(rt);
-            out1.WriteShort(grbitFrt);
-            out1.Write(unused);
-        }
+    public override String ToString()
+    {
+        StringBuilder buffer = new StringBuilder();
 
+        buffer.Append("[DATALABEXT]\n");
+        buffer.Append("    .rt      =").Append(HexDump.ShortToHex(rt)).Append('\n');
+        buffer.Append("    .grbitFrt=").Append(HexDump.ShortToHex(grbitFrt)).Append('\n');
+        buffer.Append("    .unused  =").Append(HexDump.ToHex(unused)).Append('\n');
 
-        public override String ToString()
-        {
-            StringBuilder buffer = new StringBuilder();
-
-            buffer.Append("[DATALABEXT]\n");
-            buffer.Append("    .rt      =").Append(HexDump.ShortToHex(rt)).Append('\n');
-            buffer.Append("    .grbitFrt=").Append(HexDump.ShortToHex(grbitFrt)).Append('\n');
-            buffer.Append("    .unused  =").Append(HexDump.ToHex(unused)).Append('\n');
-
-            buffer.Append("[/DATALABEXT]\n");
-            return buffer.ToString();
-        }
+        buffer.Append("[/DATALABEXT]\n");
+        return buffer.ToString();
     }
 }

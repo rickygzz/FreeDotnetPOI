@@ -1,4 +1,4 @@
-/* ====================================================================
+﻿/* ====================================================================
    Licensed to the Apache Software Foundation (ASF) Under one or more
    contributor license agreements.  See the NOTICE file distributed with
    this work for Additional information regarding copyright ownership.
@@ -15,83 +15,82 @@
    limitations Under the License.
 ==================================================================== */
 
-namespace NPOI.HSSF.Record
+namespace NPOI.HSSF.Record;
+
+
+using System;
+using System.Text;
+using NPOI.Util;
+/**
+ * XCT ?CRN Count 
+ *
+ * REFERENCE:  5.114
+ *
+ * @author Josh Micich
+ */
+public class CRNCountRecord : StandardRecord
 {
+    public const short sid = 0x59;
 
-    using System;
-    using System.Text;
-    using NPOI.Util;
-    /**
-     * XCT ?CRN Count 
-     *
-     * REFERENCE:  5.114
-     *
-     * @author Josh Micich
-     */
-    public class CRNCountRecord : StandardRecord
+    private const short DATA_SIZE = 4;
+
+
+    private int field_1_number_crn_records;
+    private int field_2_sheet_table_index;
+
+    public CRNCountRecord()
     {
-        public const short sid = 0x59;
+        throw new RuntimeException("incomplete code");
+    }
 
-        private const short DATA_SIZE = 4;
-
-
-        private int field_1_number_crn_records;
-        private int field_2_sheet_table_index;
-
-        public CRNCountRecord()
+    public CRNCountRecord(RecordInputStream in1)
+    {
+        field_1_number_crn_records = in1.ReadShort();
+        if (field_1_number_crn_records < 0)
         {
-            throw new RuntimeException("incomplete code");
+            // TODO - seems like the sign bit of this field might be used for some other purpose
+            // see example file for test case "TestBugs.test19599()"
+            field_1_number_crn_records = (short)-field_1_number_crn_records;
         }
+        field_2_sheet_table_index = in1.ReadShort();
+    }
 
-        public CRNCountRecord(RecordInputStream in1)
+    public int NumberOfCRNs
+    {
+        get
         {
-            field_1_number_crn_records = in1.ReadShort();
-            if (field_1_number_crn_records < 0)
-            {
-                // TODO - seems like the sign bit of this field might be used for some other purpose
-                // see example file for test case "TestBugs.test19599()"
-                field_1_number_crn_records = (short)-field_1_number_crn_records;
-            }
-            field_2_sheet_table_index = in1.ReadShort();
+            return field_1_number_crn_records;
         }
+    }
 
-        public int NumberOfCRNs
-        {
-            get
-            {
-                return field_1_number_crn_records;
-            }
-        }
+    public override String ToString()
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.Append(GetType().Name).Append(" [XCT");
+        sb.Append(" nCRNs=").Append(field_1_number_crn_records);
+        sb.Append(" sheetIx=").Append(field_2_sheet_table_index);
+        sb.Append("]");
+        return sb.ToString();
+    }
 
-        public override String ToString()
+    public override void Serialize(ILittleEndianOutput out1)
+    {
+        out1.WriteShort((short)field_1_number_crn_records);
+        out1.WriteShort((short)field_2_sheet_table_index);
+    }
+    protected override int DataSize
+    {
+        get
         {
-            StringBuilder sb = new StringBuilder();
-            sb.Append(GetType().Name).Append(" [XCT");
-            sb.Append(" nCRNs=").Append(field_1_number_crn_records);
-            sb.Append(" sheetIx=").Append(field_2_sheet_table_index);
-            sb.Append("]");
-            return sb.ToString();
+            return DATA_SIZE;
         }
+    }
 
-        public override void Serialize(ILittleEndianOutput out1)
-        {
-            out1.WriteShort((short)field_1_number_crn_records);
-            out1.WriteShort((short)field_2_sheet_table_index);
-        }
-        protected override int DataSize
-        {
-            get
-            {
-                return DATA_SIZE;
-            }
-        }
-
-        /**
-         * return the non static version of the id for this record.
-         */
-        public override short Sid
-        {
-            get { return sid; }
-        }
+    /**
+     * return the non static version of the id for this record.
+     */
+    public override short Sid
+    {
+        get { return sid; }
     }
 }

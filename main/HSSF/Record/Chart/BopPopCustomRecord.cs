@@ -15,39 +15,38 @@
    limitations Under the License.
 ==================================================================== */
 
-namespace NPOI.HSSF.Record.Chart
+namespace NPOI.HSSF.Record.Chart;
+
+/// <summary>
+/// The BopPopCustom record specifies which data points in the series are contained 
+/// in the secondary bar/pie instead of the primary pie. MUST follow a BopPop record 
+/// that has its split field set to Custom (0x0003).
+/// </summary>
+/// <remarks>
+/// author: Antony liu (antony.apollo at gmail.com)
+/// </remarks>
+public class BopPopCustomRecord : RowDataRecord
 {
-    /// <summary>
-    /// The BopPopCustom record specifies which data points in the series are contained 
-    /// in the secondary bar/pie instead of the primary pie. MUST follow a BopPop record 
-    /// that has its split field set to Custom (0x0003).
-    /// </summary>
-    /// <remarks>
-    /// author: Antony liu (antony.apollo at gmail.com)
-    /// </remarks>
-    public class BopPopCustomRecord : RowDataRecord
+    public const short sid = 0x1067;
+    public BopPopCustomRecord(RecordInputStream ris)
+        : base(ris)
     {
-        public const short sid = 0x1067;
-        public BopPopCustomRecord(RecordInputStream ris)
-            : base(ris)
-        {
-        }
+    }
 
-        protected override int DataSize
+    protected override int DataSize
+    {
+        get
         {
-            get
-            {
-                return base.DataSize;
-            }
+            return base.DataSize;
         }
-        public override void Serialize(NPOI.Util.ILittleEndianOutput out1)
-        {
-            base.Serialize(out1);
-        }
+    }
+    public override void Serialize(NPOI.Util.ILittleEndianOutput out1)
+    {
+        base.Serialize(out1);
+    }
 
-        public override short Sid
-        {
-            get { return sid; }
-        }
+    public override short Sid
+    {
+        get { return sid; }
     }
 }

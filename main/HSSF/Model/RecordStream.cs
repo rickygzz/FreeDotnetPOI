@@ -1,4 +1,4 @@
-/* ====================================================================
+﻿/* ====================================================================
    Licensed to the Apache Software Foundation (ASF) Under one or more
    contributor license agreements.  See the NOTICE file distributed with
    this work for Additional information regarding copyright ownership.
@@ -15,117 +15,116 @@
    limitations Under the License.
 ==================================================================== */
 
-namespace NPOI.HSSF.Model
+namespace NPOI.HSSF.Model;
+
+using System;
+using System.Collections;
+using NPOI.HSSF.Record;
+using NPOI.HSSF.Record.Chart;
+
+/// <summary>
+/// Simplifies iteration over a sequence of Record objects.
+/// @author Josh Micich
+/// </summary>
+public class RecordStream
 {
-    using System;
-    using System.Collections;
-    using NPOI.HSSF.Record;
-    using NPOI.HSSF.Record.Chart;
+
+    private readonly IList _list;
+    private int _nextIndex;
+    private readonly int _endIx;
+    private int _countRead;
+
+    public RecordStream(IList inputList, int startIndex, int endIx)
+    {
+        _list = inputList;
+        _nextIndex = startIndex;
+        _endIx = endIx;
+        _countRead = 0;
+
+    }
+
+    public RecordStream(IList records, int startIx):this(records, startIx, records.Count)
+    {
+        
+    }
 
     /// <summary>
-    /// Simplifies iteration over a sequence of Record objects.
-    /// @author Josh Micich
+    /// Determines whether this instance has next.
     /// </summary>
-    public class RecordStream
+    /// <returns>
+    /// 	<c>true</c> if this instance has next; otherwise, <c>false</c>.
+    /// </returns>
+    public bool HasNext()
     {
+        return _nextIndex < _endIx;
+    }
 
-        private readonly IList _list;
-        private int _nextIndex;
-        private readonly int _endIx;
-        private int _countRead;
-
-        public RecordStream(IList inputList, int startIndex, int endIx)
+    /// <summary>
+    /// Gets the next record
+    /// </summary>
+    /// <returns></returns>
+    public Record GetNext()
+    {
+        if (_nextIndex >= _list.Count)
         {
-            _list = inputList;
-            _nextIndex = startIndex;
-            _endIx = endIx;
-            _countRead = 0;
+            throw new Exception("Attempt to Read past end of record stream");
+        }
+        _countRead++;
+        return (Record)_list[_nextIndex++];
+    }
+    /// <summary>
+    /// Peeks the next sid.
+    /// </summary>
+    /// <returns>-1 if at end of records</returns>
+    public int PeekNextSid()
+    {
+        if (!HasNext())
+        {
+            return -1;
+        }
+        return ((Record)_list[_nextIndex]).Sid;
+    }
+    /// <summary>
+    /// Peeks the next class.
+    /// </summary>
+    /// <returns>the class of the next Record.return null if this stream Is exhausted.</returns>
+    public Type PeekNextClass()
+    {
+        if (_nextIndex >= _list.Count)
+        {
+            return null;
+        }
+        return _list[_nextIndex].GetType();
+    }
 
+    public int GetCountRead()
+    {
+        return _countRead;
+    }
+
+    public int PeekNextChartSid()
+    {
+        if (!HasNext())
+        {
+            return -1;
         }
 
-        public RecordStream(IList records, int startIx):this(records, startIx, records.Count)
+        while (PeekNextSid() == StartBlockRecord.sid || PeekNextSid() == EndBlockRecord.sid)
         {
-            
+            GetNext();
         }
-
-        /// <summary>
-        /// Determines whether this instance has next.
-        /// </summary>
-        /// <returns>
-        /// 	<c>true</c> if this instance has next; otherwise, <c>false</c>.
-        /// </returns>
-        public bool HasNext()
+        return PeekNextSid();
+    }
+    public void FindChartSubStream()
+    {
+        while (PeekNextSid() > -1)
         {
-            return _nextIndex < _endIx;
-        }
-
-        /// <summary>
-        /// Gets the next record
-        /// </summary>
-        /// <returns></returns>
-        public Record GetNext()
-        {
-            if (_nextIndex >= _list.Count)
+            Record r = GetNext();
+            if (r.Sid == BOFRecord.sid && (r as BOFRecord).Type == BOFRecordType.Chart)
             {
-                throw new Exception("Attempt to Read past end of record stream");
-            }
-            _countRead++;
-            return (Record)_list[_nextIndex++];
-        }
-        /// <summary>
-        /// Peeks the next sid.
-        /// </summary>
-        /// <returns>-1 if at end of records</returns>
-        public int PeekNextSid()
-        {
-            if (!HasNext())
-            {
-                return -1;
-            }
-            return ((Record)_list[_nextIndex]).Sid;
-        }
-        /// <summary>
-        /// Peeks the next class.
-        /// </summary>
-        /// <returns>the class of the next Record.return null if this stream Is exhausted.</returns>
-        public Type PeekNextClass()
-        {
-            if (_nextIndex >= _list.Count)
-            {
-                return null;
-            }
-            return _list[_nextIndex].GetType();
-        }
-
-        public int GetCountRead()
-        {
-            return _countRead;
-        }
-
-        public int PeekNextChartSid()
-        {
-            if (!HasNext())
-            {
-                return -1;
-            }
-
-            while (PeekNextSid() == StartBlockRecord.sid || PeekNextSid() == EndBlockRecord.sid)
-            {
-                GetNext();
-            }
-            return PeekNextSid();
-        }
-        public void FindChartSubStream()
-        {
-            while (PeekNextSid() > -1)
-            {
-                Record r = GetNext();
-                if (r.Sid == BOFRecord.sid && (r as BOFRecord).Type == BOFRecordType.Chart)
-                {
-                    _nextIndex--;
-                    _countRead--;
-                    break;
-                }
+                _nextIndex--;
+                _countRead--;
+                break;
             }
         }
     }

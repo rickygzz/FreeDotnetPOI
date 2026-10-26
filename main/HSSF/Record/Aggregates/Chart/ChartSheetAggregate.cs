@@ -20,95 +20,94 @@ using NPOI.HSSF.Model;
 using System.IO;
 using NPOI.HSSF.Record.Chart;
 
-namespace NPOI.HSSF.Record.Aggregates.Chart
+namespace NPOI.HSSF.Record.Aggregates.Chart;
+
+/// <summary>
+/// CHARTSHEET = BOF CHARTSHEETCONTENT
+/// CHARTSHEETCONTENT = [WriteProtect] [SheetExt] [WebPub] *HFPicture PAGESETUP PrintSize 
+/// [HeaderFooter] [BACKGROUND] *Fbi *Fbi2 [ClrtClient] [PROTECTION] [Palette] [SXViewLink]
+/// [PivotChartBits] [SBaseRef] [MsoDrawingGroup] OBJECTS Units CHARTFOMATS SERIESDATA 
+/// *WINDOW *CUSTOMVIEW [CodeName] [CRTMLFRT] EOF
+/// </summary>
+public class ChartSheetAggregate : ChartRecordAggregate
 {
-    /// <summary>
-    /// CHARTSHEET = BOF CHARTSHEETCONTENT
-    /// CHARTSHEETCONTENT = [WriteProtect] [SheetExt] [WebPub] *HFPicture PAGESETUP PrintSize 
-    /// [HeaderFooter] [BACKGROUND] *Fbi *Fbi2 [ClrtClient] [PROTECTION] [Palette] [SXViewLink]
-    /// [PivotChartBits] [SBaseRef] [MsoDrawingGroup] OBJECTS Units CHARTFOMATS SERIESDATA 
-    /// *WINDOW *CUSTOMVIEW [CodeName] [CRTMLFRT] EOF
-    /// </summary>
-    public class ChartSheetAggregate : ChartRecordAggregate
+    private readonly BOFRecord _bofRec;
+    /**
+     * All the records between BOF and EOF
+     */
+    private readonly List<RecordBase> _recs;
+    private readonly PageSettingsBlock _psBlock;
+
+    private readonly ChartFormatsAggregate chartFormats;
+    private readonly SeriesDataAggregate seriesData;
+
+    public ChartSheetAggregate(RecordStream rs, ChartRecordAggregate container)
+        : base(RuleName_CHARTSHEET, container)
     {
-        private readonly BOFRecord _bofRec;
-        /**
-         * All the records between BOF and EOF
-         */
-        private readonly List<RecordBase> _recs;
-        private readonly PageSettingsBlock _psBlock;
-
-        private readonly ChartFormatsAggregate chartFormats;
-        private readonly SeriesDataAggregate seriesData;
-
-        public ChartSheetAggregate(RecordStream rs, ChartRecordAggregate container)
-            : base(RuleName_CHARTSHEET, container)
+        _bofRec = (BOFRecord)rs.GetNext();
+        List<RecordBase> temp = new List<RecordBase>();
+        while (rs.PeekNextClass() != typeof(EOFRecord))
         {
-            _bofRec = (BOFRecord)rs.GetNext();
-            List<RecordBase> temp = new List<RecordBase>();
-            while (rs.PeekNextClass() != typeof(EOFRecord))
+            Type a = rs.PeekNextClass();
+            if (PageSettingsBlock.IsComponentRecord(rs.PeekNextChartSid()))
             {
-                Type a = rs.PeekNextClass();
-                if (PageSettingsBlock.IsComponentRecord(rs.PeekNextChartSid()))
+                if (_psBlock != null)
                 {
-                    if (_psBlock != null)
+                    if (rs.PeekNextChartSid() == HeaderFooterRecord.sid)
                     {
-                        if (rs.PeekNextChartSid() == HeaderFooterRecord.sid)
-                        {
-                            // test samples: 45538_classic_Footer.xls, 45538_classic_Header.xls
-                            _psBlock.AddLateHeaderFooter((HeaderFooterRecord)rs.GetNext());
-                            continue;
-                        }
-                        throw new InvalidDataException(
-                                "Found more than one PageSettingsBlock in chart sub-stream");
+                        // test samples: 45538_classic_Footer.xls, 45538_classic_Header.xls
+                        _psBlock.AddLateHeaderFooter((HeaderFooterRecord)rs.GetNext());
+                        continue;
                     }
-                    _psBlock = new PageSettingsBlock(rs);
-                    temp.Add(_psBlock);
-                    continue;
+                    throw new InvalidDataException(
+                            "Found more than one PageSettingsBlock in chart sub-stream");
                 }
-                if (rs.PeekNextChartSid() == ChartRecord.sid)
-                {
-                    chartFormats = new ChartFormatsAggregate(rs, this);
-                    temp.Add(chartFormats);
-                    continue;
-                }
-                if (rs.PeekNextChartSid() == DimensionsRecord.sid)
-                {
-                    seriesData = new SeriesDataAggregate(rs);
-                    temp.Add(seriesData);
-                    continue;
-                }
-                temp.Add(rs.GetNext());
+                _psBlock = new PageSettingsBlock(rs);
+                temp.Add(_psBlock);
+                continue;
             }
-            _recs = temp;
-            Record eof = rs.GetNext(); // no need to save EOF in field
-            if (eof is not EOFRecord)
+            if (rs.PeekNextChartSid() == ChartRecord.sid)
             {
-                throw new InvalidOperationException("Bad chart EOF");
+                chartFormats = new ChartFormatsAggregate(rs, this);
+                temp.Add(chartFormats);
+                continue;
             }
+            if (rs.PeekNextChartSid() == DimensionsRecord.sid)
+            {
+                seriesData = new SeriesDataAggregate(rs);
+                temp.Add(seriesData);
+                continue;
+            }
+            temp.Add(rs.GetNext());
         }
-        internal int AttachLabelCount = 0;
-        public override void VisitContainedRecords(RecordVisitor rv)
+        _recs = temp;
+        Record eof = rs.GetNext(); // no need to save EOF in field
+        if (eof is not EOFRecord)
         {
-            if (_recs.Count == 0)
-            {
-                return;
-            }
-            rv.VisitRecord(_bofRec);
-
-            for (int i = 0; i < _recs.Count; i++)
-            {
-                RecordBase rb = _recs[i];
-                if (rb is RecordAggregate aggregate)
-                {
-                    aggregate.VisitContainedRecords(rv);
-                }
-                else
-                {
-                    rv.VisitRecord((Record)rb);
-                }
-            }
-            rv.VisitRecord(EOFRecord.instance);
+            throw new InvalidOperationException("Bad chart EOF");
         }
+    }
+    internal int AttachLabelCount = 0;
+    public override void VisitContainedRecords(RecordVisitor rv)
+    {
+        if (_recs.Count == 0)
+        {
+            return;
+        }
+        rv.VisitRecord(_bofRec);
+
+        for (int i = 0; i < _recs.Count; i++)
+        {
+            RecordBase rb = _recs[i];
+            if (rb is RecordAggregate aggregate)
+            {
+                aggregate.VisitContainedRecords(rv);
+            }
+            else
+            {
+                rv.VisitRecord((Record)rb);
+            }
+        }
+        rv.VisitRecord(EOFRecord.instance);
     }
 }

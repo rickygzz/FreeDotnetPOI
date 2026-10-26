@@ -1,4 +1,4 @@
-
+﻿
 /* ====================================================================
    Licensed to the Apache Software Foundation (ASF) Under one or more
    contributor license agreements.  See the NOTICE file distributed with
@@ -17,80 +17,79 @@
 ==================================================================== */
 
 
-namespace NPOI.HSSF.Record
+namespace NPOI.HSSF.Record;
+
+
+using System;
+using System.Text;
+using NPOI.Util;
+
+
+/**
+ * Title: double Stream Flag Record
+ * Description:  tells if this Is a double stream file. (always no for HSSF generated files)
+ *               double Stream files contain both BIFF8 and BIFF7 workbooks.
+ * REFERENCE:  PG 305 Microsoft Excel 97 Developer's Kit (ISBN: 1-57231-498-2)
+ * @author Andrew C. Oliver (acoliver at apache dot org)
+ * @version 2.0-pre
+ */
+
+public class DSFRecord: StandardRecord
 {
+    public const short sid = 0x161;
+    private readonly int _options;
+    private static readonly BitField biff5BookStreamFlag = BitFieldFactory.GetInstance(0x0001);
 
-    using System;
-    using System.Text;
-    using NPOI.Util;
-
-
+    private DSFRecord(int options)
+    {
+        _options = options;
+    }
+    public DSFRecord(bool isBiff5BookStreamPresent):this(0)
+    {
+        
+        _options = biff5BookStreamFlag.SetBoolean(0, isBiff5BookStreamPresent);
+    }
     /**
-     * Title: double Stream Flag Record
-     * Description:  tells if this Is a double stream file. (always no for HSSF generated files)
-     *               double Stream files contain both BIFF8 and BIFF7 workbooks.
-     * REFERENCE:  PG 305 Microsoft Excel 97 Developer's Kit (ISBN: 1-57231-498-2)
-     * @author Andrew C. Oliver (acoliver at apache dot org)
-     * @version 2.0-pre
+     * Constructs a DBCellRecord and Sets its fields appropriately.
+     * @param in the RecordInputstream to Read the record from
      */
 
-    public class DSFRecord: StandardRecord
+    public DSFRecord(RecordInputStream in1):this(in1.ReadShort())
     {
-        public const short sid = 0x161;
-        private readonly int _options;
-        private static readonly BitField biff5BookStreamFlag = BitFieldFactory.GetInstance(0x0001);
+        
+    }
 
-        private DSFRecord(int options)
+    public bool IsBiff5BookStreamPresent
+    {
+      get
         {
-            _options = options;
+        return biff5BookStreamFlag.IsSet(_options);
         }
-        public DSFRecord(bool isBiff5BookStreamPresent):this(0)
-        {
-            
-            _options = biff5BookStreamFlag.SetBoolean(0, isBiff5BookStreamPresent);
-        }
-        /**
-         * Constructs a DBCellRecord and Sets its fields appropriately.
-         * @param in the RecordInputstream to Read the record from
-         */
+    }
 
-        public DSFRecord(RecordInputStream in1):this(in1.ReadShort())
-        {
-            
-        }
+    public override String ToString()
+    {
+        StringBuilder buffer = new StringBuilder();
 
-        public bool IsBiff5BookStreamPresent
-        {
-          get
-            {
-            return biff5BookStreamFlag.IsSet(_options);
-            }
-        }
+        buffer.Append("[DSF]\n");
+        buffer.Append("    .IsDSF           = ")
+            .Append(StringUtil.ToHexString(_options)).Append("\n");
+        buffer.Append("[/DSF]\n");
+        return buffer.ToString();
+    }
 
-        public override String ToString()
-        {
-            StringBuilder buffer = new StringBuilder();
+    public override void Serialize(ILittleEndianOutput out1)
+    {
+        out1.WriteShort(_options);
+    }
 
-            buffer.Append("[DSF]\n");
-            buffer.Append("    .IsDSF           = ")
-                .Append(StringUtil.ToHexString(_options)).Append("\n");
-            buffer.Append("[/DSF]\n");
-            return buffer.ToString();
-        }
+    protected override int DataSize
+    {
+        get { return 2; }
+    }
 
-        public override void Serialize(ILittleEndianOutput out1)
-        {
-            out1.WriteShort(_options);
-        }
-
-        protected override int DataSize
-        {
-            get { return 2; }
-        }
-
-        public override short Sid
-        {
-            get { return sid; }
-        }
+    public override short Sid
+    {
+        get { return sid; }
     }
 }

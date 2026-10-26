@@ -1,4 +1,4 @@
-/* ====================================================================
+﻿/* ====================================================================
    Licensed to the Apache Software Foundation (ASF) under one or more
    contributor license agreements.  See the NOTICE file distributed with
    this work for additional information regarding copyright ownership.
@@ -15,20 +15,19 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.HSSF.Record.Chart
-{
-    public enum ObjectKind : short {
-        AxisGroup = 0,
-        AttachedLabelRecord = 0x2,
-        Axis = 0x4,
-        ChartGroup = 0x5,
-        DatRecord = 0x6,
-        Frame = 0x7,
-        Legend = 0x9,
-        LegendException = 0xA,
-        Series = 0xC,
-        Sheet = 0xD,
-        DataFormatRecord = 0xE,
-        DropBarRecord = 0xF
-    }
+namespace NPOI.HSSF.Record.Chart;
+
+public enum ObjectKind : short {
+    AxisGroup = 0,
+    AttachedLabelRecord = 0x2,
+    Axis = 0x4,
+    ChartGroup = 0x5,
+    DatRecord = 0x6,
+    Frame = 0x7,
+    Legend = 0x9,
+    LegendException = 0xA,
+    Series = 0xC,
+    Sheet = 0xD,
+    DataFormatRecord = 0xE,
+    DropBarRecord = 0xF
 }

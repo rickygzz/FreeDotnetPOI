@@ -1,4 +1,4 @@
-/* ====================================================================
+﻿/* ====================================================================
    Licensed to the Apache Software Foundation (ASF) Under one or more
    contributor license agreements.  See the NOTICE file distributed with
    this work for Additional information regarding copyright ownership.
@@ -15,158 +15,157 @@
    limitations Under the License.
 ==================================================================== */
 
-namespace NPOI.HSSF.Record
+namespace NPOI.HSSF.Record;
+
+using System;
+using System.Text;
+using NPOI.Util;
+
+/**
+ * Title:        FILESHARING
+ * Description:  stores the encrypted Readonly for a workbook (Write protect) 
+ * This functionality Is accessed from the options dialog box available when performing 'Save As'.<p/>
+ * REFERENCE:  PG 314 Microsoft Excel 97 Developer's Kit (ISBN: 1-57231-498-2)<p/>
+ * @author Andrew C. Oliver (acoliver at apache dot org)
+ */
+public class FileSharingRecord : StandardRecord, ICloneable
 {
-    using System;
-    using System.Text;
-    using NPOI.Util;
+
+    public const short sid = 0x5b;
+    private short field_1_Readonly;
+    private short field_2_password;
+    private byte field_3_username_unicode_options;
+    private String field_3_username_value;
+
+    public FileSharingRecord() { }
+
 
     /**
-     * Title:        FILESHARING
-     * Description:  stores the encrypted Readonly for a workbook (Write protect) 
-     * This functionality Is accessed from the options dialog box available when performing 'Save As'.<p/>
-     * REFERENCE:  PG 314 Microsoft Excel 97 Developer's Kit (ISBN: 1-57231-498-2)<p/>
-     * @author Andrew C. Oliver (acoliver at apache dot org)
+     * Constructs a FileSharing record and Sets its fields appropriately.
+     * @param in the RecordInputstream to Read the record from
      */
-    public class FileSharingRecord : StandardRecord, ICloneable
+
+    public FileSharingRecord(RecordInputStream in1)
     {
+        field_1_Readonly = in1.ReadShort();
+        field_2_password = in1.ReadShort();
 
-        public const short sid = 0x5b;
-        private short field_1_Readonly;
-        private short field_2_password;
-        private byte field_3_username_unicode_options;
-        private String field_3_username_value;
+        int nameLen = in1.ReadShort();
 
-        public FileSharingRecord() { }
-
-
-        /**
-         * Constructs a FileSharing record and Sets its fields appropriately.
-         * @param in the RecordInputstream to Read the record from
-         */
-
-        public FileSharingRecord(RecordInputStream in1)
+        if (nameLen > 0)
         {
-            field_1_Readonly = in1.ReadShort();
-            field_2_password = in1.ReadShort();
-
-            int nameLen = in1.ReadShort();
-
-            if (nameLen > 0)
+            // TODO - Current examples(3) from junits only have zero Length username. 
+            field_3_username_unicode_options = (byte)in1.ReadByte();
+            field_3_username_value = in1.ReadCompressedUnicode(nameLen);
+            
+            if (field_3_username_value == null)
             {
-                // TODO - Current examples(3) from junits only have zero Length username. 
-                field_3_username_unicode_options = (byte)in1.ReadByte();
-                field_3_username_value = in1.ReadCompressedUnicode(nameLen);
-                
-                if (field_3_username_value == null)
-                {
-                   // In some cases the user name can be null after reading from
-                   // the input stream so we make sure this has a value
-                   field_3_username_value = "";
-                }
-            }
-            else
-            {
-                field_3_username_value = "";
+               // In some cases the user name can be null after reading from
+               // the input stream so we make sure this has a value
+               field_3_username_value = "";
             }
         }
-
-
-        /**
-         * Get the Readonly
-         *
-         * @return short  representing if this Is Read only (1 = true)
-         */
-        public short ReadOnly
+        else
         {
-            get
+            field_3_username_value = "";
+        }
+    }
+
+
+    /**
+     * Get the Readonly
+     *
+     * @return short  representing if this Is Read only (1 = true)
+     */
+    public short ReadOnly
+    {
+        get
+        {
+            return field_1_Readonly;
+        }
+        set { field_1_Readonly = value; }
+    }
+
+    /**
+     * @returns password hashed with hashPassword() (very lame)
+     */
+    public short Password
+    {
+        get
+        {
+            return field_2_password;
+        }
+        set { field_2_password = value; }
+    }
+
+
+    /**
+     * @returns username of the user that Created the file
+     */
+    public String Username
+    {
+        get { return field_3_username_value; }
+        set { field_3_username_value = value; }
+    }
+
+    public override String ToString()
+    {
+        StringBuilder buffer = new StringBuilder();
+
+        buffer.Append("[FILESHARING]\n");
+        buffer.Append("    .Readonly       = ")
+            .Append(ReadOnly == 1 ? "true" : "false").Append("\n");
+        buffer.Append("    .password       = ")
+            .Append(StringUtil.ToHexString(Password)).Append("\n");
+        buffer.Append("    .username       = ")
+            .Append(Username).Append("\n");
+        buffer.Append("[/FILESHARING]\n");
+        return buffer.ToString();
+    }
+
+    public override void Serialize(ILittleEndianOutput out1)
+    {
+        // TODO - junit
+        out1.WriteShort(ReadOnly);
+        out1.WriteShort(Password);
+        out1.WriteShort(field_3_username_value.Length);
+        if (field_3_username_value.Length > 0)
+        {
+            out1.WriteByte(field_3_username_unicode_options);
+            StringUtil.PutCompressedUnicode(Username, out1);
+        }
+    }
+
+    protected override int DataSize
+    {
+        get
+        {
+            int nameLen = field_3_username_value.Length;
+            if (nameLen < 1)
             {
-                return field_1_Readonly;
+                return 6;
             }
-            set { field_1_Readonly = value; }
+            return 7 + nameLen;
         }
+    }
 
-        /**
-         * @returns password hashed with hashPassword() (very lame)
-         */
-        public short Password
+    public override short Sid
+    {
+        get
         {
-            get
-            {
-                return field_2_password;
-            }
-            set { field_2_password = value; }
+            return sid;
         }
+    }
 
-
-        /**
-         * @returns username of the user that Created the file
-         */
-        public String Username
-        {
-            get { return field_3_username_value; }
-            set { field_3_username_value = value; }
-        }
-
-        public override String ToString()
-        {
-            StringBuilder buffer = new StringBuilder();
-
-            buffer.Append("[FILESHARING]\n");
-            buffer.Append("    .Readonly       = ")
-                .Append(ReadOnly == 1 ? "true" : "false").Append("\n");
-            buffer.Append("    .password       = ")
-                .Append(StringUtil.ToHexString(Password)).Append("\n");
-            buffer.Append("    .username       = ")
-                .Append(Username).Append("\n");
-            buffer.Append("[/FILESHARING]\n");
-            return buffer.ToString();
-        }
-
-        public override void Serialize(ILittleEndianOutput out1)
-        {
-            // TODO - junit
-            out1.WriteShort(ReadOnly);
-            out1.WriteShort(Password);
-            out1.WriteShort(field_3_username_value.Length);
-            if (field_3_username_value.Length > 0)
-            {
-                out1.WriteByte(field_3_username_unicode_options);
-                StringUtil.PutCompressedUnicode(Username, out1);
-            }
-        }
-
-        protected override int DataSize
-        {
-            get
-            {
-                int nameLen = field_3_username_value.Length;
-                if (nameLen < 1)
-                {
-                    return 6;
-                }
-                return 7 + nameLen;
-            }
-        }
-
-        public override short Sid
-        {
-            get
-            {
-                return sid;
-            }
-        }
-
-        /**
-         * Clone this record.
-         */
-        public override Object Clone()
-        {
-            FileSharingRecord Clone = new FileSharingRecord();
-            Clone.ReadOnly = field_1_Readonly;
-            Clone.Password = field_2_password;
-            Clone.Username = field_3_username_value;
-            return Clone;
-        }
+    /**
+     * Clone this record.
+     */
+    public override Object Clone()
+    {
+        FileSharingRecord Clone = new FileSharingRecord();
+        Clone.ReadOnly = field_1_Readonly;
+        Clone.Password = field_2_password;
+        Clone.Username = field_3_username_value;
+        return Clone;
     }
 }

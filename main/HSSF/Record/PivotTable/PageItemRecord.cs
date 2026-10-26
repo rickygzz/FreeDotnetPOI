@@ -1,4 +1,4 @@
-/* ====================================================================
+﻿/* ====================================================================
    Licensed to the Apache Software Foundation (ASF) under one or more
    contributor license agreements.  See the NOTICE file distributed with
    this work for additional information regarding copyright ownership.
@@ -15,114 +15,113 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.HSSF.Record.PivotTable
+namespace NPOI.HSSF.Record.PivotTable;
+
+using System.Text;
+using NPOI.HSSF.Record;
+using NPOI.Util;
+/**
+ * SXPI - Page Item (0x00B6)<br/>
+ * 
+ * @author Patrick Cheng
+ */
+public class PageItemRecord : StandardRecord
 {
-    using System.Text;
-    using NPOI.HSSF.Record;
-    using NPOI.Util;
-    /**
-     * SXPI - Page Item (0x00B6)<br/>
-     * 
-     * @author Patrick Cheng
-     */
-    public class PageItemRecord : StandardRecord
+    public const short sid = 0x00B6;
+
+    private sealed class FieldInfo
     {
-        public const short sid = 0x00B6;
+        public const int ENCODED_SIZE = 6;
+        /** Index to the View Item SXVI(0x00B2) record */
+        private readonly int _isxvi;
+        /** Index to the {@link ViewFieldsRecord} SXVD(0x00B1) record */
+        private readonly int _isxvd;
+        /** Object ID for the drop-down arrow */
+        private readonly int _idObj;
 
-        private sealed class FieldInfo
+        public FieldInfo(RecordInputStream in1)
         {
-            public const int ENCODED_SIZE = 6;
-            /** Index to the View Item SXVI(0x00B2) record */
-            private readonly int _isxvi;
-            /** Index to the {@link ViewFieldsRecord} SXVD(0x00B1) record */
-            private readonly int _isxvd;
-            /** Object ID for the drop-down arrow */
-            private readonly int _idObj;
-
-            public FieldInfo(RecordInputStream in1)
-            {
-                _isxvi = in1.ReadShort();
-                _isxvd = in1.ReadShort();
-                _idObj = in1.ReadShort();
-            }
-
-            internal void Serialize(ILittleEndianOutput out1)
-            {
-                out1.WriteShort(_isxvi);
-                out1.WriteShort(_isxvd);
-                out1.WriteShort(_idObj);
-            }
-
-            public void AppendDebugInfo(StringBuilder sb)
-            {
-                sb.Append('(');
-                sb.Append("isxvi=").Append(HexDump.ShortToHex(_isxvi));
-                sb.Append(" isxvd=").Append(HexDump.ShortToHex(_isxvd));
-                sb.Append(" idObj=").Append(HexDump.ShortToHex(_idObj));
-                sb.Append(')');
-            }
+            _isxvi = in1.ReadShort();
+            _isxvd = in1.ReadShort();
+            _idObj = in1.ReadShort();
         }
+
+        internal void Serialize(ILittleEndianOutput out1)
+        {
+            out1.WriteShort(_isxvi);
+            out1.WriteShort(_isxvd);
+            out1.WriteShort(_idObj);
+        }
+
+        public void AppendDebugInfo(StringBuilder sb)
+        {
+            sb.Append('(');
+            sb.Append("isxvi=").Append(HexDump.ShortToHex(_isxvi));
+            sb.Append(" isxvd=").Append(HexDump.ShortToHex(_isxvd));
+            sb.Append(" idObj=").Append(HexDump.ShortToHex(_idObj));
+            sb.Append(')');
+        }
+    }
 
 	    private readonly FieldInfo[] _fieldInfos;
 
-        public PageItemRecord(RecordInputStream in1)
+    public PageItemRecord(RecordInputStream in1)
+    {
+        int dataSize = in1.Remaining;
+        if (dataSize % FieldInfo.ENCODED_SIZE != 0)
         {
-            int dataSize = in1.Remaining;
-            if (dataSize % FieldInfo.ENCODED_SIZE != 0)
-            {
-                throw new RecordFormatException("Bad data size " + dataSize);
-            }
-
-            int nItems = dataSize / FieldInfo.ENCODED_SIZE;
-
-            FieldInfo[] fis = new FieldInfo[nItems];
-            for (int i = 0; i < fis.Length; i++)
-            {
-                fis[i] = new FieldInfo(in1);
-            }
-            _fieldInfos = fis;
+            throw new RecordFormatException("Bad data size " + dataSize);
         }
 
+        int nItems = dataSize / FieldInfo.ENCODED_SIZE;
 
-        public override void Serialize(ILittleEndianOutput out1)
+        FieldInfo[] fis = new FieldInfo[nItems];
+        for (int i = 0; i < fis.Length; i++)
         {
-            for (int i = 0; i < _fieldInfos.Length; i++)
-            {
-                _fieldInfos[i].Serialize(out1);
-            }
+            fis[i] = new FieldInfo(in1);
         }
+        _fieldInfos = fis;
+    }
 
 
-        protected override int DataSize
+    public override void Serialize(ILittleEndianOutput out1)
+    {
+        for (int i = 0; i < _fieldInfos.Length; i++)
         {
-            get
-            {
-                return _fieldInfos.Length * FieldInfo.ENCODED_SIZE;
-            }
+            _fieldInfos[i].Serialize(out1);
         }
+    }
 
 
-        public override short Sid
+    protected override int DataSize
+    {
+        get
         {
-            get
-            {
-                return sid;
-            }
+            return _fieldInfos.Length * FieldInfo.ENCODED_SIZE;
         }
+    }
 
 
-        public override string ToString()
+    public override short Sid
+    {
+        get
         {
-            StringBuilder sb = new StringBuilder();
-            sb.Append("[SXPI]\n");
-            for (int i = 0; i < _fieldInfos.Length; i++)
-            {
-                sb.Append("    item[").Append(i).Append("]=");
-                _fieldInfos[i].AppendDebugInfo(sb);
-                sb.Append('\n');
-            }
-            sb.Append("[/SXPI]\n");
-            return sb.ToString();
+            return sid;
         }
+    }
+
+
+    public override string ToString()
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.Append("[SXPI]\n");
+        for (int i = 0; i < _fieldInfos.Length; i++)
+        {
+            sb.Append("    item[").Append(i).Append("]=");
+            _fieldInfos[i].AppendDebugInfo(sb);
+            sb.Append('\n');
+        }
+        sb.Append("[/SXPI]\n");
+        return sb.ToString();
     }
 }

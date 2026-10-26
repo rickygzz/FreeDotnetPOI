@@ -1,4 +1,4 @@
-/* ====================================================================
+﻿/* ====================================================================
    Licensed to the Apache Software Foundation (ASF) under one or more
    contributor license agreements.  See the NOTICE file distributed with
    this work for additional information regarding copyright ownership.
@@ -15,92 +15,91 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.HSSF.Record.Chart
+namespace NPOI.HSSF.Record.Chart;
+
+using System;
+using System.Text;
+using NPOI.HSSF.Record;
+using NPOI.Util;
+
+
+/**
+ * CATLAB - Category Labels (0x0856)<br/>
+ * 
+ * @author Patrick Cheng
+ */
+public class CatLabRecord : StandardRecord
 {
-    using System;
-    using System.Text;
-    using NPOI.HSSF.Record;
-    using NPOI.Util;
+    public const short sid = 0x0856;
 
+    private short rt;
+    private short grbitFrt;
+    private short wOffset;
+    private short at;
+    private short grbit;
+    private short? unused;
 
-    /**
-     * CATLAB - Category Labels (0x0856)<br/>
-     * 
-     * @author Patrick Cheng
-     */
-    public class CatLabRecord : StandardRecord
+    public CatLabRecord(RecordInputStream in1)
     {
-        public const short sid = 0x0856;
-
-        private short rt;
-        private short grbitFrt;
-        private short wOffset;
-        private short at;
-        private short grbit;
-        private short? unused;
-
-        public CatLabRecord(RecordInputStream in1)
+        rt = in1.ReadShort();
+        grbitFrt = in1.ReadShort();
+        wOffset = in1.ReadShort();
+        at = in1.ReadShort();
+        grbit = in1.ReadShort();
+        // Often, but not always has an unused short at the end
+        if (in1.Available() == 0)
         {
-            rt = in1.ReadShort();
-            grbitFrt = in1.ReadShort();
-            wOffset = in1.ReadShort();
-            at = in1.ReadShort();
-            grbit = in1.ReadShort();
-            // Often, but not always has an unused short at the end
-            if (in1.Available() == 0)
-            {
-                unused = null;
-            }
-            else
-            {
-                unused = in1.ReadShort();
-            }
-
+            unused = null;
+        }
+        else
+        {
+            unused = in1.ReadShort();
         }
 
+    }
 
-        protected override int DataSize
+
+    protected override int DataSize
+    {
+        get
         {
-            get
-            {
-                return 2 + 2 + 2 + 2 + 2 + (unused == null ? 0 : 2);
-            }
+            return 2 + 2 + 2 + 2 + 2 + (unused == null ? 0 : 2);
         }
+    }
 
-        public override short Sid
+    public override short Sid
+    {
+        get
         {
-            get
-            {
-                return sid;
-            }
+            return sid;
         }
+    }
 
-        public override void Serialize(ILittleEndianOutput out1)
-        {
+    public override void Serialize(ILittleEndianOutput out1)
+    {
 
-            out1.WriteShort(rt);
-            out1.WriteShort(grbitFrt);
-            out1.WriteShort(wOffset);
-            out1.WriteShort(at);
-            out1.WriteShort(grbit);
-            if (unused != null)
-                out1.WriteShort((short)unused);
-        }
+        out1.WriteShort(rt);
+        out1.WriteShort(grbitFrt);
+        out1.WriteShort(wOffset);
+        out1.WriteShort(at);
+        out1.WriteShort(grbit);
+        if (unused != null)
+            out1.WriteShort((short)unused);
+    }
 
-        public override String ToString()
-        {
-            StringBuilder buffer = new StringBuilder();
+    public override String ToString()
+    {
+        StringBuilder buffer = new StringBuilder();
 
-            buffer.Append("[CATLAB]\n");
-            buffer.Append("    .rt      =").Append(HexDump.ShortToHex(rt)).Append('\n');
-            buffer.Append("    .grbitFrt=").Append(HexDump.ShortToHex(grbitFrt)).Append('\n');
-            buffer.Append("    .wOffset =").Append(HexDump.ShortToHex(wOffset)).Append('\n');
-            buffer.Append("    .at      =").Append(HexDump.ShortToHex(at)).Append('\n');
-            buffer.Append("    .grbit   =").Append(HexDump.ShortToHex(grbit)).Append('\n');
-            buffer.Append("    .unused  =").Append(HexDump.ShortToHex((short)unused)).Append('\n');
+        buffer.Append("[CATLAB]\n");
+        buffer.Append("    .rt      =").Append(HexDump.ShortToHex(rt)).Append('\n');
+        buffer.Append("    .grbitFrt=").Append(HexDump.ShortToHex(grbitFrt)).Append('\n');
+        buffer.Append("    .wOffset =").Append(HexDump.ShortToHex(wOffset)).Append('\n');
+        buffer.Append("    .at      =").Append(HexDump.ShortToHex(at)).Append('\n');
+        buffer.Append("    .grbit   =").Append(HexDump.ShortToHex(grbit)).Append('\n');
+        buffer.Append("    .unused  =").Append(HexDump.ShortToHex((short)unused)).Append('\n');
 
-            buffer.Append("[/CATLAB]\n");
-            return buffer.ToString();
-        }
+        buffer.Append("[/CATLAB]\n");
+        return buffer.ToString();
     }
 }

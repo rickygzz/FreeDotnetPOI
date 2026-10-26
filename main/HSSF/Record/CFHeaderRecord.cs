@@ -1,4 +1,4 @@
-/* ====================================================================
+﻿/* ====================================================================
    Licensed to the Apache Software Foundation (ASF) under one or more
    contributor license agreements.  See the NOTICE file distributed with
    this work for Additional information regarding copyright ownership.
@@ -15,55 +15,53 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.HSSF.Record
+namespace NPOI.HSSF.Record;
+
+using System;
+
+using NPOI.SS.Util;
+
+/**
+ * Conditional Formatting Header record CFHEADER (0x01B0).
+ * Used to describe a {@link CFRuleRecord}.
+ * @see CFHeader12Record
+ */
+public class CFHeaderRecord : CFHeaderBase, ICloneable
 {
-    using System;
+    public static short sid = 0x01B0;
 
-    using NPOI.SS.Util;
-
-    /**
-     * Conditional Formatting Header record CFHEADER (0x01B0).
-     * Used to describe a {@link CFRuleRecord}.
-     * @see CFHeader12Record
-     */
-    public class CFHeaderRecord : CFHeaderBase, ICloneable
+    /** Creates new CFHeaderRecord */
+    public CFHeaderRecord()
     {
-        public static short sid = 0x01B0;
+        CreateEmpty();
+    }
+    public CFHeaderRecord(CellRangeAddress[] regions, int nRules)
+        : base(regions, nRules)
+    {
+    }
 
-        /** Creates new CFHeaderRecord */
-        public CFHeaderRecord()
-        {
-            CreateEmpty();
-        }
-        public CFHeaderRecord(CellRangeAddress[] regions, int nRules)
-            : base(regions, nRules)
-        {
-        }
+    public CFHeaderRecord(RecordInputStream in1)
+    {
+        Read(in1);
+    }
 
-        public CFHeaderRecord(RecordInputStream in1)
+    protected override string RecordName
+    {
+        get
         {
-            Read(in1);
-        }
-
-        protected override string RecordName
-        {
-            get
-            {
-                return "CFHEADER";
-            }
-        }
-
-        public override short Sid
-        {
-            get{ return sid; }   
-        }
-
-        public override object Clone()
-        {
-            CFHeaderRecord result = new CFHeaderRecord();
-            base.CopyTo(result);
-            return result;
+            return "CFHEADER";
         }
     }
 
+    public override short Sid
+    {
+        get{ return sid; }   
+    }
+
+    public override object Clone()
+    {
+        CFHeaderRecord result = new CFHeaderRecord();
+        base.CopyTo(result);
+        return result;
+    }
 }

@@ -20,209 +20,208 @@ using NPOI.HSSF.Model;
 using NPOI.HSSF.Record.Chart;
 using System.Diagnostics;
 
-namespace NPOI.HSSF.Record.Aggregates.Chart
+namespace NPOI.HSSF.Record.Aggregates.Chart;
+
+/// <summary>
+/// CHARTFOMATS = Chart Begin *2FONTLIST Scl PlotGrowth [FRAME] *SERIESFORMAT *SS ShtProps 
+/// *2DFTTEXT AxesUsed 1*2AXISPARENT [CrtLayout12A] [DAT] *ATTACHEDLABEL [CRTMLFRT] 
+/// *([DataLabExt StartObject] ATTACHEDLABEL [EndObject]) [TEXTPROPS] *2CRTMLFRT End
+/// </summary>
+public class ChartFormatsAggregate : ChartRecordAggregate
 {
-    /// <summary>
-    /// CHARTFOMATS = Chart Begin *2FONTLIST Scl PlotGrowth [FRAME] *SERIESFORMAT *SS ShtProps 
-    /// *2DFTTEXT AxesUsed 1*2AXISPARENT [CrtLayout12A] [DAT] *ATTACHEDLABEL [CRTMLFRT] 
-    /// *([DataLabExt StartObject] ATTACHEDLABEL [EndObject]) [TEXTPROPS] *2CRTMLFRT End
-    /// </summary>
-    public class ChartFormatsAggregate : ChartRecordAggregate
+    private ChartRecord chart = null;
+    private List<FontListAggregate> fontList = new List<FontListAggregate>();
+
+    private SCLRecord scl = null;
+    private PlotGrowthRecord plotGrowth;
+
+    private FrameAggregate frame;
+    private List<SeriesFormatAggregate> seriesFormatList = new List<SeriesFormatAggregate>();
+    private List<SSAggregate> ssList = new List<SSAggregate>();
+
+    private ShtPropsRecord shtProps;
+    private List<DFTTextAggregate> dftTextList = new List<DFTTextAggregate>();
+    private AxesUsedRecord axesUsed;
+
+    private AxisParentAggregate axisParent1, axisParent2;
+    private CrtLayout12ARecord crt12A;
+    private DatAggregate dat;
+    private List<AttachedLabelAggregate> attachedLabelList = new List<AttachedLabelAggregate>();
+    private CrtMlFrtAggregate crtMlFrt;
+    private List<ChartFormatsAttachedLabelAggregate> cfalList = new List<ChartFormatsAttachedLabelAggregate>();
+    private TextPropsAggregate textProps;
+    private List<CrtMlFrtAggregate> mlfrtList = new List<CrtMlFrtAggregate>();
+
+    public ChartFormatsAggregate(RecordStream rs, ChartRecordAggregate container)
+        : base(RuleName_CHARTFOMATS, container)
     {
-        private ChartRecord chart = null;
-        private List<FontListAggregate> fontList = new List<FontListAggregate>();
-
-        private SCLRecord scl = null;
-        private PlotGrowthRecord plotGrowth;
-
-        private FrameAggregate frame;
-        private List<SeriesFormatAggregate> seriesFormatList = new List<SeriesFormatAggregate>();
-        private List<SSAggregate> ssList = new List<SSAggregate>();
-
-        private ShtPropsRecord shtProps;
-        private List<DFTTextAggregate> dftTextList = new List<DFTTextAggregate>();
-        private AxesUsedRecord axesUsed;
-
-        private AxisParentAggregate axisParent1, axisParent2;
-        private CrtLayout12ARecord crt12A;
-        private DatAggregate dat;
-        private List<AttachedLabelAggregate> attachedLabelList = new List<AttachedLabelAggregate>();
-        private CrtMlFrtAggregate crtMlFrt;
-        private List<ChartFormatsAttachedLabelAggregate> cfalList = new List<ChartFormatsAttachedLabelAggregate>();
-        private TextPropsAggregate textProps;
-        private List<CrtMlFrtAggregate> mlfrtList = new List<CrtMlFrtAggregate>();
-
-        public ChartFormatsAggregate(RecordStream rs, ChartRecordAggregate container)
-            : base(RuleName_CHARTFOMATS, container)
+        Debug.Assert(rs.PeekNextChartSid() == ChartRecord.sid);
+        chart = (ChartRecord)rs.GetNext();
+        rs.GetNext();
+        while (rs.PeekNextChartSid() == FrtFontListRecord.sid)
         {
-            Debug.Assert(rs.PeekNextChartSid() == ChartRecord.sid);
-            chart = (ChartRecord)rs.GetNext();
-            rs.GetNext();
-            while (rs.PeekNextChartSid() == FrtFontListRecord.sid)
+            fontList.Add(new FontListAggregate(rs, this));
+        }
+        Debug.Assert(rs.PeekNextChartSid() == SCLRecord.sid);
+        scl = (SCLRecord)rs.GetNext();
+        plotGrowth = (PlotGrowthRecord)rs.GetNext();
+
+        if (rs.PeekNextChartSid() == FrameRecord.sid)
+        {
+            frame = new FrameAggregate(rs, this);
+        }
+
+        while (rs.PeekNextChartSid() == SeriesRecord.sid)
+        {
+            seriesFormatList.Add(new SeriesFormatAggregate(rs, this));
+        }
+
+        while (rs.PeekNextChartSid() == DataFormatRecord.sid)
+        {
+            ssList.Add(new SSAggregate(rs, this));
+        }
+
+        Debug.Assert(rs.PeekNextChartSid() == ShtPropsRecord.sid);
+        shtProps = (ShtPropsRecord)rs.GetNext();
+
+        while (rs.PeekNextChartSid() == DefaultTextRecord.sid||
+            rs.PeekNextChartSid() == DataLabExtRecord.sid)
+        {
+            dftTextList.Add(new DFTTextAggregate(rs, this));
+        }
+
+        Debug.Assert(rs.PeekNextChartSid() == AxesUsedRecord.sid);
+        axesUsed = (AxesUsedRecord)rs.GetNext();
+
+        Debug.Assert(rs.PeekNextChartSid() == AxisParentRecord.sid);
+        axisParent1 = new AxisParentAggregate(rs, this);
+        if (rs.PeekNextChartSid() == AxisParentRecord.sid)
+        {
+            axisParent2 = new AxisParentAggregate(rs, this);
+        }
+
+        if (rs.PeekNextChartSid() == CrtLayout12ARecord.sid)
+            crt12A = (CrtLayout12ARecord)rs.GetNext();
+        if (rs.PeekNextChartSid() == DatRecord.sid)
+            dat = new DatAggregate(rs, container);
+
+        if (rs.PeekNextChartSid() == TextRecord.sid)
+        {
+            while (rs.PeekNextChartSid() == TextRecord.sid)
+                attachedLabelList.Add(new AttachedLabelAggregate(rs, this));
+        }
+
+        if (rs.PeekNextChartSid() == CrtMlFrtRecord.sid)
+            crtMlFrt = new CrtMlFrtAggregate(rs, container);
+
+        while (rs.PeekNextChartSid() == DataLabExtRecord.sid || rs.PeekNextChartSid() == TextRecord.sid)
+        {
+            cfalList.Add(new ChartFormatsAttachedLabelAggregate(rs, this));
+        }
+
+        if (rs.PeekNextChartSid() == TextPropsStreamRecord.sid)
+            textProps = new TextPropsAggregate(rs, container);
+
+        while (rs.PeekNextChartSid() == CrtMlFrtRecord.sid)
+        {
+            mlfrtList.Add(new CrtMlFrtAggregate(rs, container));
+        }
+
+        Record r = rs.GetNext();//EndRecord
+        Debug.Assert(r.GetType() == typeof(EndRecord));
+    }
+
+    public override void VisitContainedRecords(RecordVisitor rv)
+    {
+        rv.VisitRecord(chart);
+        rv.VisitRecord(BeginRecord.instance);
+        foreach (FontListAggregate f in fontList)
+        {
+            f.VisitContainedRecords(rv);
+        }
+        rv.VisitRecord(scl);
+        rv.VisitRecord(plotGrowth);
+
+        if (frame != null)
+            frame.VisitContainedRecords(rv);
+
+        short num = 0;
+        foreach (SeriesFormatAggregate sf in seriesFormatList)
+        {
+            sf.VisitContainedRecords(rv);
+            sf.SeriesIndex = num++;
+        }
+        foreach (SSAggregate ss in ssList)
+            ss.VisitContainedRecords(rv);
+        rv.VisitRecord(shtProps);
+        foreach (DFTTextAggregate dft in dftTextList)
+            dft.VisitContainedRecords(rv);
+        rv.VisitRecord(axesUsed);
+
+        axisParent1.VisitContainedRecords(rv);
+        if (axisParent2 != null)
+            axisParent2.VisitContainedRecords(rv);
+
+        if (crt12A != null)
+            rv.VisitRecord(crt12A);
+        if (dat != null)
+            dat.VisitContainedRecords(rv);
+
+        foreach (AttachedLabelAggregate al in attachedLabelList)
+            al.VisitContainedRecords(rv);
+
+        if (crtMlFrt != null)
+            crtMlFrt.VisitContainedRecords(rv);
+
+        foreach (ChartFormatsAttachedLabelAggregate cfa in cfalList)
+            cfa.VisitContainedRecords(rv);
+
+        if (textProps != null)
+            textProps.VisitContainedRecords(rv);
+
+        foreach (CrtMlFrtAggregate c in mlfrtList)
+            c.VisitContainedRecords(rv);
+
+        WriteEndBlock(rv);
+        rv.VisitRecord(EndRecord.instance);
+    }
+
+    private sealed class ChartFormatsAttachedLabelAggregate : ChartRecordAggregate
+    {
+        private DataLabExtRecord dataLabExt;
+        private ChartStartObjectRecord startObject;
+        private AttachedLabelAggregate attachedLabel;
+        private ChartEndObjectRecord endObject;
+        public ChartFormatsAttachedLabelAggregate(RecordStream rs, ChartRecordAggregate container)
+            : base("ChartFormatsAttachedLabel", container)
+        {
+            if (rs.PeekNextChartSid() == DataLabExtRecord.sid)
             {
-                fontList.Add(new FontListAggregate(rs, this));
+                dataLabExt = (DataLabExtRecord)rs.GetNext();
+                startObject = (ChartStartObjectRecord)rs.GetNext();
             }
-            Debug.Assert(rs.PeekNextChartSid() == SCLRecord.sid);
-            scl = (SCLRecord)rs.GetNext();
-            plotGrowth = (PlotGrowthRecord)rs.GetNext();
 
-            if (rs.PeekNextChartSid() == FrameRecord.sid)
+            attachedLabel = new AttachedLabelAggregate(rs, this);
+
+            if (startObject != null)
             {
-                frame = new FrameAggregate(rs, this);
+                endObject = (ChartEndObjectRecord)rs.GetNext();
             }
-
-            while (rs.PeekNextChartSid() == SeriesRecord.sid)
-            {
-                seriesFormatList.Add(new SeriesFormatAggregate(rs, this));
-            }
-
-            while (rs.PeekNextChartSid() == DataFormatRecord.sid)
-            {
-                ssList.Add(new SSAggregate(rs, this));
-            }
-
-            Debug.Assert(rs.PeekNextChartSid() == ShtPropsRecord.sid);
-            shtProps = (ShtPropsRecord)rs.GetNext();
-
-            while (rs.PeekNextChartSid() == DefaultTextRecord.sid||
-                rs.PeekNextChartSid() == DataLabExtRecord.sid)
-            {
-                dftTextList.Add(new DFTTextAggregate(rs, this));
-            }
-
-            Debug.Assert(rs.PeekNextChartSid() == AxesUsedRecord.sid);
-            axesUsed = (AxesUsedRecord)rs.GetNext();
-
-            Debug.Assert(rs.PeekNextChartSid() == AxisParentRecord.sid);
-            axisParent1 = new AxisParentAggregate(rs, this);
-            if (rs.PeekNextChartSid() == AxisParentRecord.sid)
-            {
-                axisParent2 = new AxisParentAggregate(rs, this);
-            }
-
-            if (rs.PeekNextChartSid() == CrtLayout12ARecord.sid)
-                crt12A = (CrtLayout12ARecord)rs.GetNext();
-            if (rs.PeekNextChartSid() == DatRecord.sid)
-                dat = new DatAggregate(rs, container);
-
-            if (rs.PeekNextChartSid() == TextRecord.sid)
-            {
-                while (rs.PeekNextChartSid() == TextRecord.sid)
-                    attachedLabelList.Add(new AttachedLabelAggregate(rs, this));
-            }
-
-            if (rs.PeekNextChartSid() == CrtMlFrtRecord.sid)
-                crtMlFrt = new CrtMlFrtAggregate(rs, container);
-
-            while (rs.PeekNextChartSid() == DataLabExtRecord.sid || rs.PeekNextChartSid() == TextRecord.sid)
-            {
-                cfalList.Add(new ChartFormatsAttachedLabelAggregate(rs, this));
-            }
-
-            if (rs.PeekNextChartSid() == TextPropsStreamRecord.sid)
-                textProps = new TextPropsAggregate(rs, container);
-
-            while (rs.PeekNextChartSid() == CrtMlFrtRecord.sid)
-            {
-                mlfrtList.Add(new CrtMlFrtAggregate(rs, container));
-            }
-
-            Record r = rs.GetNext();//EndRecord
-            Debug.Assert(r.GetType() == typeof(EndRecord));
         }
 
         public override void VisitContainedRecords(RecordVisitor rv)
         {
-            rv.VisitRecord(chart);
-            rv.VisitRecord(BeginRecord.instance);
-            foreach (FontListAggregate f in fontList)
+            if (dataLabExt != null)
             {
-                f.VisitContainedRecords(rv);
+                rv.VisitRecord(dataLabExt);
+                rv.VisitRecord(startObject);
+                IsInStartObject = true;
             }
-            rv.VisitRecord(scl);
-            rv.VisitRecord(plotGrowth);
-
-            if (frame != null)
-                frame.VisitContainedRecords(rv);
-
-            short num = 0;
-            foreach (SeriesFormatAggregate sf in seriesFormatList)
+            attachedLabel.VisitContainedRecords(rv);
+            if (endObject != null)
             {
-                sf.VisitContainedRecords(rv);
-                sf.SeriesIndex = num++;
-            }
-            foreach (SSAggregate ss in ssList)
-                ss.VisitContainedRecords(rv);
-            rv.VisitRecord(shtProps);
-            foreach (DFTTextAggregate dft in dftTextList)
-                dft.VisitContainedRecords(rv);
-            rv.VisitRecord(axesUsed);
-
-            axisParent1.VisitContainedRecords(rv);
-            if (axisParent2 != null)
-                axisParent2.VisitContainedRecords(rv);
-
-            if (crt12A != null)
-                rv.VisitRecord(crt12A);
-            if (dat != null)
-                dat.VisitContainedRecords(rv);
-
-            foreach (AttachedLabelAggregate al in attachedLabelList)
-                al.VisitContainedRecords(rv);
-
-            if (crtMlFrt != null)
-                crtMlFrt.VisitContainedRecords(rv);
-
-            foreach (ChartFormatsAttachedLabelAggregate cfa in cfalList)
-                cfa.VisitContainedRecords(rv);
-
-            if (textProps != null)
-                textProps.VisitContainedRecords(rv);
-
-            foreach (CrtMlFrtAggregate c in mlfrtList)
-                c.VisitContainedRecords(rv);
-
-            WriteEndBlock(rv);
-            rv.VisitRecord(EndRecord.instance);
-        }
-
-        private sealed class ChartFormatsAttachedLabelAggregate : ChartRecordAggregate
-        {
-            private DataLabExtRecord dataLabExt;
-            private ChartStartObjectRecord startObject;
-            private AttachedLabelAggregate attachedLabel;
-            private ChartEndObjectRecord endObject;
-            public ChartFormatsAttachedLabelAggregate(RecordStream rs, ChartRecordAggregate container)
-                : base("ChartFormatsAttachedLabel", container)
-            {
-                if (rs.PeekNextChartSid() == DataLabExtRecord.sid)
-                {
-                    dataLabExt = (DataLabExtRecord)rs.GetNext();
-                    startObject = (ChartStartObjectRecord)rs.GetNext();
-                }
-
-                attachedLabel = new AttachedLabelAggregate(rs, this);
-
-                if (startObject != null)
-                {
-                    endObject = (ChartEndObjectRecord)rs.GetNext();
-                }
-            }
-
-            public override void VisitContainedRecords(RecordVisitor rv)
-            {
-                if (dataLabExt != null)
-                {
-                    rv.VisitRecord(dataLabExt);
-                    rv.VisitRecord(startObject);
-                    IsInStartObject = true;
-                }
-                attachedLabel.VisitContainedRecords(rv);
-                if (endObject != null)
-                {
-                    IsInStartObject = false;
-                    rv.VisitRecord(endObject);
-                }
+                IsInStartObject = false;
+                rv.VisitRecord(endObject);
             }
         }
     }

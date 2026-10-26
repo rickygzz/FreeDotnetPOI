@@ -1,4 +1,4 @@
-
+﻿
 /* ====================================================================
    Licensed to the Apache Software Foundation (ASF) Under one or more
    contributor license agreements.  See the NOTICE file distributed with
@@ -17,98 +17,97 @@
 ==================================================================== */
 
 
-namespace NPOI.HSSF.Record.Chart
-{
+namespace NPOI.HSSF.Record.Chart;
 
-    using System;
-    using System.Text;
-    using NPOI.Util;
+
+using System;
+using System.Text;
+using NPOI.Util;
+
+
+/**
+ * The number of axes used on a chart.
+ * NOTE: This source is automatically generated please do not modify this file.  Either subclass or
+ *       Remove the record in src/records/definitions.
+
+ * @author Glen Stampoultzis (glens at apache.org)
+ */
+public class AxesUsedRecord
+   : StandardRecord
+{
+    public const short sid = 0x1046;
+    private short field_1_numAxis;
+
+
+    public AxesUsedRecord()
+    {
+
+    }
+
+    /**
+     * Constructs a AxisUsed record and Sets its fields appropriately.
+     *
+     * @param in the RecordInputstream to Read the record from
+     */
+
+    public AxesUsedRecord(RecordInputStream in1)
+    {
+        field_1_numAxis = in1.ReadShort();
+    }
+
+    public override String ToString()
+    {
+        StringBuilder buffer = new StringBuilder();
+
+        buffer.Append("[AXISUSED]\n");
+        buffer.Append("    .numAxis              = ")
+            .Append("0x").Append(HexDump.ToHex(this.NumAxis))
+            .Append(" (").Append(this.NumAxis).Append(" )");
+        buffer.Append(Environment.NewLine);
+
+        buffer.Append("[/AXISUSED]\n");
+        return buffer.ToString();
+    }
+
+    public override void Serialize(ILittleEndianOutput out1)
+    {
+        out1.WriteShort(field_1_numAxis);
+    }
+
+    /**
+     * Size of record (exluding 4 byte header)
+     */
+    protected override int DataSize
+    {
+        get { return 2; }
+    }
+
+    public override short Sid
+    {
+        get { return sid; }
+    }
+
+    public override Object Clone()
+    {
+        AxesUsedRecord rec = new AxesUsedRecord();
+
+        rec.field_1_numAxis = field_1_numAxis;
+        return rec;
+    }
+
+
 
 
     /**
-     * The number of axes used on a chart.
-     * NOTE: This source is automatically generated please do not modify this file.  Either subclass or
-     *       Remove the record in src/records/definitions.
-
-     * @author Glen Stampoultzis (glens at apache.org)
+     * Get the num axis field for the AxisUsed record.
      */
-    public class AxesUsedRecord
-       : StandardRecord
+    public short NumAxis
     {
-        public const short sid = 0x1046;
-        private short field_1_numAxis;
-
-
-        public AxesUsedRecord()
-        {
-
-        }
-
-        /**
-         * Constructs a AxisUsed record and Sets its fields appropriately.
-         *
-         * @param in the RecordInputstream to Read the record from
-         */
-
-        public AxesUsedRecord(RecordInputStream in1)
-        {
-            field_1_numAxis = in1.ReadShort();
-        }
-
-        public override String ToString()
-        {
-            StringBuilder buffer = new StringBuilder();
-
-            buffer.Append("[AXISUSED]\n");
-            buffer.Append("    .numAxis              = ")
-                .Append("0x").Append(HexDump.ToHex(this.NumAxis))
-                .Append(" (").Append(this.NumAxis).Append(" )");
-            buffer.Append(Environment.NewLine);
-
-            buffer.Append("[/AXISUSED]\n");
-            return buffer.ToString();
-        }
-
-        public override void Serialize(ILittleEndianOutput out1)
-        {
-            out1.WriteShort(field_1_numAxis);
-        }
-
-        /**
-         * Size of record (exluding 4 byte header)
-         */
-        protected override int DataSize
-        {
-            get { return 2; }
-        }
-
-        public override short Sid
-        {
-            get { return sid; }
-        }
-
-        public override Object Clone()
-        {
-            AxesUsedRecord rec = new AxesUsedRecord();
-
-            rec.field_1_numAxis = field_1_numAxis;
-            return rec;
-        }
-
-
-
-
-        /**
-         * Get the num axis field for the AxisUsed record.
-         */
-        public short NumAxis
-        {
-            get { return field_1_numAxis; }
-            set { this.field_1_numAxis = value; }
-        }
-
-
+        get { return field_1_numAxis; }
+        set { this.field_1_numAxis = value; }
     }
+
+
 }
 
 

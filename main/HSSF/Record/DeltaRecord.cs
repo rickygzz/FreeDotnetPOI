@@ -1,4 +1,4 @@
-
+﻿
 /* ====================================================================
    Licensed to the Apache Software Foundation (ASF) Under one or more
    contributor license agreements.  See the NOTICE file distributed with
@@ -17,92 +17,91 @@
 ==================================================================== */
 
 
-namespace NPOI.HSSF.Record
+namespace NPOI.HSSF.Record;
+
+using System.Text;
+using NPOI.Util;
+using System;
+
+
+/**
+ * Title:        Delta Record
+ * Description:  controls the accuracy of the calculations
+ * REFERENCE:  PG 303 Microsoft Excel 97 Developer's Kit (ISBN: 1-57231-498-2)
+ * @author Andrew C. Oliver (acoliver at apache dot org)
+ * @author Jason Height (jheight at chariot dot net dot au)
+ * @version 2.0-pre
+ */
+
+public class DeltaRecord : StandardRecord, ICloneable
 {
-    using System.Text;
-    using NPOI.Util;
-    using System;
+    public const short sid = 0x10;
+    public const double DEFAULT_VALUE = 0.0010;   // should be .001
+
+    // a double Is an IEEE 8-byte float...damn IEEE and their goofy standards an
+    // ambiguous numeric identifiers
+    private double field_1_max_change;
+
+    public DeltaRecord(double maxChange)
+    {
+        field_1_max_change = maxChange;
+    }
+
+    /**
+     * Constructs a Delta record and Sets its fields appropriately.
+     * @param in the RecordInputstream to Read the record from
+     */
+
+    public DeltaRecord(RecordInputStream in1)
+    {
+        field_1_max_change = in1.ReadDouble();
+    }
 
 
     /**
-     * Title:        Delta Record
-     * Description:  controls the accuracy of the calculations
-     * REFERENCE:  PG 303 Microsoft Excel 97 Developer's Kit (ISBN: 1-57231-498-2)
-     * @author Andrew C. Oliver (acoliver at apache dot org)
-     * @author Jason Height (jheight at chariot dot net dot au)
-     * @version 2.0-pre
+     * Get the maximum Change
+     * @return maxChange - maximum rounding error
      */
 
-    public class DeltaRecord : StandardRecord, ICloneable
+    public double MaxChange
     {
-        public const short sid = 0x10;
-        public const double DEFAULT_VALUE = 0.0010;   // should be .001
-
-        // a double Is an IEEE 8-byte float...damn IEEE and their goofy standards an
-        // ambiguous numeric identifiers
-        private double field_1_max_change;
-
-        public DeltaRecord(double maxChange)
+        get
         {
-            field_1_max_change = maxChange;
+            return field_1_max_change;
         }
-
-        /**
-         * Constructs a Delta record and Sets its fields appropriately.
-         * @param in the RecordInputstream to Read the record from
-         */
-
-        public DeltaRecord(RecordInputStream in1)
-        {
-            field_1_max_change = in1.ReadDouble();
+        set {
+            field_1_max_change = value;
         }
+    }
 
+    public override String ToString()
+    {
+        StringBuilder buffer = new StringBuilder();
 
-        /**
-         * Get the maximum Change
-         * @return maxChange - maximum rounding error
-         */
+        buffer.Append("[DELTA]\n");
+        buffer.Append("    .maxChange      = ").Append(MaxChange)
+            .Append("\n");
+        buffer.Append("[/DELTA]\n");
+        return buffer.ToString();
+    }
 
-        public double MaxChange
-        {
-            get
-            {
-                return field_1_max_change;
-            }
-            set {
-                field_1_max_change = value;
-            }
-        }
+    public override void Serialize(ILittleEndianOutput out1)
+    {
+        out1.WriteDouble(MaxChange);
+    }
 
-        public override String ToString()
-        {
-            StringBuilder buffer = new StringBuilder();
+    protected override int DataSize
+    {
+        get { return 8; }
+    }
 
-            buffer.Append("[DELTA]\n");
-            buffer.Append("    .maxChange      = ").Append(MaxChange)
-                .Append("\n");
-            buffer.Append("[/DELTA]\n");
-            return buffer.ToString();
-        }
+    public override short Sid
+    {
+        get { return sid; }
+    }
 
-        public override void Serialize(ILittleEndianOutput out1)
-        {
-            out1.WriteDouble(MaxChange);
-        }
-
-        protected override int DataSize
-        {
-            get { return 8; }
-        }
-
-        public override short Sid
-        {
-            get { return sid; }
-        }
-
-        public override Object Clone()
-        {
-            return this;
-        }
+    public override Object Clone()
+    {
+        return this;
     }
 }

@@ -1,4 +1,4 @@
-
+﻿
 /* ====================================================================
    Licensed to the Apache Software Foundation (ASF) Under one or more
    contributor license agreements.  See the NOTICE file distributed with
@@ -17,76 +17,75 @@
 ==================================================================== */
 
 
-namespace NPOI.HSSF.Record.Chart
+namespace NPOI.HSSF.Record.Chart;
+
+using System;
+using System.Text;
+using NPOI.Util;
+
+
+/**
+ * preceeds and identifies a frame as belonging to the plot area.
+ * NOTE: This source is automatically generated please do not modify this file.  Either subclass or
+ *       Remove the record in src/records/definitions.
+
+ * @author Andrew C. Oliver (acoliver at apache.org)
+ */
+public class PlotAreaRecord
+   : StandardRecord
 {
-    using System;
-    using System.Text;
-    using NPOI.Util;
+    public const short sid = 0x1035;
 
 
-    /**
-     * preceeds and identifies a frame as belonging to the plot area.
-     * NOTE: This source is automatically generated please do not modify this file.  Either subclass or
-     *       Remove the record in src/records/definitions.
-
-     * @author Andrew C. Oliver (acoliver at apache.org)
-     */
-    public class PlotAreaRecord
-       : StandardRecord
+    public PlotAreaRecord()
     {
-        public const short sid = 0x1035;
-
-
-        public PlotAreaRecord()
-        {
-
-        }
-
-        /**
-         * Constructs a PlotArea record and Sets its fields appropriately.
-         *
-         * @param in the RecordInputstream to Read the record from
-         */
-
-        public PlotAreaRecord(RecordInputStream in1)
-        {
-        }
-
-        public override String ToString()
-        {
-            StringBuilder buffer = new StringBuilder();
-
-            buffer.Append("[PLOTAREA]\n");
-
-            buffer.Append("[/PLOTAREA]\n");
-            return buffer.ToString();
-        }
-
-        public override void Serialize(ILittleEndianOutput out1)
-        {
-        }
-
-        /**
-         * Size of record (exluding 4 byte header)
-         */
-        protected override int DataSize
-        {
-            get { return 0; }
-        }
-
-        public override short Sid
-        {
-            get { return sid; }
-        }
-
-        public override Object Clone()
-        {
-            PlotAreaRecord rec = new PlotAreaRecord();
-
-            return rec;
-        }
 
     }
+
+    /**
+     * Constructs a PlotArea record and Sets its fields appropriately.
+     *
+     * @param in the RecordInputstream to Read the record from
+     */
+
+    public PlotAreaRecord(RecordInputStream in1)
+    {
+    }
+
+    public override String ToString()
+    {
+        StringBuilder buffer = new StringBuilder();
+
+        buffer.Append("[PLOTAREA]\n");
+
+        buffer.Append("[/PLOTAREA]\n");
+        return buffer.ToString();
+    }
+
+    public override void Serialize(ILittleEndianOutput out1)
+    {
+    }
+
+    /**
+     * Size of record (exluding 4 byte header)
+     */
+    protected override int DataSize
+    {
+        get { return 0; }
+    }
+
+    public override short Sid
+    {
+        get { return sid; }
+    }
+
+    public override Object Clone()
+    {
+        PlotAreaRecord rec = new PlotAreaRecord();
+
+        return rec;
+    }
+
 }
 
 

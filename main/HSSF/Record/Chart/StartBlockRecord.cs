@@ -1,4 +1,4 @@
-/* ====================================================================
+﻿/* ====================================================================
    Licensed to the Apache Software Foundation (ASF) under one or more
    contributor license agreements.  See the NOTICE file distributed with
    this work for additional information regarding copyright ownership.
@@ -15,139 +15,138 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.HSSF.Record.Chart
+namespace NPOI.HSSF.Record.Chart;
+
+using System;
+using System.Text;
+using NPOI.Util;
+
+/**
+ * STARTBLOCK - Chart Future Record Type Start Block (0x0852)<br/>
+ * 
+ * @author Patrick Cheng
+ */
+public class StartBlockRecord : StandardRecord
 {
-    using System;
-    using System.Text;
-    using NPOI.Util;
+    public static short sid = 0x0852;
 
-    /**
-     * STARTBLOCK - Chart Future Record Type Start Block (0x0852)<br/>
-     * 
-     * @author Patrick Cheng
-     */
-    public class StartBlockRecord : StandardRecord
+    private short rt;
+    private short grbitFrt;
+
+    public ObjectKind ObjectKind
     {
-        public static short sid = 0x0852;
+        get; set;
+    }
 
-        private short rt;
-        private short grbitFrt;
+    public short ObjectContext
+    {
+        get; set;
+    }
 
-        public ObjectKind ObjectKind
+    public short ObjectInstance1
+    {
+        get; set;
+    }
+
+    public short ObjectInstance2
+    {
+        get; set;
+    }
+
+    public StartBlockRecord()
+    {
+        rt = sid;
+        grbitFrt = 0;
+    }
+    
+    public StartBlockRecord(RecordInputStream in1)
+    {
+        rt = in1.ReadShort();
+        grbitFrt = in1.ReadShort();
+        ObjectKind = (ObjectKind) in1.ReadShort();
+        ObjectContext = in1.ReadShort();
+        ObjectInstance1 = in1.ReadShort();
+        ObjectInstance2 = in1.ReadShort();
+    }
+
+
+    protected override int DataSize
+    {
+        get
         {
-            get; set;
+            return 2 + 2 + 2 + 2 + 2 + 2;
         }
+    }
 
-        public short ObjectContext
+    public override short Sid
+    {
+        get
         {
-            get; set;
+            return sid;
         }
+    }
 
-        public short ObjectInstance1
-        {
-            get; set;
-        }
+    public override void Serialize(ILittleEndianOutput out1)
+    {
+        out1.WriteShort(rt);
+        out1.WriteShort(grbitFrt);
+        out1.WriteShort((short) ObjectKind);
+        out1.WriteShort(ObjectContext);
+        out1.WriteShort(ObjectInstance1);
+        out1.WriteShort(ObjectInstance2);
+    }
 
-        public short ObjectInstance2
-        {
-            get; set;
-        }
+    public override String ToString()
+    {
 
-        public StartBlockRecord()
-        {
-            rt = sid;
-            grbitFrt = 0;
-        }
-        
-        public StartBlockRecord(RecordInputStream in1)
-        {
-            rt = in1.ReadShort();
-            grbitFrt = in1.ReadShort();
-            ObjectKind = (ObjectKind) in1.ReadShort();
-            ObjectContext = in1.ReadShort();
-            ObjectInstance1 = in1.ReadShort();
-            ObjectInstance2 = in1.ReadShort();
-        }
+        StringBuilder buffer = new StringBuilder();
 
+        buffer.Append("[STARTBLOCK]\n");
+        buffer.Append("    .rt              =").Append(HexDump.ShortToHex(rt)).Append('\n');
+        buffer.Append("    .grbitFrt        =").Append(HexDump.ShortToHex(grbitFrt)).Append('\n');
+        buffer.Append("    .iObjectKind     =").Append(HexDump.ShortToHex((short) ObjectKind)).Append('\n');
+        buffer.Append("    .iObjectContext  =").Append(HexDump.ShortToHex(ObjectContext)).Append('\n');
+        buffer.Append("    .iObjectInstance1=").Append(HexDump.ShortToHex(ObjectInstance1)).Append('\n');
+        buffer.Append("    .iObjectInstance2=").Append(HexDump.ShortToHex(ObjectInstance2)).Append('\n');
+        buffer.Append("[/STARTBLOCK]\n");
+        return buffer.ToString();
+    }
+    public override object Clone()
+    {
+        StartBlockRecord record = new StartBlockRecord();
+        record.rt = rt;
+        record.grbitFrt = grbitFrt;
+        record.ObjectKind = ObjectKind;
+        record.ObjectContext = ObjectContext;
+        record.ObjectInstance1 = ObjectInstance1;
+        record.ObjectInstance2 = ObjectInstance2;
+        return record;
+    }
+    
+    public static StartBlockRecord CreateStartBlock(ObjectKind objectKind)
+    {
+        return CreateStartBlock(objectKind, 0, 0, 0);
+    }
 
-        protected override int DataSize
-        {
-            get
-            {
-                return 2 + 2 + 2 + 2 + 2 + 2;
-            }
-        }
+    public static StartBlockRecord CreateStartBlock(ObjectKind objectKind, short objectContext)
+    {
+        return CreateStartBlock(objectKind, objectContext, 0, 0);
+    }
 
-        public override short Sid
-        {
-            get
-            {
-                return sid;
-            }
-        }
+    public static StartBlockRecord CreateStartBlock(ObjectKind objectKind, short objectContext,
+        short objectInstance1)
+    {
+        return CreateStartBlock(objectKind, objectContext, objectInstance1, 0);
+    }
 
-        public override void Serialize(ILittleEndianOutput out1)
-        {
-            out1.WriteShort(rt);
-            out1.WriteShort(grbitFrt);
-            out1.WriteShort((short) ObjectKind);
-            out1.WriteShort(ObjectContext);
-            out1.WriteShort(ObjectInstance1);
-            out1.WriteShort(ObjectInstance2);
-        }
-
-        public override String ToString()
-        {
-
-            StringBuilder buffer = new StringBuilder();
-
-            buffer.Append("[STARTBLOCK]\n");
-            buffer.Append("    .rt              =").Append(HexDump.ShortToHex(rt)).Append('\n');
-            buffer.Append("    .grbitFrt        =").Append(HexDump.ShortToHex(grbitFrt)).Append('\n');
-            buffer.Append("    .iObjectKind     =").Append(HexDump.ShortToHex((short) ObjectKind)).Append('\n');
-            buffer.Append("    .iObjectContext  =").Append(HexDump.ShortToHex(ObjectContext)).Append('\n');
-            buffer.Append("    .iObjectInstance1=").Append(HexDump.ShortToHex(ObjectInstance1)).Append('\n');
-            buffer.Append("    .iObjectInstance2=").Append(HexDump.ShortToHex(ObjectInstance2)).Append('\n');
-            buffer.Append("[/STARTBLOCK]\n");
-            return buffer.ToString();
-        }
-        public override object Clone()
-        {
-            StartBlockRecord record = new StartBlockRecord();
-            record.rt = rt;
-            record.grbitFrt = grbitFrt;
-            record.ObjectKind = ObjectKind;
-            record.ObjectContext = ObjectContext;
-            record.ObjectInstance1 = ObjectInstance1;
-            record.ObjectInstance2 = ObjectInstance2;
-            return record;
-        }
-        
-        public static StartBlockRecord CreateStartBlock(ObjectKind objectKind)
-        {
-            return CreateStartBlock(objectKind, 0, 0, 0);
-        }
-
-        public static StartBlockRecord CreateStartBlock(ObjectKind objectKind, short objectContext)
-        {
-            return CreateStartBlock(objectKind, objectContext, 0, 0);
-        }
-
-        public static StartBlockRecord CreateStartBlock(ObjectKind objectKind, short objectContext,
-            short objectInstance1)
-        {
-            return CreateStartBlock(objectKind, objectContext, objectInstance1, 0);
-        }
-
-        public static StartBlockRecord CreateStartBlock(ObjectKind objectKind, short objectContext,
-            short objectInstance1, short objectInstance2)
-        {
-            StartBlockRecord record = new StartBlockRecord();
-            record.ObjectKind = objectKind;
-            record.ObjectContext = objectContext;
-            record.ObjectInstance1 = objectInstance1;
-            record.ObjectInstance2 = objectInstance2;
-            return record;
-        }
+    public static StartBlockRecord CreateStartBlock(ObjectKind objectKind, short objectContext,
+        short objectInstance1, short objectInstance2)
+    {
+        StartBlockRecord record = new StartBlockRecord();
+        record.ObjectKind = objectKind;
+        record.ObjectContext = objectContext;
+        record.ObjectInstance1 = objectInstance1;
+        record.ObjectInstance2 = objectInstance2;
+        return record;
     }
 }

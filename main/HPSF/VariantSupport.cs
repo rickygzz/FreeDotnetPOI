@@ -105,7 +105,7 @@ public class VariantSupport : Variant
     /// <return>true if HPFS supports this type, else
     /// <c>false</c>
     /// </return>
-    public bool IsSupportedType(int variantType)
+    public static bool IsSupportedType(int variantType)
     {
         foreach (var st in SUPPORTED_TYPES)
         {

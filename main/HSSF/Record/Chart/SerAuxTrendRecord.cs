@@ -15,37 +15,36 @@
    limitations Under the License.
 ==================================================================== */
 
-namespace NPOI.HSSF.Record.Chart
+namespace NPOI.HSSF.Record.Chart;
+
+/// <summary>
+/// The SerAuxTrend record specifies a trendline.
+/// </summary>
+/// <remarks>
+/// author: Antony liu (antony.apollo at gmail.com)
+/// </remarks>
+public class SerAuxTrendRecord : RowDataRecord
 {
-    /// <summary>
-    /// The SerAuxTrend record specifies a trendline.
-    /// </summary>
-    /// <remarks>
-    /// author: Antony liu (antony.apollo at gmail.com)
-    /// </remarks>
-    public class SerAuxTrendRecord : RowDataRecord
+    public const short sid = 0x104B;
+    public SerAuxTrendRecord(RecordInputStream ris)
+        : base(ris)
     {
-        public const short sid = 0x104B;
-        public SerAuxTrendRecord(RecordInputStream ris)
-            : base(ris)
-        {
-        }
+    }
 
-        protected override int DataSize
+    protected override int DataSize
+    {
+        get
         {
-            get
-            {
-                return base.DataSize;
-            }
+            return base.DataSize;
         }
-        public override void Serialize(NPOI.Util.ILittleEndianOutput out1)
-        {
-            base.Serialize(out1);
-        }
+    }
+    public override void Serialize(NPOI.Util.ILittleEndianOutput out1)
+    {
+        base.Serialize(out1);
+    }
 
-        public override short Sid
-        {
-            get { return sid; }
-        }
+    public override short Sid
+    {
+        get { return sid; }
     }
 }

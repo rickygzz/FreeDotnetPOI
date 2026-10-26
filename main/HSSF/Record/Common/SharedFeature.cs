@@ -1,4 +1,4 @@
-/* ====================================================================
+﻿/* ====================================================================
    Licensed to the Apache Software Foundation (ASF) under one or more
    contributor license agreements.  See the NOTICE file distributed with
    this work for Additional information regarding copyright ownership.
@@ -15,20 +15,18 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.HSSF.Record.Common
+namespace NPOI.HSSF.Record.Common;
+
+using System;
+
+using NPOI.Util;
+
+/**
+ * Common Interface for all Shared Features
+ */
+public interface SharedFeature
 {
-    using System;
-
-    using NPOI.Util;
-
-    /**
-     * Common Interface for all Shared Features
-     */
-    public interface SharedFeature
-    {
-        String ToString();
-        void Serialize(ILittleEndianOutput out1);
-        int DataSize { get; }
-    }
-
+    String ToString();
+    void Serialize(ILittleEndianOutput out1);
+    int DataSize { get; }
 }
