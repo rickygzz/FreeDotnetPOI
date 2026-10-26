@@ -18,17 +18,18 @@
  * Created on May 22, 2005
  *
  */
-namespace NPOI.SS.Formula.Functions
+using NPOI.SS.Formula.Functions.Numeric;
+
+namespace NPOI.SS.Formula.Functions;
+
+/**
+ * @author Amol S. Deshmukh &lt; amolweb at ya hoo dot com &gt;
+ *
+ */
+public class Fact : OneArg
 {
-    /**
-     * @author Amol S. Deshmukh &lt; amolweb at ya hoo dot com &gt;
-     *
-     */
-    public class Fact : OneArg
+    public override double Evaluate(double d)
     {
-        public override double Evaluate(double d)
-        {
-            return MathX.Factorial((int)d);
-        }
+        return MathX.Factorial((int)d);
     }
 }

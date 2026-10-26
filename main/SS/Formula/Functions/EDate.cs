@@ -15,101 +15,101 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.SS.Formula.Functions
+namespace NPOI.SS.Formula.Functions;
+
+using NPOI.SS.Formula.Eval;
+using NPOI.SS.Formula.Functions.Numeric;
+using NPOI.SS.UserModel;
+using System;
+
+
+/**
+ * Implementation of Excel 'Analysis ToolPak' function EDATE()<br/>
+ *
+ * Adds a specified number of months to the specified date.<p/>
+ *
+ * <b>Syntax</b><br/>
+ * <b>EDATE</b>(<b>date</b>, <b>number</b>)
+ *
+ * <p/>
+ *
+ * @author Tomas Herceg
+ */
+public class EDate : FreeRefFunction
 {
-    using NPOI.SS.Formula.Eval;
-    using System;
-    using NPOI.SS.UserModel;
 
+    public static FreeRefFunction Instance = new EDate();
 
-    /**
-     * Implementation of Excel 'Analysis ToolPak' function EDATE()<br/>
-     *
-     * Adds a specified number of months to the specified date.<p/>
-     *
-     * <b>Syntax</b><br/>
-     * <b>EDATE</b>(<b>date</b>, <b>number</b>)
-     *
-     * <p/>
-     *
-     * @author Tomas Herceg
-     */
-    public class EDate : FreeRefFunction
+    internal EDate()
     {
+        // enforce singleton
+    }
 
-        public static FreeRefFunction Instance = new EDate();
+    public ValueEval Evaluate(ValueEval[] args, OperationEvaluationContext ec)
+    {
+        double result;
 
-        internal EDate()
+        if (args.Length != 2)
         {
-            // enforce singleton
+            return ErrorEval.VALUE_INVALID;
         }
 
-        public ValueEval Evaluate(ValueEval[] args, OperationEvaluationContext ec)
+        try
         {
-            double result;
+            double startDateAsNumber = GetValue(args[0]);
+            int offsetInMonthAsNumber = (int)GetValue(args[1]);
 
-            if (args.Length != 2)
+            // resolve the arguments
+            DateTime startDate;
+            try
+            {
+                startDate = DateUtil.GetJavaDate(startDateAsNumber);
+            }
+            catch (ArgumentException)
             {
                 return ErrorEval.VALUE_INVALID;
             }
 
-            try
-            {
-                double startDateAsNumber = GetValue(args[0]);
-                int offsetInMonthAsNumber = (int)GetValue(args[1]);
-
-                // resolve the arguments
-                DateTime startDate;
-                try
-                {
-                    startDate = DateUtil.GetJavaDate(startDateAsNumber);
-                }
-                catch (ArgumentException)
-                {
-                    return ErrorEval.VALUE_INVALID;
-                }
-
-                DateTime resultDate = startDate.AddMonths(offsetInMonthAsNumber);
-                result = DateUtil.GetExcelDate(resultDate);
-                    
-                NumericFunction.CheckValue(result);
-                return new NumberEval(result);
-            }
-            catch (EvaluationException e)
-            {
-                return e.GetErrorEval();
-            }
+            DateTime resultDate = startDate.AddMonths(offsetInMonthAsNumber);
+            result = DateUtil.GetExcelDate(resultDate);
+                
+            NumericFunction.CheckValue(result);
+            return new NumberEval(result);
         }
-
-        private static double GetValue(ValueEval arg)
+        catch (EvaluationException e)
         {
-            if (arg is NumberEval eval)
+            return e.GetErrorEval();
+        }
+    }
+
+    private static double GetValue(ValueEval arg)
+    {
+        if (arg is NumberEval eval)
+        {
+            return eval.NumberValue;
+        }
+        if (arg is BlankEval)
+        {
+            return 0;
+        }
+        if (arg is RefEval refEval)
+        {
+            if (refEval.NumberOfSheets > 1)
             {
-                return eval.NumberValue;
+                // Multi-Sheet references are not supported
+                throw new EvaluationException(ErrorEval.VALUE_INVALID);
             }
-            if (arg is BlankEval)
+
+            ValueEval innerValueEval = refEval.GetInnerValueEval(refEval.FirstSheetIndex);
+            if (innerValueEval is NumberEval numberEval)
+            {
+                return numberEval.NumberValue;
+            }
+            if (innerValueEval is BlankEval)
             {
                 return 0;
             }
-            if (arg is RefEval refEval)
-            {
-                if (refEval.NumberOfSheets > 1)
-                {
-                    // Multi-Sheet references are not supported
-                    throw new EvaluationException(ErrorEval.VALUE_INVALID);
-                }
-
-                ValueEval innerValueEval = refEval.GetInnerValueEval(refEval.FirstSheetIndex);
-                if (innerValueEval is NumberEval numberEval)
-                {
-                    return numberEval.NumberValue;
-                }
-                if (innerValueEval is BlankEval)
-                {
-                    return 0;
-                }
-            }
-            throw new EvaluationException(ErrorEval.VALUE_INVALID);
         }
+        throw new EvaluationException(ErrorEval.VALUE_INVALID);
     }
 }

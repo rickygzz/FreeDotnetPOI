@@ -15,145 +15,143 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.SS.Formula
-{
-    using System.Collections;
-    using System.Collections.Generic;
-    using NPOI.SS.Formula.Eval;
+namespace NPOI.SS.Formula;
 
+using NPOI.SS.Formula.Eval;
+using System.Collections.Generic;
+
+
+/**
+ * Stores the cached result of a formula evaluation, along with the Set of sensititive input cells
+ */
+public class FormulaCellCacheEntry : CellCacheEntry
+{
+    public static new FormulaCellCacheEntry[] EMPTY_ARRAY = [];
 
     /**
-     * Stores the cached result of a formula evaluation, along with the Set of sensititive input cells
+     * Cells 'used' in the current evaluation of the formula corresponding To this cache entry
+     *
+     * If any of the following cells Change, this cache entry needs To be Cleared
      */
-    public class FormulaCellCacheEntry : CellCacheEntry
+    private CellCacheEntry[] _sensitiveInputCells;
+
+    private FormulaUsedBlankCellSet _usedBlankCellGroup;
+
+    public FormulaCellCacheEntry()
     {
-        public static new FormulaCellCacheEntry[] EMPTY_ARRAY = [];
 
-        /**
-         * Cells 'used' in the current evaluation of the formula corresponding To this cache entry
-         *
-         * If any of the following cells Change, this cache entry needs To be Cleared
-         */
-        private CellCacheEntry[] _sensitiveInputCells;
+    }
 
-        private FormulaUsedBlankCellSet _usedBlankCellGroup;
-
-        public FormulaCellCacheEntry()
+    public bool IsInputSensitive
+    {
+        get
         {
-
-        }
-
-        public bool IsInputSensitive
-        {
-            get
+            if (_sensitiveInputCells != null)
             {
-                if (_sensitiveInputCells != null)
+                if (_sensitiveInputCells.Length > 0)
                 {
-                    if (_sensitiveInputCells.Length > 0)
-                    {
-                        return true;
-                    }
-                }
-                return _usedBlankCellGroup == null ? false : !_usedBlankCellGroup.IsEmpty;
-            }
-        }
-
-        public void SetSensitiveInputCells(CellCacheEntry[] sensitiveInputCells)
-        {
-            // need To tell all cells that were previously used, but no longer are, 
-            // that they are not consumed by this cell any more
-            if (sensitiveInputCells == null)
-            {
-                _sensitiveInputCells = null;
-                ChangeConsumingCells(CellCacheEntry.EMPTY_ARRAY);
-            }
-            else
-            {
-                _sensitiveInputCells = (CellCacheEntry[])sensitiveInputCells.Clone();
-                ChangeConsumingCells(_sensitiveInputCells);
-            }
-        }
-
-        public void ClearFormulaEntry()
-        {
-            CellCacheEntry[] usedCells = _sensitiveInputCells;
-            if (usedCells != null)
-            {
-                for (int i = usedCells.Length - 1; i >= 0; i--)
-                {
-                    usedCells[i].ClearConsumingCell(this);
+                    return true;
                 }
             }
+            return _usedBlankCellGroup == null ? false : !_usedBlankCellGroup.IsEmpty;
+        }
+    }
+
+    public void SetSensitiveInputCells(CellCacheEntry[] sensitiveInputCells)
+    {
+        // need To tell all cells that were previously used, but no longer are, 
+        // that they are not consumed by this cell any more
+        if (sensitiveInputCells == null)
+        {
             _sensitiveInputCells = null;
-            ClearValue();
+            ChangeConsumingCells(CellCacheEntry.EMPTY_ARRAY);
         }
-
-        private void ChangeConsumingCells(CellCacheEntry[] usedCells)
+        else
         {
+            _sensitiveInputCells = (CellCacheEntry[])sensitiveInputCells.Clone();
+            ChangeConsumingCells(_sensitiveInputCells);
+        }
+    }
 
-            CellCacheEntry[] prevUsedCells = _sensitiveInputCells;
-            int nUsed = usedCells.Length;
-            for (int i = 0; i < nUsed; i++)
+    public void ClearFormulaEntry()
+    {
+        CellCacheEntry[] usedCells = _sensitiveInputCells;
+        if (usedCells != null)
+        {
+            for (int i = usedCells.Length - 1; i >= 0; i--)
             {
-                usedCells[i].AddConsumingCell(this);
+                usedCells[i].ClearConsumingCell(this);
             }
-            if (prevUsedCells == null)
-            {
-                return;
-            }
-            int nPrevUsed = prevUsedCells.Length;
-            if (nPrevUsed < 1)
-            {
-                return;
-            }
-            
-            HashSet<CellCacheEntry> usedSet;
-            if (nUsed < 1)
-            {
-                usedSet = new HashSet<CellCacheEntry>();
-            }
-            else
-            {
+        }
+        _sensitiveInputCells = null;
+        ClearValue();
+    }
+
+    private void ChangeConsumingCells(CellCacheEntry[] usedCells)
+    {
+
+        CellCacheEntry[] prevUsedCells = _sensitiveInputCells;
+        int nUsed = usedCells.Length;
+        for (int i = 0; i < nUsed; i++)
+        {
+            usedCells[i].AddConsumingCell(this);
+        }
+        if (prevUsedCells == null)
+        {
+            return;
+        }
+        int nPrevUsed = prevUsedCells.Length;
+        if (nPrevUsed < 1)
+        {
+            return;
+        }
+        
+        HashSet<CellCacheEntry> usedSet;
+        if (nUsed < 1)
+        {
+            usedSet = new HashSet<CellCacheEntry>();
+        }
+        else
+        {
 
 #if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
-                usedSet = new HashSet<CellCacheEntry>(nUsed * 3 / 2);
+            usedSet = new HashSet<CellCacheEntry>(nUsed * 3 / 2);
 #else
-                usedSet = new HashSet<CellCacheEntry>();
+            usedSet = new HashSet<CellCacheEntry>();
 #endif
 
-                for (int i = 0; i < nUsed; i++)
-                {
-                    usedSet.Add(usedCells[i]);
-                }
-            }
-
-            for (int i = 0; i < nPrevUsed; i++)
+            for (int i = 0; i < nUsed; i++)
             {
-                CellCacheEntry prevUsed = prevUsedCells[i];
-                if (!usedSet.Contains(prevUsed))
-                {
-                    // previously was used by cellLoc, but not anymore
-                    prevUsed.ClearConsumingCell(this);
-                }
+                usedSet.Add(usedCells[i]);
             }
         }
 
-        public void UpdateFormulaResult(ValueEval result, CellCacheEntry[] sensitiveInputCells, FormulaUsedBlankCellSet usedBlankAreas)
+        for (int i = 0; i < nPrevUsed; i++)
         {
-            UpdateValue(result);
-            SetSensitiveInputCells(sensitiveInputCells);
-            _usedBlankCellGroup = usedBlankAreas;
-        }
-
-        public void NotifyUpdatedBlankCell(BookSheetKey bsk, int rowIndex, int columnIndex, IEvaluationListener evaluationListener)
-        {
-            if (_usedBlankCellGroup != null)
+            CellCacheEntry prevUsed = prevUsedCells[i];
+            if (!usedSet.Contains(prevUsed))
             {
-                if (_usedBlankCellGroup.ContainsCell(bsk, rowIndex, columnIndex))
-                {
-                    ClearFormulaEntry();
-                    RecurseClearCachedFormulaResults(evaluationListener);
-                }
+                // previously was used by cellLoc, but not anymore
+                prevUsed.ClearConsumingCell(this);
+            }
+        }
+    }
+
+    public void UpdateFormulaResult(ValueEval result, CellCacheEntry[] sensitiveInputCells, FormulaUsedBlankCellSet usedBlankAreas)
+    {
+        UpdateValue(result);
+        SetSensitiveInputCells(sensitiveInputCells);
+        _usedBlankCellGroup = usedBlankAreas;
+    }
+
+    public void NotifyUpdatedBlankCell(BookSheetKey bsk, int rowIndex, int columnIndex, IEvaluationListener evaluationListener)
+    {
+        if (_usedBlankCellGroup != null)
+        {
+            if (_usedBlankCellGroup.ContainsCell(bsk, rowIndex, columnIndex))
+            {
+                ClearFormulaEntry();
+                RecurseClearCachedFormulaResults(evaluationListener);
             }
         }
     }

@@ -15,46 +15,45 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.SS.Formula
+namespace NPOI.SS.Formula;
+
+using System;
+using System.Text;
+
+public class SheetRangeIdentifier : SheetIdentifier
 {
-    using System;
-    using System.Text;
+    public NameIdentifier _lastSheetIdentifier;
 
-    public class SheetRangeIdentifier : SheetIdentifier
+    public SheetRangeIdentifier(String bookName, NameIdentifier firstSheetIdentifier, NameIdentifier lastSheetIdentifier)
+        : base(bookName, firstSheetIdentifier)
     {
-        public NameIdentifier _lastSheetIdentifier;
-
-        public SheetRangeIdentifier(String bookName, NameIdentifier firstSheetIdentifier, NameIdentifier lastSheetIdentifier)
-            : base(bookName, firstSheetIdentifier)
+        _lastSheetIdentifier = lastSheetIdentifier;
+    }
+    public NameIdentifier FirstSheetIdentifier
+    {
+        get
         {
-            _lastSheetIdentifier = lastSheetIdentifier;
+            return base.SheetId;
         }
-        public NameIdentifier FirstSheetIdentifier
+    }
+    public NameIdentifier LastSheetIdentifier
+    {
+        get
         {
-            get
-            {
-                return base.SheetId;
-            }
+            return _lastSheetIdentifier;
         }
-        public NameIdentifier LastSheetIdentifier
+    }
+    protected override void AsFormulaString(StringBuilder sb)
+    {
+        base.AsFormulaString(sb);
+        sb.Append(':');
+        if (_lastSheetIdentifier.IsQuoted)
         {
-            get
-            {
-                return _lastSheetIdentifier;
-            }
+            sb.Append("'").Append(_lastSheetIdentifier.Name).Append("'");
         }
-        protected override void AsFormulaString(StringBuilder sb)
+        else
         {
-            base.AsFormulaString(sb);
-            sb.Append(':');
-            if (_lastSheetIdentifier.IsQuoted)
-            {
-                sb.Append("'").Append(_lastSheetIdentifier.Name).Append("'");
-            }
-            else
-            {
-                sb.Append(_lastSheetIdentifier.Name);
-            }
+            sb.Append(_lastSheetIdentifier.Name);
         }
     }
 }

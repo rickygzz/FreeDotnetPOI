@@ -17,162 +17,160 @@
  * ====================================================================
  */
 
-using System;
-using System.Collections.Generic;
 using NPOI.SS.Formula.Eval;
+using System;
 
-namespace NPOI.SS.Formula.Functions
+namespace NPOI.SS.Formula.Functions;
+
+/**
+ * Returns the rank of a number in a list of numbers. The rank of a number is its size relative to other values in a list.
+
+ * Syntax:
+ *    RANK(number,ref,order)
+ *       Number   is the number whose rank you want to find.
+ *       Ref     is an array of, or a reference to, a list of numbers. Nonnumeric values in ref are ignored.
+ *       Order   is a number specifying how to rank number.
+
+ * If order is 0 (zero) or omitted, Microsoft Excel ranks number as if ref were a list sorted in descending order.
+ * If order is any nonzero value, Microsoft Excel ranks number as if ref were a list sorted in ascending order.
+ * 
+ * @author Rubin Wang
+ */
+public class Rank : Var2or3ArgFunction
 {
-    /**
-     * Returns the rank of a number in a list of numbers. The rank of a number is its size relative to other values in a list.
 
-     * Syntax:
-     *    RANK(number,ref,order)
-     *       Number   is the number whose rank you want to find.
-     *       Ref     is an array of, or a reference to, a list of numbers. Nonnumeric values in ref are ignored.
-     *       Order   is a number specifying how to rank number.
-
-     * If order is 0 (zero) or omitted, Microsoft Excel ranks number as if ref were a list sorted in descending order.
-     * If order is any nonzero value, Microsoft Excel ranks number as if ref were a list sorted in ascending order.
-     * 
-     * @author Rubin Wang
-     */
-    public class Rank : Var2or3ArgFunction
+    public override ValueEval Evaluate(int srcRowIndex, int srcColumnIndex, ValueEval arg0, ValueEval arg1)
     {
-
-        public override ValueEval Evaluate(int srcRowIndex, int srcColumnIndex, ValueEval arg0, ValueEval arg1)
+        try
         {
-            try
+            ValueEval ve = OperandResolver.GetSingleValue(arg0, srcRowIndex, srcColumnIndex);
+            double result = OperandResolver.CoerceValueToDouble(ve);
+            if (Double.IsNaN(result) || Double.IsInfinity(result))
             {
-                ValueEval ve = OperandResolver.GetSingleValue(arg0, srcRowIndex, srcColumnIndex);
-                double result = OperandResolver.CoerceValueToDouble(ve);
-                if (Double.IsNaN(result) || Double.IsInfinity(result))
-                {
-                    throw new EvaluationException(ErrorEval.NUM_ERROR);
-                }
-                if (arg1 is RefListEval listEval)
-                {
-                    return eval(result, listEval, true);
-                }
-                AreaEval aeRange = ConvertRangeArg(arg1);
-                return eval(result, aeRange, true);
+                throw new EvaluationException(ErrorEval.NUM_ERROR);
             }
-            catch (EvaluationException e)
+            if (arg1 is RefListEval listEval)
             {
-                return e.GetErrorEval();
+                return eval(result, listEval, true);
             }
+            AreaEval aeRange = ConvertRangeArg(arg1);
+            return eval(result, aeRange, true);
         }
-
-        public override ValueEval Evaluate(int srcRowIndex, int srcColumnIndex, ValueEval arg0, ValueEval arg1, ValueEval arg2)
+        catch (EvaluationException e)
         {
-            try
-            {
-                ValueEval ve = OperandResolver.GetSingleValue(arg0, srcRowIndex, srcColumnIndex);
-                double result = OperandResolver.CoerceValueToDouble(ve);
-                if (Double.IsNaN(result) || Double.IsInfinity(result))
-                {
-                    throw new EvaluationException(ErrorEval.NUM_ERROR);
-                }
-                bool order = false;
-                ve = OperandResolver.GetSingleValue(arg2, srcRowIndex, srcColumnIndex);
-                int order_value = OperandResolver.CoerceValueToInt(ve);
-                if (order_value == 0)
-                {
-                    order = true;
-                }
-                else if (order_value == 1)
-                {
-                    order = false;
-                }
-                else throw new EvaluationException(ErrorEval.NUM_ERROR);
-
-                if (arg1 is RefListEval listEval)
-                {
-                    return eval(result, listEval, order);
-                }
-                AreaEval aeRange = ConvertRangeArg(arg1);
-                return eval(result, aeRange, order);
-            }
-            catch (EvaluationException e)
-            {
-                return e.GetErrorEval();
-            }
+            return e.GetErrorEval();
         }
+    }
 
-        private static NumberEval eval(double arg0, AreaEval aeRange, bool descending_order)
+    public override ValueEval Evaluate(int srcRowIndex, int srcColumnIndex, ValueEval arg0, ValueEval arg1, ValueEval arg2)
+    {
+        try
         {
-            int rank = 1;
-            int height = aeRange.Height;
-            int width = aeRange.Width;
-            for (int r = 0; r < height; r++)
+            ValueEval ve = OperandResolver.GetSingleValue(arg0, srcRowIndex, srcColumnIndex);
+            double result = OperandResolver.CoerceValueToDouble(ve);
+            if (Double.IsNaN(result) || Double.IsInfinity(result))
             {
-                for (int c = 0; c < width; c++)
-                {
-                    Double value = GetValue(aeRange, r, c);
-                    if (Double.IsNaN(value)) continue;
-                    if (descending_order && value > arg0 || !descending_order && value < arg0)
-                    {
-                        rank++;
-                    }
-                }
+                throw new EvaluationException(ErrorEval.NUM_ERROR);
             }
-            return new NumberEval(rank);
-        }
-
-        private static NumberEval eval(double arg0, RefListEval aeRange, bool descending_order)
-        {
-            int rank = 1;
-
-            var list = aeRange.GetList();
-            for (int i = 0; i < list.Count; i++)
+            bool order = false;
+            ve = OperandResolver.GetSingleValue(arg2, srcRowIndex, srcColumnIndex);
+            int order_value = OperandResolver.CoerceValueToInt(ve);
+            if (order_value == 0)
             {
-                ValueEval ve = list[i];
-                if(ve is RefEval)
-                {
-                    list[i] = ((RefEval)ve).GetInnerValueEval(((RefEval)ve).FirstSheetIndex);
-                }
-                Double value;
-                ve = list[i];
-                if (ve is NumberEval numberEval)
-                {
-                    value = numberEval.NumberValue;
-                }
-                else
-                {
-                    continue;
-                }
+                order = true;
+            }
+            else if (order_value == 1)
+            {
+                order = false;
+            }
+            else throw new EvaluationException(ErrorEval.NUM_ERROR);
 
+            if (arg1 is RefListEval listEval)
+            {
+                return eval(result, listEval, order);
+            }
+            AreaEval aeRange = ConvertRangeArg(arg1);
+            return eval(result, aeRange, order);
+        }
+        catch (EvaluationException e)
+        {
+            return e.GetErrorEval();
+        }
+    }
+
+    private static NumberEval eval(double arg0, AreaEval aeRange, bool descending_order)
+    {
+        int rank = 1;
+        int height = aeRange.Height;
+        int width = aeRange.Width;
+        for (int r = 0; r < height; r++)
+        {
+            for (int c = 0; c < width; c++)
+            {
+                Double value = GetValue(aeRange, r, c);
+                if (Double.IsNaN(value)) continue;
                 if (descending_order && value > arg0 || !descending_order && value < arg0)
                 {
                     rank++;
                 }
             }
-
-            return new NumberEval(rank);
         }
+        return new NumberEval(rank);
+    }
 
-        private static Double GetValue(AreaEval aeRange, int relRowIndex, int relColIndex)
+    private static NumberEval eval(double arg0, RefListEval aeRange, bool descending_order)
+    {
+        int rank = 1;
+
+        var list = aeRange.GetList();
+        for (int i = 0; i < list.Count; i++)
         {
-            ValueEval addend = aeRange.GetRelativeValue(relRowIndex, relColIndex);
-            if (addend is NumberEval numberEval)
+            ValueEval ve = list[i];
+            if(ve is RefEval)
             {
-                return numberEval.NumberValue;
+                list[i] = ((RefEval)ve).GetInnerValueEval(((RefEval)ve).FirstSheetIndex);
             }
-            // everything else (including string and boolean values) counts as zero
-            return Double.NaN;
+            Double value;
+            ve = list[i];
+            if (ve is NumberEval numberEval)
+            {
+                value = numberEval.NumberValue;
+            }
+            else
+            {
+                continue;
+            }
+
+            if (descending_order && value > arg0 || !descending_order && value < arg0)
+            {
+                rank++;
+            }
         }
 
-        private static AreaEval ConvertRangeArg(ValueEval eval)
+        return new NumberEval(rank);
+    }
+
+    private static Double GetValue(AreaEval aeRange, int relRowIndex, int relColIndex)
+    {
+        ValueEval addend = aeRange.GetRelativeValue(relRowIndex, relColIndex);
+        if (addend is NumberEval numberEval)
         {
-            if (eval is AreaEval areaEval)
-            {
-                return areaEval;
-            }
-            if (eval is RefEval refEval)
-            {
-                return refEval.Offset(0, 0, 0, 0);
-            }
-            throw new EvaluationException(ErrorEval.VALUE_INVALID);
+            return numberEval.NumberValue;
         }
+        // everything else (including string and boolean values) counts as zero
+        return Double.NaN;
+    }
+
+    private static AreaEval ConvertRangeArg(ValueEval eval)
+    {
+        if (eval is AreaEval areaEval)
+        {
+            return areaEval;
+        }
+        if (eval is RefEval refEval)
+        {
+            return refEval.Offset(0, 0, 0, 0);
+        }
+        throw new EvaluationException(ErrorEval.VALUE_INVALID);
     }
 }

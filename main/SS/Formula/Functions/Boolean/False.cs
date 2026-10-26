@@ -18,20 +18,19 @@
  * Created on May 6, 2005
  *
  */
-namespace NPOI.SS.Formula.Functions
+namespace NPOI.SS.Formula.Functions.Boolean;
+
+using NPOI.SS.Formula.Eval;
+
+/**
+ * @author Amol S. Deshmukh &lt; amolweb at ya hoo dot com &gt;
+ *  
+ */
+public class False : Fixed0ArgFunction
 {
-    using NPOI.SS.Formula.Eval;
-
-    /**
-     * @author Amol S. Deshmukh &lt; amolweb at ya hoo dot com &gt;
-     *  
-     */
-    public class False : Fixed0ArgFunction
+    public override ValueEval Evaluate(int srcRowIndex, int srcColumnIndex)
     {
-        public override ValueEval Evaluate(int srcRowIndex, int srcColumnIndex)
-        {
-            return BoolEval.FALSE;
-        }
-
+        return BoolEval.FALSE;
     }
+
 }

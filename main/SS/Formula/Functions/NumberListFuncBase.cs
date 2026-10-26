@@ -17,57 +17,52 @@
  * ====================================================================
  */
 using NPOI.SS.Formula.Eval;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace NPOI.SS.Formula.Functions
+namespace NPOI.SS.Formula.Functions;
+
+public abstract class NumberListFuncBase : FreeRefFunction
 {
-    public abstract class NumberListFuncBase : FreeRefFunction
+    public bool AllowEmptyList { get; set; } = false;
+    public ValueEval ErrorOnEmptyList { get; set; } = ErrorEval.DIV_ZERO;
+    public ValueEval Evaluate(ValueEval[] args, OperationEvaluationContext ec)
     {
-        public bool AllowEmptyList { get; set; } = false;
-        public ValueEval ErrorOnEmptyList { get; set; } = ErrorEval.DIV_ZERO;
-        public ValueEval Evaluate(ValueEval[] args, OperationEvaluationContext ec)
+        if (args.Length == 0)
+            return ErrorEval.VALUE_INVALID;
+
+        try
         {
-            if (args.Length == 0)
-                return ErrorEval.VALUE_INVALID;
+            var list = new List<double>();
 
-            try
+            foreach (var arg in args)
             {
-                var list = new List<double>();
-
-                foreach (var arg in args)
+                switch (arg)
                 {
-                    switch (arg)
-                    {
-                        case AreaEval ae:
-                            ValueEvaluationHelper.GetArrayValues(ae, list);
-                            break;
-                        case NumericValueEval:
-                        case RefEval:
-                            var val = ValueEvaluationHelper.GetScalarValue(arg);
-                            if (val.HasValue)
-                                list.Add(val.Value);
-                            break;
-                        default:
-                            return ErrorEval.VALUE_INVALID;
-                    }
+                    case AreaEval ae:
+                        ValueEvaluationHelper.GetArrayValues(ae, list);
+                        break;
+                    case NumericValueEval:
+                    case RefEval:
+                        var val = ValueEvaluationHelper.GetScalarValue(arg);
+                        if (val.HasValue)
+                            list.Add(val.Value);
+                        break;
+                    default:
+                        return ErrorEval.VALUE_INVALID;
                 }
-
-                if (!AllowEmptyList && list.Count == 0)
-                    return ErrorOnEmptyList;
-
-                var result = CalculateFromNumberList(list);
-                return result == 0.0 ? NumberEval.ZERO : new NumberEval(result);
             }
-            catch (EvaluationException e)
-            {
-                return e.GetErrorEval();
-            }
+
+            if (!AllowEmptyList && list.Count == 0)
+                return ErrorOnEmptyList;
+
+            var result = CalculateFromNumberList(list);
+            return result == 0.0 ? NumberEval.ZERO : new NumberEval(result);
         }
-
-        public abstract double CalculateFromNumberList(List<double> list);
+        catch (EvaluationException e)
+        {
+            return e.GetErrorEval();
+        }
     }
+
+    public abstract double CalculateFromNumberList(List<double> list);
 }

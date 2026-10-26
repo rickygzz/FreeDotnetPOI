@@ -15,45 +15,44 @@
    limitations Under the License.
 ==================================================================== */
 
-namespace NPOI.SS.Formula.PTG
+namespace NPOI.SS.Formula.PTG;
+
+using System;
+using System.Text;
+
+/**
+ * Implements the standard mathmatical multiplication - *
+ * @author  Andrew C. Oliver (acoliver at apache dot org)
+ * @author Jason Height (jheight at chariot dot net dot au)
+ */
+public class MultiplyPtg : ValueOperatorPtg
 {
-    using System;
-    using System.Text;
+    public const byte sid = 0x05;
 
-    /**
-     * Implements the standard mathmatical multiplication - *
-     * @author  Andrew C. Oliver (acoliver at apache dot org)
-     * @author Jason Height (jheight at chariot dot net dot au)
-     */
-    public class MultiplyPtg : ValueOperatorPtg
+    public static ValueOperatorPtg instance = new MultiplyPtg();
+
+    private MultiplyPtg()
     {
-        public const byte sid = 0x05;
+        // enforce singleton
+    }
 
-        public static ValueOperatorPtg instance = new MultiplyPtg();
+    protected override byte Sid
+    {
+        get { return sid; }
+    }
 
-        private MultiplyPtg()
-        {
-            // enforce singleton
-        }
+    public override int NumberOfOperands
+    {
+        get { return 2; }
+    }
 
-        protected override byte Sid
-        {
-            get { return sid; }
-        }
+    public override String ToFormulaString(String[] operands)
+    {
+        StringBuilder buffer = new StringBuilder();
 
-        public override int NumberOfOperands
-        {
-            get { return 2; }
-        }
-
-        public override String ToFormulaString(String[] operands)
-        {
-            StringBuilder buffer = new StringBuilder();
-
-            buffer.Append(operands[0]);
-            buffer.Append("*");
-            buffer.Append(operands[1]);
-            return buffer.ToString();
-        }
+        buffer.Append(operands[0]);
+        buffer.Append("*");
+        buffer.Append(operands[1]);
+        return buffer.ToString();
     }
 }

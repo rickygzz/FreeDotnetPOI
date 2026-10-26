@@ -17,166 +17,165 @@
  * ====================================================================
  */
 
-using System;
 using NPOI.SS.Util;
+using System;
 
-namespace NPOI.SS.UserModel.Charts
+namespace NPOI.SS.UserModel.Charts;
+
+public class DataSources {
+
+private DataSources() {
+}
+
+public static IChartDataSource<T> FromArray<T>(T[] elements)
 {
-    public class DataSources {
+    return new ArrayDataSource<T>(elements);
+}
 
-    private DataSources() {
-    }
+public static IChartDataSource<double> FromNumericCellRange(ISheet sheet, CellRangeAddress cellRangeAddress) {
+    return new DoubleCellRangeDataSource(sheet, cellRangeAddress);
+}
 
-    public static IChartDataSource<T> FromArray<T>(T[] elements)
+private sealed class DoubleCellRangeDataSource: AbstractCellRangeDataSource<double>
+{
+    public DoubleCellRangeDataSource(ISheet sheet, CellRangeAddress cellRangeAddress) 
+        : base(sheet, cellRangeAddress)
     {
-        return new ArrayDataSource<T>(elements);
     }
 
-    public static IChartDataSource<double> FromNumericCellRange(ISheet sheet, CellRangeAddress cellRangeAddress) {
-        return new DoubleCellRangeDataSource(sheet, cellRangeAddress);
-    }
-
-    private sealed class DoubleCellRangeDataSource: AbstractCellRangeDataSource<double>
+    public override double GetPointAt(int index)
     {
-        public DoubleCellRangeDataSource(ISheet sheet, CellRangeAddress cellRangeAddress) 
-            : base(sheet, cellRangeAddress)
+        CellValue cellValue = GetCellValueAt(index);
+        if (cellValue != null && cellValue.CellType == CellType.Numeric)
         {
+            return cellValue.NumberValue;
         }
-
-        public override double GetPointAt(int index)
+        else
         {
-            CellValue cellValue = GetCellValueAt(index);
-            if (cellValue != null && cellValue.CellType == CellType.Numeric)
-            {
-                return cellValue.NumberValue;
-            }
-            else
-            {
-                return double.NaN;
-            }
-        }
-
-        public override bool IsNumeric
-        {
-            get { return true; }
+            return double.NaN;
         }
     }
 
-    public static IChartDataSource<String> FromStringCellRange(ISheet sheet, CellRangeAddress cellRangeAddress)
+    public override bool IsNumeric
     {
-        return new StringCellRangeDataSource(sheet, cellRangeAddress);
+        get { return true; }
     }
+}
 
-    private sealed class StringCellRangeDataSource : AbstractCellRangeDataSource<string>
+public static IChartDataSource<String> FromStringCellRange(ISheet sheet, CellRangeAddress cellRangeAddress)
+{
+    return new StringCellRangeDataSource(sheet, cellRangeAddress);
+}
+
+private sealed class StringCellRangeDataSource : AbstractCellRangeDataSource<string>
+{
+    public StringCellRangeDataSource(ISheet sheet, CellRangeAddress cellRangeAddress) 
+        : base(sheet, cellRangeAddress)
     {
-        public StringCellRangeDataSource(ISheet sheet, CellRangeAddress cellRangeAddress) 
-            : base(sheet, cellRangeAddress)
-        {
 
+    }
+
+    public override string GetPointAt(int index)
+    {
+        CellValue cellValue = GetCellValueAt(index);
+        if (cellValue != null && cellValue.CellType == CellType.String)
+        {
+            return cellValue.StringValue;
         }
-
-        public override string GetPointAt(int index)
+        else
         {
-            CellValue cellValue = GetCellValueAt(index);
-            if (cellValue != null && cellValue.CellType == CellType.String)
-            {
-                return cellValue.StringValue;
-            }
-            else
-            {
-                return null;
-            }
-        }
-
-        public override bool IsNumeric
-        {
-            get { return false; }
+            return null;
         }
     }
 
-    private sealed class ArrayDataSource<T> : IChartDataSource<T> {
+    public override bool IsNumeric
+    {
+        get { return false; }
+    }
+}
 
-        private T[] elements;
+private sealed class ArrayDataSource<T> : IChartDataSource<T> {
 
-        public ArrayDataSource(T[] elements) {
-            this.elements = (T[])elements.Clone();
-        }
+    private T[] elements;
 
-        public int PointCount {
-            get { return elements.Length; }
-        }
+    public ArrayDataSource(T[] elements) {
+        this.elements = (T[])elements.Clone();
+    }
 
-        public T GetPointAt(int index) {
-            return elements[index];
-        }
+    public int PointCount {
+        get { return elements.Length; }
+    }
 
-        public bool IsReference {
-            get { return false; }
-        }
+    public T GetPointAt(int index) {
+        return elements[index];
+    }
 
-        public bool IsNumeric {
-            get
+    public bool IsReference {
+        get { return false; }
+    }
+
+    public bool IsNumeric {
+        get
+        {
+            //Class < ? > arrayComponentType = elements.getClass().getComponentType();
+            //return (Number.class.isAssignableFrom(arrayComponentType))
+            Type dt = typeof (double);
+            foreach (object element in elements)
             {
-                //Class < ? > arrayComponentType = elements.getClass().getComponentType();
-                //return (Number.class.isAssignableFrom(arrayComponentType))
-                Type dt = typeof (double);
-                foreach (object element in elements)
-                {
-                    if (!dt.IsInstanceOfType(element))
-                        return false;
-                }
-                return true;
+                if (!dt.IsInstanceOfType(element))
+                    return false;
             }
-        }
-
-        public String FormulaString {
-            get { throw new InvalidOperationException("Literal data source can not be expressed by reference."); }
+            return true;
         }
     }
 
-    private abstract class AbstractCellRangeDataSource<T> : IChartDataSource<T> {
-        private ISheet sheet;
-        private CellRangeAddress cellRangeAddress;
-        private int numOfCells;
-        private IFormulaEvaluator evaluator;
+    public String FormulaString {
+        get { throw new InvalidOperationException("Literal data source can not be expressed by reference."); }
+    }
+}
 
-        protected AbstractCellRangeDataSource(ISheet sheet, CellRangeAddress cellRangeAddress) {
-            this.sheet = sheet;
-            // Make copy since CellRangeAddress is mutable.
-            this.cellRangeAddress = cellRangeAddress.Copy();
-            this.numOfCells = this.cellRangeAddress.NumberOfCells;
-            this.evaluator = sheet.Workbook.GetCreationHelper().CreateFormulaEvaluator();
+private abstract class AbstractCellRangeDataSource<T> : IChartDataSource<T> {
+    private ISheet sheet;
+    private CellRangeAddress cellRangeAddress;
+    private int numOfCells;
+    private IFormulaEvaluator evaluator;
+
+    protected AbstractCellRangeDataSource(ISheet sheet, CellRangeAddress cellRangeAddress) {
+        this.sheet = sheet;
+        // Make copy since CellRangeAddress is mutable.
+        this.cellRangeAddress = cellRangeAddress.Copy();
+        this.numOfCells = this.cellRangeAddress.NumberOfCells;
+        this.evaluator = sheet.Workbook.GetCreationHelper().CreateFormulaEvaluator();
+    }
+
+    public int PointCount {
+        get { return numOfCells; }
+    }
+
+    public bool IsReference {
+        get { return true; }
+    }
+
+    public abstract T GetPointAt(int index);
+    public abstract bool IsNumeric { get; }
+
+    public String FormulaString {
+        get { return cellRangeAddress.FormatAsString(sheet.SheetName, true); }
+    }
+
+    protected CellValue GetCellValueAt(int index) {
+        if (index < 0 || index >= numOfCells) {
+            throw new IndexOutOfRangeException("Index must be between 0 and " +
+                    (numOfCells - 1) + " (inclusive), given: " + index);
         }
-
-        public int PointCount {
-            get { return numOfCells; }
-        }
-
-        public bool IsReference {
-            get { return true; }
-        }
-
-        public abstract T GetPointAt(int index);
-        public abstract bool IsNumeric { get; }
-
-        public String FormulaString {
-            get { return cellRangeAddress.FormatAsString(sheet.SheetName, true); }
-        }
-
-        protected CellValue GetCellValueAt(int index) {
-            if (index < 0 || index >= numOfCells) {
-                throw new IndexOutOfRangeException("Index must be between 0 and " +
-                        (numOfCells - 1) + " (inclusive), given: " + index);
-            }
-            int firstRow = cellRangeAddress.FirstRow;
-            int firstCol = cellRangeAddress.FirstColumn;
-            int lastCol = cellRangeAddress.LastColumn;
-            int width = lastCol - firstCol + 1;
-            int rowIndex = firstRow + index / width;
-            int cellIndex = firstCol + index % width;
-            IRow row = sheet.GetRow(rowIndex);
-            return (row == null) ? null : evaluator.Evaluate(row.GetCell(cellIndex));
-        }
+        int firstRow = cellRangeAddress.FirstRow;
+        int firstCol = cellRangeAddress.FirstColumn;
+        int lastCol = cellRangeAddress.LastColumn;
+        int width = lastCol - firstCol + 1;
+        int rowIndex = firstRow + index / width;
+        int cellIndex = firstCol + index % width;
+        IRow row = sheet.GetRow(rowIndex);
+        return (row == null) ? null : evaluator.Evaluate(row.GetCell(cellIndex));
     }
 }
 }

@@ -15,79 +15,77 @@
    limitations under the License.
 ==================================================================== */
 
-using System;
 using NPOI.SS.Formula.Eval;
 using NPOI.SS.UserModel;
+using System;
 
-namespace NPOI.SS.Formula.Functions
+namespace NPOI.SS.Formula.Functions;
+
+/**
+ * Implementation for the ERROR.TYPE() Excel function.
+ * <p>
+ * <b>Syntax:</b><br/>
+ * <b>ERROR.TYPE</b>(<b>errorValue</b>)</p>
+ * <p>
+ * Returns a number corresponding to the error type of the supplied argument.</p>
+ * <p>
+ *    <table border="1" cellpadding="1" cellspacing="1" summary="Return values for ERROR.TYPE()">
+ *      <tr><td>errorValue</td><td>Return Value</td></tr>
+ *      <tr><td>#NULL!</td><td>1</td></tr>
+ *      <tr><td>#DIV/0!</td><td>2</td></tr>
+ *      <tr><td>#VALUE!</td><td>3</td></tr>
+ *      <tr><td>#REF!</td><td>4</td></tr>
+ *      <tr><td>#NAME?</td><td>5</td></tr>
+ *      <tr><td>#NUM!</td><td>6</td></tr>
+ *      <tr><td>#N/A!</td><td>7</td></tr>
+ *      <tr><td>everything else</td><td>#N/A!</td></tr>
+ *    </table>
+ *
+ * Note - the results of ERROR.TYPE() are different to the constants defined in
+ * <tt>ErrorConstants</tt>.
+ * </p>
+ *
+ * @author Josh Micich
+ */
+
+public class Errortype : Fixed1ArgFunction
 {
-    /**
-     * Implementation for the ERROR.TYPE() Excel function.
-     * <p>
-     * <b>Syntax:</b><br/>
-     * <b>ERROR.TYPE</b>(<b>errorValue</b>)</p>
-     * <p>
-     * Returns a number corresponding to the error type of the supplied argument.</p>
-     * <p>
-     *    <table border="1" cellpadding="1" cellspacing="1" summary="Return values for ERROR.TYPE()">
-     *      <tr><td>errorValue</td><td>Return Value</td></tr>
-     *      <tr><td>#NULL!</td><td>1</td></tr>
-     *      <tr><td>#DIV/0!</td><td>2</td></tr>
-     *      <tr><td>#VALUE!</td><td>3</td></tr>
-     *      <tr><td>#REF!</td><td>4</td></tr>
-     *      <tr><td>#NAME?</td><td>5</td></tr>
-     *      <tr><td>#NUM!</td><td>6</td></tr>
-     *      <tr><td>#N/A!</td><td>7</td></tr>
-     *      <tr><td>everything else</td><td>#N/A!</td></tr>
-     *    </table>
-     *
-     * Note - the results of ERROR.TYPE() are different to the constants defined in
-     * <tt>ErrorConstants</tt>.
-     * </p>
-     *
-     * @author Josh Micich
-     */
 
-    public class Errortype : Fixed1ArgFunction
+    public override ValueEval Evaluate(int srcRowIndex, int srcColumnIndex, ValueEval arg0)
     {
 
-        public override ValueEval Evaluate(int srcRowIndex, int srcColumnIndex, ValueEval arg0)
+        try
         {
-
-            try
-            {
-                OperandResolver.GetSingleValue(arg0, srcRowIndex, srcColumnIndex);
-                return ErrorEval.NA;
-            }
-            catch (EvaluationException e)
-            {
-                int result = TranslateErrorCodeToErrorTypeValue(e.GetErrorEval().ErrorCode);
-                return new NumberEval(result);
-            }
+            OperandResolver.GetSingleValue(arg0, srcRowIndex, srcColumnIndex);
+            return ErrorEval.NA;
         }
-
-        private static int TranslateErrorCodeToErrorTypeValue(int errorCode)
+        catch (EvaluationException e)
         {
-            switch ((FormulaErrorEnum)errorCode)
-            {
-                case FormulaErrorEnum.NULL:
-                    return 1;
-                case FormulaErrorEnum.DIV_0:
-                    return 2;
-                case FormulaErrorEnum.VALUE:
-                    return 3;
-                case FormulaErrorEnum.REF:
-                    return 4;
-                case FormulaErrorEnum.NAME:
-                    return 5;
-                case FormulaErrorEnum.NUM:
-                    return 6;
-                case FormulaErrorEnum.NA:
-                    return 7;
-            }
-            throw new ArgumentException("Invalid error code (" + errorCode + ")");
+            int result = TranslateErrorCodeToErrorTypeValue(e.GetErrorEval().ErrorCode);
+            return new NumberEval(result);
         }
+    }
 
+    private static int TranslateErrorCodeToErrorTypeValue(int errorCode)
+    {
+        switch ((FormulaErrorEnum)errorCode)
+        {
+            case FormulaErrorEnum.NULL:
+                return 1;
+            case FormulaErrorEnum.DIV_0:
+                return 2;
+            case FormulaErrorEnum.VALUE:
+                return 3;
+            case FormulaErrorEnum.REF:
+                return 4;
+            case FormulaErrorEnum.NAME:
+                return 5;
+            case FormulaErrorEnum.NUM:
+                return 6;
+            case FormulaErrorEnum.NA:
+                return 7;
+        }
+        throw new ArgumentException("Invalid error code (" + errorCode + ")");
     }
 
 }

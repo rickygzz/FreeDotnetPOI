@@ -15,45 +15,44 @@
    limitations Under the License.
 ==================================================================== */
 
-namespace NPOI.SS.Formula.PTG
+namespace NPOI.SS.Formula.PTG;
+
+using System;
+using System.Text;
+/**
+ *
+ * @author  andy
+ */
+public class EqualPtg : ValueOperatorPtg
 {
-    using System;
-    using System.Text;
-    /**
-     *
-     * @author  andy
-     */
-    public class EqualPtg : ValueOperatorPtg
+    public const byte sid = 0x0b;
+
+    public static ValueOperatorPtg instance = new EqualPtg();
+
+    private EqualPtg()
     {
-        public const byte sid = 0x0b;
+        // enforce singleton
+    }
 
-        public static ValueOperatorPtg instance = new EqualPtg();
+    protected override byte Sid
+    {
+        get { return sid; }
+    }
 
-        private EqualPtg()
-        {
-            // enforce singleton
-        }
-
-        protected override byte Sid
-        {
-            get { return sid; }
-        }
-
-        public override int NumberOfOperands
-        {
-            get { return 2; }
-        }
+    public override int NumberOfOperands
+    {
+        get { return 2; }
+    }
 
 
-        public override String ToFormulaString(String[] operands)
-        {
-            StringBuilder buffer = new StringBuilder();
+    public override String ToFormulaString(String[] operands)
+    {
+        StringBuilder buffer = new StringBuilder();
 
 
-            buffer.Append(operands[0]);
-            buffer.Append("=");
-            buffer.Append(operands[1]);
-            return buffer.ToString();
-        }
+        buffer.Append(operands[0]);
+        buffer.Append("=");
+        buffer.Append(operands[1]);
+        return buffer.ToString();
     }
 }

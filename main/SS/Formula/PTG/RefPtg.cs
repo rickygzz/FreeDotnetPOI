@@ -15,54 +15,53 @@
    limitations Under the License.
 ==================================================================== */
 
-namespace NPOI.SS.Formula.PTG
+namespace NPOI.SS.Formula.PTG;
+
+using NPOI.SS.Util;
+using NPOI.Util;
+using System;
+
+/**
+ * ReferencePtg - handles references (such as A1, A2, IA4)
+ * @author  Andrew C. Oliver (acoliver@apache.org)
+ * @author Jason Height (jheight at chariot dot net dot au)
+ */
+[Serializable]
+public class RefPtg : Ref2DPtgBase
 {
-    using System;
-    using NPOI.Util;
-    using NPOI.SS.Util;
+    public const byte sid = 0x24;
 
     /**
-     * ReferencePtg - handles references (such as A1, A2, IA4)
-     * @author  Andrew C. Oliver (acoliver@apache.org)
-     * @author Jason Height (jheight at chariot dot net dot au)
+     * Takes in a String representation of a cell reference and Fills out the
+     * numeric fields.
      */
-    [Serializable]
-    public class RefPtg : Ref2DPtgBase
+    public RefPtg(String cellref)
+        : base(new CellReference(cellref))
     {
-        public const byte sid = 0x24;
-
-        /**
-         * Takes in a String representation of a cell reference and Fills out the
-         * numeric fields.
-         */
-        public RefPtg(String cellref)
-            : base(new CellReference(cellref))
-        {
-
-        }
-
-        public RefPtg(int row, int column, bool isRowRelative, bool isColumnRelative)
-            :base(row, column, isRowRelative, isColumnRelative)
-        {
-            Row = row;
-            Column = column;
-            IsRowRelative = isRowRelative;
-            IsColRelative = isColumnRelative;
-        }
-
-        public RefPtg(ILittleEndianInput in1)
-            : base(in1)
-        {
-
-        }
-        public RefPtg(CellReference cr):base(cr)
-        {
-            
-        }
-        protected override byte Sid
-        {
-            get { return sid; }
-        }
 
     }
+
+    public RefPtg(int row, int column, bool isRowRelative, bool isColumnRelative)
+        :base(row, column, isRowRelative, isColumnRelative)
+    {
+        Row = row;
+        Column = column;
+        IsRowRelative = isRowRelative;
+        IsColRelative = isColumnRelative;
+    }
+
+    public RefPtg(ILittleEndianInput in1)
+        : base(in1)
+    {
+
+    }
+    public RefPtg(CellReference cr):base(cr)
+    {
+        
+    }
+    protected override byte Sid
+    {
+        get { return sid; }
+    }
+
 }

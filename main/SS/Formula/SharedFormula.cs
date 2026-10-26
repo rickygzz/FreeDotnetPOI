@@ -14,7 +14,10 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 ==================================================================== */
-namespace NPOI.SS.Formula.PTG
+
+using NPOI.SS.Formula.PTG;
+
+namespace NPOI.SS.Formula
 {
     /**
      *   Encapsulates logic to convert shared formulaa into non shared equivalent

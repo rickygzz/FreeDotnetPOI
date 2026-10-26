@@ -15,47 +15,45 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.SS.Formula
+namespace NPOI.SS.Formula;
+
+
+using NPOI.SS.Formula.Eval;
+
+
+/**
+* A (mostly) opaque interface To allow test clients To trace cache values
+* Each spreadsheet cell Gets one unique cache entry instance.  These objects
+* are safe To use as keys in {@link java.util.HashMap}s 
+*/
+public interface ICacheEntry
+{
+    ValueEval GetValue();
+}
+
+/**
+ * Tests can implement this class To track the internal working of the {@link WorkbookEvaluator}.<br/>
+ * 
+ * For POI internal testing use only
+ * 
+ * @author Josh Micich
+ */
+public interface IEvaluationListener
 {
 
-    using NPOI.SS.Formula;
-    using NPOI.SS.Formula.Eval;
-    
 
+    void OnCacheHit(int sheetIndex, int rowIndex, int columnIndex, ValueEval result);
+    void OnReadPlainValue(int sheetIndex, int rowIndex, int columnIndex, ICacheEntry entry);
+    void OnStartEvaluate(IEvaluationCell cell, ICacheEntry entry);
+    void OnEndEvaluate(ICacheEntry entry, ValueEval result);
+    void OnClearWholeCache();
+    void OnClearCachedValue(ICacheEntry entry);
     /**
- * A (mostly) opaque interface To allow test clients To trace cache values
- * Each spreadsheet cell Gets one unique cache entry instance.  These objects
- * are safe To use as keys in {@link java.util.HashMap}s 
- */
-    public interface ICacheEntry
-    {
-        ValueEval GetValue();
-    }
-
-    /**
-     * Tests can implement this class To track the internal working of the {@link WorkbookEvaluator}.<br/>
-     * 
-     * For POI internal testing use only
-     * 
-     * @author Josh Micich
+     * Internally, formula {@link ICacheEntry}s are stored in Sets which may Change ordering due 
+     * To seemingly trivial Changes.  This method is provided To make the order of call-backs To 
+     * {@link #onClearDependentCachedValue(ICacheEntry, int)} more deterministic.
      */
-    public interface IEvaluationListener
-    {
-
-
-        void OnCacheHit(int sheetIndex, int rowIndex, int columnIndex, ValueEval result);
-        void OnReadPlainValue(int sheetIndex, int rowIndex, int columnIndex, ICacheEntry entry);
-        void OnStartEvaluate(IEvaluationCell cell, ICacheEntry entry);
-        void OnEndEvaluate(ICacheEntry entry, ValueEval result);
-        void OnClearWholeCache();
-        void OnClearCachedValue(ICacheEntry entry);
-        /**
-         * Internally, formula {@link ICacheEntry}s are stored in Sets which may Change ordering due 
-         * To seemingly trivial Changes.  This method is provided To make the order of call-backs To 
-         * {@link #onClearDependentCachedValue(ICacheEntry, int)} more deterministic.
-         */
-        void SortDependentCachedValues(ICacheEntry[] formulaCells);
-        void OnClearDependentCachedValue(ICacheEntry formulaCell, int depth);
-        void OnChangeFromBlankValue(int sheetIndex, int rowIndex, int columnIndex,IEvaluationCell cell, ICacheEntry entry);
-    }
+    void SortDependentCachedValues(ICacheEntry[] formulaCells);
+    void OnClearDependentCachedValue(ICacheEntry formulaCell, int depth);
+    void OnChangeFromBlankValue(int sheetIndex, int rowIndex, int columnIndex,IEvaluationCell cell, ICacheEntry entry);
 }

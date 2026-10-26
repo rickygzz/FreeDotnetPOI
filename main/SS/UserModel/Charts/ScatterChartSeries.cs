@@ -15,29 +15,26 @@
    limitations under the License.
 ==================================================================== */
 
-using NPOI.SS.Util;
-namespace NPOI.SS.UserModel.Charts
+namespace NPOI.SS.UserModel.Charts;
+
+
+
+/**
+ * Represents scatter charts serie.
+ * @author Roman Kashitsyn
+ */
+
+public interface IScatterChartSeries<Tx, Ty> : IChartSeries
 {
 
+    /**
+  * @return data source used for X axis values
+  */
+    IChartDataSource<Tx> GetXValues();
 
     /**
-     * Represents scatter charts serie.
-     * @author Roman Kashitsyn
+     * @return data source used for Y axis values
      */
-
-    public interface IScatterChartSeries<Tx, Ty> : IChartSeries
-    {
-
-        /**
-      * @return data source used for X axis values
-      */
-        IChartDataSource<Tx> GetXValues();
-
-        /**
-         * @return data source used for Y axis values
-         */
-        IChartDataSource<Ty> GetYValues();
-
-    }
+    IChartDataSource<Ty> GetYValues();
 
 }

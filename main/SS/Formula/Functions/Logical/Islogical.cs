@@ -18,20 +18,19 @@
  * Created on May 15, 2005
  *
  */
-namespace NPOI.SS.Formula.Functions
+namespace NPOI.SS.Formula.Functions.Logical;
+
+using NPOI.SS.Formula.Eval;
+
+/**
+ * @author Amol S. Deshmukh &lt; amolweb at ya hoo dot com &gt;
+ *
+ */
+public class Islogical : LogicalFunction
 {
-    using NPOI.SS.Formula.Eval;
 
-    /**
-     * @author Amol S. Deshmukh &lt; amolweb at ya hoo dot com &gt;
-     *
-     */
-    public class Islogical : LogicalFunction
+    protected override bool Evaluate(ValueEval arg)
     {
-
-        protected override bool Evaluate(ValueEval arg)
-        {
-            return arg is BoolEval;
-        }
+        return arg is BoolEval;
     }
 }

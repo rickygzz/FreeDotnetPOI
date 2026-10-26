@@ -14,59 +14,58 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 ==================================================================== */
-namespace NPOI.SS.Formula.Functions
+
+namespace NPOI.SS.Formula.Functions;
+
+using System;
+
+using NPOI.SS.Formula;
+using NPOI.SS.Formula.Eval;
+
+/**
+ * <p>Implementation for Excel Oct2Dec() function.</p>
+ * <p>
+ * Converts an octal number to decimal.
+ * </p>
+ * <p>
+ * <b>Syntax</b>:<br/> <b>Oct2Dec  </b>(<b>number</b> )
+ * </p>
+ * <p/>
+ * Number     is the octal number you want to Convert. Number may not contain more than 10 octal characters (30 bits).
+ * The most significant bit of number is the sign bit. The remaining 29 bits are magnitude bits.
+ * Negative numbers are represented using two's-complement notation..
+ * <p/>
+ * If number is not a valid octal number, OCT2DEC returns the #NUM! error value.
+ *
+ * @author cedric dot walter @ gmail dot com
+ */
+public class Oct2Dec : Fixed1ArgFunction, FreeRefFunction
 {
-    using System;
 
-    using NPOI.SS.Formula;
-    using NPOI.SS.Formula.Eval;
+    public static FreeRefFunction instance = new Oct2Dec();
 
-    /**
-     * <p>Implementation for Excel Oct2Dec() function.</p>
-     * <p>
-     * Converts an octal number to decimal.
-     * </p>
-     * <p>
-     * <b>Syntax</b>:<br/> <b>Oct2Dec  </b>(<b>number</b> )
-     * </p>
-     * <p/>
-     * Number     is the octal number you want to Convert. Number may not contain more than 10 octal characters (30 bits).
-     * The most significant bit of number is the sign bit. The remaining 29 bits are magnitude bits.
-     * Negative numbers are represented using two's-complement notation..
-     * <p/>
-     * If number is not a valid octal number, OCT2DEC returns the #NUM! error value.
-     *
-     * @author cedric dot walter @ gmail dot com
-     */
-    public class Oct2Dec : Fixed1ArgFunction, FreeRefFunction
+    static int MAX_NUMBER_OF_PLACES = 10;
+    static int OCTAL_BASE = 8;
+
+    public override ValueEval Evaluate(int srcRowIndex, int srcColumnIndex, ValueEval numberVE)
     {
-
-        public static FreeRefFunction instance = new Oct2Dec();
-
-        static int MAX_NUMBER_OF_PLACES = 10;
-        static int OCTAL_BASE = 8;
-
-        public override ValueEval Evaluate(int srcRowIndex, int srcColumnIndex, ValueEval numberVE)
+        String octal = OperandResolver.CoerceValueToString(numberVE);
+        try
         {
-            String octal = OperandResolver.CoerceValueToString(numberVE);
-            try
-            {
-                return new NumberEval(BaseNumberUtils.ConvertToDecimal(octal, OCTAL_BASE, MAX_NUMBER_OF_PLACES));
-            }
-            catch (ArgumentException)
-            {
-                return ErrorEval.NUM_ERROR;
-            }
+            return new NumberEval(BaseNumberUtils.ConvertToDecimal(octal, OCTAL_BASE, MAX_NUMBER_OF_PLACES));
         }
-
-        public ValueEval Evaluate(ValueEval[] args, OperationEvaluationContext ec)
+        catch (ArgumentException)
         {
-            if (args.Length != 1)
-            {
-                return ErrorEval.VALUE_INVALID;
-            }
-            return Evaluate(ec.RowIndex, ec.ColumnIndex, args[0]);
+            return ErrorEval.NUM_ERROR;
         }
     }
 
+    public ValueEval Evaluate(ValueEval[] args, OperationEvaluationContext ec)
+    {
+        if (args.Length != 1)
+        {
+            return ErrorEval.VALUE_INVALID;
+        }
+        return Evaluate(ec.RowIndex, ec.ColumnIndex, args[0]);
+    }
 }

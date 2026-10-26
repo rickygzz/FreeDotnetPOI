@@ -17,66 +17,65 @@
  * ====================================================================
  */
 
-namespace NPOI.SS.UserModel
+namespace NPOI.SS.UserModel;
+
+/// <summary>
+/// High level representation for Border Formatting component
+/// of Conditional Formatting settings
+/// </summary>
+public interface IBorderFormatting
 {
+    BorderStyle BorderBottom { get; set; }
+
+    BorderStyle BorderDiagonal { get; set; }
+
+    BorderStyle BorderLeft { get; set; }
+
+    BorderStyle BorderRight { get; set; }
+
+    BorderStyle BorderTop { get; set; }
+
     /// <summary>
-    /// High level representation for Border Formatting component
-    /// of Conditional Formatting settings
+    /// Only valid for range borders, such as table styles
     /// </summary>
-    public interface IBorderFormatting
-    {
-        BorderStyle BorderBottom { get; set; }
+    BorderStyle BorderVertical { get; set; }
+    /// <summary>
+    /// Only valid for range borders, such as table styles
+    /// </summary>
+    BorderStyle BorderHorizontal { get; set; }
+    short BottomBorderColor { get; set; }
 
-        BorderStyle BorderDiagonal { get; set; }
+    short DiagonalBorderColor { get; set; }
 
-        BorderStyle BorderLeft { get; set; }
+    short LeftBorderColor { get; set; }
 
-        BorderStyle BorderRight { get; set; }
+    short RightBorderColor { get; set; }
 
-        BorderStyle BorderTop { get; set; }
+    short TopBorderColor { get; set; }
 
-        /// <summary>
-        /// Only valid for range borders, such as table styles
-        /// </summary>
-        BorderStyle BorderVertical { get; set; }
-        /// <summary>
-        /// Only valid for range borders, such as table styles
-        /// </summary>
-        BorderStyle BorderHorizontal { get; set; }
-        short BottomBorderColor { get; set; }
+    IColor BottomBorderColorColor { get; set; }
 
-        short DiagonalBorderColor { get; set; }
+    IColor DiagonalBorderColorColor { get; set; }
 
-        short LeftBorderColor { get; set; }
+    IColor LeftBorderColorColor { get; set; }
 
-        short RightBorderColor { get; set; }
+    IColor RightBorderColorColor { get; set; }
+    IColor TopBorderColorColor { get; set; }
+    /// <summary>
+    /// Range internal borders. Only relevant for range styles, such as table formatting
+    /// </summary>
+    short VerticalBorderColor { get; set; }
+    /// <summary>
+    /// Range internal borders. Only relevant for range styles, such as table formatting
+    /// </summary>
+    IColor VerticalBorderColorColor { get; set; }
 
-        short TopBorderColor { get; set; }
-
-        IColor BottomBorderColorColor { get; set; }
-
-        IColor DiagonalBorderColorColor { get; set; }
-
-        IColor LeftBorderColorColor { get; set; }
-
-        IColor RightBorderColorColor { get; set; }
-        IColor TopBorderColorColor { get; set; }
-        /// <summary>
-        /// Range internal borders. Only relevant for range styles, such as table formatting
-        /// </summary>
-        short VerticalBorderColor { get; set; }
-        /// <summary>
-        /// Range internal borders. Only relevant for range styles, such as table formatting
-        /// </summary>
-        IColor VerticalBorderColorColor { get; set; }
-
-        /// <summary>
-        /// Range internal borders. Only relevant for range styles, such as table formatting
-        /// </summary>
-        short HorizontalBorderColor { get; set; }
-        /// <summary>
-        /// Range internal borders. Only relevant for range styles, such as table formatting
-        /// </summary>
-        IColor HorizontalBorderColorColor {  get; set; }
-    }
+    /// <summary>
+    /// Range internal borders. Only relevant for range styles, such as table formatting
+    /// </summary>
+    short HorizontalBorderColor { get; set; }
+    /// <summary>
+    /// Range internal borders. Only relevant for range styles, such as table formatting
+    /// </summary>
+    IColor HorizontalBorderColorColor {  get; set; }
 }

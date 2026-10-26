@@ -18,29 +18,28 @@
  * Created on May 15, 2005
  *
  */
-namespace NPOI.SS.Formula.Functions
+namespace NPOI.SS.Formula.Functions.Text;
+
+using System;
+using NPOI.SS.Formula.Eval;
+
+/**
+ * @author Amol S. Deshmukh &lt; amolweb at ya hoo dot com &gt;
+ *
+ */
+public class Exact : TextFunction
 {
-    using System;
-    using NPOI.SS.Formula.Eval;
 
-    /**
-     * @author Amol S. Deshmukh &lt; amolweb at ya hoo dot com &gt;
-     *
-     */
-    public class Exact : TextFunction
+
+    public override ValueEval EvaluateFunc(ValueEval[] args, int srcCellRow, int srcCellCol)
     {
-
-
-        public override ValueEval EvaluateFunc(ValueEval[] args, int srcCellRow, int srcCellCol)
+        if (args.Length != 2)
         {
-            if (args.Length != 2)
-            {
-                return ErrorEval.VALUE_INVALID;
-            }
-
-            String s0 = EvaluateStringArg(args[0], srcCellRow, srcCellCol);
-            String s1 = EvaluateStringArg(args[1], srcCellRow, srcCellCol);
-            return BoolEval.ValueOf(s0.Equals(s1));
+            return ErrorEval.VALUE_INVALID;
         }
+
+        String s0 = EvaluateStringArg(args[0], srcCellRow, srcCellCol);
+        String s1 = EvaluateStringArg(args[1], srcCellRow, srcCellCol);
+        return BoolEval.ValueOf(s0.Equals(s1));
     }
 }

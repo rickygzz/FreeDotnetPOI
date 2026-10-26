@@ -18,21 +18,20 @@
  * Created on May 15, 2005
  *
  */
-namespace NPOI.SS.Formula.Functions
+namespace NPOI.SS.Formula.Functions.Text;
+
+using System;
+using NPOI.SS.Formula.Eval;
+
+/**
+ * @author Amol S. Deshmukh &lt; amolweb at ya hoo dot com &gt;
+ *
+ */
+public class Upper :SingleArgTextFunc
 {
-    using System;
-    using NPOI.SS.Formula.Eval;
 
-    /**
-     * @author Amol S. Deshmukh &lt; amolweb at ya hoo dot com &gt;
-     *
-     */
-    public class Upper :SingleArgTextFunc
+    public override ValueEval Evaluate(String arg)
     {
-
-        public override ValueEval Evaluate(String arg)
-        {
-            return new StringEval(arg.ToUpper());
-        }
+        return new StringEval(arg.ToUpper());
     }
 }

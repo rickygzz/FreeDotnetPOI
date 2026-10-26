@@ -15,21 +15,20 @@
    limitations Under the License.
 ==================================================================== */
 
-namespace NPOI.SS.Formula.PTG
-{
+namespace NPOI.SS.Formula.PTG;
 
-    /**
-     * @author Josh Micich
-     */
-    public abstract class ScalarConstantPtg : Ptg
+
+/**
+ * @author Josh Micich
+ */
+public abstract class ScalarConstantPtg : Ptg
+{
+    public override bool IsBaseToken
     {
-        public override bool IsBaseToken
-        {
-            get { return true; }
-        }
-        public override byte DefaultOperandClass
-        {
-            get{return Ptg.CLASS_VALUE;}
-        }
+        get { return true; }
+    }
+    public override byte DefaultOperandClass
+    {
+        get{return Ptg.CLASS_VALUE;}
     }
 }

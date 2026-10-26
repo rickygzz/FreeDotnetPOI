@@ -18,6 +18,7 @@
  * Created on May 8, 2005
  *
  */
+
 namespace NPOI.SS.Formula.Eval.RelationalOperation;
 
 /**

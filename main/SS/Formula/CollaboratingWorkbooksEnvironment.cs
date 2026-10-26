@@ -14,222 +14,221 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 ==================================================================== */
-namespace NPOI.SS.Formula
+namespace NPOI.SS.Formula;
+
+
+using System;
+using System.Text;
+using System.Collections;
+using System.Collections.Generic;
+using NPOI.SS.UserModel;
+
+[Serializable]
+public class WorkbookNotFoundException : Exception
 {
-
-    using System;
-    using System.Text;
-    using System.Collections;
-    using System.Collections.Generic;
-    using NPOI.SS.UserModel;
-
-    [Serializable]
-    public class WorkbookNotFoundException : Exception
+    public WorkbookNotFoundException(String msg):base(msg)
     {
-        public WorkbookNotFoundException(String msg):base(msg)
-        {
-            
-        }
+        
     }
-    /**
-     * Manages a collection of {@link WorkbookEvaluator}s, in order To support evaluation of formulas
-     * across spreadsheets.<p/>
-     *
-     * For POI internal use only
-     *
-     * @author Josh Micich
-     */
-    public class CollaboratingWorkbooksEnvironment
+}
+/**
+ * Manages a collection of {@link WorkbookEvaluator}s, in order To support evaluation of formulas
+ * across spreadsheets.<p/>
+ *
+ * For POI internal use only
+ *
+ * @author Josh Micich
+ */
+public class CollaboratingWorkbooksEnvironment
+{
+    public static readonly CollaboratingWorkbooksEnvironment EMPTY = new CollaboratingWorkbooksEnvironment();
+
+    private readonly Dictionary<String, WorkbookEvaluator> _evaluatorsByName;
+    private readonly WorkbookEvaluator[] _evaluators;
+
+    private bool _unhooked;
+    private CollaboratingWorkbooksEnvironment()
     {
-        public static readonly CollaboratingWorkbooksEnvironment EMPTY = new CollaboratingWorkbooksEnvironment();
-
-        private readonly Dictionary<String, WorkbookEvaluator> _evaluatorsByName;
-        private readonly WorkbookEvaluator[] _evaluators;
-
-        private bool _unhooked;
-        private CollaboratingWorkbooksEnvironment()
+        _evaluatorsByName = new Dictionary<String, WorkbookEvaluator>();
+        _evaluators = [];
+    }
+    public static void Setup(String[] workbookNames, WorkbookEvaluator[] evaluators)
+    {
+        int nItems = workbookNames.Length;
+        if (evaluators.Length != nItems)
         {
-            _evaluatorsByName = new Dictionary<String, WorkbookEvaluator>();
-            _evaluators = [];
+            throw new ArgumentException("Number of workbook names is " + nItems
+                    + " but number of evaluators is " + evaluators.Length);
         }
-        public static void Setup(String[] workbookNames, WorkbookEvaluator[] evaluators)
+        if (nItems < 1)
         {
-            int nItems = workbookNames.Length;
-            if (evaluators.Length != nItems)
-            {
-                throw new ArgumentException("Number of workbook names is " + nItems
-                        + " but number of evaluators is " + evaluators.Length);
-            }
-            if (nItems < 1)
-            {
-                throw new ArgumentException("Must provide at least one collaborating worbook");
-            }
-            CollaboratingWorkbooksEnvironment env = new CollaboratingWorkbooksEnvironment(workbookNames, evaluators, nItems);
-            HookNewEnvironment(evaluators, env);
+            throw new ArgumentException("Must provide at least one collaborating worbook");
         }
-        public static void Setup(Dictionary<String, WorkbookEvaluator> evaluatorsByName)
+        CollaboratingWorkbooksEnvironment env = new CollaboratingWorkbooksEnvironment(workbookNames, evaluators, nItems);
+        HookNewEnvironment(evaluators, env);
+    }
+    public static void Setup(Dictionary<String, WorkbookEvaluator> evaluatorsByName)
+    {
+        if (evaluatorsByName.Count < 1)
         {
-            if (evaluatorsByName.Count < 1)
-            {
-                throw new  ArgumentException("Must provide at least one collaborating worbook");
-            }
-            List<WorkbookEvaluator> temp = new List<WorkbookEvaluator>(evaluatorsByName.Count);
-            temp.AddRange(evaluatorsByName.Values);
-            WorkbookEvaluator[] evaluators = temp.ToArray();
-            new CollaboratingWorkbooksEnvironment(evaluatorsByName, evaluators);
+            throw new  ArgumentException("Must provide at least one collaborating worbook");
         }
-        public static void SetupFormulaEvaluator(Dictionary<String, IFormulaEvaluator> evaluators)
+        List<WorkbookEvaluator> temp = new List<WorkbookEvaluator>(evaluatorsByName.Count);
+        temp.AddRange(evaluatorsByName.Values);
+        WorkbookEvaluator[] evaluators = temp.ToArray();
+        new CollaboratingWorkbooksEnvironment(evaluatorsByName, evaluators);
+    }
+    public static void SetupFormulaEvaluator(Dictionary<String, IFormulaEvaluator> evaluators)
+    {
+        Dictionary<String, WorkbookEvaluator> evaluatorsByName = new Dictionary<String, WorkbookEvaluator>(evaluators.Count);
+        foreach (KeyValuePair<string, IFormulaEvaluator> swb in evaluators)
         {
-            Dictionary<String, WorkbookEvaluator> evaluatorsByName = new Dictionary<String, WorkbookEvaluator>(evaluators.Count);
-            foreach (KeyValuePair<string, IFormulaEvaluator> swb in evaluators)
+            string wbName = swb.Key;
+            IFormulaEvaluator eval = swb.Value;
+            if (eval is IWorkbookEvaluatorProvider provider)
             {
-                string wbName = swb.Key;
-                IFormulaEvaluator eval = swb.Value;
-                if (eval is IWorkbookEvaluatorProvider provider)
-                {
-                    evaluatorsByName.Add(wbName, provider.GetWorkbookEvaluator());
-                }
-                else
-                {
-                    throw new ArgumentException("Formula Evaluator " + eval +
-                                                       " provides no WorkbookEvaluator access");
-                }
-            }
-            Setup(evaluatorsByName);
-        }
-        private CollaboratingWorkbooksEnvironment(String[] workbookNames, WorkbookEvaluator[] evaluators, int nItems)
-            : this(ToUniqueMap(workbookNames, evaluators, nItems), evaluators)
-        {
-
-        }
-        private static Dictionary<String, WorkbookEvaluator> ToUniqueMap(String[] workbookNames, WorkbookEvaluator[] evaluators, int nItems)
-        {
-            Dictionary<String, WorkbookEvaluator> evaluatorsByName = new Dictionary<String, WorkbookEvaluator>(nItems * 3 / 2);
-            for (int i = 0; i < nItems; i++)
-            {
-                String wbName = workbookNames[i];
-                WorkbookEvaluator wbEval = evaluators[i];
-                if (evaluatorsByName.ContainsKey(wbName))
-                {
-                    throw new ArgumentException("Duplicate workbook name '" + wbName + "'");
-                }
-                evaluatorsByName.Add(wbName, wbEval);
-            }
-            return evaluatorsByName;
-        }
-        private CollaboratingWorkbooksEnvironment(Dictionary<String, WorkbookEvaluator> evaluatorsByName, WorkbookEvaluator[] evaluators)
-        {
-            Dictionary<WorkbookEvaluator, String> uniqueEvals = new Dictionary<WorkbookEvaluator, String>(evaluators.Length);
-            foreach (KeyValuePair<string, WorkbookEvaluator> me in evaluatorsByName)
-            {
-                if (uniqueEvals.TryGetValue(me.Value, out string eval))
-                {
-                    String msg = "Attempted to register same workbook under names '" +
-                        eval + "' and '" + me.Key + "'";
-                    throw new ArgumentException(msg);
-                }
-                uniqueEvals.Add(me.Value, me.Key);
-            }
-            UnhookOldEnvironments(evaluators);
-            HookNewEnvironment(evaluators, this);
-            _unhooked = false;
-            _evaluators = (WorkbookEvaluator[])evaluators.Clone();
-            _evaluatorsByName = evaluatorsByName;
-        }
-
-        private static void HookNewEnvironment(WorkbookEvaluator[] evaluators, CollaboratingWorkbooksEnvironment env)
-        {
-
-            // All evaluators will need To share the same cache.
-            // but the cache takes an optional evaluation listener.
-            int nItems = evaluators.Length;
-            IEvaluationListener evalListener = evaluators[0].GetEvaluationListener();
-            // make sure that all evaluators have the same listener
-            for (int i = 0; i < nItems; i++)
-            {
-                if (evalListener != evaluators[i].GetEvaluationListener())
-                {
-                    // This would be very complex To support
-                    throw new Exception("Workbook evaluators must all have the same evaluation listener");
-                }
-            }
-            EvaluationCache cache = new EvaluationCache(evalListener);
-
-            for (int i = 0; i < nItems; i++)
-            {
-                evaluators[i].AttachToEnvironment(env, cache, i);
-            }
-
-        }
-
-        private static void UnhookOldEnvironments(WorkbookEvaluator[] evaluators)
-        {
-            ArrayList oldEnvs = new ArrayList();
-            for (int i = 0; i < evaluators.Length; i++)
-            {
-                oldEnvs.Add(evaluators[i].GetEnvironment());
-            }
-            CollaboratingWorkbooksEnvironment[] oldCWEs = new CollaboratingWorkbooksEnvironment[oldEnvs.Count];
-            oldCWEs = (CollaboratingWorkbooksEnvironment[])oldEnvs.ToArray(typeof(CollaboratingWorkbooksEnvironment));
-            for (int i = 0; i < oldCWEs.Length; i++)
-            {
-                oldCWEs[i].Unhook();
-            }
-        }
-
-        /**
-         * 
-         */
-        private void Unhook()
-        {
-            if (_evaluators.Length < 1)
-            {
-                return;
-            }
-            for (int i = 0; i < _evaluators.Length; i++)
-            {
-                _evaluators[i].DetachFromEnvironment();
-            }
-            _unhooked = true;
-        }
-
-        public WorkbookEvaluator GetWorkbookEvaluator(String workbookName)
-        {
-            if (_unhooked)
-            {
-                throw new InvalidOperationException("This environment Has been unhooked");
-            }
-            WorkbookEvaluator result;
-            if (_evaluatorsByName.TryGetValue(workbookName, out WorkbookEvaluator value))
-            {
-                result = (WorkbookEvaluator)value;
+                evaluatorsByName.Add(wbName, provider.GetWorkbookEvaluator());
             }
             else
             {
-                StringBuilder sb = new StringBuilder(256);
-                sb.Append("Could not resolve external workbook name '").Append(workbookName).Append("'.");
-                if (_evaluators.Length < 1)
-                {
-                    sb.Append(" Workbook environment has not been set up.");
-                }
-                else
-                {
-                    sb.Append(" The following workbook names are valid: (");
-                    IEnumerator i = _evaluatorsByName.Keys.GetEnumerator();
-                    int count = 0;
-                    while (i.MoveNext())
-                    {
-                        if (count++ > 0)
-                        {
-                            sb.Append(", ");
-                        }
-                        sb.Append("'").Append(i.Current).Append("'");
-                    }
-                    sb.Append(")");
-                }
-                throw new WorkbookNotFoundException(sb.ToString());
+                throw new ArgumentException("Formula Evaluator " + eval +
+                                                   " provides no WorkbookEvaluator access");
             }
-            return result;
         }
+        Setup(evaluatorsByName);
+    }
+    private CollaboratingWorkbooksEnvironment(String[] workbookNames, WorkbookEvaluator[] evaluators, int nItems)
+        : this(ToUniqueMap(workbookNames, evaluators, nItems), evaluators)
+    {
+
+    }
+    private static Dictionary<String, WorkbookEvaluator> ToUniqueMap(String[] workbookNames, WorkbookEvaluator[] evaluators, int nItems)
+    {
+        Dictionary<String, WorkbookEvaluator> evaluatorsByName = new Dictionary<String, WorkbookEvaluator>(nItems * 3 / 2);
+        for (int i = 0; i < nItems; i++)
+        {
+            String wbName = workbookNames[i];
+            WorkbookEvaluator wbEval = evaluators[i];
+            if (evaluatorsByName.ContainsKey(wbName))
+            {
+                throw new ArgumentException("Duplicate workbook name '" + wbName + "'");
+            }
+            evaluatorsByName.Add(wbName, wbEval);
+        }
+        return evaluatorsByName;
+    }
+    private CollaboratingWorkbooksEnvironment(Dictionary<String, WorkbookEvaluator> evaluatorsByName, WorkbookEvaluator[] evaluators)
+    {
+        Dictionary<WorkbookEvaluator, String> uniqueEvals = new Dictionary<WorkbookEvaluator, String>(evaluators.Length);
+        foreach (KeyValuePair<string, WorkbookEvaluator> me in evaluatorsByName)
+        {
+            if (uniqueEvals.TryGetValue(me.Value, out string eval))
+            {
+                String msg = "Attempted to register same workbook under names '" +
+                    eval + "' and '" + me.Key + "'";
+                throw new ArgumentException(msg);
+            }
+            uniqueEvals.Add(me.Value, me.Key);
+        }
+        UnhookOldEnvironments(evaluators);
+        HookNewEnvironment(evaluators, this);
+        _unhooked = false;
+        _evaluators = (WorkbookEvaluator[])evaluators.Clone();
+        _evaluatorsByName = evaluatorsByName;
+    }
+
+    private static void HookNewEnvironment(WorkbookEvaluator[] evaluators, CollaboratingWorkbooksEnvironment env)
+    {
+
+        // All evaluators will need To share the same cache.
+        // but the cache takes an optional evaluation listener.
+        int nItems = evaluators.Length;
+        IEvaluationListener evalListener = evaluators[0].GetEvaluationListener();
+        // make sure that all evaluators have the same listener
+        for (int i = 0; i < nItems; i++)
+        {
+            if (evalListener != evaluators[i].GetEvaluationListener())
+            {
+                // This would be very complex To support
+                throw new Exception("Workbook evaluators must all have the same evaluation listener");
+            }
+        }
+        EvaluationCache cache = new EvaluationCache(evalListener);
+
+        for (int i = 0; i < nItems; i++)
+        {
+            evaluators[i].AttachToEnvironment(env, cache, i);
+        }
+
+    }
+
+    private static void UnhookOldEnvironments(WorkbookEvaluator[] evaluators)
+    {
+        ArrayList oldEnvs = new ArrayList();
+        for (int i = 0; i < evaluators.Length; i++)
+        {
+            oldEnvs.Add(evaluators[i].GetEnvironment());
+        }
+        CollaboratingWorkbooksEnvironment[] oldCWEs = new CollaboratingWorkbooksEnvironment[oldEnvs.Count];
+        oldCWEs = (CollaboratingWorkbooksEnvironment[])oldEnvs.ToArray(typeof(CollaboratingWorkbooksEnvironment));
+        for (int i = 0; i < oldCWEs.Length; i++)
+        {
+            oldCWEs[i].Unhook();
+        }
+    }
+
+    /**
+     * 
+     */
+    private void Unhook()
+    {
+        if (_evaluators.Length < 1)
+        {
+            return;
+        }
+        for (int i = 0; i < _evaluators.Length; i++)
+        {
+            _evaluators[i].DetachFromEnvironment();
+        }
+        _unhooked = true;
+    }
+
+    public WorkbookEvaluator GetWorkbookEvaluator(String workbookName)
+    {
+        if (_unhooked)
+        {
+            throw new InvalidOperationException("This environment Has been unhooked");
+        }
+        WorkbookEvaluator result;
+        if (_evaluatorsByName.TryGetValue(workbookName, out WorkbookEvaluator value))
+        {
+            result = (WorkbookEvaluator)value;
+        }
+        else
+        {
+            StringBuilder sb = new StringBuilder(256);
+            sb.Append("Could not resolve external workbook name '").Append(workbookName).Append("'.");
+            if (_evaluators.Length < 1)
+            {
+                sb.Append(" Workbook environment has not been set up.");
+            }
+            else
+            {
+                sb.Append(" The following workbook names are valid: (");
+                IEnumerator i = _evaluatorsByName.Keys.GetEnumerator();
+                int count = 0;
+                while (i.MoveNext())
+                {
+                    if (count++ > 0)
+                    {
+                        sb.Append(", ");
+                    }
+                    sb.Append("'").Append(i.Current).Append("'");
+                }
+                sb.Append(")");
+            }
+            throw new WorkbookNotFoundException(sb.ToString());
+        }
+        return result;
     }
 }

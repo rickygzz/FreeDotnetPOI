@@ -15,64 +15,62 @@
    limitations Under the License.
 ==================================================================== */
 
-namespace NPOI.SS.Formula.PTG
+namespace NPOI.SS.Formula.PTG;
+
+using NPOI.Util;
+using System;
+using System.Text;
+
+/**
+ * @author Daniel Noll (daniel at nuix dot com dot au)
+ */
+public class RangePtg : OperationPtg
 {
-    using System;
-    using System.Text;
-    
-    using NPOI.Util;
+    public const int SIZE = 1;
+    public const byte sid = 0x11;
 
-    /**
-     * @author Daniel Noll (daniel at nuix dot com dot au)
-     */
-    public class RangePtg : OperationPtg
+    public static OperationPtg instance = new RangePtg();
+
+    private RangePtg()
     {
-        public const int SIZE = 1;
-        public const byte sid = 0x11;
-
-        public static OperationPtg instance = new RangePtg();
-
-        private RangePtg()
-        {
-            // enforce singleton
-        }
-
-        public override bool IsBaseToken
-        {
-            get { return true; }
-        }
-
-        public override int Size
-        {
-            get { return SIZE; }
-        }
-
-        public override void Write(ILittleEndianOutput out1)
-        {
-            out1.WriteByte(sid + PtgClass);
-        }
-
-        public override String ToFormulaString()
-        {
-            return ":";
-        }
-
-
-        /** implementation of method from OperationsPtg*/
-        public override String ToFormulaString(String[] operands)
-        {
-            StringBuilder buffer = new StringBuilder();
-
-            buffer.Append(operands[0]);
-            buffer.Append(":");
-            buffer.Append(operands[1]);
-            return buffer.ToString();
-        }
-
-        public override int NumberOfOperands
-        {
-            get { return 2; }
-        }
-
+        // enforce singleton
     }
+
+    public override bool IsBaseToken
+    {
+        get { return true; }
+    }
+
+    public override int Size
+    {
+        get { return SIZE; }
+    }
+
+    public override void Write(ILittleEndianOutput out1)
+    {
+        out1.WriteByte(sid + PtgClass);
+    }
+
+    public override String ToFormulaString()
+    {
+        return ":";
+    }
+
+
+    /** implementation of method from OperationsPtg*/
+    public override String ToFormulaString(String[] operands)
+    {
+        StringBuilder buffer = new StringBuilder();
+
+        buffer.Append(operands[0]);
+        buffer.Append(":");
+        buffer.Append(operands[1]);
+        return buffer.ToString();
+    }
+
+    public override int NumberOfOperands
+    {
+        get { return 2; }
+    }
+
 }

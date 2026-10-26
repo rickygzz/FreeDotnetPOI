@@ -18,19 +18,18 @@
  * Created on May 6, 2005
  *
  */
-namespace NPOI.SS.Formula.Functions
+namespace NPOI.SS.Formula.Functions.Numeric;
+
+/**
+ * @author Amol S. Deshmukh &lt; amolweb at ya hoo dot com &gt;
+ *
+ */
+public class Sinh : OneArg
 {
-    /**
-     * @author Amol S. Deshmukh &lt; amolweb at ya hoo dot com &gt;
-     *
-     */
-    public class Sinh : OneArg
+
+    public override double Evaluate(double d)
     {
-
-        public override double Evaluate(double d)
-        {
-            return MathX.Sinh(d);
-        }
-
+        return MathX.Sinh(d);
     }
+
 }

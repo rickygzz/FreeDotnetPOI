@@ -1,9 +1,8 @@
 ﻿using System;
 using NPOI.SS.Formula.Functions;
+using NPOI.SS.Formula.Functions.Matrix;
 
 namespace NPOI.SS.Formula.Eval.TwoOperandNumeric;
-
-
 public abstract class TwoOperandNumericOperation : Fixed2ArgFunction, IArrayFunction
 {
     protected double SingleOperandEvaluate(ValueEval arg, int srcCellRow, int srcCellCol)

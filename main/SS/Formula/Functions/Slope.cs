@@ -17,35 +17,34 @@
  * ====================================================================
  */
 
-namespace NPOI.SS.Formula.Functions
+namespace NPOI.SS.Formula.Functions;
+
+using NPOI.SS.Formula.Eval;
+
+
+/**
+ * Implementation of Excel function SLOPE()<p/>
+ *
+ * Calculates the SLOPE of the linear regression line that is used to predict y values from x values<br/>
+ * (http://introcs.cs.princeton.edu/java/97data/LinearRegression.java.html)
+ * <b>Syntax</b>:<br/>
+ * <b>SLOPE</b>(<b>arrayX</b>, <b>arrayY</b>)<p/>
+ *
+ *
+ * @author Johan Karlsteen
+ */
+public class Slope : Fixed2ArgFunction
 {
-    using NPOI.SS.Formula.Eval;
 
-
-    /**
-     * Implementation of Excel function SLOPE()<p/>
-     *
-     * Calculates the SLOPE of the linear regression line that is used to predict y values from x values<br/>
-     * (http://introcs.cs.princeton.edu/java/97data/LinearRegression.java.html)
-     * <b>Syntax</b>:<br/>
-     * <b>SLOPE</b>(<b>arrayX</b>, <b>arrayY</b>)<p/>
-     *
-     *
-     * @author Johan Karlsteen
-     */
-    public class Slope : Fixed2ArgFunction
+    private LinearRegressionFunction func;
+    public Slope()
     {
+        func = new LinearRegressionFunction(LinearRegressionFunction.FUNCTION.SLOPE);
+    }
 
-        private LinearRegressionFunction func;
-        public Slope()
-        {
-            func = new LinearRegressionFunction(LinearRegressionFunction.FUNCTION.SLOPE);
-        }
-
-        public override ValueEval Evaluate(int srcRowIndex, int srcColumnIndex,
-                ValueEval arg0, ValueEval arg1)
-        {
-            return func.Evaluate(srcRowIndex, srcColumnIndex, arg0, arg1);
-        }
+    public override ValueEval Evaluate(int srcRowIndex, int srcColumnIndex,
+            ValueEval arg0, ValueEval arg1)
+    {
+        return func.Evaluate(srcRowIndex, srcColumnIndex, arg0, arg1);
     }
 }

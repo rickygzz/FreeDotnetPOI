@@ -18,57 +18,56 @@
  * Created on May 6, 2005
  *
  */
-namespace NPOI.SS.Formula.Functions
-{
-    using System;
-    using NPOI.SS.Formula.Eval;
+namespace NPOI.SS.Formula.Functions.Numeric;
 
-    /**
-     * @author Amol S. Deshmukh &lt; amolweb at ya hoo dot com &gt;
-     * Log: LOG(number,[base])
-     */
-    public class Log : Var1or2ArgFunction
+using System;
+using NPOI.SS.Formula.Eval;
+
+/**
+ * @author Amol S. Deshmukh &lt; amolweb at ya hoo dot com &gt;
+ * Log: LOG(number,[base])
+ */
+public class Log : Var1or2ArgFunction
+{
+    public Log()
     {
-        public Log()
+        // no instance fields
+    }
+    public override ValueEval Evaluate(int srcRowIndex, int srcColumnIndex, ValueEval arg0)
+    {
+        double result;
+        try
         {
-            // no instance fields
+            double d0 = NumericFunction.SingleOperandEvaluate(arg0, srcRowIndex, srcColumnIndex);
+            result = Math.Log(d0) / NumericFunction.LOG_10_TO_BASE_e;
+            NumericFunction.CheckValue(result);
         }
-        public override ValueEval Evaluate(int srcRowIndex, int srcColumnIndex, ValueEval arg0)
+        catch (EvaluationException e)
         {
-            double result;
-            try
-            {
-                double d0 = NumericFunction.SingleOperandEvaluate(arg0, srcRowIndex, srcColumnIndex);
-                result = Math.Log(d0) / NumericFunction.LOG_10_TO_BASE_e;
-                NumericFunction.CheckValue(result);
-            }
-            catch (EvaluationException e)
-            {
-                return e.GetErrorEval();
-            }
-            return new NumberEval(result);
+            return e.GetErrorEval();
         }
-        public override ValueEval Evaluate(int srcRowIndex, int srcColumnIndex, ValueEval arg0,
-                ValueEval arg1) {
+        return new NumberEval(result);
+    }
+    public override ValueEval Evaluate(int srcRowIndex, int srcColumnIndex, ValueEval arg0,
+            ValueEval arg1) {
 			double result;
 			try {
 				double d0 = NumericFunction.SingleOperandEvaluate(arg0, srcRowIndex, srcColumnIndex);
 				double d1 = NumericFunction.SingleOperandEvaluate(arg1, srcRowIndex, srcColumnIndex);
 				double logE = Math.Log(d0);
 				double base1 = d1;
-                if (base1 == Math.E)  // TODO:  Double.compare(base, Math.E) == 0, , DOSE THE "==" operator equals Double.compare
-                {
-                    result = logE;
-                }
-                else
-                {
-                    result = logE / Math.Log(base1);
-                }
+            if (base1 == Math.E)  // TODO:  Double.compare(base, Math.E) == 0, , DOSE THE "==" operator equals Double.compare
+            {
+                result = logE;
+            }
+            else
+            {
+                result = logE / Math.Log(base1);
+            }
 				NumericFunction.CheckValue(result);
 			} catch (EvaluationException e) {
 				return e.GetErrorEval();
 			}
 			return new NumberEval(result);
 		}
-    }
 }

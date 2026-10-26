@@ -15,19 +15,18 @@
 * limitations Under the License.
 */
 
-namespace NPOI.SS.Formula.Functions
-{
-    using NPOI.SS.Formula.Eval;
+namespace NPOI.SS.Formula.Functions.Logical;
 
-    /**
-     * @author Amol S. Deshmukh &lt; amolweb at ya hoo dot com &gt;
-     *
-     */
-    public class Isblank : LogicalFunction
+using NPOI.SS.Formula.Eval;
+
+/**
+ * @author Amol S. Deshmukh &lt; amolweb at ya hoo dot com &gt;
+ *
+ */
+public class Isblank : LogicalFunction
+{
+    protected override bool Evaluate(ValueEval arg)
     {
-        protected override bool Evaluate(ValueEval arg)
-        {
-            return arg is BlankEval;
-        }
+        return arg is BlankEval;
     }
 }

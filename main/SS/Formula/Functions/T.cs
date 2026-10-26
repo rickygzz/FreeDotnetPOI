@@ -18,39 +18,38 @@
  * Created on May 15, 2005
  *
  */
-namespace NPOI.SS.Formula.Functions
+namespace NPOI.SS.Formula.Functions;
+
+using NPOI.SS.Formula.Eval;
+
+public class T : Fixed1ArgFunction
 {
-    using NPOI.SS.Formula.Eval;
-
-    public class T : Fixed1ArgFunction
+    public override ValueEval Evaluate(int srcRowIndex, int srcColumnIndex, ValueEval arg0)
     {
-        public override ValueEval Evaluate(int srcRowIndex, int srcColumnIndex, ValueEval arg0)
+        ValueEval arg = arg0;
+        if (arg is RefEval re)
         {
-            ValueEval arg = arg0;
-            if (arg is RefEval re)
-            {
-                // always use the first sheet
-                arg = re.GetInnerValueEval(re.FirstSheetIndex);
-            }
-            else if (arg is AreaEval eval)
-            {
-                // when the arg is an area, choose the top left cell
-                arg = eval.GetRelativeValue(0, 0);
-            }
-
-            if (arg is StringEval)
-            {
-                // Text values are returned unmodified
-                return arg;
-            }
-
-            if (arg is ErrorEval)
-            {
-                // Error values also returned unmodified
-                return arg;
-            }
-            // for all other argument types the result is empty string
-            return StringEval.EMPTY_INSTANCE;
+            // always use the first sheet
+            arg = re.GetInnerValueEval(re.FirstSheetIndex);
         }
+        else if (arg is AreaEval eval)
+        {
+            // when the arg is an area, choose the top left cell
+            arg = eval.GetRelativeValue(0, 0);
+        }
+
+        if (arg is StringEval)
+        {
+            // Text values are returned unmodified
+            return arg;
+        }
+
+        if (arg is ErrorEval)
+        {
+            // Error values also returned unmodified
+            return arg;
+        }
+        // for all other argument types the result is empty string
+        return StringEval.EMPTY_INSTANCE;
     }
 }

@@ -15,27 +15,25 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.SS.Formula.Functions
+namespace NPOI.SS.Formula.Functions;
+
+
+using NPOI.SS.Formula.Eval;
+
+/**
+ * Convenience base class for functions that must take exactly two arguments.
+ *
+ * @author Josh Micich
+ */
+public abstract class Fixed2ArgFunction : Function2Arg
 {
-
-    using NPOI.SS.Formula.Eval;
-
-    /**
-     * Convenience base class for functions that must take exactly two arguments.
-     *
-     * @author Josh Micich
-     */
-    public abstract class Fixed2ArgFunction : Function2Arg
+    public ValueEval Evaluate(ValueEval[] args, int srcRowIndex, int srcColumnIndex)
     {
-        public ValueEval Evaluate(ValueEval[] args, int srcRowIndex, int srcColumnIndex)
+        if (args.Length != 2)
         {
-            if (args.Length != 2)
-            {
-                return ErrorEval.VALUE_INVALID;
-            }
-            return Evaluate(srcRowIndex, srcColumnIndex, args[0], args[1]);
+            return ErrorEval.VALUE_INVALID;
         }
-        public abstract ValueEval Evaluate(int srcRowIndex, int srcColumnIndex, ValueEval arg0, ValueEval arg1);
+        return Evaluate(srcRowIndex, srcColumnIndex, args[0], args[1]);
     }
-
+    public abstract ValueEval Evaluate(int srcRowIndex, int srcColumnIndex, ValueEval arg0, ValueEval arg1);
 }

@@ -15,113 +15,111 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.SS.Formula.PTG
-{
-    using System;
+namespace NPOI.SS.Formula.PTG;
 
-    using NPOI.SS.UserModel;
-    using System.Text; 
+using System;
+
+using NPOI.SS.UserModel;
+using System.Text; 
 using Cysharp.Text;
-    using NPOI.Util;
+using NPOI.Util;
 
 
-    /**
-     * An XSSF only representation of a reference to a deleted area
-     */
-    public class Deleted3DPxg : OperandPtg, Pxg
+/**
+ * An XSSF only representation of a reference to a deleted area
+ */
+public class Deleted3DPxg : OperandPtg, Pxg
+{
+    private int externalWorkbookNumber = -1;
+    private String sheetName;
+
+    public Deleted3DPxg(int externalWorkbookNumber, String sheetName)
     {
-        private int externalWorkbookNumber = -1;
-        private String sheetName;
+        this.externalWorkbookNumber = externalWorkbookNumber;
+        this.sheetName = sheetName;
+    }
+    public Deleted3DPxg(String sheetName)
+        : this(-1, sheetName)
+    {
+        ;
+    }
 
-        public Deleted3DPxg(int externalWorkbookNumber, String sheetName)
+    public override String ToString()
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.Append(GetType().Name);
+        sb.Append(" [");
+        if (externalWorkbookNumber >= 0)
         {
-            this.externalWorkbookNumber = externalWorkbookNumber;
-            this.sheetName = sheetName;
-        }
-        public Deleted3DPxg(String sheetName)
-            : this(-1, sheetName)
-        {
-            ;
-        }
-
-        public override String ToString()
-        {
-            StringBuilder sb = new StringBuilder();
-            sb.Append(GetType().Name);
             sb.Append(" [");
-            if (externalWorkbookNumber >= 0)
-            {
-                sb.Append(" [");
-                sb.Append("workbook=").Append(ExternalWorkbookNumber);
-                sb.Append("] ");
-            }
-            if (sheetName != null)
-            {
-                SheetNameFormatter.AppendFormat(sb, sheetName);
-            }
-            sb.Append(" ! ");
-            sb.Append(FormulaError.REF.String);
-            sb.Append("]");
-            return sb.ToString();
+            sb.Append("workbook=").Append(ExternalWorkbookNumber);
+            sb.Append("] ");
         }
+        if (sheetName != null)
+        {
+            SheetNameFormatter.AppendFormat(sb, sheetName);
+        }
+        sb.Append(" ! ");
+        sb.Append(FormulaError.REF.String);
+        sb.Append("]");
+        return sb.ToString();
+    }
 
-        public int ExternalWorkbookNumber
+    public int ExternalWorkbookNumber
+    {
+        get
         {
-            get
-            {
-                return externalWorkbookNumber;
-            }
+            return externalWorkbookNumber;
         }
-        public String SheetName
+    }
+    public String SheetName
+    {
+        get
         {
-            get
-            {
-                return sheetName;
-            }
-            set
-            {
-                sheetName = value;
-            }
+            return sheetName;
         }
-
-        public override String ToFormulaString()
+        set
         {
-            using var sb = ZString.CreateStringBuilder();
-
-            if(externalWorkbookNumber >= 0)
-            {
-                sb.Append('[');
-                sb.Append(externalWorkbookNumber);
-                sb.Append(']');
-            }
-            if (sheetName != null)
-            {
-                sb.Append(sheetName);
-            }
-            sb.Append('!');
-            sb.Append(FormulaError.REF.String);
-            return sb.ToString();
-        }
-
-        public override byte DefaultOperandClass
-        {
-            get
-            {
-                return Ptg.CLASS_VALUE;
-            }
-        }
-
-        public override int Size
-        {
-            get
-            {
-                return 1;
-            }
-        }
-        public override void Write(ILittleEndianOutput out1)
-        {
-            throw new InvalidOperationException("XSSF-only Ptg, should not be serialised");
+            sheetName = value;
         }
     }
 
+    public override String ToFormulaString()
+    {
+        using var sb = ZString.CreateStringBuilder();
+
+        if(externalWorkbookNumber >= 0)
+        {
+            sb.Append('[');
+            sb.Append(externalWorkbookNumber);
+            sb.Append(']');
+        }
+        if (sheetName != null)
+        {
+            sb.Append(sheetName);
+        }
+        sb.Append('!');
+        sb.Append(FormulaError.REF.String);
+        return sb.ToString();
+    }
+
+    public override byte DefaultOperandClass
+    {
+        get
+        {
+            return Ptg.CLASS_VALUE;
+        }
+    }
+
+    public override int Size
+    {
+        get
+        {
+            return 1;
+        }
+    }
+    public override void Write(ILittleEndianOutput out1)
+    {
+        throw new InvalidOperationException("XSSF-only Ptg, should not be serialised");
+    }
 }

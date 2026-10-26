@@ -15,64 +15,63 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.SS.Formula
+namespace NPOI.SS.Formula;
+
+using System;
+using System.Text;
+
+public class SheetIdentifier
 {
-    using System;
-    using System.Text;
+    public String _bookName;
+    public NameIdentifier _sheetIdentifier;
 
-    public class SheetIdentifier
+    public SheetIdentifier(String bookName, NameIdentifier sheetIdentifier)
     {
-        public String _bookName;
-        public NameIdentifier _sheetIdentifier;
-
-        public SheetIdentifier(String bookName, NameIdentifier sheetIdentifier)
+        _bookName = bookName;
+        _sheetIdentifier = sheetIdentifier;
+    }
+    public String BookName
+    {
+        get
         {
-            _bookName = bookName;
-            _sheetIdentifier = sheetIdentifier;
+            return _bookName;
         }
-        public String BookName
+    }
+    public NameIdentifier SheetId
+    {
+        get
         {
-            get
-            {
-                return _bookName;
-            }
+            return _sheetIdentifier;
         }
-        public NameIdentifier SheetId
+    }
+    protected virtual void AsFormulaString(StringBuilder sb)
+    {
+        if (_bookName != null)
         {
-            get
-            {
-                return _sheetIdentifier;
-            }
+            sb.Append(" [").Append(_sheetIdentifier.Name).Append("]");
         }
-        protected virtual void AsFormulaString(StringBuilder sb)
+        if (_sheetIdentifier.IsQuoted)
         {
-            if (_bookName != null)
-            {
-                sb.Append(" [").Append(_sheetIdentifier.Name).Append("]");
-            }
-            if (_sheetIdentifier.IsQuoted)
-            {
-                sb.Append("'").Append(_sheetIdentifier.Name).Append("'");
-            }
-            else
-            {
-                sb.Append(_sheetIdentifier.Name);
-            }
+            sb.Append("'").Append(_sheetIdentifier.Name).Append("'");
         }
-        public String AsFormulaString()
+        else
         {
-            StringBuilder sb = new StringBuilder(32);
-            AsFormulaString(sb);
-            return sb.ToString();
+            sb.Append(_sheetIdentifier.Name);
         }
-        public override String ToString()
-        {
-            StringBuilder sb = new StringBuilder(64);
-            sb.Append(this.GetType().Name);
-            sb.Append(" [");
-            AsFormulaString(sb);
-            sb.Append("]");
-            return sb.ToString();
-        }
+    }
+    public String AsFormulaString()
+    {
+        StringBuilder sb = new StringBuilder(32);
+        AsFormulaString(sb);
+        return sb.ToString();
+    }
+    public override String ToString()
+    {
+        StringBuilder sb = new StringBuilder(64);
+        sb.Append(this.GetType().Name);
+        sb.Append(" [");
+        AsFormulaString(sb);
+        sb.Append("]");
+        return sb.ToString();
     }
 }

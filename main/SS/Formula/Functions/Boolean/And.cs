@@ -18,18 +18,17 @@
  * Created on May 9, 2005
  *
  */
-namespace NPOI.SS.Formula.Functions
-{
-    public class And : BooleanFunction
-    {
-        protected override bool InitialResultValue
-        {
-            get { return true; }
-        }
+namespace NPOI.SS.Formula.Functions.Boolean;
 
-        protected override bool PartialEvaluate(bool cumulativeResult, bool currentValue)
-        {
-            return cumulativeResult && currentValue;
-        }
+public class And : BooleanFunction
+{
+    protected override bool InitialResultValue
+    {
+        get { return true; }
+    }
+
+    protected override bool PartialEvaluate(bool cumulativeResult, bool currentValue)
+    {
+        return cumulativeResult && currentValue;
     }
 }

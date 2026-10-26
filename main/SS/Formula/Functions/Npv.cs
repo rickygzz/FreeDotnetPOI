@@ -18,105 +18,104 @@
  * Created on May 15, 2005
  *
  */
-namespace NPOI.SS.Formula.Functions
+namespace NPOI.SS.Formula.Functions;
+
+using NPOI.SS.Formula.Eval;
+using NPOI.SS.Formula.Functions.Numeric;
+using System;
+
+public class Npv : Function
 {
-    using System;
-    using NPOI.SS.Formula.Eval;
-
-    public class Npv : Function
+    [Obsolete]
+    public ValueEval Evaluate(int srcRowIndex, int srcColumnIndex, ValueEval arg0, ValueEval arg1)
     {
-        [Obsolete]
-        public ValueEval Evaluate(int srcRowIndex, int srcColumnIndex, ValueEval arg0, ValueEval arg1)
+        double result;
+        try
         {
-            double result;
-            try
-            {
-                double rate = NumericFunction.SingleOperandEvaluate(arg0, srcRowIndex, srcColumnIndex);
-                double d1 = NumericFunction.SingleOperandEvaluate(arg1, srcRowIndex, srcColumnIndex);
-                result = Evaluate(rate, d1);
-                NumericFunction.CheckValue(result);
-            }
-            catch (EvaluationException e)
-            {
-                return e.GetErrorEval();
-            }
+            double rate = NumericFunction.SingleOperandEvaluate(arg0, srcRowIndex, srcColumnIndex);
+            double d1 = NumericFunction.SingleOperandEvaluate(arg1, srcRowIndex, srcColumnIndex);
+            result = Evaluate(rate, d1);
+            NumericFunction.CheckValue(result);
+        }
+        catch (EvaluationException e)
+        {
+            return e.GetErrorEval();
+        }
+        return new NumberEval(result);
+    }
+    [Obsolete]
+    public ValueEval Evaluate(int srcRowIndex, int srcColumnIndex, ValueEval arg0, ValueEval arg1,
+            ValueEval arg2)
+    {
+        double result;
+        try
+        {
+            double rate = NumericFunction.SingleOperandEvaluate(arg0, srcRowIndex, srcColumnIndex);
+            double d1 = NumericFunction.SingleOperandEvaluate(arg1, srcRowIndex, srcColumnIndex);
+            double d2 = NumericFunction.SingleOperandEvaluate(arg2, srcRowIndex, srcColumnIndex);
+            result = Evaluate(rate, d1, d2);
+            NumericFunction.CheckValue(result);
+        }
+        catch (EvaluationException e)
+        {
+            return e.GetErrorEval();
+        }
+        return new NumberEval(result);
+    }
+    [Obsolete]
+    public ValueEval Evaluate(int srcRowIndex, int srcColumnIndex, ValueEval arg0, ValueEval arg1,
+            ValueEval arg2, ValueEval arg3)
+    {
+        double result;
+        try
+        {
+            double rate = NumericFunction.SingleOperandEvaluate(arg0, srcRowIndex, srcColumnIndex);
+            double d1 = NumericFunction.SingleOperandEvaluate(arg1, srcRowIndex, srcColumnIndex);
+            double d2 = NumericFunction.SingleOperandEvaluate(arg2, srcRowIndex, srcColumnIndex);
+            double d3 = NumericFunction.SingleOperandEvaluate(arg3, srcRowIndex, srcColumnIndex);
+            result = Evaluate(rate, d1, d2, d3);
+            NumericFunction.CheckValue(result);
+        }
+        catch (EvaluationException e)
+        {
+            return e.GetErrorEval();
+        }
+        return new NumberEval(result);
+    }
+
+    public ValueEval Evaluate(ValueEval[] args, int srcRowIndex, int srcColumnIndex)
+    {
+        int nArgs = args.Length;
+        if (nArgs < 2)
+        {
+            return ErrorEval.VALUE_INVALID;
+        }
+
+        try
+        {
+            double rate = NumericFunction.SingleOperandEvaluate(args[0], srcRowIndex, srcColumnIndex);
+            // convert tail arguments into an array of doubles
+            ValueEval[] vargs = new ValueEval[args.Length - 1];
+            Array.Copy(args, 1, vargs, 0, vargs.Length);
+            double[] values = AggregateFunction.ValueCollector.CollectValues(vargs);
+
+            double result = FinanceLib.npv(rate, values);
+            NumericFunction.CheckValue(result);
             return new NumberEval(result);
         }
-        [Obsolete]
-        public ValueEval Evaluate(int srcRowIndex, int srcColumnIndex, ValueEval arg0, ValueEval arg1,
-                ValueEval arg2)
+        catch (EvaluationException e)
         {
-            double result;
-            try
-            {
-                double rate = NumericFunction.SingleOperandEvaluate(arg0, srcRowIndex, srcColumnIndex);
-                double d1 = NumericFunction.SingleOperandEvaluate(arg1, srcRowIndex, srcColumnIndex);
-                double d2 = NumericFunction.SingleOperandEvaluate(arg2, srcRowIndex, srcColumnIndex);
-                result = Evaluate(rate, d1, d2);
-                NumericFunction.CheckValue(result);
-            }
-            catch (EvaluationException e)
-            {
-                return e.GetErrorEval();
-            }
-            return new NumberEval(result);
-        }
-        [Obsolete]
-        public ValueEval Evaluate(int srcRowIndex, int srcColumnIndex, ValueEval arg0, ValueEval arg1,
-                ValueEval arg2, ValueEval arg3)
-        {
-            double result;
-            try
-            {
-                double rate = NumericFunction.SingleOperandEvaluate(arg0, srcRowIndex, srcColumnIndex);
-                double d1 = NumericFunction.SingleOperandEvaluate(arg1, srcRowIndex, srcColumnIndex);
-                double d2 = NumericFunction.SingleOperandEvaluate(arg2, srcRowIndex, srcColumnIndex);
-                double d3 = NumericFunction.SingleOperandEvaluate(arg3, srcRowIndex, srcColumnIndex);
-                result = Evaluate(rate, d1, d2, d3);
-                NumericFunction.CheckValue(result);
-            }
-            catch (EvaluationException e)
-            {
-                return e.GetErrorEval();
-            }
-            return new NumberEval(result);
-        }
-
-        public ValueEval Evaluate(ValueEval[] args, int srcRowIndex, int srcColumnIndex)
-        {
-            int nArgs = args.Length;
-            if (nArgs < 2)
-            {
-                return ErrorEval.VALUE_INVALID;
-            }
-
-            try
-            {
-                double rate = NumericFunction.SingleOperandEvaluate(args[0], srcRowIndex, srcColumnIndex);
-                // convert tail arguments into an array of doubles
-                ValueEval[] vargs = new ValueEval[args.Length - 1];
-                Array.Copy(args, 1, vargs, 0, vargs.Length);
-                double[] values = AggregateFunction.ValueCollector.CollectValues(vargs);
-
-                double result = FinanceLib.npv(rate, values);
-                NumericFunction.CheckValue(result);
-                return new NumberEval(result);
-            }
-            catch (EvaluationException e)
-            {
-                return e.GetErrorEval();
-            }
-        }
-
-        private static double Evaluate(double rate, params double[] ds)
-        {
-            double sum = 0;
-            for (int i = 0; i < ds.Length; i++)
-            {
-                sum += ds[i] / Math.Pow(rate + 1, i);
-            }
-            return sum;
+            return e.GetErrorEval();
         }
     }
 
+    private static double Evaluate(double rate, params double[] ds)
+    {
+        double sum = 0;
+        for (int i = 0; i < ds.Length; i++)
+        {
+            sum += ds[i] / Math.Pow(rate + 1, i);
+        }
+        return sum;
+    }
 }

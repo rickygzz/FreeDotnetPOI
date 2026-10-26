@@ -14,20 +14,19 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 ==================================================================== */
-namespace NPOI.SS.UserModel.Charts
-{
+namespace NPOI.SS.UserModel.Charts;
 
-    /**
-     * Enumeration of all possible axis positions.
-     *
-     * @author Roman Kashitsyn
-     */
-    public enum AxisPosition
-    {
-        Bottom,
-        Left,
-        Right,
-        Top
-    }
+
+/**
+ * Enumeration of all possible axis positions.
+ *
+ * @author Roman Kashitsyn
+ */
+public enum AxisPosition
+{
+    Bottom,
+    Left,
+    Right,
+    Top
 }
 

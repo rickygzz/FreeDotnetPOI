@@ -15,57 +15,53 @@
    limitations Under the License.
 ==================================================================== */
 
-namespace NPOI.SS.Formula.PTG
+namespace NPOI.SS.Formula.PTG;
+
+using NPOI.SS.UserModel;
+using NPOI.Util;
+using System;
+
+/**
+ * AreaErr - handles deleted cell area references.
+ *
+ * @author Daniel Noll (daniel at nuix dot com dot au)
+ */
+public class AreaErrPtg : OperandPtg
 {
-    using System;
-    
-    using NPOI.Util;
+    public const byte sid = 0x2b;
+    private int unused1;
+    private int unused2;
 
-    using NPOI.HSSF.UserModel;
-    using NPOI.SS.UserModel;
-
-    /**
-     * AreaErr - handles deleted cell area references.
-     *
-     * @author Daniel Noll (daniel at nuix dot com dot au)
-     */
-    public class AreaErrPtg : OperandPtg
+    public AreaErrPtg(ILittleEndianInput in1)
     {
-        public const byte sid = 0x2b;
-        private int unused1;
-        private int unused2;
-
-        public AreaErrPtg(ILittleEndianInput in1)
-        {
-            // 8 bytes unused:
-            unused1 = in1.ReadInt();
-            unused2 = in1.ReadInt();
-        }
-        public AreaErrPtg()
-        {
-            unused1 = 0;
-            unused2 = 0;
-        }
-        public override void Write(ILittleEndianOutput out1)
-        {
+        // 8 bytes unused:
+        unused1 = in1.ReadInt();
+        unused2 = in1.ReadInt();
+    }
+    public AreaErrPtg()
+    {
+        unused1 = 0;
+        unused2 = 0;
+    }
+    public override void Write(ILittleEndianOutput out1)
+    {
 		    out1.WriteByte(sid + PtgClass);
 		    out1.WriteInt(unused1);
 		    out1.WriteInt(unused2);
-        }
+    }
 
-        public override String ToFormulaString()
-        {
-            return FormulaError.REF.String;
-        }
+    public override String ToFormulaString()
+    {
+        return FormulaError.REF.String;
+    }
 
-        public override byte DefaultOperandClass
-        {
-            get { return Ptg.CLASS_REF; }
-        }
+    public override byte DefaultOperandClass
+    {
+        get { return Ptg.CLASS_REF; }
+    }
 
-        public override int Size
-        {
-            get { return 9; }
-        }
+    public override int Size
+    {
+        get { return 9; }
     }
 }

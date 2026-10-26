@@ -20,14 +20,17 @@
  */
 
 using NPOI.SS.Formula.Atp;
-
-namespace NPOI.SS.Formula.Eval;
-
-using System;
 using NPOI.SS.Formula.Functions;
+using NPOI.SS.Formula.Functions.Boolean;
+using NPOI.SS.Formula.Functions.Logical;
+using NPOI.SS.Formula.Functions.Matrix;
+using NPOI.SS.Formula.Functions.Numeric;
+using NPOI.SS.Formula.Functions.Text;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using Index = NPOI.SS.Formula.Functions.Index;
+
+namespace NPOI.SS.Formula.Eval;
 
 /**
  * @author Amol S. Deshmukh &lt; amolweb at ya hoo dot com &gt;

@@ -6,72 +6,72 @@ The COLUMN function will do that same thing as COLUMN(W2)
 But to avoid having to change existing templates, this implementation has been made.
 It only handles the "col" and "row" parameters.
  */
-namespace NPOI.SS.Formula.Functions
+namespace NPOI.SS.Formula.Functions;
+
+using NPOI.SS.Formula.Eval;
+using NPOI.SS.Formula.Functions.Text;
+
+public class Cell : Function2Arg
 {
-    using NPOI.SS.Formula.Eval;
-
-    public class Cell : Function2Arg
+    public ValueEval Evaluate(int srcRowIndex, int srcColumnIndex, ValueEval arg0, ValueEval arg1)
     {
-        public ValueEval Evaluate(int srcRowIndex, int srcColumnIndex, ValueEval arg0, ValueEval arg1)
+        string s0 = TextFunction.EvaluateStringArg(arg0, srcRowIndex, srcColumnIndex);
+
+        // Only "col" and "row" are implemented
+
+        int rnum;
+
+        if(string.Equals(s0, "col", System.StringComparison.InvariantCultureIgnoreCase))
         {
-            string s0 = TextFunction.EvaluateStringArg(arg0, srcRowIndex, srcColumnIndex);
-
-            // Only "col" and "row" are implemented
-
-            int rnum;
-
-            if(string.Equals(s0, "col", System.StringComparison.InvariantCultureIgnoreCase))
+            // "col"
+            if(arg1 is AreaEval eval)
             {
-                // "col"
-                if(arg1 is AreaEval eval)
-                {
-                    rnum = eval.FirstColumn;
-                }
-                else if(arg1 is RefEval refEval)
-                {
-                    rnum = refEval.Column;
-                }
-                else
-                {
-                    // anything else is not valid argument
-                    return ErrorEval.VALUE_INVALID;
-                }
+                rnum = eval.FirstColumn;
             }
-            else if(string.Equals(s0, "row", System.StringComparison.InvariantCultureIgnoreCase))
+            else if(arg1 is RefEval refEval)
             {
-                // "row"
-                if(arg1 is AreaEval eval)
-                {
-                    rnum = eval.FirstRow;
-                }
-                else if(arg1 is RefEval refEval)
-                {
-                    rnum = refEval.Row;
-                }
-                else
-                {
-                    // anything else is not valid argument
-                    return ErrorEval.VALUE_INVALID;
-                }
+                rnum = refEval.Column;
             }
             else
             {
-                //https://support.microsoft.com/en-us/office/cell-function-51bd39a5-f338-4dbe-a33f-955d67c2b2cf
-                // anything else is not valid argument, until we implement more
+                // anything else is not valid argument
                 return ErrorEval.VALUE_INVALID;
             }
-
-            return new NumberEval(rnum + 1);
         }
-
-        public ValueEval Evaluate(ValueEval[] args, int srcRowIndex, int srcColumnIndex)
+        else if(string.Equals(s0, "row", System.StringComparison.InvariantCultureIgnoreCase))
         {
-            if (args.Length == 2)
+            // "row"
+            if(arg1 is AreaEval eval)
             {
-                return Evaluate(srcRowIndex, srcColumnIndex, args[0], args[1]);
+                rnum = eval.FirstRow;
             }
-
+            else if(arg1 is RefEval refEval)
+            {
+                rnum = refEval.Row;
+            }
+            else
+            {
+                // anything else is not valid argument
+                return ErrorEval.VALUE_INVALID;
+            }
+        }
+        else
+        {
+            //https://support.microsoft.com/en-us/office/cell-function-51bd39a5-f338-4dbe-a33f-955d67c2b2cf
+            // anything else is not valid argument, until we implement more
             return ErrorEval.VALUE_INVALID;
         }
+
+        return new NumberEval(rnum + 1);
+    }
+
+    public ValueEval Evaluate(ValueEval[] args, int srcRowIndex, int srcColumnIndex)
+    {
+        if (args.Length == 2)
+        {
+            return Evaluate(srcRowIndex, srcColumnIndex, args[0], args[1]);
+        }
+
+        return ErrorEval.VALUE_INVALID;
     }
 }

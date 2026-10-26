@@ -17,39 +17,38 @@
 
 using System;
 
-namespace NPOI.SS.Formula
-{
-    internal sealed class SingleValueAttribute : Attribute
-    {
-        private readonly bool _isSingleValue=false;
-        public SingleValueAttribute(bool isSingleValue)
-        {
-            this._isSingleValue = isSingleValue;
-        }
-        public bool IsSingleValue
-        {
-            get { return _isSingleValue; }
-        }
-    }
+namespace NPOI.SS.Formula;
 
-    /// <summary>
-    /// Enumeration of various formula types. For internal use only
-    /// </summary>
-    public enum FormulaType:int
+internal sealed class SingleValueAttribute : Attribute
+{
+    private readonly bool _isSingleValue=false;
+    public SingleValueAttribute(bool isSingleValue)
     {
-        [SingleValue(true)]
-        Cell = 0,
-        [SingleValue(true)]
-        Shared = 1,
-        [SingleValue(false)]
-        Array = 2,
-        [SingleValue(true)]
-        CondFormat = 3,
-        [SingleValue(false)]
-        NamedRange = 4,
-        // this constant is currently very specific.  The exact differences from general data
-        // validation formulas or conditional format formulas is not known yet
-        [SingleValue(false)]
-        DataValidationList = 5,
+        this._isSingleValue = isSingleValue;
     }
+    public bool IsSingleValue
+    {
+        get { return _isSingleValue; }
+    }
+}
+
+/// <summary>
+/// Enumeration of various formula types. For internal use only
+/// </summary>
+public enum FormulaType:int
+{
+    [SingleValue(true)]
+    Cell = 0,
+    [SingleValue(true)]
+    Shared = 1,
+    [SingleValue(false)]
+    Array = 2,
+    [SingleValue(true)]
+    CondFormat = 3,
+    [SingleValue(false)]
+    NamedRange = 4,
+    // this constant is currently very specific.  The exact differences from general data
+    // validation formulas or conditional format formulas is not known yet
+    [SingleValue(false)]
+    DataValidationList = 5,
 }

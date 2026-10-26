@@ -15,25 +15,22 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.SS.Formula
+namespace NPOI.SS.Formula;
+
+using NPOI.SS.Formula.Eval;
+
+/**
+ * Optional Extension to the likes of {@link AreaEval} and 
+ *  {@link NPOI.SS.Formula.Eval.AreaEvalBase},
+ *  which allows for looking up 3D (sheet+row+column) Evaluations
+ */
+public interface ThreeDEval : TwoDEval, ISheetRange
 {
-    using System;
-    using NPOI.SS.Formula.Eval;
-
     /**
-     * Optional Extension to the likes of {@link AreaEval} and 
-     *  {@link NPOI.SS.Formula.Eval.AreaEvalBase},
-     *  which allows for looking up 3D (sheet+row+column) Evaluations
+     * @param sheetIndex sheet index (zero based)
+     * @param rowIndex relative row index (zero based)
+     * @param columnIndex relative column index (zero based)
+     * @return element at the specified row and column position
      */
-    public interface ThreeDEval : TwoDEval, ISheetRange
-    {
-        /**
-         * @param sheetIndex sheet index (zero based)
-         * @param rowIndex relative row index (zero based)
-         * @param columnIndex relative column index (zero based)
-         * @return element at the specified row and column position
-         */
-        ValueEval GetValue(int sheetIndex, int rowIndex, int columnIndex);
-    }
-
+    ValueEval GetValue(int sheetIndex, int rowIndex, int columnIndex);
 }

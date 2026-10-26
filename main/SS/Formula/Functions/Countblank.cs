@@ -17,55 +17,55 @@
 
 using NPOI.SS.Formula.Eval;
 using System;
-namespace NPOI.SS.Formula.Functions
+
+namespace NPOI.SS.Formula.Functions;
+
+/**
+ * Implementation for the function COUNTBLANK
+ * <p>
+ *  Syntax: COUNTBLANK ( range )
+ *    <table border="0" cellpadding="1" cellspacing="0" summary="Parameter descriptions">
+ *      <tr><th>range </th><td>is the range of cells to count blanks</td></tr>
+ *    </table>
+ * </p>
+ *
+ * @author Mads Mohr Christensen
+ */
+public class Countblank : Fixed1ArgFunction
 {
-    /**
-     * Implementation for the function COUNTBLANK
-     * <p>
-     *  Syntax: COUNTBLANK ( range )
-     *    <table border="0" cellpadding="1" cellspacing="0" summary="Parameter descriptions">
-     *      <tr><th>range </th><td>is the range of cells to count blanks</td></tr>
-     *    </table>
-     * </p>
-     *
-     * @author Mads Mohr Christensen
-     */
-    public class Countblank : Fixed1ArgFunction
+
+    public override ValueEval Evaluate(int srcRowIndex, int srcColumnIndex, ValueEval arg0)
     {
 
-        public override ValueEval Evaluate(int srcRowIndex, int srcColumnIndex, ValueEval arg0)
+        double result;
+        if (arg0 is RefEval eval)
         {
+            result = CountUtils.CountMatchingCellsInRef(eval, predicate);
+        }
+        else if (arg0 is ThreeDEval dEval)
+        {
+            result = CountUtils.CountMatchingCellsInArea(dEval, predicate);
+        }
+        else
+        {
+            throw new ArgumentException("Bad range arg type (" + arg0.GetType().Name + ")");
+        }
+        return new NumberEval(result);
+    }
 
-            double result;
-            if (arg0 is RefEval eval)
-            {
-                result = CountUtils.CountMatchingCellsInRef(eval, predicate);
-            }
-            else if (arg0 is ThreeDEval dEval)
-            {
-                result = CountUtils.CountMatchingCellsInArea(dEval, predicate);
-            }
-            else
-            {
-                throw new ArgumentException("Bad range arg type (" + arg0.GetType().Name + ")");
-            }
-            return new NumberEval(result);
+    private static IMatchPredicate predicate = new BlankPredicate();
+    private sealed class BlankPredicate : IMatchPredicate
+    {
+        #region I_MatchPredicate 成员
+
+        public bool Matches(ValueEval valueEval)
+        {
+            return valueEval == BlankEval.instance ||
+                // see https://support.office.com/en-us/article/COUNTBLANK-function-6a92d772-675c-4bee-b346-24af6bd3ac22
+                // "Cells with formulas that return "" (empty text) are also counted."
+                (valueEval is StringEval eval && "".Equals(eval.StringValue));
         }
 
-        private static IMatchPredicate predicate = new BlankPredicate();
-        private sealed class BlankPredicate : IMatchPredicate
-        {
-            #region I_MatchPredicate 成员
-
-            public bool Matches(ValueEval valueEval)
-            {
-                return valueEval == BlankEval.instance ||
-                    // see https://support.office.com/en-us/article/COUNTBLANK-function-6a92d772-675c-4bee-b346-24af6bd3ac22
-                    // "Cells with formulas that return "" (empty text) are also counted."
-                    (valueEval is StringEval eval && "".Equals(eval.StringValue));
-            }
-
-            #endregion
-        }
+        #endregion
     }
 }

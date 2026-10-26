@@ -15,22 +15,20 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.SS.Formula.Functions
+namespace NPOI.SS.Formula.Functions;
+
+
+using NPOI.SS.Formula.Eval;
+
+/**
+ * Implemented by all functions that can be called with one argument
+ *
+ * @author Josh Micich
+ */
+public interface Function1Arg : Function
 {
-
-    using NPOI.SS.Formula.Eval;
-
     /**
-     * Implemented by all functions that can be called with one argument
-     *
-     * @author Josh Micich
+     * see {@link Function#Evaluate(ValueEval[], int, int)}
      */
-    public interface Function1Arg : Function
-    {
-        /**
-         * see {@link Function#Evaluate(ValueEval[], int, int)}
-         */
-        ValueEval Evaluate(int srcRowIndex, int srcColumnIndex, ValueEval arg0);
-    }
-
+    ValueEval Evaluate(int srcRowIndex, int srcColumnIndex, ValueEval arg0);
 }

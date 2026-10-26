@@ -15,68 +15,65 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.SS.Formula
+namespace NPOI.SS.Formula;
+
+
+using NPOI.SS.Formula.Eval;
+using NPOI.SS.Formula.PTG;
+using NPOI.SS.Util;
+using System;
+
+/**
+ * Provides Lazy Evaluation to a 3D Reference
+ * 
+ * TODO Provide access to multiple sheets where present
+ */
+public class LazyRefEval : RefEvalBase
 {
 
-    using System;
-    using System.Text;
-    using NPOI.SS.Formula;
-    using NPOI.SS.Formula.Eval;
-    using NPOI.SS.Util;
-    using NPOI.SS.Formula.PTG;
+    private readonly SheetRangeEvaluator _evaluator;
 
-    /**
-     * Provides Lazy Evaluation to a 3D Reference
-     * 
-     * TODO Provide access to multiple sheets where present
-     */
-    public class LazyRefEval : RefEvalBase
+    public LazyRefEval(int rowIndex, int columnIndex, SheetRangeEvaluator sre)
+        :base(sre, rowIndex, columnIndex)
+    {
+       
+        if (sre == null)
+        {
+            throw new ArgumentException("sre must not be null");
+        }
+        _evaluator = sre;
+    }
+
+    public override ValueEval GetInnerValueEval(int sheetIndex)
+    {
+        return _evaluator.GetEvalForCell(sheetIndex, Row, Column);
+    }
+
+    public override AreaEval Offset(int relFirstRowIx, int relLastRowIx, int relFirstColIx, int relLastColIx)
     {
 
-        private readonly SheetRangeEvaluator _evaluator;
+        AreaI area = new OffsetArea(Row, Column,
+                relFirstRowIx, relLastRowIx, relFirstColIx, relLastColIx);
 
-        public LazyRefEval(int rowIndex, int columnIndex, SheetRangeEvaluator sre)
-            :base(sre, rowIndex, columnIndex)
+        return new LazyAreaEval(area, _evaluator);
+    }
+
+    public bool IsSubTotal
+    {
+        get
         {
-           
-            if (sre == null)
-            {
-                throw new ArgumentException("sre must not be null");
-            }
-            _evaluator = sre;
+            SheetRefEvaluator sheetEvaluator = _evaluator.GetSheetEvaluator(FirstSheetIndex);
+            return sheetEvaluator.IsSubTotal(Row, Column);
         }
+    }
 
-        public override ValueEval GetInnerValueEval(int sheetIndex)
-        {
-            return _evaluator.GetEvalForCell(sheetIndex, Row, Column);
-        }
-
-        public override AreaEval Offset(int relFirstRowIx, int relLastRowIx, int relFirstColIx, int relLastColIx)
-        {
-
-            AreaI area = new OffsetArea(Row, Column,
-                    relFirstRowIx, relLastRowIx, relFirstColIx, relLastColIx);
-
-            return new LazyAreaEval(area, _evaluator);
-        }
-
-        public bool IsSubTotal
-        {
-            get
-            {
-                SheetRefEvaluator sheetEvaluator = _evaluator.GetSheetEvaluator(FirstSheetIndex);
-                return sheetEvaluator.IsSubTotal(Row, Column);
-            }
-        }
-
-        public override String ToString()
-        {
-            CellReference cr = new CellReference(Row, Column);
-            return GetType().Name + "[" +
-                _evaluator.SheetNameRange +
-                '!' +
-                cr.FormatAsString() +
-                "]";
-        }
+    public override String ToString()
+    {
+        CellReference cr = new CellReference(Row, Column);
+        return GetType().Name + "[" +
+            _evaluator.SheetNameRange +
+            '!' +
+            cr.FormatAsString() +
+            "]";
     }
 }

@@ -15,31 +15,30 @@
    limitations Under the License.
 ==================================================================== */
 
-namespace NPOI.SS.Formula.PTG
-{
-    using System;
-    /**
-     * Common baseclass for 
-     * tExp
-     * tTbl
-     * tParen
-     * tNlr
-     * tAttr
-     * tSheet
-     * tEndSheet
-     */
-    public abstract class ControlPtg : Ptg
-    {
+namespace NPOI.SS.Formula.PTG;
 
-        public override bool IsBaseToken
-        {
-            get { return true; }
-        }
-        public override byte DefaultOperandClass 
-        {
-            get {
-                throw new NotImplementedException("Control tokens are not classified");
-            }
+using System;
+/**
+ * Common baseclass for 
+ * tExp
+ * tTbl
+ * tParen
+ * tNlr
+ * tAttr
+ * tSheet
+ * tEndSheet
+ */
+public abstract class ControlPtg : Ptg
+{
+
+    public override bool IsBaseToken
+    {
+        get { return true; }
+    }
+    public override byte DefaultOperandClass 
+    {
+        get {
+            throw new NotImplementedException("Control tokens are not classified");
         }
     }
 }

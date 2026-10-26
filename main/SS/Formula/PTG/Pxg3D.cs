@@ -15,17 +15,15 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.SS.Formula.PTG
+namespace NPOI.SS.Formula.PTG;
+
+using System;
+
+/**
+ * An XSSF only special kind of Ptg, which stores a range of 
+ *  sheet / book references in string form.
+ */
+public interface Pxg3D : Pxg
 {
-    using System;
-
-    /**
-     * An XSSF only special kind of Ptg, which stores a range of 
-     *  sheet / book references in string form.
-     */
-    public interface Pxg3D : Pxg
-    {
-        String LastSheetName { get; set; }
-    }
-
+    String LastSheetName { get; set; }
 }

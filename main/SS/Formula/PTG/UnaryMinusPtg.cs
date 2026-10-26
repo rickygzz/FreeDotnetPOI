@@ -15,46 +15,45 @@
    limitations Under the License.
 ==================================================================== */
 
-namespace NPOI.SS.Formula.PTG
+namespace NPOI.SS.Formula.PTG;
+
+using System;
+using System.Text;
+
+/**
+ * Unary Plus operator
+ * does not have any effect on the operand
+ * @author Avik Sengupta
+ */
+public class UnaryMinusPtg : ValueOperatorPtg
 {
-    using System;
-    using System.Text;
+    public const byte sid = 0x13;
 
-    /**
-     * Unary Plus operator
-     * does not have any effect on the operand
-     * @author Avik Sengupta
-     */
-    public class UnaryMinusPtg : ValueOperatorPtg
+    private const string MINUS = "-";
+
+    public static readonly ValueOperatorPtg instance = new UnaryMinusPtg();
+
+    private UnaryMinusPtg()
     {
-        public const byte sid = 0x13;
+        // enforce singleton
+    }
 
-        private const string MINUS = "-";
+    protected override byte Sid
+    {
+        get { return sid; }
+    }
 
-        public static readonly ValueOperatorPtg instance = new UnaryMinusPtg();
+    public override int NumberOfOperands
+    {
+        get { return 1; }
+    }
 
-        private UnaryMinusPtg()
-        {
-            // enforce singleton
-        }
-
-        protected override byte Sid
-        {
-            get { return sid; }
-        }
-
-        public override int NumberOfOperands
-        {
-            get { return 1; }
-        }
-
-        /** implementation of method from OperationsPtg*/
-        public override String ToFormulaString(String[] operands)
-        {
-            StringBuilder buffer = new StringBuilder();
-            buffer.Append(MINUS);
-            buffer.Append(operands[0]);
-            return buffer.ToString();
-        }
+    /** implementation of method from OperationsPtg*/
+    public override String ToFormulaString(String[] operands)
+    {
+        StringBuilder buffer = new StringBuilder();
+        buffer.Append(MINUS);
+        buffer.Append(operands[0]);
+        return buffer.ToString();
     }
 }

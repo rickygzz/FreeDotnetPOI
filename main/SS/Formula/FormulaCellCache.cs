@@ -15,73 +15,72 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.SS.Formula
-{
-    using System.Collections;
+namespace NPOI.SS.Formula;
 
-    public interface IEntryOperation
+using System.Collections;
+
+public interface IEntryOperation
+{
+    void ProcessEntry(FormulaCellCacheEntry entry);
+}
+
+/**
+ * 
+ * @author Josh Micich
+ */
+public class FormulaCellCache
+{
+
+    private readonly Hashtable _formulaEntriesByCell;
+
+    public FormulaCellCache()
     {
-        void ProcessEntry(FormulaCellCacheEntry entry);
+        // assumes HSSFCell does not override HashCode or Equals, otherwise we need IdentityHashMap
+        _formulaEntriesByCell = new Hashtable();
+    }
+
+    public CellCacheEntry[] GetCacheEntries()
+    {
+
+        FormulaCellCacheEntry[] result = new FormulaCellCacheEntry[_formulaEntriesByCell.Count];
+        _formulaEntriesByCell.Values.CopyTo(result,0);
+        return result;
+    }
+
+    public void Clear()
+    {
+        _formulaEntriesByCell.Clear();
     }
 
     /**
-     * 
-     * @author Josh Micich
+     * @return <c>null</c> if not found
      */
-    public class FormulaCellCache
+    public FormulaCellCacheEntry Get(IEvaluationCell cell)
     {
+        if (_formulaEntriesByCell.ContainsKey(cell.IdentityKey))
+            return (FormulaCellCacheEntry)_formulaEntriesByCell[cell.IdentityKey];
+        else
+            return null;
+    }
 
-        private readonly Hashtable _formulaEntriesByCell;
+    public void Put(IEvaluationCell cell, FormulaCellCacheEntry entry)
+    {
+        _formulaEntriesByCell[cell.IdentityKey] = entry;
+    }
 
-        public FormulaCellCache()
+    public FormulaCellCacheEntry Remove(IEvaluationCell cell)
+    {
+        FormulaCellCacheEntry tmp = (FormulaCellCacheEntry)_formulaEntriesByCell[cell.IdentityKey];
+        _formulaEntriesByCell.Remove(cell);
+        return tmp;
+    }
+
+    public void ApplyOperation(IEntryOperation operation)
+    {
+        IEnumerator i = _formulaEntriesByCell.Values.GetEnumerator();
+        while (i.MoveNext())
         {
-            // assumes HSSFCell does not override HashCode or Equals, otherwise we need IdentityHashMap
-            _formulaEntriesByCell = new Hashtable();
-        }
-
-        public CellCacheEntry[] GetCacheEntries()
-        {
-
-            FormulaCellCacheEntry[] result = new FormulaCellCacheEntry[_formulaEntriesByCell.Count];
-            _formulaEntriesByCell.Values.CopyTo(result,0);
-            return result;
-        }
-
-        public void Clear()
-        {
-            _formulaEntriesByCell.Clear();
-        }
-
-        /**
-         * @return <c>null</c> if not found
-         */
-        public FormulaCellCacheEntry Get(IEvaluationCell cell)
-        {
-            if (_formulaEntriesByCell.ContainsKey(cell.IdentityKey))
-                return (FormulaCellCacheEntry)_formulaEntriesByCell[cell.IdentityKey];
-            else
-                return null;
-        }
-
-        public void Put(IEvaluationCell cell, FormulaCellCacheEntry entry)
-        {
-            _formulaEntriesByCell[cell.IdentityKey] = entry;
-        }
-
-        public FormulaCellCacheEntry Remove(IEvaluationCell cell)
-        {
-            FormulaCellCacheEntry tmp = (FormulaCellCacheEntry)_formulaEntriesByCell[cell.IdentityKey];
-            _formulaEntriesByCell.Remove(cell);
-            return tmp;
-        }
-
-        public void ApplyOperation(IEntryOperation operation)
-        {
-            IEnumerator i = _formulaEntriesByCell.Values.GetEnumerator();
-            while (i.MoveNext())
-            {
-                operation.ProcessEntry((FormulaCellCacheEntry)i.Current);
-            }
+            operation.ProcessEntry((FormulaCellCacheEntry)i.Current);
         }
     }
 }

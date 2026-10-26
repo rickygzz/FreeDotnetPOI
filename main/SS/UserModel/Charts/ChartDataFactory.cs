@@ -15,26 +15,24 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.SS.UserModel.Charts
+namespace NPOI.SS.UserModel.Charts;
+
+/// <summary>
+/// A factory for different chart data types.
+/// </summary>
+/// <remarks>
+/// @author Roman Kashitsyn
+/// </remarks>
+public interface IChartDataFactory
 {
     /// <summary>
-    /// A factory for different chart data types.
+    /// returns an appropriate ScatterChartData instance
     /// </summary>
-    /// <remarks>
-    /// @author Roman Kashitsyn
-    /// </remarks>
-    public interface IChartDataFactory
-    {
-        /// <summary>
-        /// returns an appropriate ScatterChartData instance
-        /// </summary>
-        /// <returns></returns>
-        IScatterChartData<Tx, Ty> CreateScatterChartData<Tx, Ty>();
-        ILineChartData<Tx, Ty> CreateLineChartData<Tx, Ty>();
-        IBarChartData<Tx, Ty> CreateBarChartData<Tx, Ty>();
-        IPieChartData<Tx, Ty> CreatePieChartData<Tx, Ty>();
-        IColumnChartData<Tx, Ty> CreateColumnChartData<Tx, Ty>();
-        IAreaChartData<Tx, Ty> CreateAreaChartData<Tx, Ty>();
-    }
-
+    /// <returns></returns>
+    IScatterChartData<Tx, Ty> CreateScatterChartData<Tx, Ty>();
+    ILineChartData<Tx, Ty> CreateLineChartData<Tx, Ty>();
+    IBarChartData<Tx, Ty> CreateBarChartData<Tx, Ty>();
+    IPieChartData<Tx, Ty> CreatePieChartData<Tx, Ty>();
+    IColumnChartData<Tx, Ty> CreateColumnChartData<Tx, Ty>();
+    IAreaChartData<Tx, Ty> CreateAreaChartData<Tx, Ty>();
 }

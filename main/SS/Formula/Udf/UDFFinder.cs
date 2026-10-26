@@ -15,30 +15,29 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.SS.Formula.UDF
+namespace NPOI.SS.Formula.UDF;
+
+using NPOI.SS.Formula.Atp;
+using NPOI.SS.Formula.Functions;
+using System;
+
+/**
+ * Common interface for "Add-in" libraries and user defined function libraries.
+ *
+ * @author PUdalau
+ */
+public abstract class UDFFinder
 {
-    using System;
-    using NPOI.SS.Formula.Atp;
-    using NPOI.SS.Formula.Functions;
+    public static UDFFinder GetDefault()
+    {
+        return new AggregatingUDFFinder(AnalysisToolPak.instance);
+    }
 
     /**
-     * Common interface for "Add-in" libraries and user defined function libraries.
+     * Returns executor by specified name. Returns <code>null</code> if the function name is unknown.
      *
-     * @author PUdalau
+     * @param name Name of function.
+     * @return Function executor.
      */
-    public abstract class UDFFinder
-    {
-        public static UDFFinder GetDefault()
-        {
-            return new AggregatingUDFFinder(AnalysisToolPak.instance);
-        }
-
-        /**
-         * Returns executor by specified name. Returns <code>null</code> if the function name is unknown.
-         *
-         * @param name Name of function.
-         * @return Function executor.
-         */
-        public abstract FreeRefFunction FindFunction(String name);
-    }
+    public abstract FreeRefFunction FindFunction(String name);
 }

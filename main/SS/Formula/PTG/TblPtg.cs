@@ -15,86 +15,85 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.SS.Formula.PTG
+namespace NPOI.SS.Formula.PTG;
+
+using System;
+using System.Text;
+using NPOI.Util;
+
+
+/**
+ * This ptg indicates a data table.
+ * It only occurs in a FORMULA record, never in an
+ *  ARRAY or NAME record.  When ptgTbl occurs in a
+ *  formula, it is the only token in the formula.
+ *
+ * This indicates that the cell containing the
+ *  formula is an interior cell in a data table;
+ *  the table description is found in a TABLE
+ *  record. Rows and columns which contain input
+ *  values to be substituted in the table do
+ *  not contain ptgTbl.
+ * See page 811 of the june 08 binary docs.
+ */
+public class TblPtg : ControlPtg
 {
-    using System;
-    using System.Text;
-    using NPOI.Util;
+    private const int SIZE = 5;
+    public const byte sid = 0x02;
+    /** The row number of the upper left corner */
+    private int field_1_first_row;
+    /** The column number of the upper left corner */
+    private int field_2_first_col;
 
-
-    /**
-     * This ptg indicates a data table.
-     * It only occurs in a FORMULA record, never in an
-     *  ARRAY or NAME record.  When ptgTbl occurs in a
-     *  formula, it is the only token in the formula.
-     *
-     * This indicates that the cell containing the
-     *  formula is an interior cell in a data table;
-     *  the table description is found in a TABLE
-     *  record. Rows and columns which contain input
-     *  values to be substituted in the table do
-     *  not contain ptgTbl.
-     * See page 811 of the june 08 binary docs.
-     */
-    public class TblPtg : ControlPtg
+    public TblPtg(ILittleEndianInput in1)
     {
-        private const int SIZE = 5;
-        public const byte sid = 0x02;
-        /** The row number of the upper left corner */
-        private int field_1_first_row;
-        /** The column number of the upper left corner */
-        private int field_2_first_col;
+        field_1_first_row = in1.ReadUShort();
+        field_2_first_col = in1.ReadUShort();
+    }
 
-        public TblPtg(ILittleEndianInput in1)
+    public override void Write(ILittleEndianOutput out1)
+    {
+        out1.WriteByte(sid + PtgClass);
+        out1.WriteShort(field_1_first_row);
+        out1.WriteShort(field_2_first_col);
+    }
+
+
+    public override int Size
+    {
+        get
         {
-            field_1_first_row = in1.ReadUShort();
-            field_2_first_col = in1.ReadUShort();
+            return SIZE;
         }
+    }
 
-        public override void Write(ILittleEndianOutput out1)
+    public int Row
+    {
+        get
         {
-            out1.WriteByte(sid + PtgClass);
-            out1.WriteShort(field_1_first_row);
-            out1.WriteShort(field_2_first_col);
+            return field_1_first_row;
         }
+    }
 
-
-        public override int Size
+    public int Column
+    {
+        get
         {
-            get
-            {
-                return SIZE;
-            }
+            return field_2_first_col;
         }
+    }
 
-        public int Row
-        {
-            get
-            {
-                return field_1_first_row;
-            }
-        }
+    public override String ToFormulaString()
+    {
+        // table(....)[][]
+        throw new RecordFormatException("Table and Arrays are not yet supported");
+    }
 
-        public int Column
-        {
-            get
-            {
-                return field_2_first_col;
-            }
-        }
-
-        public override String ToFormulaString()
-        {
-            // table(....)[][]
-            throw new RecordFormatException("Table and Arrays are not yet supported");
-        }
-
-        public override String ToString()
-        {
-            StringBuilder buffer = new StringBuilder("[Data Table - Parent cell is an interior cell in a data table]\n");
-            buffer.Append("top left row = ").Append(Row).Append("\n");
-            buffer.Append("top left col = ").Append(Column).Append("\n");
-            return buffer.ToString();
-        }
+    public override String ToString()
+    {
+        StringBuilder buffer = new StringBuilder("[Data Table - Parent cell is an interior cell in a data table]\n");
+        buffer.Append("top left row = ").Append(Row).Append("\n");
+        buffer.Append("top left col = ").Append(Column).Append("\n");
+        return buffer.ToString();
     }
 }

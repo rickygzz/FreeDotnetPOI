@@ -15,92 +15,88 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.SS.Formula
-{
-    using System;
+namespace NPOI.SS.Formula;
 
-    using NPOI.SS.Formula.Eval;
-    using System.Text; 
 using Cysharp.Text;
+using NPOI.SS.Formula.Eval;
+using System;
 
-    /**
-     * Evaluator for returning cells or sheets for a range of sheets
-     */
-    public class SheetRangeEvaluator : ISheetRange
+/**
+ * Evaluator for returning cells or sheets for a range of sheets
+ */
+public class SheetRangeEvaluator : ISheetRange
+{
+    private readonly int _firstSheetIndex;
+    private readonly int _lastSheetIndex;
+    private readonly SheetRefEvaluator[] _sheetEvaluators;
+
+    public SheetRangeEvaluator(int firstSheetIndex, int lastSheetIndex, SheetRefEvaluator[] sheetEvaluators)
     {
-        private readonly int _firstSheetIndex;
-        private readonly int _lastSheetIndex;
-        private readonly SheetRefEvaluator[] _sheetEvaluators;
+        if (firstSheetIndex < 0)
+        {
+            throw new ArgumentException("Invalid firstSheetIndex: " + firstSheetIndex + ".");
+        }
+        if (lastSheetIndex < firstSheetIndex)
+        {
+            throw new ArgumentException("Invalid lastSheetIndex: " + lastSheetIndex + " for firstSheetIndex: " + firstSheetIndex + ".");
+        }
+        _firstSheetIndex = firstSheetIndex;
+        _lastSheetIndex = lastSheetIndex;
+        _sheetEvaluators = (SheetRefEvaluator[])sheetEvaluators.Clone();
+    }
+    public SheetRangeEvaluator(int onlySheetIndex, SheetRefEvaluator sheetEvaluator)
+        : this(onlySheetIndex, onlySheetIndex, new SheetRefEvaluator[] { sheetEvaluator })
+    {
+        
+    }
 
-        public SheetRangeEvaluator(int firstSheetIndex, int lastSheetIndex, SheetRefEvaluator[] sheetEvaluators)
+    public SheetRefEvaluator GetSheetEvaluator(int sheetIndex)
+    {
+        if (sheetIndex < _firstSheetIndex || sheetIndex > _lastSheetIndex)
         {
-            if (firstSheetIndex < 0)
-            {
-                throw new ArgumentException("Invalid firstSheetIndex: " + firstSheetIndex + ".");
-            }
-            if (lastSheetIndex < firstSheetIndex)
-            {
-                throw new ArgumentException("Invalid lastSheetIndex: " + lastSheetIndex + " for firstSheetIndex: " + firstSheetIndex + ".");
-            }
-            _firstSheetIndex = firstSheetIndex;
-            _lastSheetIndex = lastSheetIndex;
-            _sheetEvaluators = (SheetRefEvaluator[])sheetEvaluators.Clone();
+            throw new ArgumentException("Invalid SheetIndex: " + sheetIndex +
+                    " - Outside range " + _firstSheetIndex + " : " + _lastSheetIndex);
         }
-        public SheetRangeEvaluator(int onlySheetIndex, SheetRefEvaluator sheetEvaluator)
-            : this(onlySheetIndex, onlySheetIndex, new SheetRefEvaluator[] { sheetEvaluator })
-        {
-            
-        }
+        return _sheetEvaluators[sheetIndex - _firstSheetIndex];
+    }
 
-        public SheetRefEvaluator GetSheetEvaluator(int sheetIndex)
+    public int FirstSheetIndex
+    {
+        get
         {
-            if (sheetIndex < _firstSheetIndex || sheetIndex > _lastSheetIndex)
-            {
-                throw new ArgumentException("Invalid SheetIndex: " + sheetIndex +
-                        " - Outside range " + _firstSheetIndex + " : " + _lastSheetIndex);
-            }
-            return _sheetEvaluators[sheetIndex - _firstSheetIndex];
+            return _firstSheetIndex;
         }
-
-        public int FirstSheetIndex
+    }
+    public int LastSheetIndex
+    {
+        get
         {
-            get
-            {
-                return _firstSheetIndex;
-            }
-        }
-        public int LastSheetIndex
-        {
-            get
-            {
-                return _lastSheetIndex;
-            }
-        }
-
-        public String GetSheetName(int sheetIndex)
-        {
-            return GetSheetEvaluator(sheetIndex).SheetName;
-        }
-        public String SheetNameRange
-        {
-            get
-            {
-                using var sb = ZString.CreateStringBuilder();
-
-                sb.Append(GetSheetName(_firstSheetIndex));
-                if (_firstSheetIndex != _lastSheetIndex)
-                {
-                    sb.Append(':');
-                    sb.Append(GetSheetName(_lastSheetIndex));
-                }
-                return sb.ToString();
-            }
-        }
-
-        public ValueEval GetEvalForCell(int sheetIndex, int rowIndex, int columnIndex)
-        {
-            return GetSheetEvaluator(sheetIndex).GetEvalForCell(rowIndex, columnIndex);
+            return _lastSheetIndex;
         }
     }
 
+    public String GetSheetName(int sheetIndex)
+    {
+        return GetSheetEvaluator(sheetIndex).SheetName;
+    }
+    public String SheetNameRange
+    {
+        get
+        {
+            using var sb = ZString.CreateStringBuilder();
+
+            sb.Append(GetSheetName(_firstSheetIndex));
+            if (_firstSheetIndex != _lastSheetIndex)
+            {
+                sb.Append(':');
+                sb.Append(GetSheetName(_lastSheetIndex));
+            }
+            return sb.ToString();
+        }
+    }
+
+    public ValueEval GetEvalForCell(int sheetIndex, int rowIndex, int columnIndex)
+    {
+        return GetSheetEvaluator(sheetIndex).GetEvalForCell(rowIndex, columnIndex);
+    }
 }

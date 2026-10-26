@@ -18,25 +18,24 @@
  * Created on May 6, 2005
  *
  */
-namespace NPOI.SS.Formula.Functions
-{
-    using System;
-    using NPOI.SS.Formula.Eval;
+namespace NPOI.SS.Formula.Functions.Numeric;
 
-    /**
-     * @author Amol S. Deshmukh &lt; amolweb at ya hoo dot com &gt;
-     *
-     */
-    public class Atan2 : TwoArg
-    {
+using System;
+using NPOI.SS.Formula.Eval;
+
+/**
+ * @author Amol S. Deshmukh &lt; amolweb at ya hoo dot com &gt;
+ *
+ */
+public class Atan2 : TwoArg
+{
 
 		public override double Evaluate(double d0, double d1)
+    {
+        if (d0 == NumericFunction.ZERO && d1 == NumericFunction.ZERO)
         {
-            if (d0 == NumericFunction.ZERO && d1 == NumericFunction.ZERO)
-            {
 				throw new EvaluationException(ErrorEval.DIV_ZERO);
 			}
 			return Math.Atan2(d1, d0);
 		}
-    }
 }

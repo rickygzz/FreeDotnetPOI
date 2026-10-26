@@ -22,7 +22,7 @@ namespace TestCases.SS.Formula.Functions
     using NUnit.Framework;using NUnit.Framework.Legacy;
     using System;
     using NPOI.SS.Util;
-    using NPOI.SS.Formula.Functions;
+    using NPOI.SS.Formula.Functions.Text;
     using System.Globalization;
 
     /**
@@ -125,7 +125,7 @@ namespace TestCases.SS.Formula.Functions
             formatArg = new StringEval("MMMM dd, yyyy");
             args[1] = formatArg;
             //fix error in non-en Culture
-            NPOI.SS.Formula.Functions.Text.Formatter = new NPOI.SS.UserModel.DataFormatter(CultureInfo.CurrentCulture);
+            Text.Formatter = new NPOI.SS.UserModel.DataFormatter(CultureInfo.CurrentCulture);
             result = TextFunction.TEXT.Evaluate(args, -1, (short)-1);
             testResult = new StringEval(november + " 16, 1900");
             ClassicAssert.AreEqual(testResult.ToString(), result.ToString());

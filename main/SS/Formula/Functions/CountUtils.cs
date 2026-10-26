@@ -15,103 +15,102 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.SS.Formula.Functions
+namespace NPOI.SS.Formula.Functions;
+
+using NPOI.SS.Formula.Eval;
+using System;
+/**
+* Common interface for the matching criteria.
+*/
+public interface IMatchPredicate
 {
-    using System;
-    using NPOI.SS.Formula.Eval;
-    /**
- * Common interface for the matching criteria.
+    bool Matches(ValueEval x);
+}
+public interface I_MatchAreaPredicate : IMatchPredicate
+{
+    bool Matches(TwoDEval x, int rowIndex, int columnIndex);
+}
+/**
+ * Common logic for COUNT, COUNTA and COUNTIF
+ *
+ * @author Josh Micich 
  */
-    public interface IMatchPredicate
+class CountUtils
+{
+
+    private CountUtils()
     {
-        bool Matches(ValueEval x);
+        // no instances of this class
     }
-    public interface I_MatchAreaPredicate : IMatchPredicate
-    {
-        bool Matches(TwoDEval x, int rowIndex, int columnIndex);
-    }
+
     /**
-     * Common logic for COUNT, COUNTA and COUNTIF
-     *
-     * @author Josh Micich 
-     */
-    class CountUtils
-    {
-
-        private CountUtils()
-        {
-            // no instances of this class
-        }
-
-        /**
-         * @return the number of evaluated cells in the range that match the specified criteria
-         */
-        public static int CountMatchingCellsInRef(RefEval refEval, IMatchPredicate criteriaPredicate)
-        {
-            int result = 0;
-            int firstSheetIndex = refEval.FirstSheetIndex;
-            int lastSheetIndex = refEval.LastSheetIndex;
-            for (int sIx = firstSheetIndex; sIx <= lastSheetIndex; sIx++)
-            {
-                ValueEval ve = refEval.GetInnerValueEval(sIx);
-                if (criteriaPredicate.Matches(ve))
-                {
-                    result++;
-                }
-            }
-            return result;
-        }
-        public static int CountArg(ValueEval eval, IMatchPredicate criteriaPredicate)
-        {
-            if (eval == null)
-            {
-                throw new ArgumentException("eval must not be null");
-            }
-            if (eval is ThreeDEval dEval)
-            {
-                return CountUtils.CountMatchingCellsInArea(dEval, criteriaPredicate);
-            }
-            if (eval is TwoDEval)
-            {
-                throw new ArgumentException("Count requires 3D Evals, 2D ones aren't supported");
-            }
-            if (eval is RefEval refEval)
-            {
-                return CountUtils.CountMatchingCellsInRef(refEval, criteriaPredicate);
-            }
-            return criteriaPredicate.Matches(eval) ? 1 : 0;
-        }
-        /**
      * @return the number of evaluated cells in the range that match the specified criteria
      */
-        public static int CountMatchingCellsInArea(ThreeDEval areaEval, IMatchPredicate criteriaPredicate)
+    public static int CountMatchingCellsInRef(RefEval refEval, IMatchPredicate criteriaPredicate)
+    {
+        int result = 0;
+        int firstSheetIndex = refEval.FirstSheetIndex;
+        int lastSheetIndex = refEval.LastSheetIndex;
+        for (int sIx = firstSheetIndex; sIx <= lastSheetIndex; sIx++)
         {
-            int result = 0;
-            int firstSheetIndex = areaEval.FirstSheetIndex;
-            int lastSheetIndex = areaEval.LastSheetIndex;
-            for (int sIx = firstSheetIndex; sIx <= lastSheetIndex; sIx++)
+            ValueEval ve = refEval.GetInnerValueEval(sIx);
+            if (criteriaPredicate.Matches(ve))
             {
-                int height = areaEval.Height;
-                int width = areaEval.Width;
-                for (int rrIx = 0; rrIx < height; rrIx++)
+                result++;
+            }
+        }
+        return result;
+    }
+    public static int CountArg(ValueEval eval, IMatchPredicate criteriaPredicate)
+    {
+        if (eval == null)
+        {
+            throw new ArgumentException("eval must not be null");
+        }
+        if (eval is ThreeDEval dEval)
+        {
+            return CountUtils.CountMatchingCellsInArea(dEval, criteriaPredicate);
+        }
+        if (eval is TwoDEval)
+        {
+            throw new ArgumentException("Count requires 3D Evals, 2D ones aren't supported");
+        }
+        if (eval is RefEval refEval)
+        {
+            return CountUtils.CountMatchingCellsInRef(refEval, criteriaPredicate);
+        }
+        return criteriaPredicate.Matches(eval) ? 1 : 0;
+    }
+    /**
+ * @return the number of evaluated cells in the range that match the specified criteria
+ */
+    public static int CountMatchingCellsInArea(ThreeDEval areaEval, IMatchPredicate criteriaPredicate)
+    {
+        int result = 0;
+        int firstSheetIndex = areaEval.FirstSheetIndex;
+        int lastSheetIndex = areaEval.LastSheetIndex;
+        for (int sIx = firstSheetIndex; sIx <= lastSheetIndex; sIx++)
+        {
+            int height = areaEval.Height;
+            int width = areaEval.Width;
+            for (int rrIx = 0; rrIx < height; rrIx++)
+            {
+                for (int rcIx = 0; rcIx < width; rcIx++)
                 {
-                    for (int rcIx = 0; rcIx < width; rcIx++)
+                    ValueEval ve = areaEval.GetValue(sIx, rrIx, rcIx);
+
+                    if (criteriaPredicate is I_MatchAreaPredicate areaPredicate)
                     {
-                        ValueEval ve = areaEval.GetValue(sIx, rrIx, rcIx);
+                        if (!areaPredicate.Matches(areaEval, rrIx, rcIx)) continue;
+                    }
 
-                        if (criteriaPredicate is I_MatchAreaPredicate areaPredicate)
-                        {
-                            if (!areaPredicate.Matches(areaEval, rrIx, rcIx)) continue;
-                        }
-
-                        if (criteriaPredicate.Matches(ve))
-                        {
-                            result++;
-                        }
+                    if (criteriaPredicate.Matches(ve))
+                    {
+                        result++;
                     }
                 }
             }
-            return result;
         }
+        return result;
     }
 }

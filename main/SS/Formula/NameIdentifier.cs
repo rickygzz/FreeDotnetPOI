@@ -15,50 +15,49 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.SS.Formula
+namespace NPOI.SS.Formula;
+
+using System;
+using System.Text;
+
+public class NameIdentifier
 {
-    using System;
-    using System.Text;
+    private readonly String _name;
+    private readonly bool _isQuoted;
 
-    public class NameIdentifier
+    public NameIdentifier(String name, bool isQuoted)
     {
-        private readonly String _name;
-        private readonly bool _isQuoted;
-
-        public NameIdentifier(String name, bool isQuoted)
+        _name = name;
+        _isQuoted = isQuoted;
+    }
+    public String Name
+    {
+        get
         {
-            _name = name;
-            _isQuoted = isQuoted;
+            return _name;
         }
-        public String Name
+    }
+    public bool IsQuoted
+    {
+        get
         {
-            get
-            {
-                return _name;
-            }
+            return _isQuoted;
         }
-        public bool IsQuoted
+    }
+    public override String ToString()
+    {
+        StringBuilder sb = new StringBuilder(64);
+        sb.Append(this.GetType().Name);
+        sb.Append(" [");
+        if (_isQuoted)
         {
-            get
-            {
-                return _isQuoted;
-            }
+            sb.Append("'").Append(_name).Append("'");
         }
-        public override String ToString()
+        else
         {
-            StringBuilder sb = new StringBuilder(64);
-            sb.Append(this.GetType().Name);
-            sb.Append(" [");
-            if (_isQuoted)
-            {
-                sb.Append("'").Append(_name).Append("'");
-            }
-            else
-            {
-                sb.Append(_name);
-            }
-            sb.Append("]");
-            return sb.ToString();
+            sb.Append(_name);
         }
+        sb.Append("]");
+        return sb.ToString();
     }
 }

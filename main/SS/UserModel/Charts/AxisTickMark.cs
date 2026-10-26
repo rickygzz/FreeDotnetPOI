@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿namespace NPOI.SS.UserModel.Charts;
 
-namespace NPOI.SS.UserModel.Charts
+public enum AxisTickMark
 {
-    public enum AxisTickMark
-    {
-        None,
-        Cross,
-        In,
-        Out
-    }
+    None,
+    Cross,
+    In,
+    Out
 }

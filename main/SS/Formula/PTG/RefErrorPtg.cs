@@ -15,68 +15,67 @@
    limitations Under the License.
 ==================================================================== */
 
-namespace NPOI.SS.Formula.PTG
+namespace NPOI.SS.Formula.PTG;
+
+using NPOI.SS.UserModel;
+using NPOI.Util;
+using System;
+using System.Text;
+
+
+/**
+ * RefError - handles deleted cell reference
+ * @author Jason Height (jheight at chariot dot net dot au)
+ */
+public class RefErrorPtg : OperandPtg
 {
-    using System;
-    using System.Text;
-    using NPOI.SS.UserModel;
-    using NPOI.Util;
 
+    private const int SIZE = 5;
+    public const byte sid = 0x2a;
+    private int field_1_reserved;
 
-    /**
-     * RefError - handles deleted cell reference
-     * @author Jason Height (jheight at chariot dot net dot au)
-     */
-    public class RefErrorPtg : OperandPtg
+    public RefErrorPtg()
     {
+        field_1_reserved = 0;
+    }
 
-        private const int SIZE = 5;
-        public const byte sid = 0x2a;
-        private int field_1_reserved;
+    public RefErrorPtg(ILittleEndianInput in1)
+    {
+        field_1_reserved = in1.ReadInt();
 
-        public RefErrorPtg()
-        {
-            field_1_reserved = 0;
-        }
+    }
 
-        public RefErrorPtg(ILittleEndianInput in1)
-        {
-            field_1_reserved = in1.ReadInt();
+    public override String ToString()
+    {
+        StringBuilder buffer = new StringBuilder("[RefError]\n");
 
-        }
+        buffer.Append("reserved = ").Append(Reserved).Append("\n");
+        return buffer.ToString();
+    }
 
-        public override String ToString()
-        {
-            StringBuilder buffer = new StringBuilder("[RefError]\n");
+    public override void Write(ILittleEndianOutput out1)
+    {
+        out1.WriteByte(sid + PtgClass);
+        out1.WriteInt(field_1_reserved);
+    }
+    public int Reserved
+    {
+        get{return field_1_reserved;}
+        set { field_1_reserved = value; }
+    }
 
-            buffer.Append("reserved = ").Append(Reserved).Append("\n");
-            return buffer.ToString();
-        }
+    public override int Size
+    {
+        get { return SIZE; }
+    }
 
-        public override void Write(ILittleEndianOutput out1)
-        {
-            out1.WriteByte(sid + PtgClass);
-            out1.WriteInt(field_1_reserved);
-        }
-        public int Reserved
-        {
-            get{return field_1_reserved;}
-            set { field_1_reserved = value; }
-        }
+    public override String ToFormulaString()
+    {
+        return FormulaError.REF.String;
+    }
 
-        public override int Size
-        {
-            get { return SIZE; }
-        }
-
-        public override String ToFormulaString()
-        {
-            return FormulaError.REF.String;
-        }
-
-        public override byte DefaultOperandClass
-        {
-            get { return Ptg.CLASS_REF; }
-        }
+    public override byte DefaultOperandClass
+    {
+        get { return Ptg.CLASS_REF; }
     }
 }

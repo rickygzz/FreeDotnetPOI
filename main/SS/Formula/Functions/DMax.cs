@@ -15,71 +15,63 @@
    limitations under the License.
 ==================================================================== */
 
+namespace NPOI.SS.Formula.Functions;
 
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
+using NPOI.SS.Formula.Eval;
 
-namespace NPOI.SS.Formula.Functions
+
+
+
+/// <summary>
+/// <para>
+/// Implementation of the DMax function:
+/// Finds the maximum value of a column in an area with given conditions.
+/// </para>
+/// <para>
+/// TODO:
+/// - functions as conditions
+/// </para>
+/// </summary>
+public sealed class DMax : IDStarAlgorithm
 {
-    using NPOI.SS.Formula.Eval;
-
-
-
-
-    /// <summary>
-    /// <para>
-    /// Implementation of the DMax function:
-    /// Finds the maximum value of a column in an area with given conditions.
-    /// </para>
-    /// <para>
-    /// TODO:
-    /// - functions as conditions
-    /// </para>
-    /// </summary>
-    public sealed class DMax : IDStarAlgorithm
+    private ValueEval maximumValue;
+    public bool ProcessMatch(ValueEval eval)
     {
-        private ValueEval maximumValue;
-        public bool ProcessMatch(ValueEval eval)
+        if(eval is NumericValueEval valueEval)
         {
-            if(eval is NumericValueEval valueEval)
-            {
-                if(maximumValue == null)
-                { // First match, just Set the value.
+            if(maximumValue == null)
+            { // First match, just Set the value.
+                maximumValue = valueEval;
+            }
+            else
+            { // There was a previous match, find the new minimum.
+                double currentValue = valueEval.NumberValue;
+                double oldValue = ((NumericValueEval)maximumValue).NumberValue;
+                if(currentValue > oldValue)
+                {
                     maximumValue = valueEval;
                 }
-                else
-                { // There was a previous match, find the new minimum.
-                    double currentValue = valueEval.NumberValue;
-                    double oldValue = ((NumericValueEval)maximumValue).NumberValue;
-                    if(currentValue > oldValue)
-                    {
-                        maximumValue = valueEval;
-                    }
-                }
             }
+        }
 
-            return true;
-        }
-        public ValueEval Result
-        {
-            get
-            {
-                if(maximumValue == null)
-                {
-                    return NumberEval.ZERO;
-                }
-                else
-                {
-                    return maximumValue;
-                }
-            }
-            
-        }
-        public bool AllowEmptyMatchField { get; } = false;
+        return true;
     }
+    public ValueEval Result
+    {
+        get
+        {
+            if(maximumValue == null)
+            {
+                return NumberEval.ZERO;
+            }
+            else
+            {
+                return maximumValue;
+            }
+        }
+        
+    }
+    public bool AllowEmptyMatchField { get; } = false;
 }
 
 

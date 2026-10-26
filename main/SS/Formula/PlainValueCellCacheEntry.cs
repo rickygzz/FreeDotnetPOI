@@ -15,21 +15,20 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.SS.Formula
+namespace NPOI.SS.Formula;
+
+
+using NPOI.SS.Formula.Eval;
+
+/**
+ * Used for non-formula cells, primarily To keep track of the referencing (formula) cells.
+ * 
+ * @author Josh Micich
+ */
+public class PlainValueCellCacheEntry : CellCacheEntry
 {
-
-    using NPOI.SS.Formula.Eval;
-
-    /**
-     * Used for non-formula cells, primarily To keep track of the referencing (formula) cells.
-     * 
-     * @author Josh Micich
-     */
-    public class PlainValueCellCacheEntry : CellCacheEntry
+    public PlainValueCellCacheEntry(ValueEval value)
     {
-        public PlainValueCellCacheEntry(ValueEval value)
-        {
-            UpdateValue(value);
-        }
+        UpdateValue(value);
     }
 }

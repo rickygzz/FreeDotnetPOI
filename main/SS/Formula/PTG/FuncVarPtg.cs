@@ -15,71 +15,70 @@
    limitations Under the License.
 ==================================================================== */
 
-namespace NPOI.SS.Formula.PTG
-{
-    using System;
-    using NPOI.Util;
-    using NPOI.SS.Formula.Functions;
+namespace NPOI.SS.Formula.PTG;
 
+using NPOI.SS.Formula.Functions;
+using NPOI.Util;
+using System;
+
+
+/**
+ *
+ * @author Jason Height (jheight at chariot dot net dot au)
+ */
+public class FuncVarPtg : AbstractFunctionPtg
+{
+    public const byte sid = 0x22;
+    private const int SIZE = 4;
 
     /**
-     *
-     * @author Jason Height (jheight at chariot dot net dot au)
-     */
-    public class FuncVarPtg : AbstractFunctionPtg
+* Single instance of this token for 'sum() taking a single argument'
+*/
+    public static readonly OperationPtg SUM = FuncVarPtg.Create("SUM", 1);
+
+    private FuncVarPtg(int functionIndex, int returnClass, byte[] paramClasses, int numArgs)
+        : base(functionIndex, returnClass, paramClasses, numArgs)
     {
-        public const byte sid = 0x22;
-        private const int SIZE = 4;
 
-        /**
- * Single instance of this token for 'sum() taking a single argument'
- */
-        public static readonly OperationPtg SUM = FuncVarPtg.Create("SUM", 1);
+    }
 
-        private FuncVarPtg(int functionIndex, int returnClass, byte[] paramClasses, int numArgs)
-            : base(functionIndex, returnClass, paramClasses, numArgs)
+    /**Creates new function pointer from a byte array
+* usually called while reading an excel file.
+*/
+    public static FuncVarPtg Create(ILittleEndianInput in1)
+    {
+        return Create(in1.ReadByte(), in1.ReadShort());
+    }
+
+    /**
+     * Create a function ptg from a string tokenised by the parser
+     */
+    public static FuncVarPtg Create(String pName, int numArgs)
+    {
+        return Create(numArgs, LookupIndex(pName));
+    }
+
+    private static FuncVarPtg Create(int numArgs, int functionIndex)
+    {
+        FunctionMetadata fm = FunctionMetadataRegistry.GetFunctionByIndex(functionIndex);
+        if (fm == null)
         {
-
+            // Happens only as a result of a call to FormulaParser.parse(), with a non-built-in function name
+            return new FuncVarPtg(functionIndex, Ptg.CLASS_VALUE, new byte[] { Ptg.CLASS_VALUE }, numArgs);
         }
-
-        /**Creates new function pointer from a byte array
- * usually called while reading an excel file.
- */
-        public static FuncVarPtg Create(ILittleEndianInput in1)
-        {
-            return Create(in1.ReadByte(), in1.ReadShort());
-        }
-
-        /**
-         * Create a function ptg from a string tokenised by the parser
-         */
-        public static FuncVarPtg Create(String pName, int numArgs)
-        {
-            return Create(numArgs, LookupIndex(pName));
-        }
-
-        private static FuncVarPtg Create(int numArgs, int functionIndex)
-        {
-            FunctionMetadata fm = FunctionMetadataRegistry.GetFunctionByIndex(functionIndex);
-            if (fm == null)
-            {
-                // Happens only as a result of a call to FormulaParser.parse(), with a non-built-in function name
-                return new FuncVarPtg(functionIndex, Ptg.CLASS_VALUE, new byte[] { Ptg.CLASS_VALUE }, numArgs);
-            }
-            return new FuncVarPtg(functionIndex, fm.ReturnClassCode, fm.ParameterClassCodes, numArgs);
-        }
+        return new FuncVarPtg(functionIndex, fm.ReturnClassCode, fm.ParameterClassCodes, numArgs);
+    }
 
 
-        public override void Write(ILittleEndianOutput out1)
-        {
-            out1.WriteByte(sid + PtgClass);
-            out1.WriteByte(_numberOfArgs);
-            out1.WriteShort(_functionIndex);
-        }
+    public override void Write(ILittleEndianOutput out1)
+    {
+        out1.WriteByte(sid + PtgClass);
+        out1.WriteByte(_numberOfArgs);
+        out1.WriteShort(_functionIndex);
+    }
 
-        public override int Size
-        {
-            get { return SIZE; }
-        }
+    public override int Size
+    {
+        get { return SIZE; }
     }
 }

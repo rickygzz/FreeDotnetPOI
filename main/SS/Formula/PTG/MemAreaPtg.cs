@@ -15,80 +15,78 @@
    limitations Under the License.
 ==================================================================== */
 
-namespace NPOI.SS.Formula.PTG
+namespace NPOI.SS.Formula.PTG;
+
+using NPOI.Util;
+using System;
+using System.Text;
+
+
+/**
+ * @author Daniel Noll (daniel at nuix dot com dot au)
+ */
+public class MemAreaPtg : OperandPtg
 {
-    using System;
-    using System.Text;
+    public const short sid = 0x26;
+    private const int SIZE = 7;
+    private int field_1_reserved;
+    private int field_2_subex_len;
 
-    using NPOI.Util;
+    /** Creates new MemAreaPtg */
 
-
-    /**
-     * @author Daniel Noll (daniel at nuix dot com dot au)
-     */
-    public class MemAreaPtg : OperandPtg
+    public MemAreaPtg(int subexLen)
     {
-        public const short sid = 0x26;
-        private const int SIZE = 7;
-        private int field_1_reserved;
-        private int field_2_subex_len;
+        field_1_reserved = 0;
+        field_2_subex_len = subexLen;
+    }
 
-        /** Creates new MemAreaPtg */
+    public MemAreaPtg(ILittleEndianInput in1)
+    {
+        field_1_reserved = in1.ReadInt();
+        field_2_subex_len = in1.ReadShort();
+    }
 
-        public MemAreaPtg(int subexLen)
-        {
-            field_1_reserved = 0;
-            field_2_subex_len = subexLen;
-        }
+    public int Reserved
+    {
+        get { return field_1_reserved; }
+        set { field_1_reserved = value; }
+    }
 
-        public MemAreaPtg(ILittleEndianInput in1)
-        {
-            field_1_reserved = in1.ReadInt();
-            field_2_subex_len = in1.ReadShort();
-        }
+    public int LenRefSubexpression
+    {
+        get { return field_2_subex_len; }
+        set { field_2_subex_len = value; }
+    }
 
-        public int Reserved
-        {
-            get { return field_1_reserved; }
-            set { field_1_reserved = value; }
-        }
-
-        public int LenRefSubexpression
-        {
-            get { return field_2_subex_len; }
-            set { field_2_subex_len = value; }
-        }
-
-        public override void Write(ILittleEndianOutput out1)
-        {
+    public override void Write(ILittleEndianOutput out1)
+    {
 		    out1.WriteByte(sid + PtgClass);
 		    out1.WriteInt(field_1_reserved);
 		    out1.WriteShort(field_2_subex_len);
-        }
+    }
 
 
-        public override int Size
-        {
-            get { return SIZE; }
-        }
+    public override int Size
+    {
+        get { return SIZE; }
+    }
 
-        public override String ToFormulaString()
-        {
-            return ""; // TODO: Not sure how to format this. -- DN
-        }
+    public override String ToFormulaString()
+    {
+        return ""; // TODO: Not sure how to format this. -- DN
+    }
 
-        public override byte DefaultOperandClass
-        {
-            get { return Ptg.CLASS_VALUE; }
-        }
+    public override byte DefaultOperandClass
+    {
+        get { return Ptg.CLASS_VALUE; }
+    }
 
-        public override String ToString()
-        {
-            StringBuilder sb = new StringBuilder(64);
-            sb.Append(this.GetType().Name).Append(" [len=");
-            sb.Append(field_2_subex_len);
-            sb.Append("]");
-            return sb.ToString();
-        }
+    public override String ToString()
+    {
+        StringBuilder sb = new StringBuilder(64);
+        sb.Append(this.GetType().Name).Append(" [len=");
+        sb.Append(field_2_subex_len);
+        sb.Append("]");
+        return sb.ToString();
     }
 }

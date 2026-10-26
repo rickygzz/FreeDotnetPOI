@@ -18,20 +18,19 @@
  * Created on May 6, 2005
  *
  */
-namespace NPOI.SS.Formula.Functions
+namespace NPOI.SS.Formula.Functions.Numeric;
+
+using System;
+
+/**
+ * @author Amol S. Deshmukh &lt; amolweb at ya hoo dot com &gt;
+ *
+ */
+public class Cos : OneArg
 {
-    using System;
-
-    /**
-     * @author Amol S. Deshmukh &lt; amolweb at ya hoo dot com &gt;
-     *
-     */
-    public class Cos : OneArg
+    public override double Evaluate(double d)
     {
-        public override double Evaluate(double d)
-        {
-            return Math.Cos(d);
-        }
-
+        return Math.Cos(d);
     }
+
 }

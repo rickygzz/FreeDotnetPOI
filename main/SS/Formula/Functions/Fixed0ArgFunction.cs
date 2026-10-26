@@ -15,27 +15,26 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.SS.Formula.Functions
+namespace NPOI.SS.Formula.Functions;
+
+
+using NPOI.SS.Formula.Eval;
+
+/**
+ * Convenience base class for functions that only take zero arguments.
+ *
+ * @author Josh Micich
+ */
+public abstract class Fixed0ArgFunction : Function0Arg
 {
-
-    using NPOI.SS.Formula.Eval;
-
-    /**
-     * Convenience base class for functions that only take zero arguments.
-     *
-     * @author Josh Micich
-     */
-    public abstract class Fixed0ArgFunction : Function0Arg
+    public ValueEval Evaluate(ValueEval[] args, int srcRowIndex, int srcColumnIndex)
     {
-        public ValueEval Evaluate(ValueEval[] args, int srcRowIndex, int srcColumnIndex)
+        if (args.Length != 0)
         {
-            if (args.Length != 0)
-            {
-                return ErrorEval.VALUE_INVALID;
-            }
-            return Evaluate(srcRowIndex, srcColumnIndex);
+            return ErrorEval.VALUE_INVALID;
         }
-        public abstract ValueEval Evaluate(int srcRowIndex, int srcColumnIndex);
+        return Evaluate(srcRowIndex, srcColumnIndex);
     }
+    public abstract ValueEval Evaluate(int srcRowIndex, int srcColumnIndex);
 }
 

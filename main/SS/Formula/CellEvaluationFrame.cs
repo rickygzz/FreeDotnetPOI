@@ -15,74 +15,72 @@
    limitations under the License.
 ==================================================================== */
 
+using NPOI.SS.Formula.Eval;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-using NPOI.SS.Formula.Eval;
+namespace NPOI.SS.Formula;
 
-namespace NPOI.SS.Formula
+/**
+ * Stores details about the current evaluation of a cell.<br/>
+ */
+internal sealed class CellEvaluationFrame
 {
-    /**
-     * Stores details about the current evaluation of a cell.<br/>
-     */
-    internal sealed class CellEvaluationFrame
+    private readonly FormulaCellCacheEntry _cce;
+    private readonly HashSet<CellCacheEntry> _sensitiveInputCells;
+    private FormulaUsedBlankCellSet _usedBlankCellGroup;
+
+    public CellEvaluationFrame(FormulaCellCacheEntry cce)
     {
-        private readonly FormulaCellCacheEntry _cce;
-        private readonly HashSet<CellCacheEntry> _sensitiveInputCells;
-        private FormulaUsedBlankCellSet _usedBlankCellGroup;
+        _cce = cce;
+        _sensitiveInputCells = [];
+    }
 
-        public CellEvaluationFrame(FormulaCellCacheEntry cce)
-        {
-            _cce = cce;
-            _sensitiveInputCells = [];
-        }
+    public FormulaCellCacheEntry GetCCE()
+    {
+        return _cce;
+    }
 
-        public FormulaCellCacheEntry GetCCE()
+    public override String ToString()
+    {
+        StringBuilder sb = new StringBuilder(64);
+        sb.Append(GetType().Name).Append(" [");
+        sb.Append("]");
+        return sb.ToString();
+    }
+    /**
+     * @param inputCell a cell directly used by the formula of this evaluation frame
+     */
+    public void AddSensitiveInputCell(CellCacheEntry inputCell)
+    {
+        _sensitiveInputCells.Add(inputCell);
+    }
+    /**
+     * @return never <c>null</c>, (possibly empty) array of all cells directly used while 
+     * evaluating the formula of this frame.
+     */
+    private CellCacheEntry[] GetSensitiveInputCells()
+    {
+        int nItems = _sensitiveInputCells.Count;
+        if (nItems < 1)
         {
-            return _cce;
+            return CellCacheEntry.EMPTY_ARRAY;
         }
+        return _sensitiveInputCells.ToArray();
+    }
+    public void AddUsedBlankCell(int bookIndex, int sheetIndex, int rowIndex, int columnIndex)
+    {
+        if (_usedBlankCellGroup == null)
+        {
+            _usedBlankCellGroup = new FormulaUsedBlankCellSet();
+        }
+        _usedBlankCellGroup.AddCell(bookIndex, sheetIndex, rowIndex, columnIndex);
+    }
 
-        public override String ToString()
-        {
-            StringBuilder sb = new StringBuilder(64);
-            sb.Append(GetType().Name).Append(" [");
-            sb.Append("]");
-            return sb.ToString();
-        }
-        /**
-         * @param inputCell a cell directly used by the formula of this evaluation frame
-         */
-        public void AddSensitiveInputCell(CellCacheEntry inputCell)
-        {
-            _sensitiveInputCells.Add(inputCell);
-        }
-        /**
-         * @return never <c>null</c>, (possibly empty) array of all cells directly used while 
-         * evaluating the formula of this frame.
-         */
-        private CellCacheEntry[] GetSensitiveInputCells()
-        {
-            int nItems = _sensitiveInputCells.Count;
-            if (nItems < 1)
-            {
-                return CellCacheEntry.EMPTY_ARRAY;
-            }
-            return _sensitiveInputCells.ToArray();
-        }
-        public void AddUsedBlankCell(int bookIndex, int sheetIndex, int rowIndex, int columnIndex)
-        {
-            if (_usedBlankCellGroup == null)
-            {
-                _usedBlankCellGroup = new FormulaUsedBlankCellSet();
-            }
-            _usedBlankCellGroup.AddCell(bookIndex, sheetIndex, rowIndex, columnIndex);
-        }
-
-        public void UpdateFormulaResult(ValueEval result)
-        {
-            _cce.UpdateFormulaResult(result, GetSensitiveInputCells(), _usedBlankCellGroup);
-        }
+    public void UpdateFormulaResult(ValueEval result)
+    {
+        _cce.UpdateFormulaResult(result, GetSensitiveInputCells(), _usedBlankCellGroup);
     }
 }

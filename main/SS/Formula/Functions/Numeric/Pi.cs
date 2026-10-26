@@ -18,23 +18,22 @@
  * Created on May 6, 2005
  *
  */
-namespace NPOI.SS.Formula.Functions
+namespace NPOI.SS.Formula.Functions.Numeric;
+
+using System;
+using NPOI.SS.Formula.Eval;
+
+/**
+ * @author Amol S. Deshmukh &lt; amolweb at ya hoo dot com &gt;
+ *  
+ */
+public class Pi : Fixed0ArgFunction
 {
-    using System;
-    using NPOI.SS.Formula.Eval;
 
-    /**
-     * @author Amol S. Deshmukh &lt; amolweb at ya hoo dot com &gt;
-     *  
-     */
-    public class Pi : Fixed0ArgFunction
+    private static readonly NumberEval PI_EVAL = new NumberEval(Math.PI);
+
+    public override ValueEval Evaluate(int srcRowIndex, int srcColumnIndex)
     {
-
-        private static readonly NumberEval PI_EVAL = new NumberEval(Math.PI);
-
-        public override ValueEval Evaluate(int srcRowIndex, int srcColumnIndex)
-        {
-            return PI_EVAL;
-        }
+        return PI_EVAL;
     }
 }

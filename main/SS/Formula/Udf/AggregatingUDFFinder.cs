@@ -15,55 +15,54 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.SS.Formula.UDF
+namespace NPOI.SS.Formula.UDF;
+
+using NPOI.SS.Formula.Functions;
+using System;
+using System.Collections.Generic;
+
+/**
+ * Collects Add-in libraries and VB macro functions toGether into one UDF Finder
+ *
+ * @author PUdalau
+ */
+public class AggregatingUDFFinder : UDFFinder
 {
-    using System;
-    using NPOI.SS.Formula.Functions;
-    using System.Collections.Generic;
 
-    /**
-     * Collects Add-in libraries and VB macro functions toGether into one UDF Finder
-     *
-     * @author PUdalau
-     */
-    public class AggregatingUDFFinder : UDFFinder
+    private readonly List<UDFFinder> _usedToolPacks = new List<UDFFinder>();
+
+    public AggregatingUDFFinder(params UDFFinder[] usedToolPacks)
     {
+        _usedToolPacks = new List<UDFFinder>(usedToolPacks.Length);
+        _usedToolPacks.AddRange(usedToolPacks);
+    }
 
-        private readonly List<UDFFinder> _usedToolPacks = new List<UDFFinder>();
-
-        public AggregatingUDFFinder(params UDFFinder[] usedToolPacks)
+    /// <summary>
+    /// Returns executor by specified name. 
+    /// </summary>
+    /// <param name="name">Name of function.</param>
+    /// <returns>Function executor. null if not found</returns>
+    public override FreeRefFunction FindFunction(String name)
+    {
+        FreeRefFunction evaluatorForFunction;
+        foreach (UDFFinder pack in _usedToolPacks)
         {
-            _usedToolPacks = new List<UDFFinder>(usedToolPacks.Length);
-            _usedToolPacks.AddRange(usedToolPacks);
-        }
-
-        /// <summary>
-        /// Returns executor by specified name. 
-        /// </summary>
-        /// <param name="name">Name of function.</param>
-        /// <returns>Function executor. null if not found</returns>
-        public override FreeRefFunction FindFunction(String name)
-        {
-            FreeRefFunction evaluatorForFunction;
-            foreach (UDFFinder pack in _usedToolPacks)
+            evaluatorForFunction = pack.FindFunction(name);
+            if (evaluatorForFunction != null)
             {
-                evaluatorForFunction = pack.FindFunction(name);
-                if (evaluatorForFunction != null)
-                {
-                    return evaluatorForFunction;
-                }
+                return evaluatorForFunction;
             }
-            return null;
         }
+        return null;
+    }
 
-        /// <summary>
-        /// Add a new toolpack
-        /// </summary>
-        /// <param name="toolPack"></param>
-        public void Add(UDFFinder toolPack)
-        {
-            _usedToolPacks.Add(toolPack);
-        }
+    /// <summary>
+    /// Add a new toolpack
+    /// </summary>
+    /// <param name="toolPack"></param>
+    public void Add(UDFFinder toolPack)
+    {
+        _usedToolPacks.Add(toolPack);
     }
 }
 

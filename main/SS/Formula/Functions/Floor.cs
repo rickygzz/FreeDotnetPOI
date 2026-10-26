@@ -18,19 +18,20 @@
  * Created on May 15, 2005
  *
  */
-namespace NPOI.SS.Formula.Functions
-{
-    using NPOI.SS.Formula.Eval;
+namespace NPOI.SS.Formula.Functions;
 
-    /**
-     * @author Amol S. Deshmukh &lt; amolweb at ya hoo dot com &gt;
-     *
-     */
-    public class Floor :TwoArg
-    {
-        	static double ZERO = 0.0;
+using NPOI.SS.Formula.Eval;
+using NPOI.SS.Formula.Functions.Numeric;
+
+/**
+ * @author Amol S. Deshmukh &lt; amolweb at ya hoo dot com &gt;
+ *
+ */
+public class Floor :TwoArg
+{
+    	static double ZERO = 0.0;
 		public override double Evaluate(double d0, double d1)
-        {
+    {
 			if (d1 == ZERO) {
 				if (d0 == ZERO) {
 					return ZERO;
@@ -40,5 +41,4 @@ namespace NPOI.SS.Formula.Functions
 			return MathX.Floor(d0, d1);
 		}
 
-    }
 }

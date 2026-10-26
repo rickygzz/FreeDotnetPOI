@@ -18,62 +18,61 @@
  * Created on May 15, 2005
  *
  */
-namespace NPOI.SS.Formula.Functions
-{
-    using System;
-    using System.Text; 
+namespace NPOI.SS.Formula.Functions.Text;
+
+using System;
+using System.Text;
 using Cysharp.Text;
-    using NPOI.SS.Formula.Eval;
+using NPOI.SS.Formula.Eval;
+
+/**
+ * An implementation of the Replace function:
+ * Replaces part of a text string based on the number of Chars 
+ * you specify, with another text string.
+ * @author Manda Wilson &lt; wilson at c bio dot msk cc dot org &gt;
+ */
+public class Replace : TextFunction
+{
 
     /**
-     * An implementation of the Replace function:
      * Replaces part of a text string based on the number of Chars 
      * you specify, with another text string.
-     * @author Manda Wilson &lt; wilson at c bio dot msk cc dot org &gt;
+     * 
+     * @see org.apache.poi.hssf.record.formula.eval.Eval
      */
-    public class Replace : TextFunction
+    public override ValueEval EvaluateFunc(ValueEval[] args, int srcCellRow, int srcCellCol)
     {
-
-        /**
-         * Replaces part of a text string based on the number of Chars 
-         * you specify, with another text string.
-         * 
-         * @see org.apache.poi.hssf.record.formula.eval.Eval
-         */
-        public override ValueEval EvaluateFunc(ValueEval[] args, int srcCellRow, int srcCellCol)
+        if (args.Length != 4)
         {
-            if (args.Length != 4)
-            {
-                return ErrorEval.VALUE_INVALID;
-            }
-
-            String oldStr = EvaluateStringArg(args[0], srcCellRow, srcCellCol);
-            int startNum = EvaluateIntArg(args[1], srcCellRow, srcCellCol);
-            int numChars = EvaluateIntArg(args[2], srcCellRow, srcCellCol);
-            String newStr = EvaluateStringArg(args[3], srcCellRow, srcCellCol);
-
-            if (startNum < 1 || numChars < 0)
-            {
-                return ErrorEval.VALUE_INVALID;
-            }
-            using var strBuff = ZString.CreateStringBuilder();
-            strBuff.Append(oldStr);
-            // remove any characters that should be replaced
-            if (startNum <= oldStr.Length && numChars != 0)
-            {
-                strBuff.Remove(startNum - 1, Math.Min(numChars, oldStr.Length - startNum + 1));
-            }
-            // now insert (or append) newStr
-            if (startNum > strBuff.Length)
-            {
-                strBuff.Append(newStr);
-            }
-            else
-            {
-                strBuff.Insert(startNum - 1, newStr);
-            }
-            return new StringEval(strBuff.ToString());
+            return ErrorEval.VALUE_INVALID;
         }
 
+        String oldStr = EvaluateStringArg(args[0], srcCellRow, srcCellCol);
+        int startNum = EvaluateIntArg(args[1], srcCellRow, srcCellCol);
+        int numChars = EvaluateIntArg(args[2], srcCellRow, srcCellCol);
+        String newStr = EvaluateStringArg(args[3], srcCellRow, srcCellCol);
+
+        if (startNum < 1 || numChars < 0)
+        {
+            return ErrorEval.VALUE_INVALID;
+        }
+        using var strBuff = ZString.CreateStringBuilder();
+        strBuff.Append(oldStr);
+        // remove any characters that should be replaced
+        if (startNum <= oldStr.Length && numChars != 0)
+        {
+            strBuff.Remove(startNum - 1, Math.Min(numChars, oldStr.Length - startNum + 1));
+        }
+        // now insert (or append) newStr
+        if (startNum > strBuff.Length)
+        {
+            strBuff.Append(newStr);
+        }
+        else
+        {
+            strBuff.Insert(startNum - 1, newStr);
+        }
+        return new StringEval(strBuff.ToString());
     }
+
 }

@@ -18,23 +18,22 @@
  * Created on May 15, 2005
  *
  */
-namespace NPOI.SS.Formula.Functions
-{
-    using NPOI.SS.Formula.Eval;
+namespace NPOI.SS.Formula.Functions.Logical;
 
-    /**
-     * @author Amol S. Deshmukh &lt; amolweb at ya hoo dot com &gt;
-     *
-     */
-    public class Isref : Fixed1ArgFunction
+using NPOI.SS.Formula.Eval;
+
+/**
+ * @author Amol S. Deshmukh &lt; amolweb at ya hoo dot com &gt;
+ *
+ */
+public class Isref : Fixed1ArgFunction
+{
+    public override ValueEval Evaluate(int srcRowIndex, int srcColumnIndex, ValueEval arg0)
     {
-        public override ValueEval Evaluate(int srcRowIndex, int srcColumnIndex, ValueEval arg0)
+        if (arg0 is RefEval || arg0 is AreaEval || arg0 is RefListEval)
         {
-            if (arg0 is RefEval || arg0 is AreaEval || arg0 is RefListEval)
-            {
-                return BoolEval.TRUE;
-            }
-            return BoolEval.FALSE;
+            return BoolEval.TRUE;
         }
+        return BoolEval.FALSE;
     }
 }

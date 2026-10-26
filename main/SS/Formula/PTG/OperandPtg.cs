@@ -15,34 +15,33 @@
    limitations Under the License.
 ==================================================================== */
 
-namespace NPOI.SS.Formula.PTG
-{
-    using System;
-    using NPOI.Util;
-    /**
-     * @author Josh Micich
-     */
-    [Serializable]
-    public abstract class OperandPtg : Ptg
-    {
+namespace NPOI.SS.Formula.PTG;
 
-        /**
-         * All Operand <c>Ptg</c>s are classifed ('relative', 'value', 'array')  
-         */
-        public override bool IsBaseToken
+using NPOI.Util;
+using System;
+/**
+ * @author Josh Micich
+ */
+[Serializable]
+public abstract class OperandPtg : Ptg
+{
+
+    /**
+     * All Operand <c>Ptg</c>s are classifed ('relative', 'value', 'array')  
+     */
+    public override bool IsBaseToken
+    {
+        get { return false; }
+    }
+    public OperandPtg Copy()
+    {
+        try
         {
-            get { return false; }
+            return (OperandPtg)Clone();
         }
-        public OperandPtg Copy()
+        catch (NotSupportedException e)
         {
-            try
-            {
-                return (OperandPtg)Clone();
-            }
-            catch (NotSupportedException e)
-            {
-                throw new RuntimeException(e);
-            }
+            throw new RuntimeException(e);
         }
     }
 }

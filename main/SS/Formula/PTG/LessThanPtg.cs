@@ -15,58 +15,57 @@
    limitations Under the License.
 ==================================================================== */
 
-namespace NPOI.SS.Formula.PTG
+namespace NPOI.SS.Formula.PTG;
+
+using System;
+using System.Text;
+
+/**
+ * Less than operator PTG "&lt;". The SID is taken from the 
+ * Openoffice.orgs Documentation of the Excel File Format,
+ * Table 3.5.7
+ * @author Cameron Riley (criley at ekmail.com)
+ */
+public class LessThanPtg : ValueOperatorPtg
 {
-    using System;
-    using System.Text;
+    /** the sid for the less than operator as hex */
+    public const byte sid = 0x09;
+
+    /** identifier for LESS THAN char */
+    private const string LESSTHAN = "<";
+
+    public static readonly ValueOperatorPtg instance = new LessThanPtg();
+
+    private LessThanPtg()
+    {
+        // enforce singleton
+    }
+
+    protected override byte Sid
+    {
+        get { return sid; }
+    }
 
     /**
-     * Less than operator PTG "&lt;". The SID is taken from the 
-     * Openoffice.orgs Documentation of the Excel File Format,
-     * Table 3.5.7
-     * @author Cameron Riley (criley at ekmail.com)
+     * Get the number of operands for the Less than operator
+     * @return int the number of operands
      */
-    public class LessThanPtg : ValueOperatorPtg
+    public override int NumberOfOperands
     {
-        /** the sid for the less than operator as hex */
-        public const byte sid = 0x09;
+        get { return 2; }
+    }
 
-        /** identifier for LESS THAN char */
-        private const string LESSTHAN = "<";
-
-        public static readonly ValueOperatorPtg instance = new LessThanPtg();
-
-        private LessThanPtg()
-        {
-            // enforce singleton
-        }
-
-        protected override byte Sid
-        {
-            get { return sid; }
-        }
-
-        /**
-         * Get the number of operands for the Less than operator
-         * @return int the number of operands
-         */
-        public override int NumberOfOperands
-        {
-            get { return 2; }
-        }
-
-        /** 
-        * Implementation of method from OperationsPtg
-        * @param operands a String array of operands
-        * @return String the Formula as a String
-        */
-        public override String ToFormulaString(String[] operands)
-        {
-            StringBuilder buffer = new StringBuilder();
-            buffer.Append(operands[0]);
-            buffer.Append(LESSTHAN);
-            buffer.Append(operands[1]);
-            return buffer.ToString();
-        }
+    /** 
+    * Implementation of method from OperationsPtg
+    * @param operands a String array of operands
+    * @return String the Formula as a String
+    */
+    public override String ToFormulaString(String[] operands)
+    {
+        StringBuilder buffer = new StringBuilder();
+        buffer.Append(operands[0]);
+        buffer.Append(LESSTHAN);
+        buffer.Append(operands[1]);
+        return buffer.ToString();
     }
 }

@@ -15,105 +15,104 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.SS.Formula
+namespace NPOI.SS.Formula;
+
+
+using NPOI.Util;
+using System;
+using System.Collections;
+
+public class Loc
 {
 
-    using System;
-    using System.Collections;
-    using NPOI.Util;
+    private readonly long _bookSheetColumn;
 
-    public class Loc
+    private readonly int _rowIndex;
+
+    public Loc(int bookIndex, int sheetIndex, int rowIndex, int columnIndex)
     {
+        _bookSheetColumn = ToBookSheetColumn(bookIndex, sheetIndex, columnIndex);
+        _rowIndex = rowIndex;
+    }
 
-        private readonly long _bookSheetColumn;
+    public static long ToBookSheetColumn(int bookIndex, int sheetIndex, int columnIndex)
+    {
+        return ((bookIndex & 0xFFFFL) << 48) + ((sheetIndex & 0xFFFFL) << 32) + ((columnIndex & 0xFFFFL) << 0);
+    }
 
-        private readonly int _rowIndex;
+    public Loc(int bookSheetColumn, int rowIndex)
+    {
+        _bookSheetColumn = bookSheetColumn;
+        _rowIndex = rowIndex;
+    }
+    public override int GetHashCode()
+    {
+        return (int)(_bookSheetColumn ^ (Operator.UnsignedRightShift(_bookSheetColumn , 32))) + 17 * _rowIndex;
+    }
 
-        public Loc(int bookIndex, int sheetIndex, int rowIndex, int columnIndex)
-        {
-            _bookSheetColumn = ToBookSheetColumn(bookIndex, sheetIndex, columnIndex);
-            _rowIndex = rowIndex;
-        }
+    public override bool Equals(Object obj)
+    {
+        Loc other = (Loc)obj;
+        return _bookSheetColumn == other._bookSheetColumn && _rowIndex == other._rowIndex;
+    }
 
-        public static long ToBookSheetColumn(int bookIndex, int sheetIndex, int columnIndex)
+    public int RowIndex
+    {
+        get
         {
-            return ((bookIndex & 0xFFFFL) << 48) + ((sheetIndex & 0xFFFFL) << 32) + ((columnIndex & 0xFFFFL) << 0);
-        }
-
-        public Loc(int bookSheetColumn, int rowIndex)
-        {
-            _bookSheetColumn = bookSheetColumn;
-            _rowIndex = rowIndex;
-        }
-        public override int GetHashCode()
-        {
-            return (int)(_bookSheetColumn ^ (Operator.UnsignedRightShift(_bookSheetColumn , 32))) + 17 * _rowIndex;
-        }
-
-        public override bool Equals(Object obj)
-        {
-            Loc other = (Loc)obj;
-            return _bookSheetColumn == other._bookSheetColumn && _rowIndex == other._rowIndex;
-        }
-
-        public int RowIndex
-        {
-            get
-            {
-                return _rowIndex;
-            }
-        }
-        public int ColumnIndex
-        {
-            get
-            {
-                return (int)(_bookSheetColumn & 0x000FFFF);
-            }
-        }
-        public int SheetIndex
-        {
-            get
-            {
-                return (int)((_bookSheetColumn >> 32) & 0xFFFF);
-            }
-        }
-
-        public int BookIndex
-        {
-            get
-            {
-                return (int)((_bookSheetColumn >> 48) & 0xFFFF);
-            }
+            return _rowIndex;
         }
     }
-    /**
-     *
-     * @author Josh Micich
-     */
-    public class PlainCellCache
+    public int ColumnIndex
     {
+        get
+        {
+            return (int)(_bookSheetColumn & 0x000FFFF);
+        }
+    }
+    public int SheetIndex
+    {
+        get
+        {
+            return (int)((_bookSheetColumn >> 32) & 0xFFFF);
+        }
+    }
 
-        private readonly Hashtable _plainValueEntriesByLoc;
+    public int BookIndex
+    {
+        get
+        {
+            return (int)((_bookSheetColumn >> 48) & 0xFFFF);
+        }
+    }
+}
+/**
+ *
+ * @author Josh Micich
+ */
+public class PlainCellCache
+{
 
-        public PlainCellCache()
-        {
-            _plainValueEntriesByLoc = new Hashtable();
-        }
-        public void Put(Loc key, PlainValueCellCacheEntry cce)
-        {
-            _plainValueEntriesByLoc[key] = cce;
-        }
-        public void Clear()
-        {
-            _plainValueEntriesByLoc.Clear();
-        }
-        public PlainValueCellCacheEntry Get(Loc key)
-        {
-            return (PlainValueCellCacheEntry)_plainValueEntriesByLoc[key];
-        }
-        public void Remove(Loc key)
-        {
-            _plainValueEntriesByLoc.Remove(key);
-        }
+    private readonly Hashtable _plainValueEntriesByLoc;
+
+    public PlainCellCache()
+    {
+        _plainValueEntriesByLoc = new Hashtable();
+    }
+    public void Put(Loc key, PlainValueCellCacheEntry cce)
+    {
+        _plainValueEntriesByLoc[key] = cce;
+    }
+    public void Clear()
+    {
+        _plainValueEntriesByLoc.Clear();
+    }
+    public PlainValueCellCacheEntry Get(Loc key)
+    {
+        return (PlainValueCellCacheEntry)_plainValueEntriesByLoc[key];
+    }
+    public void Remove(Loc key)
+    {
+        _plainValueEntriesByLoc.Remove(key);
     }
 }

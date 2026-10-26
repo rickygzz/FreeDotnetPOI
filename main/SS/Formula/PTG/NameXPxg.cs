@@ -15,132 +15,130 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.SS.Formula.PTG
+namespace NPOI.SS.Formula.PTG;
+
+using NPOI.Util;
+using System;
+using System.Text;
+
+/**
+ * A Name, be that a Named Range or a Function / User Defined
+ *  Function, Addressed in the HSSF External Sheet style.
+ *  
+ * <p>This is XSSF only, as it stores the sheet / book references
+ *  in String form. The HSSF equivalent using indexes is {@link NameXPtg}</p>
+ */
+[Serializable]
+public class NameXPxg : OperandPtg, Pxg
 {
-    using System;
-    using System.Text;
-    using NPOI.Util;
+    private int externalWorkbookNumber = -1;
+    private String sheetName;
+    private String nameName;
 
-    /**
-     * A Name, be that a Named Range or a Function / User Defined
-     *  Function, Addressed in the HSSF External Sheet style.
-     *  
-     * <p>This is XSSF only, as it stores the sheet / book references
-     *  in String form. The HSSF equivalent using indexes is {@link NameXPtg}</p>
-     */
-    [Serializable]
-    public class NameXPxg : OperandPtg, Pxg
+    public NameXPxg(int externalWorkbookNumber, String sheetName, String nameName)
     {
-        private int externalWorkbookNumber = -1;
-        private String sheetName;
-        private String nameName;
-
-        public NameXPxg(int externalWorkbookNumber, String sheetName, String nameName)
+        this.externalWorkbookNumber = externalWorkbookNumber;
+        this.sheetName = sheetName;
+        this.nameName = nameName;
+    }
+    public NameXPxg(String sheetName, String nameName)
+        : this(-1, sheetName, nameName)
+    {
+    }
+    public NameXPxg(String nameName)
+        : this(-1, null, nameName)
+    {
+        
+    }
+    public override String ToString()
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.Append(GetType().Name);
+        sb.Append(" [");
+        if (externalWorkbookNumber >= 0)
         {
-            this.externalWorkbookNumber = externalWorkbookNumber;
-            this.sheetName = sheetName;
-            this.nameName = nameName;
-        }
-        public NameXPxg(String sheetName, String nameName)
-            : this(-1, sheetName, nameName)
-        {
-        }
-        public NameXPxg(String nameName)
-            : this(-1, null, nameName)
-        {
-            
-        }
-        public override String ToString()
-        {
-            StringBuilder sb = new StringBuilder();
-            sb.Append(GetType().Name);
             sb.Append(" [");
-            if (externalWorkbookNumber >= 0)
-            {
-                sb.Append(" [");
-                sb.Append("workbook=").Append(ExternalWorkbookNumber);
-                sb.Append("] ");
-            }
-            if (SheetName != null)
-            {
-                sb.Append("sheet=").Append(SheetName);
-            }
-            sb.Append(" ! ");
-            sb.Append("name=");
-            sb.Append(nameName);
-            sb.Append("]");
-            return sb.ToString();
+            sb.Append("workbook=").Append(ExternalWorkbookNumber);
+            sb.Append("] ");
         }
+        if (SheetName != null)
+        {
+            sb.Append("sheet=").Append(SheetName);
+        }
+        sb.Append(" ! ");
+        sb.Append("name=");
+        sb.Append(nameName);
+        sb.Append("]");
+        return sb.ToString();
+    }
 
-        public int ExternalWorkbookNumber
+    public int ExternalWorkbookNumber
+    {
+        get
         {
-            get
-            {
-                return externalWorkbookNumber;
-            }
+            return externalWorkbookNumber;
         }
-        public String SheetName
+    }
+    public String SheetName
+    {
+        get
         {
-            get
-            {
-                return sheetName;
-            }
-            set
-            {
-                sheetName = value;
-            }
+            return sheetName;
         }
-        public String NameName
+        set
         {
-            get
-            {
-                return nameName;
-            }
+            sheetName = value;
         }
-
-        public override String ToFormulaString()
+    }
+    public String NameName
+    {
+        get
         {
-            StringBuilder sb = new StringBuilder();
-            bool needsExclamation = false;
-            if (externalWorkbookNumber >= 0)
-            {
-                sb.Append('[');
-                sb.Append(externalWorkbookNumber);
-                sb.Append(']');
-                needsExclamation = true;
-            }
-            if (sheetName != null)
-            {
-                SheetNameFormatter.AppendFormat(sb, sheetName);
-                needsExclamation = true;
-            }
-            if (needsExclamation)
-            {
-                sb.Append('!');
-            }
-            sb.Append(nameName);
-            return sb.ToString();
-        }
-
-        public override byte DefaultOperandClass
-        {
-            get
-            {
-                return Ptg.CLASS_VALUE;
-            }
-        }
-
-        public override int Size
-        {
-            get
-            {
-                return 1;
-            }
-        }
-        public override void Write(ILittleEndianOutput out1)
-        {
-            throw new InvalidOperationException("XSSF-only Ptg, should not be serialised");
+            return nameName;
         }
     }
 
+    public override String ToFormulaString()
+    {
+        StringBuilder sb = new StringBuilder();
+        bool needsExclamation = false;
+        if (externalWorkbookNumber >= 0)
+        {
+            sb.Append('[');
+            sb.Append(externalWorkbookNumber);
+            sb.Append(']');
+            needsExclamation = true;
+        }
+        if (sheetName != null)
+        {
+            SheetNameFormatter.AppendFormat(sb, sheetName);
+            needsExclamation = true;
+        }
+        if (needsExclamation)
+        {
+            sb.Append('!');
+        }
+        sb.Append(nameName);
+        return sb.ToString();
+    }
+
+    public override byte DefaultOperandClass
+    {
+        get
+        {
+            return Ptg.CLASS_VALUE;
+        }
+    }
+
+    public override int Size
+    {
+        get
+        {
+            return 1;
+        }
+    }
+    public override void Write(ILittleEndianOutput out1)
+    {
+        throw new InvalidOperationException("XSSF-only Ptg, should not be serialised");
+    }
 }

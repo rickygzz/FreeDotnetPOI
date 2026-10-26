@@ -15,25 +15,22 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.SS.UserModel.Charts
+namespace NPOI.SS.UserModel.Charts;
+
+
+/**
+ * @author Roman Kashitsyn
+ */
+public interface IValueAxis : IChartAxis
 {
 
     /**
-     * @author Roman Kashitsyn
+     * @return cross between type
      */
-    public interface IValueAxis : IChartAxis
-    {
+    AxisCrossBetween GetCrossBetween();
 
-        /**
-         * @return cross between type
-         */
-        AxisCrossBetween GetCrossBetween();
-
-        /**
-         * @param crossBetween cross between type
-         */
-        void SetCrossBetween(AxisCrossBetween crossBetween);
-    }
-
-
+    /**
+     * @param crossBetween cross between type
+     */
+    void SetCrossBetween(AxisCrossBetween crossBetween);
 }

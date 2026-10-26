@@ -16,48 +16,47 @@
 ==================================================================== */
 
 
-namespace NPOI.SS.Formula.PTG
+namespace NPOI.SS.Formula.PTG;
+
+using System;
+using System.Text;
+
+/**
+ * PTG class to implement greater or equal to
+ *
+ * @author  fred at stsci dot edu
+ */
+public class GreaterEqualPtg : ValueOperatorPtg
 {
-    using System;
-    using System.Text;
+    public const int SIZE = 1;
+    public const byte sid = 0x0c;
 
-    /**
-     * PTG class to implement greater or equal to
-     *
-     * @author  fred at stsci dot edu
-     */
-    public class GreaterEqualPtg : ValueOperatorPtg
+    public static ValueOperatorPtg instance = new GreaterEqualPtg();
+
+    private GreaterEqualPtg()
     {
-        public const int SIZE = 1;
-        public const byte sid = 0x0c;
+        // enforce singleton
+    }
 
-        public static ValueOperatorPtg instance = new GreaterEqualPtg();
+    protected override byte Sid
+    {
+        get { return sid; }
+    }
 
-        private GreaterEqualPtg()
-        {
-            // enforce singleton
-        }
+    public override int NumberOfOperands
+    {
+        get { return 2; }
+    }
 
-        protected override byte Sid
-        {
-            get { return sid; }
-        }
+    public override String ToFormulaString(String[] operands)
+    {
+        StringBuilder buffer = new StringBuilder();
 
-        public override int NumberOfOperands
-        {
-            get { return 2; }
-        }
+        buffer.Append(operands[0]);
 
-        public override String ToFormulaString(String[] operands)
-        {
-            StringBuilder buffer = new StringBuilder();
+        buffer.Append(">=");
+        buffer.Append(operands[1]);
 
-            buffer.Append(operands[0]);
-
-            buffer.Append(">=");
-            buffer.Append(operands[1]);
-
-            return buffer.ToString();
-        }
+        return buffer.ToString();
     }
 }

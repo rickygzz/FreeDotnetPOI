@@ -15,155 +15,153 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.SS.Formula
+namespace NPOI.SS.Formula;
+
+
+using NPOI.SS.Formula.PTG;
+using NPOI.SS.Formula.UDF;
+using System;
+
+public class ExternalSheet
 {
+    private readonly String _workbookName;
+    private readonly String _sheetName;
 
-    using System;
-    using NPOI.SS.Formula;
-    using NPOI.SS.Formula.UDF;
-    using NPOI.SS.Formula.PTG;
-
-    public class ExternalSheet
+    public ExternalSheet(String workbookName, String sheetName)
     {
-        private readonly String _workbookName;
-        private readonly String _sheetName;
-
-        public ExternalSheet(String workbookName, String sheetName)
+        _workbookName = workbookName;
+        _sheetName = sheetName;
+    }
+    public String WorkbookName
+    {
+        get
         {
-            _workbookName = workbookName;
-            _sheetName = sheetName;
-        }
-        public String WorkbookName
-        {
-            get
-            {
-                return _workbookName;
-            }
-        }
-        public String SheetName
-        {
-            get
-            {
-                return _sheetName;
-            }
+            return _workbookName;
         }
     }
-
-    public class ExternalSheetRange : ExternalSheet
+    public String SheetName
     {
-        private readonly String _lastSheetName;
-        public ExternalSheetRange(String workbookName, String firstSheetName, String lastSheetName)
-            : base(workbookName, firstSheetName)
+        get
         {
-            this._lastSheetName = lastSheetName;
-        }
-
-        public String FirstSheetName
-        {
-            get
-            {
-                return SheetName;
-            }
-        }
-        public String LastSheetName
-        {
-            get
-            {
-                return _lastSheetName;
-            }
+            return _sheetName;
         }
     }
+}
+
+public class ExternalSheetRange : ExternalSheet
+{
+    private readonly String _lastSheetName;
+    public ExternalSheetRange(String workbookName, String firstSheetName, String lastSheetName)
+        : base(workbookName, firstSheetName)
+    {
+        this._lastSheetName = lastSheetName;
+    }
+
+    public String FirstSheetName
+    {
+        get
+        {
+            return SheetName;
+        }
+    }
+    public String LastSheetName
+    {
+        get
+        {
+            return _lastSheetName;
+        }
+    }
+}
+
+/**
+ * Abstracts a workbook for the purpose of formula evaluation.<br/>
+ * 
+ * For POI internal use only
+ * 
+ * @author Josh Micich
+ */
+public interface IEvaluationWorkbook
+{
+    String GetSheetName(int sheetIndex);
+    /**
+     * @return -1 if the specified sheet is from a different book
+     */
+    int GetSheetIndex(IEvaluationSheet sheet);
+    int GetSheetIndex(String sheetName);
+
+    IEvaluationSheet GetSheet(int sheetIndex);
 
     /**
-     * Abstracts a workbook for the purpose of formula evaluation.<br/>
-     * 
-     * For POI internal use only
-     * 
-     * @author Josh Micich
+     * HSSF Only - fetch the external-style sheet details
+     * <p>Return will have no workbook set if it's actually in our own workbook</p>
      */
-    public interface IEvaluationWorkbook
+    ExternalSheet GetExternalSheet(int externSheetIndex);
+    /**
+     * XSSF Only - fetch the external-style sheet details
+     * <p>Return will have no workbook set if it's actually in our own workbook</p>
+     */
+    ExternalSheet GetExternalSheet(String firstSheetName, string lastSheetName, int externalWorkbookNumber);
+    /**
+     * HSSF Only - convert an external sheet index to an internal sheet index,
+     *  for an external-style reference to one of this workbook's own sheets 
+     */
+    int ConvertFromExternSheetIndex(int externSheetIndex);
+    /**
+     * HSSF Only - fetch the external-style name details
+     */
+    ExternalName GetExternalName(int externSheetIndex, int externNameIndex);
+    /**
+     * XSSF Only - fetch the external-style name details
+     */
+    ExternalName GetExternalName(String nameName, String sheetName, int externalWorkbookNumber);
+
+    IEvaluationName GetName(NamePtg namePtg);
+    IEvaluationName GetName(String name, int sheetIndex);
+    String ResolveNameXText(NameXPtg ptg);
+    Ptg[] GetFormulaTokens(IEvaluationCell cell);
+    UDFFinder GetUDFFinder();
+
+    /**
+     * Propagated from {@link WorkbookEvaluator#clearAllCachedResultValues()} to clear locally cached data.
+     * Implementations must call the same method on all referenced {@link EvaluationSheet} instances, as well as clearing local caches.
+     * @see WorkbookEvaluator#clearAllCachedResultValues()
+     */
+    void ClearAllCachedResultValues();
+
+    SpreadsheetVersion GetSpreadsheetVersion();
+}
+
+public class ExternalName
+{
+    private readonly String _nameName;
+    private readonly int _nameNumber;
+    private readonly int _ix;
+
+    public ExternalName(String nameName, int nameNumber, int ix)
     {
-        String GetSheetName(int sheetIndex);
-        /**
-         * @return -1 if the specified sheet is from a different book
-         */
-        int GetSheetIndex(IEvaluationSheet sheet);
-        int GetSheetIndex(String sheetName);
-
-        IEvaluationSheet GetSheet(int sheetIndex);
-
-        /**
-         * HSSF Only - fetch the external-style sheet details
-         * <p>Return will have no workbook set if it's actually in our own workbook</p>
-         */
-        ExternalSheet GetExternalSheet(int externSheetIndex);
-        /**
-         * XSSF Only - fetch the external-style sheet details
-         * <p>Return will have no workbook set if it's actually in our own workbook</p>
-         */
-        ExternalSheet GetExternalSheet(String firstSheetName, string lastSheetName, int externalWorkbookNumber);
-        /**
-         * HSSF Only - convert an external sheet index to an internal sheet index,
-         *  for an external-style reference to one of this workbook's own sheets 
-         */
-        int ConvertFromExternSheetIndex(int externSheetIndex);
-        /**
-         * HSSF Only - fetch the external-style name details
-         */
-        ExternalName GetExternalName(int externSheetIndex, int externNameIndex);
-        /**
-         * XSSF Only - fetch the external-style name details
-         */
-        ExternalName GetExternalName(String nameName, String sheetName, int externalWorkbookNumber);
-    
-        IEvaluationName GetName(NamePtg namePtg);
-        IEvaluationName GetName(String name, int sheetIndex);
-        String ResolveNameXText(NameXPtg ptg);
-        Ptg[] GetFormulaTokens(IEvaluationCell cell);
-        UDFFinder GetUDFFinder();
-
-        /**
-         * Propagated from {@link WorkbookEvaluator#clearAllCachedResultValues()} to clear locally cached data.
-         * Implementations must call the same method on all referenced {@link EvaluationSheet} instances, as well as clearing local caches.
-         * @see WorkbookEvaluator#clearAllCachedResultValues()
-         */
-        void ClearAllCachedResultValues();
-
-        SpreadsheetVersion GetSpreadsheetVersion();
+        _nameName = nameName;
+        _nameNumber = nameNumber;
+        _ix = ix;
     }
-
-    public class ExternalName
+    public String Name
     {
-        private readonly String _nameName;
-        private readonly int _nameNumber;
-        private readonly int _ix;
-
-        public ExternalName(String nameName, int nameNumber, int ix)
+        get
         {
-            _nameName = nameName;
-            _nameNumber = nameNumber;
-            _ix = ix;
+            return _nameName;
         }
-        public String Name
+    }
+    public int Number
+    {
+        get
         {
-            get
-            {
-                return _nameName;
-            }
+            return _nameNumber;
         }
-        public int Number
+    }
+    public int Ix
+    {
+        get
         {
-            get
-            {
-                return _nameNumber;
-            }
-        }
-        public int Ix
-        {
-            get
-            {
-                return _ix;
-            }
+            return _ix;
         }
     }
 }

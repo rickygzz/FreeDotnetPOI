@@ -15,34 +15,33 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.SS.Formula.Functions
+namespace NPOI.SS.Formula.Functions;
+
+
+using NPOI.SS.Formula.Eval;
+
+/**
+ * Convenience base class for any function which must take two or three
+ * arguments
+ *
+ * @author Josh Micich
+ */
+public abstract class Var2or3ArgFunction : Function2Arg, Function3Arg
 {
 
-    using NPOI.SS.Formula.Eval;
-
-    /**
-     * Convenience base class for any function which must take two or three
-     * arguments
-     *
-     * @author Josh Micich
-     */
-    public abstract class Var2or3ArgFunction : Function2Arg, Function3Arg
+    public ValueEval Evaluate(ValueEval[] args, int srcRowIndex, int srcColumnIndex)
     {
-
-        public ValueEval Evaluate(ValueEval[] args, int srcRowIndex, int srcColumnIndex)
+        switch (args.Length)
         {
-            switch (args.Length)
-            {
-                case 2:
-                    return Evaluate(srcRowIndex, srcColumnIndex, args[0], args[1]);
-                case 3:
-                    return Evaluate(srcRowIndex, srcColumnIndex, args[0], args[1], args[2]);
-            }
-            return ErrorEval.VALUE_INVALID;
+            case 2:
+                return Evaluate(srcRowIndex, srcColumnIndex, args[0], args[1]);
+            case 3:
+                return Evaluate(srcRowIndex, srcColumnIndex, args[0], args[1], args[2]);
         }
-
-        public abstract ValueEval Evaluate(int srcRowIndex, int srcColumnIndex, ValueEval arg0, ValueEval arg1);
-
-        public abstract ValueEval Evaluate(int srcRowIndex, int srcColumnIndex, ValueEval arg0, ValueEval arg1, ValueEval arg2);
+        return ErrorEval.VALUE_INVALID;
     }
+
+    public abstract ValueEval Evaluate(int srcRowIndex, int srcColumnIndex, ValueEval arg0, ValueEval arg1);
+
+    public abstract ValueEval Evaluate(int srcRowIndex, int srcColumnIndex, ValueEval arg0, ValueEval arg1, ValueEval arg2);
 }

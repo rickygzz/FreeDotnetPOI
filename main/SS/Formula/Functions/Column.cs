@@ -18,48 +18,47 @@
  * Created on May 15, 2005
  *
  */
-namespace NPOI.SS.Formula.Functions
+namespace NPOI.SS.Formula.Functions;
+
+using NPOI.SS.Formula.Eval;
+
+public class Column : Function0Arg, Function1Arg
 {
-    using NPOI.SS.Formula.Eval;
-
-    public class Column : Function0Arg, Function1Arg
+    public ValueEval Evaluate(int srcRowIndex, int srcColumnIndex)
     {
-        public ValueEval Evaluate(int srcRowIndex, int srcColumnIndex)
-        {
-            return new NumberEval(srcColumnIndex + 1);
-        }
-        public ValueEval Evaluate(int srcRowIndex, int srcColumnIndex, ValueEval arg0)
-        {
-            int rnum;
+        return new NumberEval(srcColumnIndex + 1);
+    }
+    public ValueEval Evaluate(int srcRowIndex, int srcColumnIndex, ValueEval arg0)
+    {
+        int rnum;
 
-            if (arg0 is AreaEval eval)
-            {
-                rnum = eval.FirstColumn;
-            }
-            else if (arg0 is RefEval refEval)
-            {
-                rnum = refEval.Column;
-            }
-            else
-            {
-                // anything else is not valid argument
-                return ErrorEval.VALUE_INVALID;
-            }
-
-            return new NumberEval(rnum + 1);
-        }
-        public ValueEval Evaluate(ValueEval[] args, int srcRowIndex, int srcColumnIndex)
+        if (arg0 is AreaEval eval)
         {
-            switch (args.Length)
-            {
-                case 1:
-                    return Evaluate(srcRowIndex, srcColumnIndex, args[0]);
-                case 0:
-                    return new NumberEval(srcColumnIndex + 1);
-            }
+            rnum = eval.FirstColumn;
+        }
+        else if (arg0 is RefEval refEval)
+        {
+            rnum = refEval.Column;
+        }
+        else
+        {
+            // anything else is not valid argument
             return ErrorEval.VALUE_INVALID;
         }
 
-
+        return new NumberEval(rnum + 1);
     }
+    public ValueEval Evaluate(ValueEval[] args, int srcRowIndex, int srcColumnIndex)
+    {
+        switch (args.Length)
+        {
+            case 1:
+                return Evaluate(srcRowIndex, srcColumnIndex, args[0]);
+            case 0:
+                return new NumberEval(srcColumnIndex + 1);
+        }
+        return ErrorEval.VALUE_INVALID;
+    }
+
+
 }

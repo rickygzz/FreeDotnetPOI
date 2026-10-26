@@ -15,13 +15,13 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.SS.Formula
-{
-    using System;
-    using NPOI.SS.UserModel;
-    using NPOI.SS.Util;
+namespace NPOI.SS.Formula;
 
-    /**
+using NPOI.SS.UserModel;
+using NPOI.SS.Util;
+using System;
+
+/**
 * Abstracts a cell for the purpose of formula evaluation.  This interface represents both formula
 * and non-formula cells.<br/>
 * 
@@ -32,21 +32,20 @@ namespace NPOI.SS.Formula
 * 
 * @author Josh Micich
 */
-    public interface IEvaluationCell
-    {
-        // consider method Object GetUnderlyingCell() To reduce memory consumption in formula cell cache
-        IEvaluationSheet Sheet { get; }
-        int RowIndex { get; }
-        int ColumnIndex { get; }
-        CellType CellType { get; }
+public interface IEvaluationCell
+{
+    // consider method Object GetUnderlyingCell() To reduce memory consumption in formula cell cache
+    IEvaluationSheet Sheet { get; }
+    int RowIndex { get; }
+    int ColumnIndex { get; }
+    CellType CellType { get; }
 
-        double NumericCellValue { get; }
-        String StringCellValue { get; }
-        bool BooleanCellValue { get; }
-        int ErrorCellValue { get; }
-        Object IdentityKey { get; }
-        bool IsPartOfArrayFormulaGroup { get; }
-        CellRangeAddress ArrayFormulaRange { get; }
-        CellType CachedFormulaResultType { get; }
-    }
+    double NumericCellValue { get; }
+    String StringCellValue { get; }
+    bool BooleanCellValue { get; }
+    int ErrorCellValue { get; }
+    Object IdentityKey { get; }
+    bool IsPartOfArrayFormulaGroup { get; }
+    CellRangeAddress ArrayFormulaRange { get; }
+    CellType CachedFormulaResultType { get; }
 }

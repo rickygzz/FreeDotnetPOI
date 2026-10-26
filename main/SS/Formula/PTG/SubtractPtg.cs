@@ -15,45 +15,44 @@
    limitations Under the License.
 ==================================================================== */
 
-namespace NPOI.SS.Formula.PTG
+namespace NPOI.SS.Formula.PTG;
+
+using System;
+using System.Text;
+
+/**
+ *
+ * @author  andy
+ * @author Jason Height (jheight at chariot dot net dot au)
+ */
+public class SubtractPtg : ValueOperatorPtg
 {
-    using System;
-    using System.Text;
+    public const byte sid = 0x04;
 
-    /**
-     *
-     * @author  andy
-     * @author Jason Height (jheight at chariot dot net dot au)
-     */
-    public class SubtractPtg : ValueOperatorPtg
+    public static ValueOperatorPtg instance = new SubtractPtg();
+
+    private SubtractPtg()
     {
-        public const byte sid = 0x04;
+        // enforce singleton
+    }
 
-        public static ValueOperatorPtg instance = new SubtractPtg();
+    protected override byte Sid
+    {
+        get { return sid; }
+    }
 
-        private SubtractPtg()
-        {
-            // enforce singleton
-        }
+    public override int NumberOfOperands
+    {
+        get { return 2; }
+    }
 
-        protected override byte Sid
-        {
-            get { return sid; }
-        }
+    public override String ToFormulaString(String[] operands)
+    {
+        StringBuilder buffer = new StringBuilder();
 
-        public override int NumberOfOperands
-        {
-            get { return 2; }
-        }
-
-        public override String ToFormulaString(String[] operands)
-        {
-            StringBuilder buffer = new StringBuilder();
-
-            buffer.Append(operands[0]);
-            buffer.Append("-");
-            buffer.Append(operands[1]);
-            return buffer.ToString();
-        }
+        buffer.Append(operands[0]);
+        buffer.Append("-");
+        buffer.Append(operands[1]);
+        return buffer.ToString();
     }
 }

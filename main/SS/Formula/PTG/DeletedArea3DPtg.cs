@@ -15,66 +15,62 @@
    limitations Under the License.
 ==================================================================== */
 
-namespace NPOI.SS.Formula.PTG
+namespace NPOI.SS.Formula.PTG;
+
+using NPOI.SS.Formula;
+using NPOI.SS.UserModel;
+using NPOI.Util;
+using System;
+
+/**
+ * Title:        Deleted Area 3D Ptg - 3D referecnce (Sheet + Area)
+ * Description:  Defined a area in Extern Sheet. 
+ * REFERENCE:  
+ * @author Patrick Luby
+ * @version 1.0-pre
+ */
+public class DeletedArea3DPtg : OperandPtg, WorkbookDependentFormula
 {
-    using System;
-    using NPOI.Util;
-    
-    using NPOI.SS.Formula;
+    public const byte sid = 0x3d;
+    private int field_1_index_extern_sheet;
+    private int unused1;
+    private int unused2;
 
-    using NPOI.HSSF.UserModel;
-    using NPOI.SS.UserModel;
-
-    /**
-     * Title:        Deleted Area 3D Ptg - 3D referecnce (Sheet + Area)
-     * Description:  Defined a area in Extern Sheet. 
-     * REFERENCE:  
-     * @author Patrick Luby
-     * @version 1.0-pre
-     */
-    public class DeletedArea3DPtg : OperandPtg, WorkbookDependentFormula
+    public DeletedArea3DPtg(int externSheetIndex)
     {
-        public const byte sid = 0x3d;
-        private int field_1_index_extern_sheet;
-        private int unused1;
-        private int unused2;
+        field_1_index_extern_sheet = externSheetIndex;
+        unused1 = 0;
+        unused2 = 0;
+    }
 
-        public DeletedArea3DPtg(int externSheetIndex)
-        {
-            field_1_index_extern_sheet = externSheetIndex;
-            unused1 = 0;
-            unused2 = 0;
-        }
-
-        public DeletedArea3DPtg(ILittleEndianInput in1)
-        {
-            field_1_index_extern_sheet = in1.ReadUShort();
-            unused1 = in1.ReadInt();
-            unused2 = in1.ReadInt();
-        }
-        public String ToFormulaString(IFormulaRenderingWorkbook book)
-        {
-            return ExternSheetNameResolver.PrependSheetName(book, field_1_index_extern_sheet,
-                    FormulaError.REF.String);
-        }
-        public override String ToFormulaString()
-        {
-            throw new Exception("3D references need a workbook to determine formula text");
-        }
-        public override byte DefaultOperandClass
-        {
-            get { return Ptg.CLASS_REF; }
-        }
-        public override int Size
-        {
-            get { return 11; }
-        }
-        public override void Write(ILittleEndianOutput out1)
-        {
-            out1.WriteByte(sid + PtgClass);
-            out1.WriteShort(field_1_index_extern_sheet);
-            out1.WriteInt(unused1);
-            out1.WriteInt(unused2);
-        }
+    public DeletedArea3DPtg(ILittleEndianInput in1)
+    {
+        field_1_index_extern_sheet = in1.ReadUShort();
+        unused1 = in1.ReadInt();
+        unused2 = in1.ReadInt();
+    }
+    public String ToFormulaString(IFormulaRenderingWorkbook book)
+    {
+        return ExternSheetNameResolver.PrependSheetName(book, field_1_index_extern_sheet,
+                FormulaError.REF.String);
+    }
+    public override String ToFormulaString()
+    {
+        throw new Exception("3D references need a workbook to determine formula text");
+    }
+    public override byte DefaultOperandClass
+    {
+        get { return Ptg.CLASS_REF; }
+    }
+    public override int Size
+    {
+        get { return 11; }
+    }
+    public override void Write(ILittleEndianOutput out1)
+    {
+        out1.WriteByte(sid + PtgClass);
+        out1.WriteShort(field_1_index_extern_sheet);
+        out1.WriteInt(unused1);
+        out1.WriteInt(unused2);
     }
 }

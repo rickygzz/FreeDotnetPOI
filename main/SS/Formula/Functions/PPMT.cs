@@ -17,65 +17,64 @@
  * ====================================================================
  */
 
-namespace NPOI.SS.Formula.Functions
-{
-    using NPOI.SS.Formula.Eval;
+namespace NPOI.SS.Formula.Functions;
 
-    /**
-      * Compute the interest portion of a payment.
-      * 
-      * @author Mike Argyriou micharg@gmail.com
-      */
-    public class PPMT : NumericFunction
+using NPOI.SS.Formula.Eval;
+using NPOI.SS.Formula.Functions.Numeric;
+
+/**
+  * Compute the interest portion of a payment.
+  * 
+  * @author Mike Argyriou micharg@gmail.com
+  */
+public class PPMT : NumericFunction
+{
+
+
+    protected override double Eval(ValueEval[] args, int srcCellRow, int srcCellCol)
     {
 
+        if (args.Length < 4)
+            throw new EvaluationException(ErrorEval.VALUE_INVALID);
 
-        protected override double Eval(ValueEval[] args, int srcCellRow, int srcCellCol)
+        double result;
+        ValueEval v5 =null;
+        ValueEval v6 =null;
+
+        ValueEval v1 = OperandResolver.GetSingleValue(args[0], srcCellRow, srcCellCol);
+        ValueEval v2 = OperandResolver.GetSingleValue(args[1], srcCellRow, srcCellCol);
+        ValueEval v3 = OperandResolver.GetSingleValue(args[2], srcCellRow, srcCellCol);
+        ValueEval v4 = OperandResolver.GetSingleValue(args[3], srcCellRow, srcCellCol);
+
+        double interestRate = OperandResolver.CoerceValueToDouble(v1);
+        int period = OperandResolver.CoerceValueToInt(v2);
+        int numberPayments = OperandResolver.CoerceValueToInt(v3);
+        double PV = OperandResolver.CoerceValueToDouble(v4);
+
+        if(args.Length==4)
         {
-
-            if (args.Length < 4)
-                throw new EvaluationException(ErrorEval.VALUE_INVALID);
-
-            double result;
-            ValueEval v5 =null;
-            ValueEval v6 =null;
-
-            ValueEval v1 = OperandResolver.GetSingleValue(args[0], srcCellRow, srcCellCol);
-            ValueEval v2 = OperandResolver.GetSingleValue(args[1], srcCellRow, srcCellCol);
-            ValueEval v3 = OperandResolver.GetSingleValue(args[2], srcCellRow, srcCellCol);
-            ValueEval v4 = OperandResolver.GetSingleValue(args[3], srcCellRow, srcCellCol);
-
-            double interestRate = OperandResolver.CoerceValueToDouble(v1);
-            int period = OperandResolver.CoerceValueToInt(v2);
-            int numberPayments = OperandResolver.CoerceValueToInt(v3);
-            double PV = OperandResolver.CoerceValueToDouble(v4);
-
-            if(args.Length==4)
-            {
-                result = Finance.PPMT(interestRate, period, numberPayments, PV);
-            }
-            else if(args.Length==5)
-            {
-                v5=OperandResolver.GetSingleValue(args[4], srcCellRow, srcCellCol);
-                double FV = OperandResolver.CoerceValueToDouble(v5);
-                result = Finance.PPMT(interestRate, period, numberPayments, PV, FV);
-            }
-            else
-            {
-                v5=OperandResolver.GetSingleValue(args[4], srcCellRow, srcCellCol);
-                v6 = OperandResolver.GetSingleValue(args[5], srcCellRow, srcCellCol);
-                double FV = OperandResolver.CoerceValueToDouble(v5);
-                int type = OperandResolver.CoerceValueToInt(v6);
-                result = Finance.PPMT(interestRate, period, numberPayments, PV, FV,type);
-            }
-
-            CheckValue(result);
-
-            return result;
+            result = Finance.PPMT(interestRate, period, numberPayments, PV);
+        }
+        else if(args.Length==5)
+        {
+            v5=OperandResolver.GetSingleValue(args[4], srcCellRow, srcCellCol);
+            double FV = OperandResolver.CoerceValueToDouble(v5);
+            result = Finance.PPMT(interestRate, period, numberPayments, PV, FV);
+        }
+        else
+        {
+            v5=OperandResolver.GetSingleValue(args[4], srcCellRow, srcCellCol);
+            v6 = OperandResolver.GetSingleValue(args[5], srcCellRow, srcCellCol);
+            double FV = OperandResolver.CoerceValueToDouble(v5);
+            int type = OperandResolver.CoerceValueToInt(v6);
+            result = Finance.PPMT(interestRate, period, numberPayments, PV, FV,type);
         }
 
+        CheckValue(result);
 
-
+        return result;
     }
+
+
 
 }

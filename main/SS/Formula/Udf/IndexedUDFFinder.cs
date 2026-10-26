@@ -15,47 +15,46 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.SS.Formula.UDF
+namespace NPOI.SS.Formula.UDF;
+
+using NPOI.SS.Formula.Functions;
+using System;
+using System.Collections.Generic;
+/**
+ * A UDFFinder that can retrieve functions both by name and by fake index.
+ *
+ * @author Yegor Kozlov
+ */
+public class IndexedUDFFinder : AggregatingUDFFinder
 {
-    using System;
-    using System.Collections.Generic;
-    using NPOI.SS.Formula.Functions;
-    /**
-     * A UDFFinder that can retrieve functions both by name and by fake index.
-     *
-     * @author Yegor Kozlov
-     */
-    public class IndexedUDFFinder : AggregatingUDFFinder
+    private readonly Dictionary<int, String> _funcMap;
+
+    public IndexedUDFFinder(params UDFFinder[] usedToolPacks)
+        : base(usedToolPacks)
     {
-        private readonly Dictionary<int, String> _funcMap;
 
-        public IndexedUDFFinder(params UDFFinder[] usedToolPacks)
-            : base(usedToolPacks)
+        _funcMap = new Dictionary<int, String>();
+    }
+
+    public override FreeRefFunction FindFunction(String name)
+    {
+        FreeRefFunction func = base.FindFunction(name);
+        if (func != null)
         {
-
-            _funcMap = new Dictionary<int, String>();
+            int idx = GetFunctionIndex(name);
+            _funcMap[idx] = name;
         }
+        return func;
+    }
 
-        public override FreeRefFunction FindFunction(String name)
-        {
-            FreeRefFunction func = base.FindFunction(name);
-            if (func != null)
-            {
-                int idx = GetFunctionIndex(name);
-                _funcMap[idx] = name;
-            }
-            return func;
-        }
+    public String GetFunctionName(int idx)
+    {
+        return _funcMap[idx];
+    }
 
-        public String GetFunctionName(int idx)
-        {
-            return _funcMap[idx];
-        }
-
-        public int GetFunctionIndex(String name)
-        {
-            return name.GetHashCode();
-        }
+    public int GetFunctionIndex(String name)
+    {
+        return name.GetHashCode();
     }
 }
 

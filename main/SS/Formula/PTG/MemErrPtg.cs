@@ -15,44 +15,43 @@
    limitations Under the License.
 ==================================================================== */
 
-namespace NPOI.SS.Formula.PTG
+namespace NPOI.SS.Formula.PTG;
+
+using NPOI.Util;
+using System;
+
+/**
+ *
+ * @author  andy
+ * @author Jason Height (jheight at chariot dot net dot au)
+ * @author Daniel Noll (daniel at nuix dot com dot au)
+ */
+
+public class MemErrPtg : MemAreaPtg
 {
-    using System;
-    using NPOI.Util;
-
-    /**
-     *
-     * @author  andy
-     * @author Jason Height (jheight at chariot dot net dot au)
-     * @author Daniel Noll (daniel at nuix dot com dot au)
-     */
-
-    public class MemErrPtg : MemAreaPtg
-    {
-        public new const short sid = 0x27;
-        // fix warning CS0414 "never used": private const int SIZE = 7;
+    public new const short sid = 0x27;
+    // fix warning CS0414 "never used": private const int SIZE = 7;
 	    private int field_1_reserved = 0;
 	    private short field_2_subex_len = 0;
 
-        /** Creates new MemErrPtg */
+    /** Creates new MemErrPtg */
 
-        public MemErrPtg(ILittleEndianInput in1)
-            : base(in1)
-        {
-        
-        }
+    public MemErrPtg(ILittleEndianInput in1)
+        : base(in1)
+    {
+    
+    }
 
-        public override void Write(ILittleEndianOutput out1)
-        {
+    public override void Write(ILittleEndianOutput out1)
+    {
 		    out1.WriteByte(sid + PtgClass);
 		    out1.WriteInt(field_1_reserved);
 		    out1.WriteShort(field_2_subex_len);
-        }
+    }
 
 
-        public override String ToFormulaString()
-        {
-            return "ERR#";
-        }
+    public override String ToFormulaString()
+    {
+        return "ERR#";
     }
 }

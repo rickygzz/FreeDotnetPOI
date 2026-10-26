@@ -15,17 +15,13 @@
    limitations under the License.
 ==================================================================== */
 
-using System;
-using System.Reflection;
 using NPOI.HSSF.UserModel;
-using NPOI.SS.Formula;
-using NPOI.SS.Formula.Eval;
 using NPOI.SS.Formula.UDF;
 using NPOI.SS.UserModel;
+using System;
+using System.Reflection;
 
 namespace NPOI.SS.Formula.Eval.Forked;
-
-
 
 /**
  * An alternative workbook Evaluator that saves memory in situations where a single workbook is

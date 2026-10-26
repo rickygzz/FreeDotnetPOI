@@ -15,36 +15,35 @@
    limitations Under the License.
 ==================================================================== */
 
-namespace NPOI.SS.Formula.PTG
+namespace NPOI.SS.Formula.PTG;
+
+using System;
+/**
+ * defines a Ptg that is an operation instead of an operand
+ * @author  andy
+ */
+[Serializable]
+public abstract class OperationPtg : Ptg
 {
-    using System;
+    public const int TYPE_UNARY = 0;
+    public const int TYPE_BINARY = 1;
+    public const int TYPE_FUNCTION = 2;
+
     /**
-     * defines a Ptg that is an operation instead of an operand
-     * @author  andy
+     *  returns a string representation of the operations
+     *  the Length of the input array should equal the number returned by 
+     *  @see #GetNumberOfOperands
+     *  
      */
-    [Serializable]
-    public abstract class OperationPtg : Ptg
+    public abstract String ToFormulaString(String[] operands);
+
+    /**
+     * The number of operands expected by the operations
+     */
+    public abstract int NumberOfOperands { get; }
+
+    public override byte DefaultOperandClass
     {
-        public const int TYPE_UNARY = 0;
-        public const int TYPE_BINARY = 1;
-        public const int TYPE_FUNCTION = 2;
-
-        /**
-         *  returns a string representation of the operations
-         *  the Length of the input array should equal the number returned by 
-         *  @see #GetNumberOfOperands
-         *  
-         */
-        public abstract String ToFormulaString(String[] operands);
-
-        /**
-         * The number of operands expected by the operations
-         */
-        public abstract int NumberOfOperands { get; }
-
-        public override byte DefaultOperandClass
-        {
-            get { return Ptg.CLASS_VALUE; }
-        }
+        get { return Ptg.CLASS_VALUE; }
     }
 }

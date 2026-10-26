@@ -15,45 +15,44 @@
    limitations Under the License.
 ==================================================================== */
 
-namespace NPOI.SS.Formula.PTG
+namespace NPOI.SS.Formula.PTG;
+
+using System;
+using System.Text;
+
+/**
+ * This PTG implements the standard binomial divide "/"
+ * @author  Andrew C. Oliver acoliver at apache dot org
+ * @author Jason Height (jheight at chariot dot net dot au)
+ */
+public class DividePtg : ValueOperatorPtg
 {
-    using System;
-    using System.Text;
+    public const byte sid = 0x06;
 
-    /**
-     * This PTG implements the standard binomial divide "/"
-     * @author  Andrew C. Oliver acoliver at apache dot org
-     * @author Jason Height (jheight at chariot dot net dot au)
-     */
-    public class DividePtg : ValueOperatorPtg
+    public static ValueOperatorPtg instance = new DividePtg();
+
+    private DividePtg()
     {
-        public const byte sid = 0x06;
+        // enforce singleton
+    }
 
-        public static ValueOperatorPtg instance = new DividePtg();
+    protected override byte Sid
+    {
+        get { return sid; }
+    }
 
-        private DividePtg()
-        {
-            // enforce singleton
-        }
+    public override int NumberOfOperands
+    {
+        get { return 2; }
+    }
 
-        protected override byte Sid
-        {
-            get { return sid; }
-        }
+    public override String ToFormulaString(String[] operands)
+    {
+        StringBuilder buffer = new StringBuilder();
 
-        public override int NumberOfOperands
-        {
-            get { return 2; }
-        }
-
-        public override String ToFormulaString(String[] operands)
-        {
-            StringBuilder buffer = new StringBuilder();
-
-            buffer.Append(operands[0]);
-            buffer.Append("/");
-            buffer.Append(operands[1]);
-            return buffer.ToString();
-        }
+        buffer.Append(operands[0]);
+        buffer.Append("/");
+        buffer.Append(operands[1]);
+        return buffer.ToString();
     }
 }

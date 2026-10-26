@@ -15,18 +15,17 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.SS.Formula.PTG
-{
-    using System;
+namespace NPOI.SS.Formula.PTG;
 
-    /**
-     * An XSSF only special kind of Ptg, which stores the sheet / book 
-     *  reference in string form.
-     */
-    public interface Pxg
-    {
-        int ExternalWorkbookNumber { get; }
-        String SheetName { get; set; }
-        String ToFormulaString();
-    }
+using System;
+
+/**
+ * An XSSF only special kind of Ptg, which stores the sheet / book 
+ *  reference in string form.
+ */
+public interface Pxg
+{
+    int ExternalWorkbookNumber { get; }
+    String SheetName { get; set; }
+    String ToFormulaString();
 }

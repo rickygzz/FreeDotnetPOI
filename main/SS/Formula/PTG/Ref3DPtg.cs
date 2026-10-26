@@ -15,110 +15,108 @@
    limitations Under the License.
 ==================================================================== */
 
-namespace NPOI.SS.Formula.PTG
+namespace NPOI.SS.Formula.PTG;
+
+using NPOI.SS.Formula;
+using NPOI.SS.Util;
+using NPOI.Util;
+using System;
+using System.Text;
+
+
+
+/**
+ * Title:        Reference 3D Ptg 
+ * Description:  Defined a cell in extern sheet. 
+ * REFERENCE:  
+ * @author Libin Roman (Vista Portal LDT. Developer)
+ * @author Jason Height (jheight at chariot dot net dot au)
+ * @version 1.0-pre
+ */
+public class Ref3DPtg : RefPtgBase, WorkbookDependentFormula, IExternSheetReferenceToken
 {
-    using System;
-    using System.Text;
-    using NPOI.Util;
-    
-    using NPOI.SS.Util;
-    using NPOI.SS.Formula;
-
-
-
-    /**
-     * Title:        Reference 3D Ptg 
-     * Description:  Defined a cell in extern sheet. 
-     * REFERENCE:  
-     * @author Libin Roman (Vista Portal LDT. Developer)
-     * @author Jason Height (jheight at chariot dot net dot au)
-     * @version 1.0-pre
+    public const byte sid = 0x3a;
+    private const int SIZE = 7; // 6 + 1 for Ptg
+    private int field_1_index_extern_sheet;
+    /** Field 2 
+     * - lower 8 bits is the zero based Unsigned byte column index 
+     * - bit 16 - IsRowRelative
+     * - bit 15 - IsColumnRelative 
      */
-    public class Ref3DPtg : RefPtgBase, WorkbookDependentFormula, IExternSheetReferenceToken
+    private BitField rowRelative = BitFieldFactory.GetInstance(0x8000);
+    private BitField colRelative = BitFieldFactory.GetInstance(0x4000);
+
+    /** Creates new AreaPtg */
+    public Ref3DPtg() { }
+
+    public Ref3DPtg(ILittleEndianInput in1)
     {
-        public const byte sid = 0x3a;
-        private const int SIZE = 7; // 6 + 1 for Ptg
-        private int field_1_index_extern_sheet;
-        /** Field 2 
-         * - lower 8 bits is the zero based Unsigned byte column index 
-         * - bit 16 - IsRowRelative
-         * - bit 15 - IsColumnRelative 
-         */
-        private BitField rowRelative = BitFieldFactory.GetInstance(0x8000);
-        private BitField colRelative = BitFieldFactory.GetInstance(0x4000);
+        field_1_index_extern_sheet = in1.ReadShort();
+        ReadCoordinates(in1);
+    }
 
-        /** Creates new AreaPtg */
-        public Ref3DPtg() { }
+    public Ref3DPtg(String cellref, int externIdx)
+    {
+        CellReference c = new CellReference(cellref);
+        Row=c.Row;
+        Column=c.Col;
+        IsColRelative=!c.IsColAbsolute;
+        IsRowRelative=!c.IsRowAbsolute;
+        ExternSheetIndex=externIdx;
+    }
 
-        public Ref3DPtg(ILittleEndianInput in1)
-        {
-            field_1_index_extern_sheet = in1.ReadShort();
-            ReadCoordinates(in1);
-        }
+    public Ref3DPtg(CellReference cr, int externIdx):base(cr)
+    {
+        ExternSheetIndex = externIdx;
+    }
 
-        public Ref3DPtg(String cellref, int externIdx)
-        {
-            CellReference c = new CellReference(cellref);
-            Row=c.Row;
-            Column=c.Col;
-            IsColRelative=!c.IsColAbsolute;
-            IsRowRelative=!c.IsRowAbsolute;
-            ExternSheetIndex=externIdx;
-        }
+    public override String ToString()
+    {
+        CellReference cr = new CellReference(Row, Column, !IsRowRelative, !IsColRelative);
+        StringBuilder sb = new StringBuilder();
+        sb.Append(GetType().Name);
+        sb.Append(" [");
+        sb.Append("sheetIx=").Append(ExternSheetIndex);
+        sb.Append(" ! ");
+        sb.Append(cr.FormatAsString());
+        sb.Append("]");
+        return sb.ToString();
+    }
 
-        public Ref3DPtg(CellReference cr, int externIdx):base(cr)
-        {
-            ExternSheetIndex = externIdx;
-        }
+    public override void Write(ILittleEndianOutput out1)
+    {
 
-        public override String ToString()
-        {
-            CellReference cr = new CellReference(Row, Column, !IsRowRelative, !IsColRelative);
-            StringBuilder sb = new StringBuilder();
-            sb.Append(GetType().Name);
-            sb.Append(" [");
-            sb.Append("sheetIx=").Append(ExternSheetIndex);
-            sb.Append(" ! ");
-            sb.Append(cr.FormatAsString());
-            sb.Append("]");
-            return sb.ToString();
-        }
+        out1.WriteByte(sid + PtgClass);
+        out1.WriteShort(ExternSheetIndex);
+        WriteCoordinates(out1);
+    }
 
-        public override void Write(ILittleEndianOutput out1)
-        {
+    public override int Size
+    {
+        get { return SIZE; }
+    }
 
-            out1.WriteByte(sid + PtgClass);
-            out1.WriteShort(ExternSheetIndex);
-            WriteCoordinates(out1);
-        }
+    public int ExternSheetIndex
+    {
+        get { return field_1_index_extern_sheet; }
+        set { field_1_index_extern_sheet = value; }
+    }
+    /**
+     * @return text representation of this cell reference that can be used in text 
+     * formulas. The sheet name will Get properly delimited if required.
+     */
+    public String ToFormulaString(IFormulaRenderingWorkbook book)
+    {
+        return ExternSheetNameResolver.PrependSheetName(book, field_1_index_extern_sheet, FormatReferenceAsString());
+    }
 
-        public override int Size
-        {
-            get { return SIZE; }
-        }
+    public override String ToFormulaString()
+    {
+        throw new NotImplementedException("3D references need a workbook to determine formula text");
+    }
 
-        public int ExternSheetIndex
-        {
-            get { return field_1_index_extern_sheet; }
-            set { field_1_index_extern_sheet = value; }
-        }
-        /**
-         * @return text representation of this cell reference that can be used in text 
-         * formulas. The sheet name will Get properly delimited if required.
-         */
-        public String ToFormulaString(IFormulaRenderingWorkbook book)
-        {
-            return ExternSheetNameResolver.PrependSheetName(book, field_1_index_extern_sheet, FormatReferenceAsString());
-        }
-
-        public override String ToFormulaString()
-        {
-            throw new NotImplementedException("3D references need a workbook to determine formula text");
-        }
-
-        public override byte DefaultOperandClass
-        {
-            get { return Ptg.CLASS_REF; }
-        }
+    public override byte DefaultOperandClass
+    {
+        get { return Ptg.CLASS_REF; }
     }
 }

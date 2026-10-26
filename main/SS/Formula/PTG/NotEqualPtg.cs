@@ -15,46 +15,45 @@
    limitations Under the License.
 ==================================================================== */
 
-namespace NPOI.SS.Formula.PTG
+namespace NPOI.SS.Formula.PTG;
+
+using System;
+using System.Text;
+/**
+ * Ptg class to implement not equal
+ *
+ * @author fred at stsci dot edu
+ */
+public class NotEqualPtg : ValueOperatorPtg
 {
-    using System;
-    using System.Text;
-    /**
-     * Ptg class to implement not equal
-     *
-     * @author fred at stsci dot edu
-     */
-    public class NotEqualPtg : ValueOperatorPtg
+    public const byte sid = 0x0e;
+
+    public static ValueOperatorPtg instance = new NotEqualPtg();
+
+    private NotEqualPtg()
     {
-        public const byte sid = 0x0e;
+        // enforce singleton
+    }
 
-        public static ValueOperatorPtg instance = new NotEqualPtg();
+    protected override byte Sid
+    {
+        get { return sid; }
+    }
 
-        private NotEqualPtg()
-        {
-            // enforce singleton
-        }
+    public override int NumberOfOperands
+    {
+        get { return 2; }
+    }
 
-        protected override byte Sid
-        {
-            get { return sid; }
-        }
+    public override String ToFormulaString(String[] operands)
+    {
+        StringBuilder buffer = new StringBuilder();
 
-        public override int NumberOfOperands
-        {
-            get { return 2; }
-        }
+        buffer.Append(operands[0]);
 
-        public override String ToFormulaString(String[] operands)
-        {
-            StringBuilder buffer = new StringBuilder();
+        buffer.Append("<>");
+        buffer.Append(operands[1]);
 
-            buffer.Append(operands[0]);
-
-            buffer.Append("<>");
-            buffer.Append(operands[1]);
-
-            return buffer.ToString();
-        }
+        return buffer.ToString();
     }
 }

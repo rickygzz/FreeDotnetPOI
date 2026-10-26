@@ -1,8 +1,7 @@
-﻿namespace NPOI.SS.UserModel
+﻿namespace NPOI.SS.UserModel;
+
+public interface IColor
 {
-    public interface IColor
-    {
-        short Indexed { get; }
-        byte[] RGB { get; }
-    }
+    short Indexed { get; }
+    byte[] RGB { get; }
 }

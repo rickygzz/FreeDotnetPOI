@@ -15,87 +15,85 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.SS.Formula
+namespace NPOI.SS.Formula;
+
+
+using NPOI.SS.Formula.Eval;
+using NPOI.SS.Formula.PTG;
+using NPOI.SS.UserModel;
+using System;
+/**
+ * 
+ * 
+ * @author Josh Micich
+ */
+public class SheetRefEvaluator
 {
 
-    using System;
-    using NPOI.SS.Formula.Eval;
-    using NPOI.SS.UserModel;
-    using NPOI.SS.Formula;
-    using NPOI.SS.Formula.PTG;
-    /**
-     * 
-     * 
-     * @author Josh Micich
-     */
-    public class SheetRefEvaluator
+    private readonly WorkbookEvaluator _bookEvaluator;
+    private readonly EvaluationTracker _tracker;
+    private IEvaluationSheet _sheet;
+    private readonly int _sheetIndex;
+
+    public SheetRefEvaluator(WorkbookEvaluator bookEvaluator, EvaluationTracker tracker, int sheetIndex)
     {
-
-        private readonly WorkbookEvaluator _bookEvaluator;
-        private readonly EvaluationTracker _tracker;
-        private IEvaluationSheet _sheet;
-        private readonly int _sheetIndex;
-
-        public SheetRefEvaluator(WorkbookEvaluator bookEvaluator, EvaluationTracker tracker, int sheetIndex)
+        if (sheetIndex < 0)
         {
-            if (sheetIndex < 0)
+            throw new ArgumentException("Invalid sheetIndex: " + sheetIndex + ".");
+        }
+        _bookEvaluator = bookEvaluator;
+        _tracker = tracker;
+        _sheetIndex = sheetIndex;
+    }
+
+    public String SheetName
+    {
+        get
+        {
+            return _bookEvaluator.GetSheetName(_sheetIndex);
+        }
+    }
+
+    public ValueEval GetEvalForCell(int rowIndex, int columnIndex)
+    {
+        return _bookEvaluator.EvaluateReference(this.Sheet, _sheetIndex, rowIndex, columnIndex, _tracker);
+    }
+
+    private IEvaluationSheet Sheet
+    {
+        get
+        {
+            if (_sheet == null)
             {
-                throw new ArgumentException("Invalid sheetIndex: " + sheetIndex + ".");
+                _sheet = _bookEvaluator.GetSheet(_sheetIndex);
             }
-            _bookEvaluator = bookEvaluator;
-            _tracker = tracker;
-            _sheetIndex = sheetIndex;
+            return _sheet;
         }
+    }
 
-        public String SheetName
+    /**
+* @return  whether cell at rowIndex and columnIndex is a subtotal
+* @see org.apache.poi.ss.formula.functions.Subtotal
+*/
+    public bool IsSubTotal(int rowIndex, int columnIndex)
+    {
+        bool subtotal = false;
+        IEvaluationCell cell = Sheet.GetCell(rowIndex, columnIndex);
+        if (cell != null && cell.CellType == CellType.Formula)
         {
-            get
+            IEvaluationWorkbook wb = _bookEvaluator.Workbook;
+            foreach (Ptg ptg in wb.GetFormulaTokens(cell))
             {
-                return _bookEvaluator.GetSheetName(_sheetIndex);
-            }
-        }
-
-        public ValueEval GetEvalForCell(int rowIndex, int columnIndex)
-        {
-            return _bookEvaluator.EvaluateReference(this.Sheet, _sheetIndex, rowIndex, columnIndex, _tracker);
-        }
-
-        private IEvaluationSheet Sheet
-        {
-            get
-            {
-                if (_sheet == null)
+                if (ptg is FuncVarPtg varPtg)
                 {
-                    _sheet = _bookEvaluator.GetSheet(_sheetIndex);
-                }
-                return _sheet;
-            }
-        }
-
-        /**
- * @return  whether cell at rowIndex and columnIndex is a subtotal
- * @see org.apache.poi.ss.formula.functions.Subtotal
- */
-        public bool IsSubTotal(int rowIndex, int columnIndex)
-        {
-            bool subtotal = false;
-            IEvaluationCell cell = Sheet.GetCell(rowIndex, columnIndex);
-            if (cell != null && cell.CellType == CellType.Formula)
-            {
-                IEvaluationWorkbook wb = _bookEvaluator.Workbook;
-                foreach (Ptg ptg in wb.GetFormulaTokens(cell))
-                {
-                    if (ptg is FuncVarPtg varPtg)
+                    if ("SUBTOTAL".Equals(varPtg.Name))
                     {
-                        if ("SUBTOTAL".Equals(varPtg.Name))
-                        {
-                            subtotal = true;
-                            break;
-                        }
+                        subtotal = true;
+                        break;
                     }
                 }
             }
-            return subtotal;
         }
+        return subtotal;
     }
 }

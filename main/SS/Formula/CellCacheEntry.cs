@@ -15,145 +15,144 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.SS.Formula
+namespace NPOI.SS.Formula;
+
+
+using NPOI.SS.Formula.Eval;
+using System;
+/**
+ * Stores the parameters that identify the evaluation of one cell.<br/>
+ */
+public abstract class CellCacheEntry : ICacheEntry
 {
+    public static CellCacheEntry[] EMPTY_ARRAY = [];
 
-    using System;
-    using NPOI.SS.Formula.Eval;
-    /**
-     * Stores the parameters that identify the evaluation of one cell.<br/>
-     */
-    public abstract class CellCacheEntry : ICacheEntry
+    private readonly FormulaCellCacheEntrySet _consumingCells;
+    private ValueEval _value;
+
+
+    protected CellCacheEntry()
     {
-        public static CellCacheEntry[] EMPTY_ARRAY = [];
+        _consumingCells = new FormulaCellCacheEntrySet();
+    }
+    protected void ClearValue()
+    {
+        _value = null;
+    }
 
-        private readonly FormulaCellCacheEntrySet _consumingCells;
-        private ValueEval _value;
-
-
-        protected CellCacheEntry()
+    public bool UpdateValue(ValueEval value)
+    {
+        if (value == null)
         {
-            _consumingCells = new FormulaCellCacheEntrySet();
+            throw new ArgumentException("Did not expect To Update To null");
         }
-        protected void ClearValue()
-        {
-            _value = null;
-        }
+        bool result = !AreValuesEqual(_value, value);
+        _value = value;
+        return result;
+    }
+    public ValueEval GetValue()
+    {
+        return _value;
+    }
 
-        public bool UpdateValue(ValueEval value)
+    private static bool AreValuesEqual(ValueEval a, ValueEval b)
+    {
+        if (a == null)
         {
-            if (value == null)
-            {
-                throw new ArgumentException("Did not expect To Update To null");
-            }
-            bool result = !AreValuesEqual(_value, value);
-            _value = value;
-            return result;
+            return false;
         }
-        public ValueEval GetValue()
+        Type cls = a.GetType();
+        if (cls != b.GetType())
         {
-            return _value;
+            // value type is changing
+            return false;
         }
+        if (a == BlankEval.instance)
+        {
+            return b == a;
+        }
+        if (cls == typeof(NumberEval))
+        {
+            return ((NumberEval)a).NumberValue == ((NumberEval)b).NumberValue;
+        }
+        if (cls == typeof(StringEval))
+        {
+            return ((StringEval)a).StringValue.Equals(((StringEval)b).StringValue);
+        }
+        if (cls == typeof(BoolEval))
+        {
+            return ((BoolEval)a).BooleanValue == ((BoolEval)b).BooleanValue;
+        }
+        if (cls == typeof(ErrorEval))
+        {
+            return ((ErrorEval)a).ErrorCode == ((ErrorEval)b).ErrorCode;
+        }
+        throw new InvalidOperationException("Unexpected value class (" + cls.Name + ")");
+    }
 
-        private static bool AreValuesEqual(ValueEval a, ValueEval b)
-        {
-            if (a == null)
-            {
-                return false;
-            }
-            Type cls = a.GetType();
-            if (cls != b.GetType())
-            {
-                // value type is changing
-                return false;
-            }
-            if (a == BlankEval.instance)
-            {
-                return b == a;
-            }
-            if (cls == typeof(NumberEval))
-            {
-                return ((NumberEval)a).NumberValue == ((NumberEval)b).NumberValue;
-            }
-            if (cls == typeof(StringEval))
-            {
-                return ((StringEval)a).StringValue.Equals(((StringEval)b).StringValue);
-            }
-            if (cls == typeof(BoolEval))
-            {
-                return ((BoolEval)a).BooleanValue == ((BoolEval)b).BooleanValue;
-            }
-            if (cls == typeof(ErrorEval))
-            {
-                return ((ErrorEval)a).ErrorCode == ((ErrorEval)b).ErrorCode;
-            }
-            throw new InvalidOperationException("Unexpected value class (" + cls.Name + ")");
-        }
-
-        public void AddConsumingCell(FormulaCellCacheEntry cellLoc)
-        {
-            _consumingCells.Add(cellLoc);
-
-        }
-        public FormulaCellCacheEntry[] GetConsumingCells()
-        {
-            return _consumingCells.ToArray();
-        }
-
-        public void ClearConsumingCell(FormulaCellCacheEntry cce)
-        {
-            if (!_consumingCells.Remove(cce))
-            {
-                throw new InvalidOperationException("Specified formula cell is not consumed by this cell");
-            }
-        }
-        public void RecurseClearCachedFormulaResults(IEvaluationListener listener)
-        {
-            if (listener == null)
-            {
-                RecurseClearCachedFormulaResults();
-            }
-            else
-            {
-                listener.OnClearCachedValue(this);
-                RecurseClearCachedFormulaResults(listener, 1);
-            }
-        }
-
-        /**
-         * Calls formulaCell.SetFormulaResult(null, null) recursively all the way up the tree of 
-         * dependencies. Calls usedCell.ClearConsumingCell(fc) for each child of a cell that Is
-         * Cleared along the way.
-         * @param formulaCells
-         */
-        protected void RecurseClearCachedFormulaResults()
-        {
-            FormulaCellCacheEntry[] formulaCells = GetConsumingCells();
-
-            for (int i = 0; i < formulaCells.Length; i++)
-            {
-                FormulaCellCacheEntry fc = formulaCells[i];
-                fc.ClearFormulaEntry();
-                fc.RecurseClearCachedFormulaResults();
-            }
-        }
-
-        /**
-         * Identical To {@link #RecurseClearCachedFormulaResults()} except for the listener call-backs
-         */
-        protected void RecurseClearCachedFormulaResults(IEvaluationListener listener, int depth)
-        {
-            FormulaCellCacheEntry[] formulaCells = GetConsumingCells();
-
-            listener.SortDependentCachedValues(formulaCells);
-            for (int i = 0; i < formulaCells.Length; i++)
-            {
-                FormulaCellCacheEntry fc = formulaCells[i];
-                listener.OnClearDependentCachedValue(fc, depth);
-                fc.ClearFormulaEntry();
-                fc.RecurseClearCachedFormulaResults(listener, depth + 1);
-            }
-        }
+    public void AddConsumingCell(FormulaCellCacheEntry cellLoc)
+    {
+        _consumingCells.Add(cellLoc);
 
     }
+    public FormulaCellCacheEntry[] GetConsumingCells()
+    {
+        return _consumingCells.ToArray();
+    }
+
+    public void ClearConsumingCell(FormulaCellCacheEntry cce)
+    {
+        if (!_consumingCells.Remove(cce))
+        {
+            throw new InvalidOperationException("Specified formula cell is not consumed by this cell");
+        }
+    }
+    public void RecurseClearCachedFormulaResults(IEvaluationListener listener)
+    {
+        if (listener == null)
+        {
+            RecurseClearCachedFormulaResults();
+        }
+        else
+        {
+            listener.OnClearCachedValue(this);
+            RecurseClearCachedFormulaResults(listener, 1);
+        }
+    }
+
+    /**
+     * Calls formulaCell.SetFormulaResult(null, null) recursively all the way up the tree of 
+     * dependencies. Calls usedCell.ClearConsumingCell(fc) for each child of a cell that Is
+     * Cleared along the way.
+     * @param formulaCells
+     */
+    protected void RecurseClearCachedFormulaResults()
+    {
+        FormulaCellCacheEntry[] formulaCells = GetConsumingCells();
+
+        for (int i = 0; i < formulaCells.Length; i++)
+        {
+            FormulaCellCacheEntry fc = formulaCells[i];
+            fc.ClearFormulaEntry();
+            fc.RecurseClearCachedFormulaResults();
+        }
+    }
+
+    /**
+     * Identical To {@link #RecurseClearCachedFormulaResults()} except for the listener call-backs
+     */
+    protected void RecurseClearCachedFormulaResults(IEvaluationListener listener, int depth)
+    {
+        FormulaCellCacheEntry[] formulaCells = GetConsumingCells();
+
+        listener.SortDependentCachedValues(formulaCells);
+        for (int i = 0; i < formulaCells.Length; i++)
+        {
+            FormulaCellCacheEntry fc = formulaCells[i];
+            listener.OnClearDependentCachedValue(fc, depth);
+            fc.ClearFormulaEntry();
+            fc.RecurseClearCachedFormulaResults(listener, depth + 1);
+        }
+    }
+
 }

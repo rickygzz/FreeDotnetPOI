@@ -1,4 +1,4 @@
-        
+
 /* ====================================================================
    Licensed to the Apache Software Foundation (ASF) Under one or more
    contributor license agreements.  See the NOTICE file distributed with
@@ -16,44 +16,43 @@
    limitations Under the License.
 ==================================================================== */
 
-namespace NPOI.SS.Formula.PTG
+namespace NPOI.SS.Formula.PTG;
+
+using System;
+using System.Text;
+
+/**
+ * Ptg class to implement less than or equal
+ *
+ * @author fred at stsci dot edu
+ */
+public class LessEqualPtg : ValueOperatorPtg
 {
-    using System;
-    using System.Text;
+    public const byte sid = 0x0a;
 
-    /**
-     * Ptg class to implement less than or equal
-     *
-     * @author fred at stsci dot edu
-     */
-    public class LessEqualPtg : ValueOperatorPtg
+    public static ValueOperatorPtg instance = new LessEqualPtg();
+
+    private LessEqualPtg()
     {
-        public const byte sid = 0x0a;
+        // enforce singleton
+    }
 
-        public static ValueOperatorPtg instance = new LessEqualPtg();
+    protected override byte Sid
+    {
+        get { return sid; }
+    }
 
-        private LessEqualPtg()
-        {
-            // enforce singleton
-        }
+    public override int NumberOfOperands
+    {
+        get { return 2; }
+    }
 
-        protected override byte Sid
-        {
-            get { return sid; }
-        }
-
-        public override int NumberOfOperands
-        {
-            get { return 2; }
-        }
-
-        public override String ToFormulaString(String[] operands)
-        {
-            StringBuilder buffer = new StringBuilder();
-            buffer.Append(operands[0]);
-            buffer.Append("<=");
-            buffer.Append(operands[1]);
-            return buffer.ToString();
-        }
+    public override String ToFormulaString(String[] operands)
+    {
+        StringBuilder buffer = new StringBuilder();
+        buffer.Append(operands[0]);
+        buffer.Append("<=");
+        buffer.Append(operands[1]);
+        return buffer.ToString();
     }
 }

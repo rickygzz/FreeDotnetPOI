@@ -15,32 +15,30 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.SS.UserModel.Charts
+namespace NPOI.SS.UserModel.Charts;
+
+/// <summary>
+/// A factory for different chart axis.
+/// </summary>
+/// <remarks>@author Roman Kashitsyn</remarks>
+public interface IChartAxisFactory
 {
     /// <summary>
-    /// A factory for different chart axis.
+    /// create new value axis at the end of the list at the specified chart position.
     /// </summary>
-    /// <remarks>@author Roman Kashitsyn</remarks>
-    public interface IChartAxisFactory
-    {
-        /// <summary>
-        /// create new value axis at the end of the list at the specified chart position.
-        /// </summary>
-        /// <param name="pos"></param>
-        /// <returns></returns>
-        IValueAxis CreateValueAxis(AxisPosition pos);
-        /// <summary>
-        /// create new category axis at the end of the list at the specified chart position.
-        /// </summary>
-        /// <param name="pos"></param>
-        /// <returns></returns>
-        IChartAxis CreateCategoryAxis(AxisPosition pos);
-        /// <summary>
-        /// create new date category axis at the end of the list at the specified chart position.
-        /// </summary>
-        /// <param name="pos"></param>
-        /// <returns></returns>
-        IChartAxis CreateDateAxis(AxisPosition pos);
-    }
-
+    /// <param name="pos"></param>
+    /// <returns></returns>
+    IValueAxis CreateValueAxis(AxisPosition pos);
+    /// <summary>
+    /// create new category axis at the end of the list at the specified chart position.
+    /// </summary>
+    /// <param name="pos"></param>
+    /// <returns></returns>
+    IChartAxis CreateCategoryAxis(AxisPosition pos);
+    /// <summary>
+    /// create new date category axis at the end of the list at the specified chart position.
+    /// </summary>
+    /// <param name="pos"></param>
+    /// <returns></returns>
+    IChartAxis CreateDateAxis(AxisPosition pos);
 }
