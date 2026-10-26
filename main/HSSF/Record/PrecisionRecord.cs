@@ -17,93 +17,92 @@
 ==================================================================== */
 
 
-namespace NPOI.HSSF.Record
+namespace NPOI.HSSF.Record;
+
+using System.Text;
+using NPOI.Util;
+using System;
+
+/**
+ * Title:        Precision Record
+ * Description:  defines whether to store with full precision or what's Displayed by the gui
+ *               (meaning have really screwed up and skewed figures or only think you do!)
+ * REFERENCE:  PG 372 Microsoft Excel 97 Developer's Kit (ISBN: 1-57231-498-2)
+ * @author Andrew C. Oliver (acoliver at apache dot org)
+ * @version 2.0-pre
+ */
+
+public class PrecisionRecord
+   : StandardRecord
 {
-    using System.Text;
-    using NPOI.Util;
-    using System;
+    public const short sid = 0xE;
+    public short field_1_precision;
+
+    public PrecisionRecord()
+    {
+    }
 
     /**
-     * Title:        Precision Record
-     * Description:  defines whether to store with full precision or what's Displayed by the gui
-     *               (meaning have really screwed up and skewed figures or only think you do!)
-     * REFERENCE:  PG 372 Microsoft Excel 97 Developer's Kit (ISBN: 1-57231-498-2)
-     * @author Andrew C. Oliver (acoliver at apache dot org)
-     * @version 2.0-pre
+     * Constructs a Precision record and Sets its fields appropriately.
+     * @param in the RecordInputstream to Read the record from
      */
 
-    public class PrecisionRecord
-       : StandardRecord
+    public PrecisionRecord(RecordInputStream in1)
     {
-        public const short sid = 0xE;
-        public short field_1_precision;
+        field_1_precision = in1.ReadShort();
+    }
 
-        public PrecisionRecord()
+    /**
+     * Get whether to use full precision or just skew all you figures all to hell.
+     *
+     * @return fullprecision - or not
+     */
+
+    public bool FullPrecision
+    {
+        get
         {
+            return (field_1_precision == 1);
         }
-
-        /**
-         * Constructs a Precision record and Sets its fields appropriately.
-         * @param in the RecordInputstream to Read the record from
-         */
-
-        public PrecisionRecord(RecordInputStream in1)
+        set
         {
-            field_1_precision = in1.ReadShort();
-        }
-
-        /**
-         * Get whether to use full precision or just skew all you figures all to hell.
-         *
-         * @return fullprecision - or not
-         */
-
-        public bool FullPrecision
-        {
-            get
+            if (value == true)
             {
-                return (field_1_precision == 1);
+                field_1_precision = 1;
             }
-            set
+            else
             {
-                if (value == true)
-                {
-                    field_1_precision = 1;
-                }
-                else
-                {
-                    field_1_precision = 0;
-                }
+                field_1_precision = 0;
             }
         }
+    }
 
-        public override String ToString()
+    public override String ToString()
+    {
+        StringBuilder buffer = new StringBuilder();
+
+        buffer.Append("[PRECISION]\n");
+        buffer.Append("    .precision       = ").Append(FullPrecision)
+            .Append("\n");
+        buffer.Append("[/PRECISION]\n");
+        return buffer.ToString();
+    }
+
+    public override void Serialize(ILittleEndianOutput out1)
+    {
+        out1.WriteShort(field_1_precision);
+    }
+
+    protected override int DataSize
+    {
+        get
         {
-            StringBuilder buffer = new StringBuilder();
-
-            buffer.Append("[PRECISION]\n");
-            buffer.Append("    .precision       = ").Append(FullPrecision)
-                .Append("\n");
-            buffer.Append("[/PRECISION]\n");
-            return buffer.ToString();
+            return 2;
         }
+    }
 
-        public override void Serialize(ILittleEndianOutput out1)
-        {
-            out1.WriteShort(field_1_precision);
-        }
-
-        protected override int DataSize
-        {
-            get
-            {
-                return 2;
-            }
-        }
-
-        public override short Sid
-        {
-            get { return sid; }
-        }
+    public override short Sid
+    {
+        get { return sid; }
     }
 }
