@@ -26,6 +26,7 @@ namespace NPOI.SS.Formula.Functions
 {
     using NPOI.SS.Formula;
     using NPOI.SS.Formula.Eval;
+    using NPOI.SS.Formula.Functions.Matrix;
     using NPOI.Util;
     using NPOI.Util.ArrayExtensions;
 

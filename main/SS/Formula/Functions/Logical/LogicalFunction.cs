@@ -18,50 +18,49 @@
  * Created on Nov 25, 2006
  *
  */
-namespace NPOI.SS.Formula.Functions
+namespace NPOI.SS.Formula.Functions.Logical;
+
+using NPOI.SS.Formula.Eval;
+
+/**
+ * @author Amol S. Deshmukh &lt; amolweb at ya hoo dot com &gt;
+ *
+ */
+public abstract class LogicalFunction : Fixed1ArgFunction
 {
-    using NPOI.SS.Formula.Eval;
-
-    /**
-     * @author Amol S. Deshmukh &lt; amolweb at ya hoo dot com &gt;
-     *
-     */
-    public abstract class LogicalFunction : Fixed1ArgFunction
+    public override ValueEval Evaluate(int srcRowIndex, int srcColumnIndex, ValueEval arg0)
     {
-        public override ValueEval Evaluate(int srcRowIndex, int srcColumnIndex, ValueEval arg0)
+        ValueEval ve;
+        try
         {
-            ValueEval ve;
-            try
-            {
-                ve = OperandResolver.GetSingleValue(arg0, srcRowIndex, srcColumnIndex);
-            }
-            catch (EvaluationException e)
-            {
-                //if (false)
-                //{
-                //    // Note - it is more usual to propagate error codes straight to the result like this:
-                //    return e.GetErrorEval();
-                //    // but logical functions behave a little differently
-                //}
-                // this will usually cause a 'FALSE' result except for ISNONTEXT()
-                ve = e.GetErrorEval();
-            }
-            return BoolEval.ValueOf(Evaluate(ve));
-
+            ve = OperandResolver.GetSingleValue(arg0, srcRowIndex, srcColumnIndex);
         }
-        /**
-         * @param arg any {@link ValueEval}, potentially {@link BlankEval} or {@link ErrorEval}.
-         */
-        protected abstract bool Evaluate(ValueEval arg);
+        catch (EvaluationException e)
+        {
+            //if (false)
+            //{
+            //    // Note - it is more usual to propagate error codes straight to the result like this:
+            //    return e.GetErrorEval();
+            //    // but logical functions behave a little differently
+            //}
+            // this will usually cause a 'FALSE' result except for ISNONTEXT()
+            ve = e.GetErrorEval();
+        }
+        return BoolEval.ValueOf(Evaluate(ve));
 
-        public static readonly Function ISLOGICAL = new Islogical();
-        public static readonly Function ISNONTEXT = new Isnontext();
-        public static readonly Function ISNUMBER = new Isnumber();
-        public static readonly Function ISTEXT = new Istext();
-        public static readonly Function ISBLANK = new Isblank();
-        public static readonly Function ISERROR = new Iserror();
-        public static readonly Function ISNA = new Isna();
-        public static readonly Function ISREF = new Isref();
-        public static readonly Function ISERR = new Iserr();
     }
+    /**
+     * @param arg any {@link ValueEval}, potentially {@link BlankEval} or {@link ErrorEval}.
+     */
+    protected abstract bool Evaluate(ValueEval arg);
+
+    public static readonly Function ISLOGICAL = new Islogical();
+    public static readonly Function ISNONTEXT = new Isnontext();
+    public static readonly Function ISNUMBER = new Isnumber();
+    public static readonly Function ISTEXT = new Istext();
+    public static readonly Function ISBLANK = new Isblank();
+    public static readonly Function ISERROR = new Iserror();
+    public static readonly Function ISNA = new Isna();
+    public static readonly Function ISREF = new Isref();
+    public static readonly Function ISERR = new Iserr();
 }

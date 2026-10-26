@@ -18,20 +18,19 @@
  * Created on May 15, 2005
  *
  */
-namespace NPOI.SS.Formula.Functions
+namespace NPOI.SS.Formula.Functions.Logical;
+
+using NPOI.SS.Formula.Eval;
+
+/**
+ * @author Amol S. Deshmukh &lt; amolweb at ya hoo dot com &gt;
+ *
+ */
+public class Iserror : LogicalFunction
 {
-    using NPOI.SS.Formula.Eval;
 
-    /**
-     * @author Amol S. Deshmukh &lt; amolweb at ya hoo dot com &gt;
-     *
-     */
-    public class Iserror : LogicalFunction
+    protected override bool Evaluate(ValueEval arg)
     {
-
-        protected override bool Evaluate(ValueEval arg)
-        {
-            return arg is ErrorEval;
-        }
+        return arg is ErrorEval;
     }
 }

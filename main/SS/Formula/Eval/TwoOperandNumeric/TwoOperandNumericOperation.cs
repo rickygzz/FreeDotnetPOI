@@ -1,5 +1,6 @@
 ﻿using System;
 using NPOI.SS.Formula.Functions;
+using NPOI.SS.Formula.Functions.Matrix;
 
 namespace NPOI.SS.Formula.Eval.TwoOperandNumeric;
 

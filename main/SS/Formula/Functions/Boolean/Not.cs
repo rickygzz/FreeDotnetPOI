@@ -18,34 +18,33 @@
  * Created on May 9, 2005
  *
  */
-namespace NPOI.SS.Formula.Functions
+namespace NPOI.SS.Formula.Functions.Boolean;
+
+using NPOI.SS.Formula.Eval;
+
+
+/*
+ * @author Amol S. Deshmukh &lt; amol at apache dot org &gt;
+ * The NOT bool function. Returns negation of specified value
+ * (treated as a bool). If the specified arg Is a number,
+ * then it Is true <=> 'number Is non-zero'
+ */
+public class Not : Fixed1ArgFunction
 {
-    using NPOI.SS.Formula.Eval;
-
-
-    /*
-     * @author Amol S. Deshmukh &lt; amol at apache dot org &gt;
-     * The NOT bool function. Returns negation of specified value
-     * (treated as a bool). If the specified arg Is a number,
-     * then it Is true <=> 'number Is non-zero'
-     */
-    public class Not : Fixed1ArgFunction
+    public override ValueEval Evaluate(int srcRowIndex, int srcColumnIndex, ValueEval arg0)
     {
-        public override ValueEval Evaluate(int srcRowIndex, int srcColumnIndex, ValueEval arg0)
+        bool boolArgVal;
+        try
         {
-            bool boolArgVal;
-            try
-            {
-                ValueEval ve = OperandResolver.GetSingleValue(arg0, srcRowIndex, srcColumnIndex);
-                bool? b = OperandResolver.CoerceValueToBoolean(ve, false);
-                boolArgVal = b == null ? false : (bool)b;
-            }
-            catch (EvaluationException e)
-            {
-                return e.GetErrorEval();
-            }
-
-            return BoolEval.ValueOf(!boolArgVal);
+            ValueEval ve = OperandResolver.GetSingleValue(arg0, srcRowIndex, srcColumnIndex);
+            bool? b = OperandResolver.CoerceValueToBoolean(ve, false);
+            boolArgVal = b == null ? false : (bool)b;
         }
+        catch (EvaluationException e)
+        {
+            return e.GetErrorEval();
+        }
+
+        return BoolEval.ValueOf(!boolArgVal);
     }
 }
