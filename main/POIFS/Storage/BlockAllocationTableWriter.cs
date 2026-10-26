@@ -32,149 +32,148 @@ using NPOI.POIFS.Common;
 using NPOI.POIFS.FileSystem;
 using NPOI.Util;
 
-namespace NPOI.POIFS.Storage
+namespace NPOI.POIFS.Storage;
+
+
+/// <summary>
+/// This class manages and creates the Block Allocation Table, which is
+/// basically a set of linked lists of block indices.
+/// Each block of the filesystem has an index. The first block, the
+/// header, is skipped; the first block after the header is index 0,
+/// the next is index 1, and so on.
+/// A block's index is also its index into the Block Allocation
+/// Table. The entry that it finds in the Block Allocation Table is the
+/// index of the next block in the linked list of blocks making up a
+/// file, or it is set to -2: end of list.
+/// *
+/// @author Marc Johnson (mjohnson at apache dot org)
+/// </summary>
+public class BlockAllocationTableWriter : BlockWritable, BATManaged
 {
+    private readonly List<int>    _entries;
+    private BATBlock[] _blocks;
+    private int        _start_block;
+    private readonly POIFSBigBlockSize _bigBlockSize;
+
+    private static readonly int _default_size = 128;
 
     /// <summary>
-    /// This class manages and creates the Block Allocation Table, which is
-    /// basically a set of linked lists of block indices.
-    /// Each block of the filesystem has an index. The first block, the
-    /// header, is skipped; the first block after the header is index 0,
-    /// the next is index 1, and so on.
-    /// A block's index is also its index into the Block Allocation
-    /// Table. The entry that it finds in the Block Allocation Table is the
-    /// index of the next block in the linked list of blocks making up a
-    /// file, or it is set to -2: end of list.
-    /// *
-    /// @author Marc Johnson (mjohnson at apache dot org)
+    /// Initializes a new instance of the <see cref="BlockAllocationTableWriter"/> class.
     /// </summary>
-    public class BlockAllocationTableWriter : BlockWritable, BATManaged
+    public BlockAllocationTableWriter(POIFSBigBlockSize bigBlockSize)
     {
-        private readonly List<int>    _entries;
-        private BATBlock[] _blocks;
-        private int        _start_block;
-        private readonly POIFSBigBlockSize _bigBlockSize;
+        _start_block = POIFSConstants.END_OF_CHAIN;
+        _entries = new List<int>(_default_size);
+        _blocks      = [];
+        _bigBlockSize = bigBlockSize;
+    }
 
-        private static readonly int _default_size = 128;
+    /// <summary>
+    /// Create the BATBlocks we need
+    /// </summary>
+    /// <returns>start block index of BAT blocks</returns>
+    public int CreateBlocks()
+    {
+        int xbat_blocks = 0;
+        int bat_blocks  = 0;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="BlockAllocationTableWriter"/> class.
-        /// </summary>
-        public BlockAllocationTableWriter(POIFSBigBlockSize bigBlockSize)
+        while (true)
         {
-            _start_block = POIFSConstants.END_OF_CHAIN;
-            _entries = new List<int>(_default_size);
-            _blocks      = [];
-            _bigBlockSize = bigBlockSize;
-        }
+            int calculated_bat_blocks  =
+                BATBlock.CalculateStorageRequirements(_bigBlockSize,
+                                                      bat_blocks
+                                                      + xbat_blocks
+                                                      + _entries.Count);
+            int calculated_xbat_blocks =
+                HeaderBlockWriter.CalculateXBATStorageRequirements(_bigBlockSize,calculated_bat_blocks);
 
-        /// <summary>
-        /// Create the BATBlocks we need
-        /// </summary>
-        /// <returns>start block index of BAT blocks</returns>
-        public int CreateBlocks()
-        {
-            int xbat_blocks = 0;
-            int bat_blocks  = 0;
-
-            while (true)
+            if ((bat_blocks == calculated_bat_blocks)
+                    && (xbat_blocks == calculated_xbat_blocks))
             {
-                int calculated_bat_blocks  =
-                    BATBlock.CalculateStorageRequirements(_bigBlockSize,
-                                                          bat_blocks
-                                                          + xbat_blocks
-                                                          + _entries.Count);
-                int calculated_xbat_blocks =
-                    HeaderBlockWriter.CalculateXBATStorageRequirements(_bigBlockSize,calculated_bat_blocks);
 
-                if ((bat_blocks == calculated_bat_blocks)
-                        && (xbat_blocks == calculated_xbat_blocks))
-                {
-
-                    // stable ... we're OK
-                    break;
-                }
-                else
-                {
-                    bat_blocks  = calculated_bat_blocks;
-                    xbat_blocks = calculated_xbat_blocks;
-                }
+                // stable ... we're OK
+                break;
             }
-            int startBlock = AllocateSpace(bat_blocks);
-
-            AllocateSpace(xbat_blocks);
-            SimpleCreateBlocks();
-            return startBlock;
-        }
-
-        /// <summary>
-        /// Allocate space for a block of indices
-        /// </summary>
-        /// <param name="blockCount">the number of blocks to allocate space for</param>
-        /// <returns>the starting index of the blocks</returns>
-        public int AllocateSpace(int blockCount)
-        {
-            int startBlock = _entries.Count;
-
-            if (blockCount > 0)
+            else
             {
-                int limit = blockCount - 1;
-                int index = startBlock + 1;
-
-                for (int k = 0; k < limit; k++)
-                {
-                    _entries.Add(index++);
-                }
-                _entries.Add(POIFSConstants.END_OF_CHAIN);
-            }
-            return startBlock;
-        }
-
-        /// <summary>
-        /// Sets the start block for this instance
-        /// </summary>
-        /// <value>
-        /// index into the array of BigBlock instances making up the the filesystem
-        /// </value>
-        public int StartBlock
-        {
-            get { return _start_block; }
-            set { _start_block = value; }
-        }
-
-        /// <summary>
-        /// create the BATBlocks
-        /// </summary>
-        internal void SimpleCreateBlocks()
-        {
-            _blocks = BATBlock.CreateBATBlocks(_bigBlockSize, _entries.ToArray());
-        }
-
-        /// <summary>
-        /// Write the storage to an OutputStream
-        /// </summary>
-        /// <param name="stream">the OutputStream to which the stored data should be written</param>
-        public void WriteBlocks(Stream stream)
-        {
-            for (int j = 0; j < _blocks.Length; j++)
-            {
-                _blocks[ j ].WriteBlocks(stream);
+                bat_blocks  = calculated_bat_blocks;
+                xbat_blocks = calculated_xbat_blocks;
             }
         }
+        int startBlock = AllocateSpace(bat_blocks);
 
-        //public static void WriteBlock(BATBlock bat, byte[] block)
-        public static void WriteBlock(BATBlock bat, ByteBuffer block)
-        {
-            bat.WriteData(block);
-        }
+        AllocateSpace(xbat_blocks);
+        SimpleCreateBlocks();
+        return startBlock;
+    }
 
-        /// <summary>
-        /// Gets the number of BigBlock's this instance uses
-        /// </summary>
-        /// <value>count of BigBlock instances</value>
-        public int CountBlocks
+    /// <summary>
+    /// Allocate space for a block of indices
+    /// </summary>
+    /// <param name="blockCount">the number of blocks to allocate space for</param>
+    /// <returns>the starting index of the blocks</returns>
+    public int AllocateSpace(int blockCount)
+    {
+        int startBlock = _entries.Count;
+
+        if (blockCount > 0)
         {
-            get { return _blocks.Length; }
+            int limit = blockCount - 1;
+            int index = startBlock + 1;
+
+            for (int k = 0; k < limit; k++)
+            {
+                _entries.Add(index++);
+            }
+            _entries.Add(POIFSConstants.END_OF_CHAIN);
         }
+        return startBlock;
+    }
+
+    /// <summary>
+    /// Sets the start block for this instance
+    /// </summary>
+    /// <value>
+    /// index into the array of BigBlock instances making up the the filesystem
+    /// </value>
+    public int StartBlock
+    {
+        get { return _start_block; }
+        set { _start_block = value; }
+    }
+
+    /// <summary>
+    /// create the BATBlocks
+    /// </summary>
+    internal void SimpleCreateBlocks()
+    {
+        _blocks = BATBlock.CreateBATBlocks(_bigBlockSize, _entries.ToArray());
+    }
+
+    /// <summary>
+    /// Write the storage to an OutputStream
+    /// </summary>
+    /// <param name="stream">the OutputStream to which the stored data should be written</param>
+    public void WriteBlocks(Stream stream)
+    {
+        for (int j = 0; j < _blocks.Length; j++)
+        {
+            _blocks[ j ].WriteBlocks(stream);
+        }
+    }
+
+    //public static void WriteBlock(BATBlock bat, byte[] block)
+    public static void WriteBlock(BATBlock bat, ByteBuffer block)
+    {
+        bat.WriteData(block);
+    }
+
+    /// <summary>
+    /// Gets the number of BigBlock's this instance uses
+    /// </summary>
+    /// <value>count of BigBlock instances</value>
+    public int CountBlocks
+    {
+        get { return _blocks.Length; }
     }
 }
