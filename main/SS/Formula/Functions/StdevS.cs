@@ -18,19 +18,15 @@
  */
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace NPOI.SS.Formula.Functions
+namespace NPOI.SS.Formula.Functions;
+
+public sealed class StdevS : NumberListFuncBase
 {
-    public sealed class StdevS : NumberListFuncBase
+    public static readonly StdevS Instance = new();
+    private StdevS()
     {
-        public static readonly StdevS Instance = new();
-        private StdevS()
-        {
-        }
-        public override double CalculateFromNumberList(List<double> list)
-            => Math.Sqrt(VarS.Instance.CalculateFromNumberList(list));
     }
+    public override double CalculateFromNumberList(List<double> list)
+        => Math.Sqrt(VarS.Instance.CalculateFromNumberList(list));
 }

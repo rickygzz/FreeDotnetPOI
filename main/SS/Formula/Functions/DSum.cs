@@ -15,53 +15,45 @@
    limitations under the License.
 ==================================================================== */
 
+namespace NPOI.SS.Formula.Functions;
 
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
+using NPOI.SS.Formula.Eval;
 
-namespace NPOI.SS.Formula.Functions
+
+
+
+/// <summary>
+/// <para>
+/// Implementation of the DSum function:
+/// Finds the total value of matching values in a column in an area with given conditions.
+/// </para>
+/// <para>
+/// TODO:
+/// - functions as conditions
+/// </para>
+/// </summary>
+public sealed class DSum : IDStarAlgorithm
 {
-    using NPOI.SS.Formula.Eval;
-
-
-
-
-    /// <summary>
-    /// <para>
-    /// Implementation of the DSum function:
-    /// Finds the total value of matching values in a column in an area with given conditions.
-    /// </para>
-    /// <para>
-    /// TODO:
-    /// - functions as conditions
-    /// </para>
-    /// </summary>
-    public sealed class DSum : IDStarAlgorithm
+    private double totalValue = 0;
+    public bool ProcessMatch(ValueEval eval)
     {
-        private double totalValue = 0;
-        public bool ProcessMatch(ValueEval eval)
+        if(eval is NumericValueEval valueEval)
         {
-            if(eval is NumericValueEval valueEval)
-            {
-                double currentValue = valueEval.NumberValue;
-                totalValue += currentValue;
-            }
-
-            return true;
-        }
-        public ValueEval Result
-        {
-            get
-            {
-                return new NumberEval(totalValue);
-            }
+            double currentValue = valueEval.NumberValue;
+            totalValue += currentValue;
         }
 
-        public bool AllowEmptyMatchField { get; } = false;
+        return true;
     }
+    public ValueEval Result
+    {
+        get
+        {
+            return new NumberEval(totalValue);
+        }
+    }
+
+    public bool AllowEmptyMatchField { get; } = false;
 }
 
 

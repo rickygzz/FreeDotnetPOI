@@ -15,41 +15,33 @@
    limitations under the License.
 ==================================================================== */
 
+namespace NPOI.SS.Formula.Functions;
 
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
+using NPOI.SS.Formula.Eval;
 
-namespace NPOI.SS.Formula.Functions
+/// <summary>
+/// Implementation of the DCountA function:
+/// Counts the number of non-blank cells in a column in an area with given conditions.
+/// </summary>
+public sealed class DCountA : IDStarAlgorithm
 {
-    using NPOI.SS.Formula.Eval;
-
-    /// <summary>
-    /// Implementation of the DCountA function:
-    /// Counts the number of non-blank cells in a column in an area with given conditions.
-    /// </summary>
-    public sealed class DCountA : IDStarAlgorithm
+    private long count;
+    public bool ProcessMatch(ValueEval eval)
     {
-        private long count;
-        public bool ProcessMatch(ValueEval eval)
+        if(eval is not BlankEval)
         {
-            if(eval is not BlankEval)
-            {
-                count++;
-            }
-            return true;
+            count++;
         }
-
-        public ValueEval Result
-        {
-            get
-            {
-                return new NumberEval(count);
-            }
-        }
-        public bool AllowEmptyMatchField { get; } = true;
+        return true;
     }
+
+    public ValueEval Result
+    {
+        get
+        {
+            return new NumberEval(count);
+        }
+    }
+    public bool AllowEmptyMatchField { get; } = true;
 }
 

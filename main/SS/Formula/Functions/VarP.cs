@@ -19,29 +19,26 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace NPOI.SS.Formula.Functions
+namespace NPOI.SS.Formula.Functions;
+
+public sealed class VarP : NumberListFuncBase
 {
-    public sealed class VarP : NumberListFuncBase
+    public static readonly VarP Instance = new();
+    private VarP()
     {
-        public static readonly VarP Instance = new();
-        private VarP()
-        {
-        }
-        public override double CalculateFromNumberList(List<double> list)
-        {
-            if (list.Count == 1) return 0.0;
-            var average = list.Average();
-            var sum = 0.0;
+    }
+    public override double CalculateFromNumberList(List<double> list)
+    {
+        if (list.Count == 1) return 0.0;
+        var average = list.Average();
+        var sum = 0.0;
 
-            foreach (var item in list)
-            {
-                sum += Math.Pow(item - average, 2);
-            }
-
-            return sum / list.Count;
+        foreach (var item in list)
+        {
+            sum += Math.Pow(item - average, 2);
         }
+
+        return sum / list.Count;
     }
 }

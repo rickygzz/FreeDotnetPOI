@@ -15,83 +15,81 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.SS.Formula.Functions
+namespace NPOI.SS.Formula.Functions;
+
+
+using NPOI.SS.Formula.Eval;
+
+/**
+ * Implementation for the Excel function TIME
+ *
+ * @author Steven Butler (sebutler @ gmail dot com)
+ *
+ * Based on POI {@link DateFunc}
+ */
+public class TimeFunc : Fixed3ArgFunction
 {
 
-    using NPOI.SS.Formula.Eval;
+    private const int SECONDS_PER_MINUTE = 60;
+    private const int SECONDS_PER_HOUR = 3600;
+    private const int HOURS_PER_DAY = 24;
+    private const int SECONDS_PER_DAY = HOURS_PER_DAY * SECONDS_PER_HOUR;
 
-    /**
-     * Implementation for the Excel function TIME
-     *
-     * @author Steven Butler (sebutler @ gmail dot com)
-     *
-     * Based on POI {@link DateFunc}
-     */
-    public class TimeFunc : Fixed3ArgFunction
+
+    public override ValueEval Evaluate(int srcRowIndex, int srcColumnIndex, ValueEval arg0, ValueEval arg1,
+            ValueEval arg2)
     {
-
-        private const int SECONDS_PER_MINUTE = 60;
-        private const int SECONDS_PER_HOUR = 3600;
-        private const int HOURS_PER_DAY = 24;
-        private const int SECONDS_PER_DAY = HOURS_PER_DAY * SECONDS_PER_HOUR;
-
-
-        public override ValueEval Evaluate(int srcRowIndex, int srcColumnIndex, ValueEval arg0, ValueEval arg1,
-                ValueEval arg2)
+        double result;
+        try
         {
-            double result;
-            try
-            {
-                result = TimeFunc.Evaluate(EvalArg(arg0, srcRowIndex, srcColumnIndex), EvalArg(arg1, srcRowIndex, srcColumnIndex), EvalArg(arg2, srcRowIndex, srcColumnIndex));
-            }
-            catch (EvaluationException e)
-            {
-                return e.GetErrorEval();
-            }
-            return new NumberEval(result);
+            result = TimeFunc.Evaluate(EvalArg(arg0, srcRowIndex, srcColumnIndex), EvalArg(arg1, srcRowIndex, srcColumnIndex), EvalArg(arg2, srcRowIndex, srcColumnIndex));
         }
-
-        private static int EvalArg(ValueEval arg, int srcRowIndex, int srcColumnIndex)
+        catch (EvaluationException e)
         {
-            if (arg == MissingArgEval.instance)
-            {
-                return 0;
-            }
-            ValueEval ev = OperandResolver.GetSingleValue(arg, srcRowIndex, srcColumnIndex);
-            // Excel silently tRuncates double values to integers
-            return OperandResolver.CoerceValueToInt(ev);
+            return e.GetErrorEval();
         }
-
-        /**
-         * Converts the supplied hours, minutes and seconds to an Excel time value.
-         *
-         *
-         * @param ds array of 3 doubles Containing hours, minutes and seconds.
-         * Non-integer inputs are tRuncated to an integer before further calculation
-         * of the time value.
-         * @return An Excel representation of a time of day.
-         * If the time value represents more than a day, the days are Removed from
-         * the result, leaving only the time of day component.
-         * @throws NPOI.SS.Formula.Eval.EvaluationException
-         * If any of the arguments are greater than 32767 or the hours
-         * minutes and seconds when combined form a time value less than 0, the function
-         * Evaluates to an error.
-         */
-        private static double Evaluate(int hours, int minutes, int seconds)
-        {
-
-            if (hours > 32767 || minutes > 32767 || seconds > 32767)
-            {
-                throw new EvaluationException(ErrorEval.VALUE_INVALID);
-            }
-            int totalSeconds = hours * SECONDS_PER_HOUR + minutes * SECONDS_PER_MINUTE + seconds;
-
-            if (totalSeconds < 0)
-            {
-                throw new EvaluationException(ErrorEval.VALUE_INVALID);
-            }
-            return (totalSeconds % SECONDS_PER_DAY) / (double)SECONDS_PER_DAY;
-        }
+        return new NumberEval(result);
     }
 
+    private static int EvalArg(ValueEval arg, int srcRowIndex, int srcColumnIndex)
+    {
+        if (arg == MissingArgEval.instance)
+        {
+            return 0;
+        }
+        ValueEval ev = OperandResolver.GetSingleValue(arg, srcRowIndex, srcColumnIndex);
+        // Excel silently tRuncates double values to integers
+        return OperandResolver.CoerceValueToInt(ev);
+    }
+
+    /**
+     * Converts the supplied hours, minutes and seconds to an Excel time value.
+     *
+     *
+     * @param ds array of 3 doubles Containing hours, minutes and seconds.
+     * Non-integer inputs are tRuncated to an integer before further calculation
+     * of the time value.
+     * @return An Excel representation of a time of day.
+     * If the time value represents more than a day, the days are Removed from
+     * the result, leaving only the time of day component.
+     * @throws NPOI.SS.Formula.Eval.EvaluationException
+     * If any of the arguments are greater than 32767 or the hours
+     * minutes and seconds when combined form a time value less than 0, the function
+     * Evaluates to an error.
+     */
+    private static double Evaluate(int hours, int minutes, int seconds)
+    {
+
+        if (hours > 32767 || minutes > 32767 || seconds > 32767)
+        {
+            throw new EvaluationException(ErrorEval.VALUE_INVALID);
+        }
+        int totalSeconds = hours * SECONDS_PER_HOUR + minutes * SECONDS_PER_MINUTE + seconds;
+
+        if (totalSeconds < 0)
+        {
+            throw new EvaluationException(ErrorEval.VALUE_INVALID);
+        }
+        return (totalSeconds % SECONDS_PER_DAY) / (double)SECONDS_PER_DAY;
+    }
 }

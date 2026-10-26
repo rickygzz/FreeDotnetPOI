@@ -18,137 +18,135 @@
  * Created on May 15, 2005
  *
  */
-namespace NPOI.SS.Formula.Functions
+namespace NPOI.SS.Formula.Functions;
+
+using NPOI.SS.Formula.Eval;
+
+/**
+ * Counts the number of cells that contain numeric data within
+ *  the list of arguments. 
+ *
+ * Excel Syntax
+ * COUNT(value1,value2,...)
+ * Value1, value2, ...   are 1 to 30 arguments representing the values or ranges to be Counted.
+ * 
+ * TODO: Check this properly Matches excel on edge cases
+ *  like formula cells, error cells etc
+ */
+public class Count : Function
 {
-    using NPOI.SS.Formula.Eval;
-    using System;
+    private readonly IMatchPredicate _predicate;
 
-    /**
-     * Counts the number of cells that contain numeric data within
-     *  the list of arguments. 
-     *
-     * Excel Syntax
-     * COUNT(value1,value2,...)
-     * Value1, value2, ...   are 1 to 30 arguments representing the values or ranges to be Counted.
-     * 
-     * TODO: Check this properly Matches excel on edge cases
-     *  like formula cells, error cells etc
-     */
-    public class Count : Function
+    public Count()
     {
-        private readonly IMatchPredicate _predicate;
+        _predicate = defaultPredicate;
+    }
 
-        public Count()
+    private Count(IMatchPredicate criteriaPredicate)
+    {
+        _predicate = criteriaPredicate;
+    }
+    public ValueEval Evaluate(ValueEval[] args, int srcCellRow, int srcCellCol)
+    {
+        int nArgs = args.Length;
+        if (nArgs < 1)
         {
-            _predicate = defaultPredicate;
+            // too few arguments
+            return ErrorEval.VALUE_INVALID;
         }
 
-        private Count(IMatchPredicate criteriaPredicate)
+        if (nArgs > 30)
         {
-            _predicate = criteriaPredicate;
-        }
-        public ValueEval Evaluate(ValueEval[] args, int srcCellRow, int srcCellCol)
-        {
-            int nArgs = args.Length;
-            if (nArgs < 1)
-            {
-                // too few arguments
-                return ErrorEval.VALUE_INVALID;
-            }
-
-            if (nArgs > 30)
-            {
-                // too many arguments
-                return ErrorEval.VALUE_INVALID;
-            }
-
-            int temp = 0;
-
-            for (int i = 0; i < nArgs; i++)
-            {
-                temp += CountUtils.CountArg(args[i], _predicate);
-
-            }
-            return new NumberEval(temp);
+            // too many arguments
+            return ErrorEval.VALUE_INVALID;
         }
 
-        private sealed class DefaultPredicate : IMatchPredicate
+        int temp = 0;
+
+        for (int i = 0; i < nArgs; i++)
         {
-            public bool Matches(ValueEval valueEval)
-            {
+            temp += CountUtils.CountArg(args[i], _predicate);
 
-                if (valueEval is NumberEval)
-                {
-                    // only numbers are counted
-                    return true;
-                }
-                if (valueEval == MissingArgEval.instance)
-                {
-                    // oh yeah, and missing arguments
-                    return true;
-                }
-
-                // error values and string values not counted
-                return false;
-            }
         }
-        private static readonly IMatchPredicate defaultPredicate = new DefaultPredicate();
+        return new NumberEval(temp);
+    }
+
+    private sealed class DefaultPredicate : IMatchPredicate
+    {
+        public bool Matches(ValueEval valueEval)
+        {
+
+            if (valueEval is NumberEval)
+            {
+                // only numbers are counted
+                return true;
+            }
+            if (valueEval == MissingArgEval.instance)
+            {
+                // oh yeah, and missing arguments
+                return true;
+            }
+
+            // error values and string values not counted
+            return false;
+        }
+    }
+    private static readonly IMatchPredicate defaultPredicate = new DefaultPredicate();
+
+    /// <summary>
+    /// matches hidden rows but not subtotals
+    /// </summary>
+    private sealed class SubtotalPredicate : I_MatchAreaPredicate
+    {
+        public bool Matches(ValueEval valueEval)
+        {
+            return defaultPredicate.Matches(valueEval);
+        }
+
+
+        public bool Matches(TwoDEval x, int rowIndex, int columnIndex)
+        {
+            return !x.IsSubTotal(rowIndex, columnIndex);
+        }
+
+    }
+
+    /// <summary>
+    /// matches nither hidden rows or subtotals
+    /// </summary>
+    private sealed class SubtotalVisibleOnlyPredicate: I_MatchAreaPredicate
+    {
+        public bool Matches(ValueEval valueEval)
+        {
+            return defaultPredicate.Matches(valueEval);
+        }
 
         /// <summary>
-        /// matches hidden rows but not subtotals
+        /// don't count cells that are subtotals
         /// </summary>
-        private sealed class SubtotalPredicate : I_MatchAreaPredicate
+        /// <param name="areEval"></param>
+        /// <param name="rowIndex"></param>
+        /// <param name="columnIndex"></param>
+        /// <returns></returns>
+        public bool Matches(TwoDEval areEval, int rowIndex, int columnIndex)
         {
-            public bool Matches(ValueEval valueEval)
-            {
-                return defaultPredicate.Matches(valueEval);
-            }
-
-
-            public bool Matches(TwoDEval x, int rowIndex, int columnIndex)
-            {
-                return !x.IsSubTotal(rowIndex, columnIndex);
-            }
-
+            return !areEval.IsSubTotal(rowIndex, columnIndex) && !areEval.IsRowHidden(rowIndex);
         }
+    }
 
-        /// <summary>
-        /// matches nither hidden rows or subtotals
-        /// </summary>
-        private sealed class SubtotalVisibleOnlyPredicate: I_MatchAreaPredicate
-        {
-            public bool Matches(ValueEval valueEval)
-            {
-                return defaultPredicate.Matches(valueEval);
-            }
-
-            /// <summary>
-            /// don't count cells that are subtotals
-            /// </summary>
-            /// <param name="areEval"></param>
-            /// <param name="rowIndex"></param>
-            /// <param name="columnIndex"></param>
-            /// <returns></returns>
-            public bool Matches(TwoDEval areEval, int rowIndex, int columnIndex)
-            {
-                return !areEval.IsSubTotal(rowIndex, columnIndex) && !areEval.IsRowHidden(rowIndex);
-            }
-        }
-
-        private static readonly IMatchPredicate subtotalPredicate = new SubtotalPredicate();
-        private static readonly I_MatchAreaPredicate subtotalVisibleOnlyPredicate = new SubtotalVisibleOnlyPredicate();
-        /**
-     *  Create an instance of Count to use in {@link Subtotal}
-     * <p>
-     *     If there are other subtotals within argument refs (or nested subtotals),
-     *     these nested subtotals are ignored to avoid double counting.
-     * </p>
-     *
-     *  @see Subtotal
-     */
-        public static Count SubtotalInstance(bool includeHiddenRows)
-        {
-            return new Count(includeHiddenRows ? subtotalPredicate : subtotalVisibleOnlyPredicate);
-        }
+    private static readonly IMatchPredicate subtotalPredicate = new SubtotalPredicate();
+    private static readonly I_MatchAreaPredicate subtotalVisibleOnlyPredicate = new SubtotalVisibleOnlyPredicate();
+    /**
+ *  Create an instance of Count to use in {@link Subtotal}
+ * <p>
+ *     If there are other subtotals within argument refs (or nested subtotals),
+ *     these nested subtotals are ignored to avoid double counting.
+ * </p>
+ *
+ *  @see Subtotal
+ */
+    public static Count SubtotalInstance(bool includeHiddenRows)
+    {
+        return new Count(includeHiddenRows ? subtotalPredicate : subtotalVisibleOnlyPredicate);
     }
 }

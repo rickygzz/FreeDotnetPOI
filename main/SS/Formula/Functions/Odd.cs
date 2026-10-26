@@ -20,45 +20,44 @@
  */
 using NPOI.SS.Formula.Functions.Numeric;
 
-namespace NPOI.SS.Formula.Functions
+namespace NPOI.SS.Formula.Functions;
+
+/**
+ * @author Amol S. Deshmukh &lt; amolweb at ya hoo dot com &gt;
+ *  
+ */
+public class Odd : OneArg
 {
-    /**
-     * @author Amol S. Deshmukh &lt; amolweb at ya hoo dot com &gt;
-     *  
-     */
-    public class Odd : OneArg
+
+    private const long PARITY_MASK = unchecked((long)0xFFFFFFFFFFFFFFFEL);
+
+    public override double Evaluate(double d)
     {
-
-        private const long PARITY_MASK = unchecked((long)0xFFFFFFFFFFFFFFFEL);
-
-        public override double Evaluate(double d)
+        if (d == 0)
         {
-            if (d == 0)
-            {
-                return 1;
-            }
-            long result;
-            if (d > 0)
-            {
-                result = CalcOdd(d);
-            }
-            else
-            {
-                result = -CalcOdd(-d);
-            }
-            return result;
+            return 1;
         }
-
-        private static long CalcOdd(double d)
+        long result;
+        if (d > 0)
         {
-            double dpm1 = d + 1;
-            long x = ((long)dpm1) & PARITY_MASK;
-            if (x == dpm1)
-            {
-                return x - 1;
-            }
-            return x + 1;
+            result = CalcOdd(d);
         }
-
+        else
+        {
+            result = -CalcOdd(-d);
+        }
+        return result;
     }
+
+    private static long CalcOdd(double d)
+    {
+        double dpm1 = d + 1;
+        long x = ((long)dpm1) & PARITY_MASK;
+        if (x == dpm1)
+        {
+            return x - 1;
+        }
+        return x + 1;
+    }
+
 }

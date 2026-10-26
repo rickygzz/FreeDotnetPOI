@@ -15,34 +15,33 @@
 * limitations Under the License.
 */
 
-namespace NPOI.SS.Formula.Functions
+namespace NPOI.SS.Formula.Functions;
+
+
+/*
+ * Implementation of Excel function SUMX2PY2()<p/>
+ * 
+ * Calculates the sum of squares in two arrays of the same size.<br/>
+ * <b>Syntax</b>:<br/>
+ * <b>SUMX2PY2</b>(<b>arrayX</b>, <b>arrayY</b>)<p/>
+ * 
+ * result = &Sigma;<sub>i: 0..n</sub>(x<sub>i</sub><sup>2</sup>+y<sub>i</sub><sup>2</sup>)
+ * 
+ * @author Amol S. Deshmukh &lt; amolweb at ya hoo dot com &gt; 
+ */
+public class Sumx2py2 : XYNumericFunction
 {
-
-    /*
-     * Implementation of Excel function SUMX2PY2()<p/>
-     * 
-     * Calculates the sum of squares in two arrays of the same size.<br/>
-     * <b>Syntax</b>:<br/>
-     * <b>SUMX2PY2</b>(<b>arrayX</b>, <b>arrayY</b>)<p/>
-     * 
-     * result = &Sigma;<sub>i: 0..n</sub>(x<sub>i</sub><sup>2</sup>+y<sub>i</sub><sup>2</sup>)
-     * 
-     * @author Amol S. Deshmukh &lt; amolweb at ya hoo dot com &gt; 
-     */
-    public class Sumx2py2 : XYNumericFunction
+    public class Accumulator3 : Accumulator
     {
-        public class Accumulator3 : Accumulator
+        public double Accumulate(double x, double y)
         {
-            public double Accumulate(double x, double y)
-            {
-                return x * x + y * y;
-            }
+            return x * x + y * y;
         }
+    }
 
-        private static Accumulator XSquaredPlusYSquaredAccumulator = new Accumulator3();
+    private static Accumulator XSquaredPlusYSquaredAccumulator = new Accumulator3();
 
 	    public override Accumulator CreateAccumulator() {
 		    return XSquaredPlusYSquaredAccumulator;
 	    }
-    }
 }

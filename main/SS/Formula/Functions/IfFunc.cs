@@ -18,75 +18,74 @@
  * Created on Nov 25, 2006
  *
  */
-namespace NPOI.SS.Formula.Functions
+namespace NPOI.SS.Formula.Functions;
+
+using NPOI.SS.Formula.Eval;
+
+/**
+ * @author Amol S. Deshmukh &lt; amolweb at ya hoo dot com &gt;
+ * 
+ */
+public class IfFunc : Var2or3ArgFunction
 {
-    using NPOI.SS.Formula.Eval;
 
-    /**
-     * @author Amol S. Deshmukh &lt; amolweb at ya hoo dot com &gt;
-     * 
-     */
-    public class IfFunc : Var2or3ArgFunction
+    public override ValueEval Evaluate(int srcRowIndex, int srcColumnIndex, ValueEval arg0, ValueEval arg1)
     {
-
-        public override ValueEval Evaluate(int srcRowIndex, int srcColumnIndex, ValueEval arg0, ValueEval arg1)
+        bool b;
+        try
         {
-            bool b;
-            try
-            {
-                b = EvaluateFirstArg(arg0, srcRowIndex, srcColumnIndex);
-            }
-            catch (EvaluationException e)
-            {
-                return e.GetErrorEval();
-            }
-            if (b)
-            {
-                if (arg1 == MissingArgEval.instance)
-                {
-                    return BlankEval.instance;
-                }
-                return arg1;
-            }
-            return BoolEval.FALSE;
+            b = EvaluateFirstArg(arg0, srcRowIndex, srcColumnIndex);
         }
-
-        public override ValueEval Evaluate(int srcRowIndex, int srcColumnIndex, ValueEval arg0, ValueEval arg1,
-                ValueEval arg2)
+        catch (EvaluationException e)
         {
-            bool b;
-            try
-            {
-                b = EvaluateFirstArg(arg0, srcRowIndex, srcColumnIndex);
-            }
-            catch (EvaluationException e)
-            {
-                return e.GetErrorEval();
-            }
-            if (b)
-            {
-                if (arg1 == MissingArgEval.instance)
-                {
-                    return BlankEval.instance;
-                }
-                return arg1;
-            }
-            if (arg2 == MissingArgEval.instance)
+            return e.GetErrorEval();
+        }
+        if (b)
+        {
+            if (arg1 == MissingArgEval.instance)
             {
                 return BlankEval.instance;
             }
-            return arg2;
+            return arg1;
         }
+        return BoolEval.FALSE;
+    }
 
-        public static bool EvaluateFirstArg(ValueEval arg, int srcCellRow, int srcCellCol)
+    public override ValueEval Evaluate(int srcRowIndex, int srcColumnIndex, ValueEval arg0, ValueEval arg1,
+            ValueEval arg2)
+    {
+        bool b;
+        try
         {
-            ValueEval ve = OperandResolver.GetSingleValue(arg, srcCellRow, srcCellCol);
-            bool? b = OperandResolver.CoerceValueToBoolean(ve, false);
-            if (b == null)
-            {
-                return false;
-            }
-            return (bool)b;
+            b = EvaluateFirstArg(arg0, srcRowIndex, srcColumnIndex);
         }
+        catch (EvaluationException e)
+        {
+            return e.GetErrorEval();
+        }
+        if (b)
+        {
+            if (arg1 == MissingArgEval.instance)
+            {
+                return BlankEval.instance;
+            }
+            return arg1;
+        }
+        if (arg2 == MissingArgEval.instance)
+        {
+            return BlankEval.instance;
+        }
+        return arg2;
+    }
+
+    public static bool EvaluateFirstArg(ValueEval arg, int srcCellRow, int srcCellCol)
+    {
+        ValueEval ve = OperandResolver.GetSingleValue(arg, srcCellRow, srcCellCol);
+        bool? b = OperandResolver.CoerceValueToBoolean(ve, false);
+        if (b == null)
+        {
+            return false;
+        }
+        return (bool)b;
     }
 }

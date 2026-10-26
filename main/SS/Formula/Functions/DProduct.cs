@@ -15,51 +15,43 @@
    limitations under the License.
 ==================================================================== */
 
+namespace NPOI.SS.Formula.Functions;
 
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
+using NPOI.SS.Formula.Eval;
 
-namespace NPOI.SS.Formula.Functions
+/// <summary>
+/// Implementation of the DProduct function:
+/// Gets the product value of a column in an area with given conditions.
+/// </summary>
+public sealed class DProduct : IDStarAlgorithm
 {
-    using NPOI.SS.Formula.Eval;
-
-    /// <summary>
-    /// Implementation of the DProduct function:
-    /// Gets the product value of a column in an area with given conditions.
-    /// </summary>
-    public sealed class DProduct : IDStarAlgorithm
+    private double product;
+    private bool initDone = false;
+    public bool ProcessMatch(ValueEval eval)
     {
-        private double product;
-        private bool initDone = false;
-        public bool ProcessMatch(ValueEval eval)
+        if(eval is NumericValueEval valueEval)
         {
-            if(eval is NumericValueEval valueEval)
+            if(initDone)
             {
-                if(initDone)
-                {
-                    product *= valueEval.NumberValue;
-                }
-                else
-                {
-                    product = valueEval.NumberValue;
-                    initDone = true;
-                }
+                product *= valueEval.NumberValue;
             }
-            return true;
-        }
-        public ValueEval Result
-        {
-            get
+            else
             {
-                return new NumberEval(product);
+                product = valueEval.NumberValue;
+                initDone = true;
             }
         }
-
-        public bool AllowEmptyMatchField { get; } = false;
+        return true;
     }
+    public ValueEval Result
+    {
+        get
+        {
+            return new NumberEval(product);
+        }
+    }
+
+    public bool AllowEmptyMatchField { get; } = false;
 }
 
 

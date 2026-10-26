@@ -20,29 +20,26 @@ using NPOI.SS.Formula.Eval;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace NPOI.SS.Formula.Functions
+namespace NPOI.SS.Formula.Functions;
+
+public sealed class VarS : NumberListFuncBase
 {
-    public sealed class VarS : NumberListFuncBase
+    public static readonly VarS Instance = new();
+    private VarS()
     {
-        public static readonly VarS Instance = new();
-        private VarS()
-        {
-        }
-        public override double CalculateFromNumberList(List<double> list)
-        {
-            if (list.Count == 1) throw new EvaluationException(ErrorEval.DIV_ZERO);
-            var average = list.Average();
-            var sum = 0.0;
+    }
+    public override double CalculateFromNumberList(List<double> list)
+    {
+        if (list.Count == 1) throw new EvaluationException(ErrorEval.DIV_ZERO);
+        var average = list.Average();
+        var sum = 0.0;
 
-            foreach (var item in list)
-            {
-                sum += Math.Pow(item - average, 2);
-            }
-
-            return sum / (list.Count - 1);
+        foreach (var item in list)
+        {
+            sum += Math.Pow(item - average, 2);
         }
+
+        return sum / (list.Count - 1);
     }
 }

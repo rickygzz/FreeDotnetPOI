@@ -15,36 +15,32 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.SS.Formula.Functions
+namespace NPOI.SS.Formula.Functions;
+
+using NPOI.SS.Formula.Eval;
+
+/**
+ * Interface specifying how an algorithm to be used by {@link DStarRunner} should look like.
+ * Each implementing class should correspond to one of the D* functions.
+ */
+public interface IDStarAlgorithm
 {
-    using System;
-
-    using NPOI.SS.Formula.Eval;
-
     /**
-     * Interface specifying how an algorithm to be used by {@link DStarRunner} should look like.
-     * Each implementing class should correspond to one of the D* functions.
+     * Process a match that is found during a run through a database.
+     * @param eval ValueEval of the cell in the matching row. References will already be Resolved.
+     * @return Whether we should continue iterating through the database.
      */
-    public interface IDStarAlgorithm
-    {
-        /**
-         * Process a match that is found during a run through a database.
-         * @param eval ValueEval of the cell in the matching row. References will already be Resolved.
-         * @return Whether we should continue iterating through the database.
-         */
-        bool ProcessMatch(ValueEval Eval);
-        /**
-         * Return a result ValueEval that will be the result of the calculation.
-         * This is always called at the end of a run through the database.
-         * @return a ValueEval
-         */
-        ValueEval Result { get; }
-        /**
-         * Whether the field value (the 2nd param in DCOUNT, DGET, etc.) can evaluate to empty. It
-         * is allowed to evaluate to empty for DCOUNT.
-         * @return whether the field value can evaluate to empty
-         */
-        bool AllowEmptyMatchField { get; }
-    }
-
+    bool ProcessMatch(ValueEval Eval);
+    /**
+     * Return a result ValueEval that will be the result of the calculation.
+     * This is always called at the end of a run through the database.
+     * @return a ValueEval
+     */
+    ValueEval Result { get; }
+    /**
+     * Whether the field value (the 2nd param in DCOUNT, DGET, etc.) can evaluate to empty. It
+     * is allowed to evaluate to empty for DCOUNT.
+     * @return whether the field value can evaluate to empty
+     */
+    bool AllowEmptyMatchField { get; }
 }

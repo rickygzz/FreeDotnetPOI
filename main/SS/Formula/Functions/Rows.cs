@@ -16,35 +16,34 @@
 */
 
 
-namespace NPOI.SS.Formula.Functions
+namespace NPOI.SS.Formula.Functions;
+
+using NPOI.SS.Formula;
+using NPOI.SS.Formula.Eval;
+
+/**
+ * Implementation for Excel ROWS function.
+ * 
+ * @author Josh Micich
+ */
+public class Rows : Fixed1ArgFunction
 {
-    using NPOI.SS.Formula.Eval;
-    using NPOI.SS.Formula;
-
-    /**
-     * Implementation for Excel ROWS function.
-     * 
-     * @author Josh Micich
-     */
-    public class Rows : Fixed1ArgFunction
+    public override ValueEval Evaluate(int srcRowIndex, int srcColumnIndex, ValueEval arg0)
     {
-        public override ValueEval Evaluate(int srcRowIndex, int srcColumnIndex, ValueEval arg0)
-        {
 
-            int result;
-            if (arg0 is TwoDEval eval)
-            {
-                result = eval.Height;
-            }
-            else if (arg0 is RefEval)
-            {
-                result = 1;
-            }
-            else
-            { // anything else is not valid argument
-                return ErrorEval.VALUE_INVALID;
-            }
-            return new NumberEval(result);
+        int result;
+        if (arg0 is TwoDEval eval)
+        {
+            result = eval.Height;
         }
+        else if (arg0 is RefEval)
+        {
+            result = 1;
+        }
+        else
+        { // anything else is not valid argument
+            return ErrorEval.VALUE_INVALID;
+        }
+        return new NumberEval(result);
     }
 }

@@ -16,48 +16,43 @@
 ==================================================================== */
 
 
-using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.IO;
-using System.Text;
 
-namespace NPOI.SS.Formula.Functions
+namespace NPOI.SS.Formula.Functions;
+
+using ExtendedNumerics;
+using NPOI.SS.Formula.Eval;
+using NPOI.SS.Util;
+/// <summary>
+/// Implementation of the DStdevp function:
+/// Gets the standard deviation value of a column in an area with given conditions.
+/// </summary>
+public sealed class DStdevp : IDStarAlgorithm
 {
-    using ExtendedNumerics;
-    using NPOI.SS.Formula.Eval;
-    using NPOI.SS.Util;
-    /// <summary>
-    /// Implementation of the DStdevp function:
-    /// Gets the standard deviation value of a column in an area with given conditions.
-    /// </summary>
-    public sealed class DStdevp : IDStarAlgorithm
+    private  List<NumericValueEval> values = new List<NumericValueEval>();
+    public bool ProcessMatch(ValueEval eval)
     {
-        private  List<NumericValueEval> values = new List<NumericValueEval>();
-        public bool ProcessMatch(ValueEval eval)
+        if(eval is NumericValueEval valueEval)
         {
-            if(eval is NumericValueEval valueEval)
-            {
-                values.Add(valueEval);
-            }
-            return true;
+            values.Add(valueEval);
         }
-        public ValueEval Result
-        {
-            get
-            {
-                double[] array = new double[values.Count];
-                int pos = 0;
-                foreach(NumericValueEval d in values)
-                {
-                    array[pos++] = d.NumberValue;
-                }
-                double stdev = StatsLib.stdevp(array);
-                return new NumberEval((double)BigDecimal.Parse(NumberToTextConverter.ToText(stdev)));
-            }
-            
-        }
-
-        public bool AllowEmptyMatchField { get; } = false;
+        return true;
     }
+    public ValueEval Result
+    {
+        get
+        {
+            double[] array = new double[values.Count];
+            int pos = 0;
+            foreach(NumericValueEval d in values)
+            {
+                array[pos++] = d.NumberValue;
+            }
+            double stdev = StatsLib.stdevp(array);
+            return new NumberEval((double)BigDecimal.Parse(NumberToTextConverter.ToText(stdev)));
+        }
+        
+    }
+
+    public bool AllowEmptyMatchField { get; } = false;
 }

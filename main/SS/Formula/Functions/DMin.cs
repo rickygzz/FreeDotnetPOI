@@ -15,60 +15,58 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.SS.Formula.Functions
+namespace NPOI.SS.Formula.Functions;
+
+using NPOI.SS.Formula.Eval;
+
+/**
+ * Implementation of the DMin function:
+ * Finds the minimum value of a column in an area with given conditions.
+ * 
+ * TODO:
+ * - wildcards ? and * in string conditions
+ * - functions as conditions
+ */
+public class DMin : IDStarAlgorithm
 {
-    using NPOI.SS.Formula.Eval;
+    private ValueEval minimumValue;
 
-    /**
-     * Implementation of the DMin function:
-     * Finds the minimum value of a column in an area with given conditions.
-     * 
-     * TODO:
-     * - wildcards ? and * in string conditions
-     * - functions as conditions
-     */
-    public class DMin : IDStarAlgorithm
+    public bool ProcessMatch(ValueEval eval)
     {
-        private ValueEval minimumValue;
-
-        public bool ProcessMatch(ValueEval eval)
+        if (eval is NumericValueEval valueEval)
         {
-            if (eval is NumericValueEval valueEval)
-            {
-                if (minimumValue == null)
-                { // First match, just Set the value.
+            if (minimumValue == null)
+            { // First match, just Set the value.
+                minimumValue = valueEval;
+            }
+            else
+            { // There was a previous match, find the new minimum.
+                double currentValue = valueEval.NumberValue;
+                double oldValue = ((NumericValueEval)minimumValue).NumberValue;
+                if (currentValue < oldValue)
+                {
                     minimumValue = valueEval;
                 }
-                else
-                { // There was a previous match, find the new minimum.
-                    double currentValue = valueEval.NumberValue;
-                    double oldValue = ((NumericValueEval)minimumValue).NumberValue;
-                    if (currentValue < oldValue)
-                    {
-                        minimumValue = valueEval;
-                    }
-                }
-            }
-
-            return true;
-        }
-
-        public ValueEval Result
-        {
-            get
-            {
-                if (minimumValue == null)
-                {
-                    return NumberEval.ZERO;
-                }
-                else
-                {
-                    return minimumValue;
-                }
             }
         }
 
-        public bool AllowEmptyMatchField { get; } = false;
+        return true;
     }
 
+    public ValueEval Result
+    {
+        get
+        {
+            if (minimumValue == null)
+            {
+                return NumberEval.ZERO;
+            }
+            else
+            {
+                return minimumValue;
+            }
+        }
+    }
+
+    public bool AllowEmptyMatchField { get; } = false;
 }

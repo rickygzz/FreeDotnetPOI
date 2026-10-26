@@ -15,48 +15,47 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.SS.Formula.Functions
+namespace NPOI.SS.Formula.Functions;
+
+using NPOI.SS.Formula.Eval;
+
+/**
+ * @author Josh Micich
+ */
+public class Choose : Function
 {
-    using NPOI.SS.Formula.Eval;
 
-    /**
-     * @author Josh Micich
-     */
-    public class Choose : Function
+    public ValueEval Evaluate(ValueEval[] args, int srcRowIndex, int srcColumnIndex)
     {
-
-        public ValueEval Evaluate(ValueEval[] args, int srcRowIndex, int srcColumnIndex)
+        if (args.Length < 2)
         {
-            if (args.Length < 2)
+            return ErrorEval.VALUE_INVALID;
+        }
+
+        try
+        {
+            int ix = EvaluateFirstArg(args[0], srcRowIndex, srcColumnIndex);
+            if (ix < 1 || ix >= args.Length)
             {
                 return ErrorEval.VALUE_INVALID;
             }
-
-            try
+            ValueEval result = OperandResolver.GetSingleValue(args[ix], srcRowIndex, srcColumnIndex);
+            if (result == MissingArgEval.instance)
             {
-                int ix = EvaluateFirstArg(args[0], srcRowIndex, srcColumnIndex);
-                if (ix < 1 || ix >= args.Length)
-                {
-                    return ErrorEval.VALUE_INVALID;
-                }
-                ValueEval result = OperandResolver.GetSingleValue(args[ix], srcRowIndex, srcColumnIndex);
-                if (result == MissingArgEval.instance)
-                {
-                    return BlankEval.instance;
-                }
-                return result;
+                return BlankEval.instance;
             }
-            catch (EvaluationException e)
-            {
-                return e.GetErrorEval();
-            }
+            return result;
         }
-
-        public static int EvaluateFirstArg(ValueEval arg0, int srcRowIndex, int srcColumnIndex)
+        catch (EvaluationException e)
         {
-            ValueEval ev = OperandResolver.GetSingleValue(arg0, srcRowIndex, srcColumnIndex);
-            return OperandResolver.CoerceValueToInt(ev);
+            return e.GetErrorEval();
         }
+    }
+
+    public static int EvaluateFirstArg(ValueEval arg0, int srcRowIndex, int srcColumnIndex)
+    {
+        ValueEval ev = OperandResolver.GetSingleValue(arg0, srcRowIndex, srcColumnIndex);
+        return OperandResolver.CoerceValueToInt(ev);
     }
 }
 

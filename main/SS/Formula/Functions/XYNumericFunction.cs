@@ -15,279 +15,278 @@
 * limitations Under the License.
 */
 
-namespace NPOI.SS.Formula.Functions
+namespace NPOI.SS.Formula.Functions;
+
+using NPOI.SS.Formula;
+using NPOI.SS.Formula.Eval;
+using System;
+
+public interface Accumulator
 {
-    using System;
-    using NPOI.SS.Formula.Eval;
-    using NPOI.SS.Formula;
+    double Accumulate(double x, double y);
+}
+/**
+ * @author Amol S. Deshmukh &lt; amolweb at ya hoo dot com &gt;
+ *
+ */
+public abstract class XYNumericFunction : Fixed2ArgFunction
+{
+    protected static int X = 0;
+    protected static int Y = 1;
 
-    public interface Accumulator
+    private abstract class ValueArray : ValueVector
     {
-        double Accumulate(double x, double y);
+        private readonly int _size;
+        protected ValueArray(int size)
+        {
+            _size = size;
+        }
+        public ValueEval GetItem(int index)
+        {
+            if (index < 0 || index > _size)
+            {
+                throw new ArgumentException("Specified index " + index
+                        + " is outside range (0.." + (_size - 1) + ")");
+            }
+            return GetItemInternal(index);
+        }
+        protected abstract ValueEval GetItemInternal(int index);
+        public int Size
+        {
+            get
+            {
+                return _size;
+            }
+        }
     }
-    /**
-     * @author Amol S. Deshmukh &lt; amolweb at ya hoo dot com &gt;
-     *
-     */
-    public abstract class XYNumericFunction : Fixed2ArgFunction
+
+    private sealed class SingleCellValueArray : ValueArray
     {
-        protected static int X = 0;
-        protected static int Y = 1;
-
-        private abstract class ValueArray : ValueVector
+        private readonly ValueEval _value;
+        public SingleCellValueArray(ValueEval value)
+            : base(1)
         {
-            private readonly int _size;
-            protected ValueArray(int size)
-            {
-                _size = size;
-            }
-            public ValueEval GetItem(int index)
-            {
-                if (index < 0 || index > _size)
-                {
-                    throw new ArgumentException("Specified index " + index
-                            + " is outside range (0.." + (_size - 1) + ")");
-                }
-                return GetItemInternal(index);
-            }
-            protected abstract ValueEval GetItemInternal(int index);
-            public int Size
-            {
-                get
-                {
-                    return _size;
-                }
-            }
+
+            _value = value;
         }
-
-        private sealed class SingleCellValueArray : ValueArray
+        protected override ValueEval GetItemInternal(int index)
         {
-            private readonly ValueEval _value;
-            public SingleCellValueArray(ValueEval value)
-                : base(1)
-            {
-
-                _value = value;
-            }
-            protected override ValueEval GetItemInternal(int index)
-            {
-                return _value;
-            }
+            return _value;
         }
+    }
 
-        private sealed class RefValueArray : ValueArray
+    private sealed class RefValueArray : ValueArray
+    {
+        private readonly RefEval _ref;
+        private readonly int _width;
+
+        public RefValueArray(RefEval ref1)
+            : base(ref1.NumberOfSheets)
         {
-            private readonly RefEval _ref;
-            private readonly int _width;
-
-            public RefValueArray(RefEval ref1)
-                : base(ref1.NumberOfSheets)
-            {
-                _ref = ref1;
-                _width = ref1.NumberOfSheets;
-            }
-            protected override ValueEval GetItemInternal(int index)
-            {
-                int sIx = (index % _width) + _ref.FirstSheetIndex;
-                return _ref.GetInnerValueEval(sIx);
-            }
+            _ref = ref1;
+            _width = ref1.NumberOfSheets;
         }
-
-        private sealed class AreaValueArray : ValueArray
+        protected override ValueEval GetItemInternal(int index)
         {
-            private readonly TwoDEval _ae;
-            private readonly int _width;
-
-            public AreaValueArray(TwoDEval ae)
-                : base(ae.Width * ae.Height)
-            {
-                _ae = ae;
-                _width = ae.Width;
-            }
-            protected override ValueEval GetItemInternal(int index)
-            {
-                int rowIx = index / _width;
-                int colIx = index % _width;
-                return _ae.GetValue(rowIx, colIx);
-            }
+            int sIx = (index % _width) + _ref.FirstSheetIndex;
+            return _ref.GetInnerValueEval(sIx);
         }
+    }
 
-        protected class DoubleArrayPair
+    private sealed class AreaValueArray : ValueArray
+    {
+        private readonly TwoDEval _ae;
+        private readonly int _width;
+
+        public AreaValueArray(TwoDEval ae)
+            : base(ae.Width * ae.Height)
         {
-            private readonly double[] _xArray;
-            private readonly double[] _yArray;
-
-            public DoubleArrayPair(double[] xArray, double[] yArray)
-            {
-                _xArray = xArray;
-                _yArray = yArray;
-            }
-            public double[] GetXArray()
-            {
-                return _xArray;
-            }
-            public double[] GetYArray()
-            {
-                return _yArray;
-            }
+            _ae = ae;
+            _width = ae.Width;
         }
-
-
-        public override ValueEval Evaluate(int srcRowIndex, int srcColumnIndex, ValueEval arg0, ValueEval arg1)
+        protected override ValueEval GetItemInternal(int index)
         {
-            double result;
-            try
-            {
-                ValueVector vvX = CreateValueVector(arg0);
-                ValueVector vvY = CreateValueVector(arg1);
-                int size = vvX.Size;
-                if (size == 0 || vvY.Size != size)
-                {
-                    return ErrorEval.NA;
-                }
-                result = EvaluateInternal(vvX, vvY, size);
-            }
-            catch (EvaluationException e)
-            {
-                return e.GetErrorEval();
-            }
-            if (Double.IsNaN(result) || Double.IsInfinity(result))
-            {
-                return ErrorEval.NUM_ERROR;
-            }
-            return new NumberEval(result);
+            int rowIx = index / _width;
+            int colIx = index % _width;
+            return _ae.GetValue(rowIx, colIx);
         }
+    }
 
-        /**
-         * Constructs a new instance of the Accumulator used to calculated this function
-         */
-        public abstract Accumulator CreateAccumulator();
+    protected class DoubleArrayPair
+    {
+        private readonly double[] _xArray;
+        private readonly double[] _yArray;
 
-        private double EvaluateInternal(ValueVector x, ValueVector y, int size)
+        public DoubleArrayPair(double[] xArray, double[] yArray)
         {
-            Accumulator acc = CreateAccumulator();
+            _xArray = xArray;
+            _yArray = yArray;
+        }
+        public double[] GetXArray()
+        {
+            return _xArray;
+        }
+        public double[] GetYArray()
+        {
+            return _yArray;
+        }
+    }
 
-            // error handling is as if the x is fully evaluated before y
-            ErrorEval firstXerr = null;
-            ErrorEval firstYerr = null;
-            bool accumlatedSome = false;
-            double result = 0.0;
 
-            for (int i = 0; i < size; i++)
+    public override ValueEval Evaluate(int srcRowIndex, int srcColumnIndex, ValueEval arg0, ValueEval arg1)
+    {
+        double result;
+        try
+        {
+            ValueVector vvX = CreateValueVector(arg0);
+            ValueVector vvY = CreateValueVector(arg1);
+            int size = vvX.Size;
+            if (size == 0 || vvY.Size != size)
             {
-                ValueEval vx = x.GetItem(i);
-                ValueEval vy = y.GetItem(i);
-                if (vx is ErrorEval eval)
+                return ErrorEval.NA;
+            }
+            result = EvaluateInternal(vvX, vvY, size);
+        }
+        catch (EvaluationException e)
+        {
+            return e.GetErrorEval();
+        }
+        if (Double.IsNaN(result) || Double.IsInfinity(result))
+        {
+            return ErrorEval.NUM_ERROR;
+        }
+        return new NumberEval(result);
+    }
+
+    /**
+     * Constructs a new instance of the Accumulator used to calculated this function
+     */
+    public abstract Accumulator CreateAccumulator();
+
+    private double EvaluateInternal(ValueVector x, ValueVector y, int size)
+    {
+        Accumulator acc = CreateAccumulator();
+
+        // error handling is as if the x is fully evaluated before y
+        ErrorEval firstXerr = null;
+        ErrorEval firstYerr = null;
+        bool accumlatedSome = false;
+        double result = 0.0;
+
+        for (int i = 0; i < size; i++)
+        {
+            ValueEval vx = x.GetItem(i);
+            ValueEval vy = y.GetItem(i);
+            if (vx is ErrorEval eval)
+            {
+                if (firstXerr == null)
                 {
-                    if (firstXerr == null)
-                    {
-                        firstXerr = eval;
-                        continue;
-                    }
-                }
-                if (vy is ErrorEval errorEval)
-                {
-                    if (firstYerr == null)
-                    {
-                        firstYerr = errorEval;
-                        continue;
-                    }
-                }
-                // only count pairs if both elements are numbers
-                if (vx is NumberEval nx && vy is NumberEval ny)
-                {
-                    accumlatedSome = true;
-                    result += acc.Accumulate(nx.NumberValue, ny.NumberValue);
-                }
-                else
-                {
-                    // all other combinations of value types are silently ignored
+                    firstXerr = eval;
+                    continue;
                 }
             }
-            if (firstXerr != null)
+            if (vy is ErrorEval errorEval)
             {
-                throw new EvaluationException(firstXerr);
+                if (firstYerr == null)
+                {
+                    firstYerr = errorEval;
+                    continue;
+                }
             }
-            if (firstYerr != null)
+            // only count pairs if both elements are numbers
+            if (vx is NumberEval nx && vy is NumberEval ny)
             {
-                throw new EvaluationException(firstYerr);
+                accumlatedSome = true;
+                result += acc.Accumulate(nx.NumberValue, ny.NumberValue);
             }
-            if (!accumlatedSome)
+            else
             {
-                throw new EvaluationException(ErrorEval.DIV_ZERO);
+                // all other combinations of value types are silently ignored
             }
-            return result;
         }
-
-        private static double[] TrimToSize(double[] arr, int len)
+        if (firstXerr != null)
         {
-            double[] tarr = arr;
-            if (arr.Length > len)
-            {
-                tarr = new double[len];
-                Array.Copy(arr, 0, tarr, 0, len);
-            }
-            return tarr;
+            throw new EvaluationException(firstXerr);
         }
-
-        private static bool IsNumberEval(Eval eval)
+        if (firstYerr != null)
         {
-            //bool retval = false;
-
-            //if (eval is NumberEval)
-            //{
-            //    retval = true;
-            //}
-            //else if (eval is RefEval)
-            //{
-            //    RefEval re = (RefEval)eval;
-            //    ValueEval ve = re.InnerValueEval;
-            //    retval = (ve is NumberEval);
-            //}
-
-            //return retval;
-            throw new InvalidOperationException("not found in poi");
+            throw new EvaluationException(firstYerr);
         }
-
-        private static double GetDoubleValue(Eval eval)
+        if (!accumlatedSome)
         {
-            //double retval = 0;
-            //if (eval is NumberEval)
-            //{
-            //    NumberEval ne = (NumberEval)eval;
-            //    retval = ne.NumberValue;
-            //}
-            //else if (eval is RefEval)
-            //{
-            //    RefEval re = (RefEval)eval;
-            //    ValueEval ve = re.InnerValueEval;
-            //    retval = (ve is NumberEval)
-            //        ? ((NumberEval)ve).NumberValue
-            //        : double.NaN;
-            //}
-            //else if (eval is ErrorEval)
-            //{
-            //    retval = double.NaN;
-            //}
-            //return retval;
-            throw new InvalidOperationException("not found in poi");
+            throw new EvaluationException(ErrorEval.DIV_ZERO);
         }
+        return result;
+    }
 
-        private static ValueVector CreateValueVector(ValueEval arg)
+    private static double[] TrimToSize(double[] arr, int len)
+    {
+        double[] tarr = arr;
+        if (arr.Length > len)
         {
-            if (arg is ErrorEval eval)
-            {
-                throw new EvaluationException(eval);
-            }
-            if (arg is TwoDEval dEval)
-            {
-                return new AreaValueArray(dEval);
-            }
-            if (arg is RefEval refEval)
-            {
-                return new RefValueArray(refEval);
-            }
-            return new SingleCellValueArray(arg);
+            tarr = new double[len];
+            Array.Copy(arr, 0, tarr, 0, len);
         }
+        return tarr;
+    }
+
+    private static bool IsNumberEval(Eval eval)
+    {
+        //bool retval = false;
+
+        //if (eval is NumberEval)
+        //{
+        //    retval = true;
+        //}
+        //else if (eval is RefEval)
+        //{
+        //    RefEval re = (RefEval)eval;
+        //    ValueEval ve = re.InnerValueEval;
+        //    retval = (ve is NumberEval);
+        //}
+
+        //return retval;
+        throw new InvalidOperationException("not found in poi");
+    }
+
+    private static double GetDoubleValue(Eval eval)
+    {
+        //double retval = 0;
+        //if (eval is NumberEval)
+        //{
+        //    NumberEval ne = (NumberEval)eval;
+        //    retval = ne.NumberValue;
+        //}
+        //else if (eval is RefEval)
+        //{
+        //    RefEval re = (RefEval)eval;
+        //    ValueEval ve = re.InnerValueEval;
+        //    retval = (ve is NumberEval)
+        //        ? ((NumberEval)ve).NumberValue
+        //        : double.NaN;
+        //}
+        //else if (eval is ErrorEval)
+        //{
+        //    retval = double.NaN;
+        //}
+        //return retval;
+        throw new InvalidOperationException("not found in poi");
+    }
+
+    private static ValueVector CreateValueVector(ValueEval arg)
+    {
+        if (arg is ErrorEval eval)
+        {
+            throw new EvaluationException(eval);
+        }
+        if (arg is TwoDEval dEval)
+        {
+            return new AreaValueArray(dEval);
+        }
+        if (arg is RefEval refEval)
+        {
+            return new RefValueArray(refEval);
+        }
+        return new SingleCellValueArray(arg);
     }
 }

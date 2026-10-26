@@ -18,45 +18,44 @@
  * Created on May 6, 2005
  *
  */
-namespace NPOI.SS.Formula.Functions
+namespace NPOI.SS.Formula.Functions;
+
+using NPOI.SS.Formula.Eval;
+using System;
+
+
+/**
+ * 
+ * @author Amol S. Deshmukh &lt; amolweb at ya hoo dot com &gt;
+ * This Is the default implementation of a Function class. 
+ * The default behaviour Is to return a non-standard ErrorEval
+ * "ErrorEval.FUNCTION_NOT_IMPLEMENTED". This error should alert 
+ * the user that the formula contained a function that Is not
+ * yet implemented.
+ */
+public class NotImplementedFunction : Function
 {
-    using System;
-    using NPOI.SS.Formula.Eval;
 
-
-    /**
-     * 
-     * @author Amol S. Deshmukh &lt; amolweb at ya hoo dot com &gt;
-     * This Is the default implementation of a Function class. 
-     * The default behaviour Is to return a non-standard ErrorEval
-     * "ErrorEval.FUNCTION_NOT_IMPLEMENTED". This error should alert 
-     * the user that the formula contained a function that Is not
-     * yet implemented.
-     */
-    public class NotImplementedFunction : Function
+    private readonly String _functionName;
+    internal NotImplementedFunction()
     {
-
-        private readonly String _functionName;
-        internal NotImplementedFunction()
-        {
-            _functionName = GetType().Name;
-        }
-        public NotImplementedFunction(String name)
-        {
-            _functionName = name;
-        }
-
-        public ValueEval Evaluate(ValueEval[] operands, int srcRow, int srcCol)
-        {
-            throw new NotImplementedFunctionException(_functionName);
-        }
-        public String FunctionName
-        {
-            get
-            {
-                return _functionName;
-            }
-        }
-
+        _functionName = GetType().Name;
     }
+    public NotImplementedFunction(String name)
+    {
+        _functionName = name;
+    }
+
+    public ValueEval Evaluate(ValueEval[] operands, int srcRow, int srcCol)
+    {
+        throw new NotImplementedFunctionException(_functionName);
+    }
+    public String FunctionName
+    {
+        get
+        {
+            return _functionName;
+        }
+    }
+
 }

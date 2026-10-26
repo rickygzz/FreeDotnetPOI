@@ -15,23 +15,23 @@
    limitations under the License.
 ==================================================================== */
 
-using System;
-using NPOI.SS.UserModel;
 using NPOI.SS.Formula.Eval;
-namespace NPOI.SS.Formula.Functions
-{
-    /**
-     * Implementation of Excel NOW() Function
-     *
-     * @author Frank Taffelt
-     */
-    public class Now : Fixed0ArgFunction
-    {
+using NPOI.SS.UserModel;
+using System;
 
-        public override ValueEval Evaluate(int srcRowIndex, int srcColumnIndex)
-        {
-            return new NumberEval(DateUtil.GetExcelDate(DateTime.Now));
-        }
+namespace NPOI.SS.Formula.Functions;
+
+/**
+ * Implementation of Excel NOW() Function
+ *
+ * @author Frank Taffelt
+ */
+public class Now : Fixed0ArgFunction
+{
+
+    public override ValueEval Evaluate(int srcRowIndex, int srcColumnIndex)
+    {
+        return new NumberEval(DateUtil.GetExcelDate(DateTime.Now));
     }
 }
 

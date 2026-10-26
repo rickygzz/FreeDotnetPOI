@@ -20,43 +20,42 @@
  */
 using NPOI.SS.Formula.Functions.Numeric;
 
-namespace NPOI.SS.Formula.Functions
+namespace NPOI.SS.Formula.Functions;
+
+/**
+ * @author Amol S. Deshmukh &lt; amolweb at ya hoo dot com &gt;
+ *  
+ */
+public class Even : OneArg
 {
-    /**
-     * @author Amol S. Deshmukh &lt; amolweb at ya hoo dot com &gt;
-     *  
-     */
-    public class Even : OneArg
+    private const long PARITY_MASK = unchecked((long)0xFFFFFFFFFFFFFFFEL);
+
+    public override double Evaluate(double d)
     {
-        private const long PARITY_MASK = unchecked((long)0xFFFFFFFFFFFFFFFEL);
-
-        public override double Evaluate(double d)
+        if (d == 0)
         {
-            if (d == 0)
-            {
-                return 0;
-            }
-            long result;
-            if (d > 0)
-            {
-                result = calcEven(d);
-            }
-            else
-            {
-                result = -calcEven(-d);
-            }
-            return result;
+            return 0;
         }
-
-        private static long calcEven(double d)
+        long result;
+        if (d > 0)
         {
-            long x = ((long)d) & PARITY_MASK;
-            if (x == d)
-            {
-                return x;
-            }
-            return x + 2;
+            result = calcEven(d);
         }
-
+        else
+        {
+            result = -calcEven(-d);
+        }
+        return result;
     }
+
+    private static long calcEven(double d)
+    {
+        long x = ((long)d) & PARITY_MASK;
+        if (x == d)
+        {
+            return x;
+        }
+        return x + 2;
+    }
+
 }

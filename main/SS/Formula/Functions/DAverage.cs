@@ -15,49 +15,48 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.SS.Formula.Functions
+namespace NPOI.SS.Formula.Functions;
+
+using ExtendedNumerics;
+using NPOI.SS.Formula.Eval;
+using System.Numerics;
+
+/// <summary>
+/// Implementation of the DAverage function:
+/// Gets the average value of a column in an area with given conditions.
+/// </summary>
+public sealed class DAverage : IDStarAlgorithm
 {
-    using ExtendedNumerics;
-    using NPOI.SS.Formula.Eval;
-    using System.Numerics;
-
-    /// <summary>
-    /// Implementation of the DAverage function:
-    /// Gets the average value of a column in an area with given conditions.
-    /// </summary>
-    public sealed class DAverage : IDStarAlgorithm
+    private long count;
+    private double total;
+    public bool ProcessMatch(ValueEval eval)
     {
-        private long count;
-        private double total;
-        public bool ProcessMatch(ValueEval eval)
+        if(eval is NumericValueEval valueEval)
         {
-            if(eval is NumericValueEval valueEval)
-            {
-                count++;
-                total += valueEval.NumberValue;
-            }
-            return true;
+            count++;
+            total += valueEval.NumberValue;
         }
-        public ValueEval Result
-        {
-            get
-            {
-                return count == 0 ? NumberEval.ZERO : new NumberEval(GetAverage());
-            }
-        }
-
-        private double GetAverage()
-        {
-            return Divide(total, count);
-        }
-
-        private static double Divide(double total, long count)
-        {
-            return (double) BigDecimal.Divide(new BigDecimal(total), new BigInteger(count));
-        }
-
-        public bool AllowEmptyMatchField { get; } = false;
+        return true;
     }
+    public ValueEval Result
+    {
+        get
+        {
+            return count == 0 ? NumberEval.ZERO : new NumberEval(GetAverage());
+        }
+    }
+
+    private double GetAverage()
+    {
+        return Divide(total, count);
+    }
+
+    private static double Divide(double total, long count)
+    {
+        return (double) BigDecimal.Divide(new BigDecimal(total), new BigInteger(count));
+    }
+
+    public bool AllowEmptyMatchField { get; } = false;
 }
 
 

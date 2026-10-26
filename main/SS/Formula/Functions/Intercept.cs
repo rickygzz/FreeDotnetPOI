@@ -17,35 +17,32 @@
  * ====================================================================
  */
 
-namespace NPOI.SS.Formula.Functions
+namespace NPOI.SS.Formula.Functions;
+
+using NPOI.SS.Formula.Eval;
+
+/**
+ * Implementation of Excel function INTERCEPT()<p/>
+ *
+ * Calculates the INTERCEPT of the linear regression line that is used to predict y values from x values<br/>
+ * (http://introcs.cs.princeton.edu/java/97data/LinearRegression.java.html)
+ * <b>Syntax</b>:<br/>
+ * <b>INTERCEPT</b>(<b>arrayX</b>, <b>arrayY</b>)<p/>
+ *
+ *
+ * @author Johan Karlsteen
+ */
+public class Intercept : Fixed2ArgFunction
 {
-    using NPOI.SS.Formula;
-    using NPOI.SS.Formula.Eval;
-    using System;
-
-    /**
-     * Implementation of Excel function INTERCEPT()<p/>
-     *
-     * Calculates the INTERCEPT of the linear regression line that is used to predict y values from x values<br/>
-     * (http://introcs.cs.princeton.edu/java/97data/LinearRegression.java.html)
-     * <b>Syntax</b>:<br/>
-     * <b>INTERCEPT</b>(<b>arrayX</b>, <b>arrayY</b>)<p/>
-     *
-     *
-     * @author Johan Karlsteen
-     */
-    public class Intercept : Fixed2ArgFunction
+    private LinearRegressionFunction func;
+    public Intercept()
     {
-        private LinearRegressionFunction func;
-        public Intercept()
-        {
-            func = new LinearRegressionFunction(LinearRegressionFunction.FUNCTION.INTERCEPT);
-        }
+        func = new LinearRegressionFunction(LinearRegressionFunction.FUNCTION.INTERCEPT);
+    }
 
-        public override ValueEval Evaluate(int srcRowIndex, int srcColumnIndex,
-                ValueEval arg0, ValueEval arg1)
-        {
-            return func.Evaluate(srcRowIndex, srcColumnIndex, arg0, arg1);
-        }
+    public override ValueEval Evaluate(int srcRowIndex, int srcColumnIndex,
+            ValueEval arg0, ValueEval arg1)
+    {
+        return func.Evaluate(srcRowIndex, srcColumnIndex, arg0, arg1);
     }
 }

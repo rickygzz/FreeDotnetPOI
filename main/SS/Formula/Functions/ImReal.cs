@@ -15,99 +15,96 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.SS.Formula.Functions
+namespace NPOI.SS.Formula.Functions;
+
+using NPOI.SS.Formula;
+using NPOI.SS.Formula.Eval;
+using System;
+
+/**
+ * Implementation for Excel ImReal() function.<p/>
+ * <p/>
+ * <b>Syntax</b>:<br/> <b>ImReal  </b>(<b>Inumber</b>)<br/>
+ * <p/>
+ * Returns the real coefficient of a complex number in x + yi or x + yj text format.
+ * <p/>
+ * Inumber     A complex number for which you want the real coefficient.
+ * <p/>
+ * Remarks
+ * <ul>
+ * <li>If inumber is not in the form x + yi or x + yj, this function returns the #NUM! error value.</li>
+ * <li>Use COMPLEX to convert real and imaginary coefficients into a complex number.</li>
+ * </ul>
+ *
+ * @author cedric dot walter @ gmail dot com
+ */
+public class ImReal : Fixed1ArgFunction, FreeRefFunction
 {
-    using System;
-    using NPOI.SS.Formula.Eval;
 
-    using NPOI.SS.Formula;
+    public static FreeRefFunction instance = new ImReal();
 
-    /**
-     * Implementation for Excel ImReal() function.<p/>
-     * <p/>
-     * <b>Syntax</b>:<br/> <b>ImReal  </b>(<b>Inumber</b>)<br/>
-     * <p/>
-     * Returns the real coefficient of a complex number in x + yi or x + yj text format.
-     * <p/>
-     * Inumber     A complex number for which you want the real coefficient.
-     * <p/>
-     * Remarks
-     * <ul>
-     * <li>If inumber is not in the form x + yi or x + yj, this function returns the #NUM! error value.</li>
-     * <li>Use COMPLEX to convert real and imaginary coefficients into a complex number.</li>
-     * </ul>
-     *
-     * @author cedric dot walter @ gmail dot com
-     */
-    public class ImReal : Fixed1ArgFunction, FreeRefFunction
+    public override ValueEval Evaluate(int srcRowIndex, int srcColumnIndex, ValueEval inumberVE)
     {
-
-        public static FreeRefFunction instance = new ImReal();
-
-        public override ValueEval Evaluate(int srcRowIndex, int srcColumnIndex, ValueEval inumberVE)
+        ValueEval veText1;
+        try
         {
-            ValueEval veText1;
-            try
+            veText1 = OperandResolver.GetSingleValue(inumberVE, srcRowIndex, srcColumnIndex);
+        }
+        catch (EvaluationException e)
+        {
+            return e.GetErrorEval();
+        }
+        String iNumber = OperandResolver.CoerceValueToString(veText1);
+
+        System.Text.RegularExpressions.Match m = Imaginary.COMPLEX_NUMBER_PATTERN.Match(iNumber);
+        //bool result = m.matches();
+        bool result = m.Success && !string.IsNullOrEmpty(m.Groups[0].Value);
+
+        String real = "";
+        if (result == true)
+        {
+            String realGroup = m.Groups[(2)].Value;
+            bool hasRealPart = realGroup.Length != 0;
+
+            if (realGroup.Length == 0)
             {
-                veText1 = OperandResolver.GetSingleValue(inumberVE, srcRowIndex, srcColumnIndex);
+                return new StringEval(Convert.ToString(0));
             }
-            catch (EvaluationException e)
+
+            if (hasRealPart)
             {
-                return e.GetErrorEval();
-            }
-            String iNumber = OperandResolver.CoerceValueToString(veText1);
-
-            System.Text.RegularExpressions.Match m = Imaginary.COMPLEX_NUMBER_PATTERN.Match(iNumber);
-            //bool result = m.matches();
-            bool result = m.Success && !string.IsNullOrEmpty(m.Groups[0].Value);
-
-            String real = "";
-            if (result == true)
-            {
-                String realGroup = m.Groups[(2)].Value;
-                bool hasRealPart = realGroup.Length != 0;
-
-                if (realGroup.Length == 0)
+                String sign = "";
+                String realSign = m.Groups[(Imaginary.GROUP1_REAL_SIGN)].Value;
+                if (realSign.Length != 0 && !(realSign.Equals("+")))
                 {
-                    return new StringEval(Convert.ToString(0));
+                    sign = realSign;
                 }
 
-                if (hasRealPart)
+                String groupRealNumber = m.Groups[(Imaginary.GROUP2_IMAGINARY_INTEGER_OR_DOUBLE)].Value;
+                if (groupRealNumber.Length != 0)
                 {
-                    String sign = "";
-                    String realSign = m.Groups[(Imaginary.GROUP1_REAL_SIGN)].Value;
-                    if (realSign.Length != 0 && !(realSign.Equals("+")))
-                    {
-                        sign = realSign;
-                    }
-
-                    String groupRealNumber = m.Groups[(Imaginary.GROUP2_IMAGINARY_INTEGER_OR_DOUBLE)].Value;
-                    if (groupRealNumber.Length != 0)
-                    {
-                        real = sign + groupRealNumber;
-                    }
-                    else
-                    {
-                        real = sign + "1";
-                    }
+                    real = sign + groupRealNumber;
+                }
+                else
+                {
+                    real = sign + "1";
                 }
             }
-            else
-            {
-                return ErrorEval.NUM_ERROR;
-            }
-
-            return new StringEval(real);
         }
-
-        public ValueEval Evaluate(ValueEval[] args, OperationEvaluationContext ec)
+        else
         {
-            if (args.Length != 1)
-            {
-                return ErrorEval.VALUE_INVALID;
-            }
-            return Evaluate(ec.RowIndex, ec.ColumnIndex, args[0]);
+            return ErrorEval.NUM_ERROR;
         }
+
+        return new StringEval(real);
     }
 
+    public ValueEval Evaluate(ValueEval[] args, OperationEvaluationContext ec)
+    {
+        if (args.Length != 1)
+        {
+            return ErrorEval.VALUE_INVALID;
+        }
+        return Evaluate(ec.RowIndex, ec.ColumnIndex, args[0]);
+    }
 }

@@ -15,80 +15,79 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.SS.Formula.Functions
+namespace NPOI.SS.Formula.Functions;
+
+using NPOI.SS.Formula.Eval;
+
+/**
+ * Implementation of the DGet function:
+ * Finds the value of a column in an area with given conditions.
+ * 
+ * TODO:
+ * - wildcards ? and * in string conditions
+ * - functions as conditions
+ */
+public class DGet : IDStarAlgorithm
 {
-    using NPOI.SS.Formula.Eval;
+    private ValueEval result;
 
-    /**
-     * Implementation of the DGet function:
-     * Finds the value of a column in an area with given conditions.
-     * 
-     * TODO:
-     * - wildcards ? and * in string conditions
-     * - functions as conditions
-     */
-    public class DGet : IDStarAlgorithm
+    public bool ProcessMatch(ValueEval eval)
     {
-        private ValueEval result;
-
-        public bool ProcessMatch(ValueEval eval)
+        if(result == null) // First match, just Set the value.
         {
-            if(result == null) // First match, just Set the value.
+            result = eval;
+        }
+        else // There was a previous match, since there is only exactly one allowed, bail out1.
+        {
+            if(result is BlankEval)
             {
                 result = eval;
             }
-            else // There was a previous match, since there is only exactly one allowed, bail out1.
+            else
             {
-                if(result is BlankEval)
+                // We have a previous filled result.
+                if(eval is not BlankEval)
                 {
-                    result = eval;
+                    result = ErrorEval.NUM_ERROR;
+                    return false;
                 }
-                else
-                {
-                    // We have a previous filled result.
-                    if(eval is not BlankEval)
-                    {
-                        result = ErrorEval.NUM_ERROR;
-                        return false;
-                    }
-                }
-            }
-
-            return true;
-        }
-
-        public ValueEval Result
-        {
-            get
-            {
-                if(result == null)
-                {
-                    return ErrorEval.VALUE_INVALID;
-                }
-                if(result is BlankEval)
-                {
-                    return ErrorEval.VALUE_INVALID;
-                }
-                else
-                    try
-                    {
-                        if(OperandResolver.CoerceValueToString(OperandResolver.GetSingleValue(result, 0, 0)).Equals(""))
-                        {
-                            return ErrorEval.VALUE_INVALID;
-                        }
-                        else
-                        {
-                            return result;
-                        }
-                    }
-                    catch(EvaluationException e)
-                    {
-                        return e.GetErrorEval();
-                    }
             }
         }
 
-        public bool AllowEmptyMatchField { get; } = false;
+        return true;
     }
+
+    public ValueEval Result
+    {
+        get
+        {
+            if(result == null)
+            {
+                return ErrorEval.VALUE_INVALID;
+            }
+            if(result is BlankEval)
+            {
+                return ErrorEval.VALUE_INVALID;
+            }
+            else
+                try
+                {
+                    if(OperandResolver.CoerceValueToString(OperandResolver.GetSingleValue(result, 0, 0)).Equals(""))
+                    {
+                        return ErrorEval.VALUE_INVALID;
+                    }
+                    else
+                    {
+                        return result;
+                    }
+                }
+                catch(EvaluationException e)
+                {
+                    return e.GetErrorEval();
+                }
+        }
+    }
+
+    public bool AllowEmptyMatchField { get; } = false;
 }
 

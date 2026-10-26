@@ -16,22 +16,21 @@
 */
 
 
-namespace NPOI.SS.Formula.Functions
+namespace NPOI.SS.Formula.Functions;
+
+using NPOI.SS.Formula.Eval;
+
+/**
+ * Implementation of Excel function NA()
+ * 
+ * @author Josh Micich
+ */
+public class Na : Fixed0ArgFunction
 {
-    using NPOI.SS.Formula.Eval;
 
-    /**
-     * Implementation of Excel function NA()
-     * 
-     * @author Josh Micich
-     */
-    public class Na : Fixed0ArgFunction
+    public override ValueEval Evaluate(int srcCellRow, int srcCellCol)
     {
-
-        public override ValueEval Evaluate(int srcCellRow, int srcCellCol)
-        {
-            return ErrorEval.NA;
-        }
-
+        return ErrorEval.NA;
     }
+
 }

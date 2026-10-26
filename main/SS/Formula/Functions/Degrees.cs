@@ -18,22 +18,22 @@
  * Created on May 6, 2005
  *
  */
-namespace NPOI.SS.Formula.Functions
+
+namespace NPOI.SS.Formula.Functions;
+
+using NPOI.SS.Formula.Functions.Numeric;
+using System;
+
+/**
+ * @author Amol S. Deshmukh &lt; amolweb at ya hoo dot com &gt;
+ *  
+ */
+public class Degrees : OneArg
 {
-    using NPOI.SS.Formula.Functions.Numeric;
-    using System;
-
-    /**
-     * @author Amol S. Deshmukh &lt; amolweb at ya hoo dot com &gt;
-     *  
-     */
-    public class Degrees : OneArg
+    public override double Evaluate(double d)
     {
-        public override double Evaluate(double d)
-        {
-            //convert from  degree to radius
-            return d * 180 / Math.PI;
-        }
-
+        //convert from  degree to radius
+        return d * 180 / Math.PI;
     }
+
 }

@@ -16,114 +16,112 @@
 */
 
 
-namespace NPOI.SS.Formula.Functions
+namespace NPOI.SS.Formula.Functions;
+
+using NPOI.SS.Formula.Eval;
+
+/**
+ * Counts the number of cells that contain data within the list of arguments. 
+ *
+ * Excel Syntax
+ * COUNTA(value1,value2,...)
+ * Value1, value2, ...   are 1 to 30 arguments representing the values or ranges to be Counted.
+ * 
+ * @author Josh Micich
+ */
+public class Counta : Function
 {
-    using NPOI.SS.Formula.Eval;
-    using System;
+    private readonly IMatchPredicate _predicate;
 
-    /**
-     * Counts the number of cells that contain data within the list of arguments. 
-     *
-     * Excel Syntax
-     * COUNTA(value1,value2,...)
-     * Value1, value2, ...   are 1 to 30 arguments representing the values or ranges to be Counted.
-     * 
-     * @author Josh Micich
-     */
-    public class Counta : Function
+    public Counta()
     {
-        private readonly IMatchPredicate _predicate;
+        _predicate = defaultPredicate;
+    }
 
-        public Counta()
+    private Counta(IMatchPredicate criteriaPredicate)
+    {
+        _predicate = criteriaPredicate;
+    }
+    public ValueEval Evaluate(ValueEval[] args, int srcCellRow, int srcCellCol)
+    {
+        int nArgs = args.Length;
+        if (nArgs < 1)
         {
-            _predicate = defaultPredicate;
+            // too few arguments
+            return ErrorEval.VALUE_INVALID;
         }
 
-        private Counta(IMatchPredicate criteriaPredicate)
+        if (nArgs > 30)
         {
-            _predicate = criteriaPredicate;
+            // too many arguments
+            return ErrorEval.VALUE_INVALID;
         }
-        public ValueEval Evaluate(ValueEval[] args, int srcCellRow, int srcCellCol)
+
+        int temp = 0;
+        // Note - observed behavior of Excel:
+        // Error values like #VALUE!, #REF!, #DIV/0!, #NAME? etc don't cause this COUNTA to return an error
+        // in fact, they seem to Get Counted
+
+        for (int i = 0; i < nArgs; i++)
         {
-            int nArgs = args.Length;
-            if (nArgs < 1)
-            {
-                // too few arguments
-                return ErrorEval.VALUE_INVALID;
-            }
+            temp += CountUtils.CountArg(args[i], _predicate);
 
-            if (nArgs > 30)
-            {
-                // too many arguments
-                return ErrorEval.VALUE_INVALID;
-            }
+        }
+        return new NumberEval(temp);
+    }
 
-            int temp = 0;
+    private static readonly IMatchPredicate defaultPredicate = new DefaultPredicate();
+    public class DefaultPredicate : IMatchPredicate
+    {
+        public bool Matches(ValueEval valueEval)
+        {
             // Note - observed behavior of Excel:
             // Error values like #VALUE!, #REF!, #DIV/0!, #NAME? etc don't cause this COUNTA to return an error
-            // in fact, they seem to Get Counted
+            // in fact, they seem to get counted
 
-            for (int i = 0; i < nArgs; i++)
+            if (valueEval == BlankEval.instance)
             {
-                temp += CountUtils.CountArg(args[i], _predicate);
-
+                return false;
             }
-            return new NumberEval(temp);
+            // Note - everything but BlankEval counts
+            return true;
         }
-
-        private static readonly IMatchPredicate defaultPredicate = new DefaultPredicate();
-        public class DefaultPredicate : IMatchPredicate
+    }
+    private static readonly IMatchPredicate subtotalPredicate = new SubtotalPredicate();
+    public class SubtotalPredicate : I_MatchAreaPredicate
+    {
+        public bool Matches(ValueEval valueEval)
         {
-            public bool Matches(ValueEval valueEval)
-            {
-                // Note - observed behavior of Excel:
-                // Error values like #VALUE!, #REF!, #DIV/0!, #NAME? etc don't cause this COUNTA to return an error
-                // in fact, they seem to get counted
-
-                if (valueEval == BlankEval.instance)
-                {
-                    return false;
-                }
-                // Note - everything but BlankEval counts
-                return true;
-            }
+            return defaultPredicate.Matches(valueEval);
         }
-        private static readonly IMatchPredicate subtotalPredicate = new SubtotalPredicate();
-        public class SubtotalPredicate : I_MatchAreaPredicate
+
+        /**
+         * don't count cells that are subtotals
+         */
+        public bool Matches(TwoDEval areEval, int rowIndex, int columnIndex)
         {
-            public bool Matches(ValueEval valueEval)
-            {
-                return defaultPredicate.Matches(valueEval);
-            }
-
-            /**
-             * don't count cells that are subtotals
-             */
-            public bool Matches(TwoDEval areEval, int rowIndex, int columnIndex)
-            {
-                return !areEval.IsSubTotal(rowIndex, columnIndex);
-            }
-
+            return !areEval.IsSubTotal(rowIndex, columnIndex);
         }
-        private static readonly IMatchPredicate subtotalVisibleOnlyPredicate = new SubtotalVisibleOnlyPredicate();
-        public class SubtotalVisibleOnlyPredicate : I_MatchAreaPredicate
+
+    }
+    private static readonly IMatchPredicate subtotalVisibleOnlyPredicate = new SubtotalVisibleOnlyPredicate();
+    public class SubtotalVisibleOnlyPredicate : I_MatchAreaPredicate
+    {
+        public bool Matches(ValueEval valueEval)
         {
-            public bool Matches(ValueEval valueEval)
-            {
-                return defaultPredicate.Matches(valueEval);
-            }
+            return defaultPredicate.Matches(valueEval);
+        }
 
-            /**
-             * don't count cells in rows that are hidden or subtotal cells
-             */
-            public bool Matches(TwoDEval areEval, int rowIndex, int columnIndex)
-            {
-                return !areEval.IsSubTotal(rowIndex, columnIndex) && !areEval.IsRowHidden(rowIndex);
-            }
-        }
-        public static Counta SubtotalInstance(bool includeHiddenRows)
+        /**
+         * don't count cells in rows that are hidden or subtotal cells
+         */
+        public bool Matches(TwoDEval areEval, int rowIndex, int columnIndex)
         {
-            return new Counta(includeHiddenRows ? subtotalPredicate : subtotalVisibleOnlyPredicate);
+            return !areEval.IsSubTotal(rowIndex, columnIndex) && !areEval.IsRowHidden(rowIndex);
         }
+    }
+    public static Counta SubtotalInstance(bool includeHiddenRows)
+    {
+        return new Counta(includeHiddenRows ? subtotalPredicate : subtotalVisibleOnlyPredicate);
     }
 }

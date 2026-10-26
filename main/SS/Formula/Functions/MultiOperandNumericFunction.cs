@@ -15,277 +15,276 @@
 * limitations Under the License.
 */
 
-namespace NPOI.SS.Formula.Functions
+namespace NPOI.SS.Formula.Functions;
+
+using NPOI.SS.Formula;
+using NPOI.SS.Formula.Eval;
+using System;
+
+/**
+ * @author Amol S. Deshmukh &lt; amolweb at ya hoo dot com &gt;
+ * This Is the base class for all excel function evaluator
+ * classes that take variable number of operands, and
+ * where the order of operands does not matter
+ */
+public abstract class MultiOperandNumericFunction : Function
 {
-    using System;
-    using NPOI.SS.Formula.Eval;
-    using NPOI.SS.Formula;
+    static readonly double[] EMPTY_DOUBLE_ARRAY = [];
+    private readonly bool _isReferenceBoolCounted;
+    private readonly bool _isBlankCounted;
+
+    protected MultiOperandNumericFunction(bool isReferenceBoolCounted, bool isBlankCounted)
+    {
+        _isReferenceBoolCounted = isReferenceBoolCounted;
+        _isBlankCounted = isBlankCounted;
+    }
+    protected internal abstract double Evaluate(double[] values);
+
+    public ValueEval Evaluate(ValueEval[] args, int srcCellRow, int srcCellCol)
+    {
+
+        double d;
+        try
+        {
+            double[] values = GetNumberArray(args);
+            d = Evaluate(values);
+        }
+        catch (EvaluationException e)
+        {
+            return e.GetErrorEval();
+        }
+
+        if (Double.IsNaN(d) || Double.IsInfinity(d))
+            return ErrorEval.NUM_ERROR;
+
+        return new NumberEval(d);
+    }
+
+    private sealed class DoubleList
+    {
+        private double[] _array;
+        private int _Count;
+
+        public DoubleList()
+        {
+            _array = new double[8];
+            _Count = 0;
+        }
+
+        public double[] ToArray()
+        {
+            if (_Count < 1)
+            {
+                return EMPTY_DOUBLE_ARRAY;
+            }
+            double[] result = new double[_Count];
+            Array.Copy(_array, 0, result, 0, _Count);
+            return result;
+        }
+
+        public void Add(double[] values)
+        {
+            int AddLen = values.Length;
+            EnsureCapacity(_Count + AddLen);
+            Array.Copy(values, 0, _array, _Count, AddLen);
+            _Count += AddLen;
+        }
+
+        private void EnsureCapacity(int reqSize)
+        {
+            if (reqSize > _array.Length)
+            {
+                int newSize = reqSize * 3 / 2; // grow with 50% extra
+                double[] newArr = new double[newSize];
+                Array.Copy(_array, 0, newArr, 0, _Count);
+                _array = newArr;
+            }
+        }
+
+        public void Add(double value)
+        {
+            EnsureCapacity(_Count + 1);
+            _array[_Count] = value;
+            _Count++;
+        }
+    }
+
+    private static readonly int DEFAULT_MAX_NUM_OPERANDS = SpreadsheetVersion.EXCEL2007.MaxFunctionArgs;
 
     /**
-     * @author Amol S. Deshmukh &lt; amolweb at ya hoo dot com &gt;
-     * This Is the base class for all excel function evaluator
-     * classes that take variable number of operands, and
-     * where the order of operands does not matter
+     * Maximum number of operands accepted by this function.
+     * Subclasses may override to Change default value.
      */
-    public abstract class MultiOperandNumericFunction : Function
+    internal virtual int MaxNumOperands
     {
-        static readonly double[] EMPTY_DOUBLE_ARRAY = [];
-        private readonly bool _isReferenceBoolCounted;
-        private readonly bool _isBlankCounted;
-
-        protected MultiOperandNumericFunction(bool isReferenceBoolCounted, bool isBlankCounted)
+        get
         {
-            _isReferenceBoolCounted = isReferenceBoolCounted;
-            _isBlankCounted = isBlankCounted;
+            return DEFAULT_MAX_NUM_OPERANDS;
         }
-        protected internal abstract double Evaluate(double[] values);
-
-        public ValueEval Evaluate(ValueEval[] args, int srcCellRow, int srcCellCol)
+    }
+    /**
+ *  Whether to count nested subtotals.
+ */
+    public virtual bool IsSubtotalCounted
+    {
+        get
         {
-
-            double d;
-            try
-            {
-                double[] values = GetNumberArray(args);
-                d = Evaluate(values);
-            }
-            catch (EvaluationException e)
-            {
-                return e.GetErrorEval();
-            }
-
-            if (Double.IsNaN(d) || Double.IsInfinity(d))
-                return ErrorEval.NUM_ERROR;
-
-            return new NumberEval(d);
+            return true;
         }
-
-        private sealed class DoubleList
+    }
+    /**
+ * Collects values from a single argument
+ */
+    private void CollectValues(ValueEval operand, DoubleList temp)
+    {
+        if (operand is ThreeDEval eval)
         {
-            private double[] _array;
-            private int _Count;
-
-            public DoubleList()
+            for (int sIx = eval.FirstSheetIndex; sIx <= eval.LastSheetIndex; sIx++)
             {
-                _array = new double[8];
-                _Count = 0;
-            }
-
-            public double[] ToArray()
-            {
-                if (_Count < 1)
-                {
-                    return EMPTY_DOUBLE_ARRAY;
-                }
-                double[] result = new double[_Count];
-                Array.Copy(_array, 0, result, 0, _Count);
-                return result;
-            }
-
-            public void Add(double[] values)
-            {
-                int AddLen = values.Length;
-                EnsureCapacity(_Count + AddLen);
-                Array.Copy(values, 0, _array, _Count, AddLen);
-                _Count += AddLen;
-            }
-
-            private void EnsureCapacity(int reqSize)
-            {
-                if (reqSize > _array.Length)
-                {
-                    int newSize = reqSize * 3 / 2; // grow with 50% extra
-                    double[] newArr = new double[newSize];
-                    Array.Copy(_array, 0, newArr, 0, _Count);
-                    _array = newArr;
-                }
-            }
-
-            public void Add(double value)
-            {
-                EnsureCapacity(_Count + 1);
-                _array[_Count] = value;
-                _Count++;
-            }
-        }
-
-        private static readonly int DEFAULT_MAX_NUM_OPERANDS = SpreadsheetVersion.EXCEL2007.MaxFunctionArgs;
-
-        /**
-         * Maximum number of operands accepted by this function.
-         * Subclasses may override to Change default value.
-         */
-        internal virtual int MaxNumOperands
-        {
-            get
-            {
-                return DEFAULT_MAX_NUM_OPERANDS;
-            }
-        }
-        /**
-     *  Whether to count nested subtotals.
-     */
-        public virtual bool IsSubtotalCounted
-        {
-            get
-            {
-                return true;
-            }
-        }
-        /**
-     * Collects values from a single argument
-     */
-        private void CollectValues(ValueEval operand, DoubleList temp)
-        {
-            if (operand is ThreeDEval eval)
-            {
-                for (int sIx = eval.FirstSheetIndex; sIx <= eval.LastSheetIndex; sIx++)
-                {
-                    int width = eval.Width;
-                    int height = eval.Height;
-                    for (int rrIx = 0; rrIx < height; rrIx++)
-                    {
-                        for (int rcIx = 0; rcIx < width; rcIx++)
-                        {
-                            ValueEval ve = eval.GetValue(sIx, rrIx, rcIx);
-                            if (!IsSubtotalCounted && eval.IsSubTotal(rrIx, rcIx)) continue;
-                            CollectValue(ve, true, temp);
-                        }
-                    }
-                }
-                return;
-            }
-            if (operand is TwoDEval ae)
-            {
-                int width = ae.Width;
-                int height = ae.Height;
+                int width = eval.Width;
+                int height = eval.Height;
                 for (int rrIx = 0; rrIx < height; rrIx++)
                 {
                     for (int rcIx = 0; rcIx < width; rcIx++)
                     {
-                        ValueEval ve = ae.GetValue(rrIx, rcIx);
-                        if (!IsSubtotalCounted && ae.IsSubTotal(rrIx, rcIx)) continue;
+                        ValueEval ve = eval.GetValue(sIx, rrIx, rcIx);
+                        if (!IsSubtotalCounted && eval.IsSubTotal(rrIx, rcIx)) continue;
                         CollectValue(ve, true, temp);
                     }
                 }
-                return;
             }
-            if (operand is RefEval re)
-            {
-                for (int sIx = re.FirstSheetIndex; sIx <= re.LastSheetIndex; sIx++)
-                {
-                    CollectValue(re.GetInnerValueEval(sIx), true, temp);
-                }
-                return;
-            }
-            CollectValue((ValueEval)operand, false, temp);
+            return;
         }
-        private void CollectValue(ValueEval ve, bool isViaReference, DoubleList temp)
+        if (operand is TwoDEval ae)
         {
-            if (ve == null)
+            int width = ae.Width;
+            int height = ae.Height;
+            for (int rrIx = 0; rrIx < height; rrIx++)
             {
-                throw new ArgumentException("ve must not be null");
-            }
-            if (ve is BoolEval boolEval)
-            {
-                if (!isViaReference || _isReferenceBoolCounted)
+                for (int rcIx = 0; rcIx < width; rcIx++)
                 {
-                    temp.Add(boolEval.NumberValue);
+                    ValueEval ve = ae.GetValue(rrIx, rcIx);
+                    if (!IsSubtotalCounted && ae.IsSubTotal(rrIx, rcIx)) continue;
+                    CollectValue(ve, true, temp);
                 }
-                return;
             }
-            if (ve is NumberEval ne)
-            {
-                temp.Add(ne.NumberValue);
-                return;
-            }
-            if (ve is StringEval eval)
-            {
-                if (isViaReference)
-                {
-                    // ignore all ref strings
-                    return;
-                }
-                String s = eval.StringValue;
-                Double d = OperandResolver.ParseDouble(s);
-                if (double.IsNaN(d))
-                {
-                    throw new EvaluationException(ErrorEval.VALUE_INVALID);
-                }
-                temp.Add(d);
-                return;
-            }
-            if (ve is ErrorEval errorEval)
-            {
-                throw new EvaluationException(errorEval);
-            }
-            if (ve == BlankEval.instance)
-            {
-                if (_isBlankCounted)
-                {
-                    temp.Add(0.0);
-                }
-                return;
-            }
-            throw new InvalidOperationException("Invalid ValueEval type passed for conversion: ("
-                    + ve.GetType().Name + ")");
+            return;
         }
-        /**
-         * Returns a double array that contains values for the numeric cells
-         * from among the list of operands. Blanks and Blank equivalent cells
-         * are ignored. Error operands or cells containing operands of type
-         * that are considered invalid and would result in #VALUE! error in
-         * excel cause this function to return <c>null</c>.
-         *
-         * @return never <c>null</c>
-         */
-        protected double[] GetNumberArray(ValueEval[] operands)
+        if (operand is RefEval re)
         {
-            if (operands.Length > MaxNumOperands)
+            for (int sIx = re.FirstSheetIndex; sIx <= re.LastSheetIndex; sIx++)
             {
-                throw EvaluationException.InvalidValue();
+                CollectValue(re.GetInnerValueEval(sIx), true, temp);
             }
-            DoubleList retval = new DoubleList();
-
-            for (int i = 0, iSize = operands.Length; i < iSize; i++)
-            {
-                CollectValues(operands[i], retval);
-            }
-            return retval.ToArray();
+            return;
         }
-        /**
-         * Ensures that a two dimensional array has all sub-arrays present and the same Length
-         * @return <c>false</c> if any sub-array Is missing, or Is of different Length
-         */
-        protected static bool AreSubArraysConsistent(double[][] values)
+        CollectValue((ValueEval)operand, false, temp);
+    }
+    private void CollectValue(ValueEval ve, bool isViaReference, DoubleList temp)
+    {
+        if (ve == null)
         {
-
-            if (values == null || values.Length < 1)
+            throw new ArgumentException("ve must not be null");
+        }
+        if (ve is BoolEval boolEval)
+        {
+            if (!isViaReference || _isReferenceBoolCounted)
             {
-                // TODO this doesn't seem right.  Fix or Add comment.
-                return true;
+                temp.Add(boolEval.NumberValue);
             }
-
-            if (values[0] == null)
+            return;
+        }
+        if (ve is NumberEval ne)
+        {
+            temp.Add(ne.NumberValue);
+            return;
+        }
+        if (ve is StringEval eval)
+        {
+            if (isViaReference)
             {
-                return false;
+                // ignore all ref strings
+                return;
             }
-            int outerMax = values.Length;
-            int innerMax = values[0].Length;
-            for (int i = 1; i < outerMax; i++)
-            { // note - 'i=1' start at second sub-array
-                double[] subArr = values[i];
-                if (subArr == null)
-                {
-                    return false;
-                }
-                if (innerMax != subArr.Length)
-                {
-                    return false;
-                }
+            String s = eval.StringValue;
+            Double d = OperandResolver.ParseDouble(s);
+            if (double.IsNaN(d))
+            {
+                throw new EvaluationException(ErrorEval.VALUE_INVALID);
             }
+            temp.Add(d);
+            return;
+        }
+        if (ve is ErrorEval errorEval)
+        {
+            throw new EvaluationException(errorEval);
+        }
+        if (ve == BlankEval.instance)
+        {
+            if (_isBlankCounted)
+            {
+                temp.Add(0.0);
+            }
+            return;
+        }
+        throw new InvalidOperationException("Invalid ValueEval type passed for conversion: ("
+                + ve.GetType().Name + ")");
+    }
+    /**
+     * Returns a double array that contains values for the numeric cells
+     * from among the list of operands. Blanks and Blank equivalent cells
+     * are ignored. Error operands or cells containing operands of type
+     * that are considered invalid and would result in #VALUE! error in
+     * excel cause this function to return <c>null</c>.
+     *
+     * @return never <c>null</c>
+     */
+    protected double[] GetNumberArray(ValueEval[] operands)
+    {
+        if (operands.Length > MaxNumOperands)
+        {
+            throw EvaluationException.InvalidValue();
+        }
+        DoubleList retval = new DoubleList();
+
+        for (int i = 0, iSize = operands.Length; i < iSize; i++)
+        {
+            CollectValues(operands[i], retval);
+        }
+        return retval.ToArray();
+    }
+    /**
+     * Ensures that a two dimensional array has all sub-arrays present and the same Length
+     * @return <c>false</c> if any sub-array Is missing, or Is of different Length
+     */
+    protected static bool AreSubArraysConsistent(double[][] values)
+    {
+
+        if (values == null || values.Length < 1)
+        {
+            // TODO this doesn't seem right.  Fix or Add comment.
             return true;
         }
 
+        if (values[0] == null)
+        {
+            return false;
+        }
+        int outerMax = values.Length;
+        int innerMax = values[0].Length;
+        for (int i = 1; i < outerMax; i++)
+        { // note - 'i=1' start at second sub-array
+            double[] subArr = values[i];
+            if (subArr == null)
+            {
+                return false;
+            }
+            if (innerMax != subArr.Length)
+            {
+                return false;
+            }
+        }
+        return true;
     }
+
 }

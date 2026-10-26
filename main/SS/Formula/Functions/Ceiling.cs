@@ -20,20 +20,19 @@
  */
 using NPOI.SS.Formula.Functions.Numeric;
 
-namespace NPOI.SS.Formula.Functions
+namespace NPOI.SS.Formula.Functions;
+
+
+/**
+ * @author Amol S. Deshmukh &lt; amolweb at ya hoo dot com &gt;
+ *
+ */
+public class Ceiling : TwoArg
 {
 
-    /**
-     * @author Amol S. Deshmukh &lt; amolweb at ya hoo dot com &gt;
-     *
-     */
-    public class Ceiling : TwoArg
+    public override double Evaluate(double d0, double d1)
     {
-
-        public override double Evaluate(double d0, double d1)
-        {
-            return MathX.Ceiling(d0, d1);
-        }
-
+        return MathX.Ceiling(d0, d1);
     }
+
 }
