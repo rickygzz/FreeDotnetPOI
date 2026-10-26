@@ -15,38 +15,37 @@
    limitations Under the License.
 ==================================================================== */
 
-namespace NPOI.SS.Formula.Eval
+namespace NPOI.SS.Formula.Eval;
+
+using NPOI.SS.Formula.Functions;
+/**
+ * Implementation of Excel formula token '%'. <p/>
+ * @author Josh Micich
+ */
+public class PercentEval : Fixed1ArgFunction
 {
-    using NPOI.SS.Formula.Functions;
-    /**
-     * Implementation of Excel formula token '%'. <p/>
-     * @author Josh Micich
-     */
-    public class PercentEval : Fixed1ArgFunction
+    public static Function instance = new PercentEval();
+
+    private PercentEval()
     {
-        public static Function instance = new PercentEval();
+    }
 
-        private PercentEval()
+    public override ValueEval Evaluate(int srcRowIndex, int srcColumnIndex, ValueEval arg0)
+    {
+        double d0;
+        try
         {
+            ValueEval ve = OperandResolver.GetSingleValue(arg0, srcRowIndex, srcColumnIndex);
+            d0 = OperandResolver.CoerceValueToDouble(ve);
         }
-
-        public override ValueEval Evaluate(int srcRowIndex, int srcColumnIndex, ValueEval arg0)
+        catch (EvaluationException e)
         {
-            double d0;
-            try
-            {
-                ValueEval ve = OperandResolver.GetSingleValue(arg0, srcRowIndex, srcColumnIndex);
-                d0 = OperandResolver.CoerceValueToDouble(ve);
-            }
-            catch (EvaluationException e)
-            {
-                return e.GetErrorEval();
-            }
-            if (d0 == 0.0)
-            { // this '==' matches +0.0 and -0.0
-                return NumberEval.ZERO;
-            }
-            return new NumberEval(d0 / 100);
+            return e.GetErrorEval();
         }
+        if (d0 == 0.0)
+        { // this '==' matches +0.0 and -0.0
+            return NumberEval.ZERO;
+        }
+        return new NumberEval(d0 / 100);
     }
 }

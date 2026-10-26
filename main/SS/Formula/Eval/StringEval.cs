@@ -15,48 +15,47 @@
 * limitations Under the License.
 */
 
-namespace NPOI.SS.Formula.Eval
+namespace NPOI.SS.Formula.Eval;
+
+using System;
+using System.Text;
+using NPOI.SS.Formula.PTG;
+
+
+/**
+ * @author Amol S. Deshmukh &lt; amolweb at ya hoo dot com &gt;
+ *  
+ */
+public class StringEval : StringValueEval
 {
-    using System;
-    using System.Text;
-    using NPOI.SS.Formula.PTG;
+    public static readonly StringEval EMPTY_INSTANCE = new StringEval("");
 
+    private String value;
 
-    /**
-     * @author Amol S. Deshmukh &lt; amolweb at ya hoo dot com &gt;
-     *  
-     */
-    public class StringEval : StringValueEval
+    public StringEval(Ptg ptg):this(((StringPtg)ptg).Value)
     {
-        public static readonly StringEval EMPTY_INSTANCE = new StringEval("");
+        
+    }
 
-        private String value;
+    public StringEval(String value)
+    {
+        if (value == null)
+        {
+            throw new ArgumentException("value must not be null");
+        }
+        this.value = value;
+    }
 
-        public StringEval(Ptg ptg):this(((StringPtg)ptg).Value)
-        {
-            
-        }
-
-        public StringEval(String value)
-        {
-            if (value == null)
-            {
-                throw new ArgumentException("value must not be null");
-            }
-            this.value = value;
-        }
-
-        public String StringValue
-        {
-            get { return value; }
-        }
-        public override String ToString()
-        {
-            StringBuilder sb = new StringBuilder(64);
-            sb.Append(GetType().Name).Append(" [");
-            sb.Append(value);
-            sb.Append("]");
-            return sb.ToString();
-        }
+    public String StringValue
+    {
+        get { return value; }
+    }
+    public override String ToString()
+    {
+        StringBuilder sb = new StringBuilder(64);
+        sb.Append(GetType().Name).Append(" [");
+        sb.Append(value);
+        sb.Append("]");
+        return sb.ToString();
     }
 }

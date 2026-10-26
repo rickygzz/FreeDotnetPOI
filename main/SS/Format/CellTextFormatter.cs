@@ -14,87 +14,87 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 ==================================================================== */
-namespace NPOI.SS.Format
-{
-    using System;
-    using System.Text.RegularExpressions;
-    using System.Text;
 
+namespace NPOI.SS.Format;
+
+using System;
+using System.Text.RegularExpressions;
+using System.Text;
+
+
+/**
+ * This class : printing out text.
+ *
+ * @author Ken Arnold, Industrious Media LLC
+ */
+public class CellTextFormatter : CellFormatter
+{
+    private readonly int[] textPos;
+    private readonly string desc;
+
+    internal static readonly CellTextFormatter SIMPLE_TEXT = new CellTextFormatter("@");
+
+    private sealed class PartHandler : CellFormatPart.IPartHandler
+    {
+        private int numplace;
+        public int NumPlace
+        {
+            get{return numplace;}
+        }
+        public PartHandler(int numPlace)
+        {
+            this.numplace = numPlace;
+        }
+        public String HandlePart(Match m, String part,
+                            CellFormatType type, StringBuilder desc)
+        {
+            if (part.Equals("@"))
+            {
+                numplace++;
+                return "\u0000";
+            }
+            return null;
+        }
+    }
+    public CellTextFormatter(String format)
+        : base(format)
+    {
+        ;
+
+        int[] numPlaces = new int[1];
+        PartHandler handler = new PartHandler(numPlaces[0]);
+        desc = CellFormatPart.ParseFormat(format, CellFormatType.TEXT, handler).ToString();
+
+        // Remember the "@" positions in last-to-first order (to make insertion easier)
+        textPos = new int[handler.NumPlace];
+        int pos = desc.Length - 1;
+        for (int i = 0; i < textPos.Length; i++)
+        {
+            textPos[i] = desc.LastIndexOf('\u0000', pos);
+            pos = textPos[i] - 1;
+        }
+    }
+
+    /** {@inheritDoc} */
+    public override void FormatValue(StringBuilder toAppendTo, Object obj)
+    {
+        int start = toAppendTo.Length;
+        String text = obj.ToString();
+        if (obj is Boolean)
+        {
+            text = text.ToUpper();
+        }
+        toAppendTo.Append(desc);
+        toAppendTo.Replace("\0", text);
+    }
 
     /**
-     * This class : printing out text.
-     *
-     * @author Ken Arnold, Industrious Media LLC
+     * {@inheritDoc}
+     * <p/>
+     * For text, this is just printing the text.
      */
-    public class CellTextFormatter : CellFormatter
+    public override void SimpleValue(StringBuilder toAppendTo, Object value)
     {
-        private readonly int[] textPos;
-        private readonly string desc;
-
-        internal static readonly CellTextFormatter SIMPLE_TEXT = new CellTextFormatter("@");
-
-        private sealed class PartHandler : CellFormatPart.IPartHandler
-        {
-            private int numplace;
-            public int NumPlace
-            {
-                get{return numplace;}
-            }
-            public PartHandler(int numPlace)
-            {
-                this.numplace = numPlace;
-            }
-            public String HandlePart(Match m, String part,
-                                CellFormatType type, StringBuilder desc)
-            {
-                if (part.Equals("@"))
-                {
-                    numplace++;
-                    return "\u0000";
-                }
-                return null;
-            }
-        }
-        public CellTextFormatter(String format)
-            : base(format)
-        {
-            ;
-
-            int[] numPlaces = new int[1];
-            PartHandler handler = new PartHandler(numPlaces[0]);
-            desc = CellFormatPart.ParseFormat(format, CellFormatType.TEXT, handler).ToString();
-
-            // Remember the "@" positions in last-to-first order (to make insertion easier)
-            textPos = new int[handler.NumPlace];
-            int pos = desc.Length - 1;
-            for (int i = 0; i < textPos.Length; i++)
-            {
-                textPos[i] = desc.LastIndexOf('\u0000', pos);
-                pos = textPos[i] - 1;
-            }
-        }
-
-        /** {@inheritDoc} */
-        public override void FormatValue(StringBuilder toAppendTo, Object obj)
-        {
-            int start = toAppendTo.Length;
-            String text = obj.ToString();
-            if (obj is Boolean)
-            {
-                text = text.ToUpper();
-            }
-            toAppendTo.Append(desc);
-            toAppendTo.Replace("\0", text);
-        }
-
-        /**
-         * {@inheritDoc}
-         * <p/>
-         * For text, this is just printing the text.
-         */
-        public override void SimpleValue(StringBuilder toAppendTo, Object value)
-        {
-            SIMPLE_TEXT.FormatValue(toAppendTo, value);
-        }
+        SIMPLE_TEXT.FormatValue(toAppendTo, value);
     }
 }

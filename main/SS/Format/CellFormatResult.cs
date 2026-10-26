@@ -14,72 +14,72 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 ==================================================================== */
-namespace NPOI.SS.Format
+
+namespace NPOI.SS.Format;
+
+using NPOI.Util;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
+using System;
+
+
+
+/**
+ * This object Contains the result of Applying a cell format or cell format part
+ * to a value.
+ *
+ * @author Ken Arnold, Industrious Media LLC
+ * @see CellFormatPart#Apply(Object)
+ * @see CellFormat#Apply(Object)
+ */
+public class CellFormatResult
 {
-    using NPOI.Util;
-    using SixLabors.ImageSharp;
-    using SixLabors.ImageSharp.PixelFormats;
-    using System;
+    private bool _applies;
+    private string _text;
+    private Color _textcolor;
+    /**
+     * This is <tt>true</tt> if no condition was given that applied to the
+     * value, or if the condition is satisfied.  If a condition is relevant, and
+     * when applied the value fails the test, this is <tt>false</tt>.
+     */
+    public bool Applies
+    {
+        get { return _applies; }
+        set { _applies = value; }
+    }
 
 
+    /** The resulting text.  This will never be <tt>null</tt>. */
+    public String Text
+    {
+        get{return _text;}
+        set{_text=value;}
+    }
 
     /**
-     * This object Contains the result of Applying a cell format or cell format part
-     * to a value.
-     *
-     * @author Ken Arnold, Industrious Media LLC
-     * @see CellFormatPart#Apply(Object)
-     * @see CellFormat#Apply(Object)
+     * The color the format Sets, or <tt>null</tt> if the format Sets no color.
+     * This will always be <tt>null</tt> if {@link #applies} is <tt>false</tt>.
      */
-    public class CellFormatResult
+    public Rgb24 TextColor
     {
-        private bool _applies;
-        private string _text;
-        private Color _textcolor;
-        /**
-         * This is <tt>true</tt> if no condition was given that applied to the
-         * value, or if the condition is satisfied.  If a condition is relevant, and
-         * when applied the value fails the test, this is <tt>false</tt>.
-         */
-        public bool Applies
-        {
-            get { return _applies; }
-            set { _applies = value; }
-        }
+        get{return _textcolor;}
+        set{_textcolor=value;}
+    }
 
+    /**
+     * Creates a new format result object.
+     *
+     * @param applies   The value for {@link #applies}.
+     * @param text      The value for {@link #text}.
+     * @param textColor The value for {@link #textColor}.
+     */
+    public CellFormatResult(bool applies, String text, Rgb24 textColor)
+    {
+        if (text == null)
+            throw new ArgumentException("CellFormatResult text may not be null");
 
-        /** The resulting text.  This will never be <tt>null</tt>. */
-        public String Text
-        {
-            get{return _text;}
-            set{_text=value;}
-        }
-
-        /**
-         * The color the format Sets, or <tt>null</tt> if the format Sets no color.
-         * This will always be <tt>null</tt> if {@link #applies} is <tt>false</tt>.
-         */
-        public Rgb24 TextColor
-        {
-            get{return _textcolor;}
-            set{_textcolor=value;}
-        }
-
-        /**
-         * Creates a new format result object.
-         *
-         * @param applies   The value for {@link #applies}.
-         * @param text      The value for {@link #text}.
-         * @param textColor The value for {@link #textColor}.
-         */
-        public CellFormatResult(bool applies, String text, Rgb24 textColor)
-        {
-            if (text == null)
-                throw new ArgumentException("CellFormatResult text may not be null");
-
-            this.Applies = applies;
-            this.Text = text;
-            this.TextColor = (applies ? textColor : POIUtils.Color_Empty);
-        }
+        this.Applies = applies;
+        this.Text = text;
+        this.TextColor = (applies ? textColor : POIUtils.Color_Empty);
     }
 }

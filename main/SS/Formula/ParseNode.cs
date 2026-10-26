@@ -20,12 +20,13 @@ namespace NPOI.SS.Formula
 
     using System;
     using NPOI.SS.Formula.PTG;
-    using NPOI.SS.Formula.Function;
+    using NPOI.SS.Formula.Functions;
+
     /**
-     * Represents a syntactic element from a formula by encapsulating the corresponding <c>Ptg</c>
-     * Token.  Each <c>ParseNode</c> may have child <c>ParseNode</c>s in the case when the wrapped
-     * <c>Ptg</c> is non-atomic.
-     */
+    * Represents a syntactic element from a formula by encapsulating the corresponding <c>Ptg</c>
+    * Token.  Each <c>ParseNode</c> may have child <c>ParseNode</c>s in the case when the wrapped
+    * <c>Ptg</c> is non-atomic.
+    */
     class ParseNode
     {
 

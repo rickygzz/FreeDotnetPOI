@@ -16,34 +16,34 @@
 ==================================================================== */
 
 using System;
-namespace NPOI.SS.Formula.Eval
+
+namespace NPOI.SS.Formula.Eval;
+
+/**
+ * An exception thrown by implementors of {@link FormulaEvaluator} when 
+ *  attempting to evaluate a formula which requires a function that POI 
+ *  does not (yet) support.
+ */
+public class NotImplementedFunctionException : NotImplementedException
 {
-    /**
-     * An exception thrown by implementors of {@link FormulaEvaluator} when 
-     *  attempting to evaluate a formula which requires a function that POI 
-     *  does not (yet) support.
-     */
-    public class NotImplementedFunctionException : NotImplementedException
+    private String functionName;
+
+    public NotImplementedFunctionException(string functionName)
+        : base(functionName)
     {
-        private String functionName;
+        this.functionName = functionName;
+    }
+    public NotImplementedFunctionException(string functionName, NotImplementedException cause)
+        : base(functionName,cause)
+    {
+        this.functionName = functionName;
+    }
 
-        public NotImplementedFunctionException(string functionName)
-            : base(functionName)
+    public String FunctionName
+    {
+        get
         {
-            this.functionName = functionName;
-        }
-        public NotImplementedFunctionException(string functionName, NotImplementedException cause)
-            : base(functionName,cause)
-        {
-            this.functionName = functionName;
-        }
-
-        public String FunctionName
-        {
-            get
-            {
-                return functionName;
-            }
+            return functionName;
         }
     }
 }

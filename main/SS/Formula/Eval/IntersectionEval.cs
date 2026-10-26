@@ -18,98 +18,97 @@ using System;
 using NPOI.SS.Formula.Functions;
 using NPOI.SS.Formula.Eval;
 
-namespace NPOI.SS.Formula.Eval
+namespace NPOI.SS.Formula.Eval;
+
+
+/**
+ * @author Josh Micich
+ */
+public class IntersectionEval : Fixed2ArgFunction
 {
 
-    /**
-     * @author Josh Micich
-     */
-    public class IntersectionEval : Fixed2ArgFunction
+    public static NPOI.SS.Formula.Functions.Function instance = new IntersectionEval();
+
+    private IntersectionEval()
+    {
+        // enforces Singleton
+    }
+
+    public override ValueEval Evaluate(int srcRowIndex, int srcColumnIndex, ValueEval arg0, ValueEval arg1)
     {
 
-        public static NPOI.SS.Formula.Functions.Function instance = new IntersectionEval();
-
-        private IntersectionEval()
+        try
         {
-            // enforces Singleton
+            AreaEval reA = EvaluateRef(arg0);
+            AreaEval reB = EvaluateRef(arg1);
+            AreaEval result = ResolveRange(reA, reB);
+            if (result == null)
+            {
+                return ErrorEval.NULL_INTERSECTION;
+            }
+            return result;
+        }
+        catch (EvaluationException e)
+        {
+            return e.GetErrorEval();
+        }
+    }
+
+    /**
+     * @return simple rectangular {@link AreaEval} which represents the intersection of areas
+     * <c>aeA</c> and <c>aeB</c>. If the two areas do not intersect, the result is <code>null</code>.
+     */
+    private static AreaEval ResolveRange(AreaEval aeA, AreaEval aeB)
+    {
+
+        int aeAfr = aeA.FirstRow;
+        int aeAfc = aeA.FirstColumn;
+        int aeBlc = aeB.LastColumn;
+        if (aeAfc > aeBlc)
+        {
+            return null;
+        }
+        int aeBfc = aeB.FirstColumn;
+        if (aeBfc > aeA.LastColumn)
+        {
+            return null;
+        }
+        int aeBlr = aeB.LastRow;
+        if (aeAfr > aeBlr)
+        {
+            return null;
+        }
+        int aeBfr = aeB.FirstRow;
+        int aeAlr = aeA.LastRow;
+        if (aeBfr > aeAlr)
+        {
+            return null;
         }
 
-        public override ValueEval Evaluate(int srcRowIndex, int srcColumnIndex, ValueEval arg0, ValueEval arg1)
+
+        int top = Math.Max(aeAfr, aeBfr);
+        int bottom = Math.Min(aeAlr, aeBlr);
+        int left = Math.Max(aeAfc, aeBfc);
+        int right = Math.Min(aeA.LastColumn, aeBlc);
+
+        return aeA.Offset(top - aeAfr, bottom - aeAfr, left - aeAfc, right - aeAfc);
+    }
+
+    private static AreaEval EvaluateRef(ValueEval arg)
+    {
+        if (arg is AreaEval eval)
         {
-
-            try
-            {
-                AreaEval reA = EvaluateRef(arg0);
-                AreaEval reB = EvaluateRef(arg1);
-                AreaEval result = ResolveRange(reA, reB);
-                if (result == null)
-                {
-                    return ErrorEval.NULL_INTERSECTION;
-                }
-                return result;
-            }
-            catch (EvaluationException e)
-            {
-                return e.GetErrorEval();
-            }
+            return eval;
         }
-
-        /**
-         * @return simple rectangular {@link AreaEval} which represents the intersection of areas
-         * <c>aeA</c> and <c>aeB</c>. If the two areas do not intersect, the result is <code>null</code>.
-         */
-        private static AreaEval ResolveRange(AreaEval aeA, AreaEval aeB)
+        if (arg is RefEval refEval)
         {
-
-            int aeAfr = aeA.FirstRow;
-            int aeAfc = aeA.FirstColumn;
-            int aeBlc = aeB.LastColumn;
-            if (aeAfc > aeBlc)
-            {
-                return null;
-            }
-            int aeBfc = aeB.FirstColumn;
-            if (aeBfc > aeA.LastColumn)
-            {
-                return null;
-            }
-            int aeBlr = aeB.LastRow;
-            if (aeAfr > aeBlr)
-            {
-                return null;
-            }
-            int aeBfr = aeB.FirstRow;
-            int aeAlr = aeA.LastRow;
-            if (aeBfr > aeAlr)
-            {
-                return null;
-            }
-
-
-            int top = Math.Max(aeAfr, aeBfr);
-            int bottom = Math.Min(aeAlr, aeBlr);
-            int left = Math.Max(aeAfc, aeBfc);
-            int right = Math.Min(aeA.LastColumn, aeBlc);
-
-            return aeA.Offset(top - aeAfr, bottom - aeAfr, left - aeAfc, right - aeAfc);
+            return refEval.Offset(0, 0, 0, 0);
         }
-
-        private static AreaEval EvaluateRef(ValueEval arg)
+        if (arg is ErrorEval errorEval)
         {
-            if (arg is AreaEval eval)
-            {
-                return eval;
-            }
-            if (arg is RefEval refEval)
-            {
-                return refEval.Offset(0, 0, 0, 0);
-            }
-            if (arg is ErrorEval errorEval)
-            {
-                throw new EvaluationException(errorEval);
-            }
-            throw new ArgumentException("Unexpected ref arg class (" + arg.GetType().Name + ")");
+            throw new EvaluationException(errorEval);
         }
+        throw new ArgumentException("Unexpected ref arg class (" + arg.GetType().Name + ")");
     }
 }
 

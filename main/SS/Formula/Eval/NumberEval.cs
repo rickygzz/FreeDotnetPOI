@@ -18,79 +18,78 @@
  * Created on May 8, 2005
  *
  */
-namespace NPOI.SS.Formula.Eval
+using System;
+using NPOI.SS.Formula.PTG;
+using NPOI.SS.Util;
+using System.Globalization;
+using System.Text;
+
+namespace NPOI.SS.Formula.Eval;
+
+/**
+ * @author Amol S. Deshmukh &lt; amolweb at ya hoo dot com &gt;
+ *  
+ */
+public class NumberEval : NumericValueEval, StringValueEval
 {
-    using System;
-    using NPOI.SS.Formula.PTG;
-    using NPOI.SS.Util;
-    using System.Globalization;
-    using System.Text;
 
-    /**
-     * @author Amol S. Deshmukh &lt; amolweb at ya hoo dot com &gt;
-     *  
-     */
-    public class NumberEval : NumericValueEval, StringValueEval
+    public static readonly NumberEval ZERO = new NumberEval(0);
+
+    private readonly double _value;
+    private String _stringValue;
+
+
+    public NumberEval(Ptg ptg)
     {
-
-        public static readonly NumberEval ZERO = new NumberEval(0);
-
-        private readonly double _value;
-        private String _stringValue;
-
-
-        public NumberEval(Ptg ptg)
+        if (ptg is IntPtg intPtg)
         {
-            if (ptg is IntPtg intPtg)
+            this._value = intPtg.Value;
+        }
+        else if (ptg is NumberPtg numberPtg)
+        {
+            this._value = numberPtg.Value;
+        }
+    }
+
+    public NumberEval(double value)
+    {
+        this._value = value;
+    }
+
+    public double NumberValue
+    {
+        get { return _value; }
+    }
+
+    public String StringValue
+    {
+        get
+        {// TODO: limit to 15 decimal places
+            if (_stringValue == null)
+                //MakeString();
+                _stringValue = NumberToTextConverter.ToText(_value);
+            return _stringValue;
+        }
+    }
+
+    protected void MakeString()
+    {
+        if (!double.IsNaN(_value))
+        {
+            double lvalue = Math.Round(_value);
+            if (lvalue == _value)
             {
-                this._value = intPtg.Value;
+                _stringValue = lvalue.ToString(CultureInfo.CurrentCulture);
             }
-            else if (ptg is NumberPtg numberPtg)
+            else
             {
-                this._value = numberPtg.Value;
+                _stringValue = _value.ToString(CultureInfo.CurrentCulture);
             }
         }
-
-        public NumberEval(double value)
-        {
-            this._value = value;
-        }
-
-        public double NumberValue
-        {
-            get { return _value; }
-        }
-
-        public String StringValue
-        {
-            get
-            {// TODO: limit to 15 decimal places
-                if (_stringValue == null)
-                    //MakeString();
-                    _stringValue = NumberToTextConverter.ToText(_value);
-                return _stringValue;
-            }
-        }
-
-        protected void MakeString()
-        {
-            if (!double.IsNaN(_value))
-            {
-                double lvalue = Math.Round(_value);
-                if (lvalue == _value)
-                {
-                    _stringValue = lvalue.ToString(CultureInfo.CurrentCulture);
-                }
-                else
-                {
-                    _stringValue = _value.ToString(CultureInfo.CurrentCulture);
-                }
-            }
-        }
-        public override string ToString()
-        {
-            return GetType().Name + " [" +
-                StringValue + "]";
-        }
+    }
+    public override string ToString()
+    {
+        return GetType().Name + " [" +
+            StringValue + "]";
     }
 }

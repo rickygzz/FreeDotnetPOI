@@ -15,21 +15,19 @@
 * limitations Under the License.
 */
 
-namespace NPOI.SS.Formula.Eval
+namespace NPOI.SS.Formula.Eval.TwoOperandNumeric;
+
+using System;
+
+/**
+ * @author Amol S. Deshmukh &lt; amolweb at ya hoo dot com &gt;
+ *  
+ */
+public class PowerEval : TwoOperandNumericOperation
 {
-    using System;
 
-    /**
-     * @author Amol S. Deshmukh &lt; amolweb at ya hoo dot com &gt;
-     *  
-     */
-    public class PowerEval : TwoOperandNumericOperation
+    public override double Evaluate(double d0, double d1)
     {
-
-        public override double Evaluate(double d0, double d1)
-        {
-            return Math.Pow(d0, d1);
-        }
+        return Math.Pow(d0, d1);
     }
-
 }

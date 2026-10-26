@@ -1,12 +1,10 @@
-﻿
-namespace NPOI.SS.Formula.Eval
-{
-    public class MissingArgEval : ValueEval
-    {
-        public static MissingArgEval instance = new MissingArgEval();
+﻿namespace NPOI.SS.Formula.Eval;
 
-        private MissingArgEval()
-        {
-        }
+public class MissingArgEval : ValueEval
+{
+    public static MissingArgEval instance = new MissingArgEval();
+
+    private MissingArgEval()
+    {
     }
 }

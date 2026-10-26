@@ -15,41 +15,39 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.SS.Formula.Eval
+namespace NPOI.SS.Formula.Eval;
+
+using System;
+
+using NPOI.SS.Formula;
+using System.Text;
+
+/**
+ * Evaluation of a Name defined in a Sheet or Workbook scope
+ */
+public class ExternalNameEval : ValueEval
 {
-    using System;
+    private readonly IEvaluationName _name;
 
-    using NPOI.SS.Formula;
-    using System.Text;
-
-    /**
-     * Evaluation of a Name defined in a Sheet or Workbook scope
-     */
-    public class ExternalNameEval : ValueEval
+    public ExternalNameEval(IEvaluationName name)
     {
-        private readonly IEvaluationName _name;
+        _name = name;
+    }
 
-        public ExternalNameEval(IEvaluationName name)
+    public IEvaluationName Name
+    {
+        get
         {
-            _name = name;
-        }
-
-        public IEvaluationName Name
-        {
-            get
-            {
-                return _name;
-            }
-        }
-
-        public override String ToString()
-        {
-            StringBuilder sb = new StringBuilder(64);
-            sb.Append(GetType().Name).Append(" [");
-            sb.Append(_name.NameText);
-            sb.Append("]");
-            return sb.ToString();
+            return _name;
         }
     }
 
+    public override String ToString()
+    {
+        StringBuilder sb = new StringBuilder(64);
+        sb.Append(GetType().Name).Append(" [");
+        sb.Append(_name.NameText);
+        sb.Append("]");
+        return sb.ToString();
+    }
 }

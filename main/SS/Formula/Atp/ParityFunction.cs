@@ -15,59 +15,58 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.SS.Formula.Atp
+namespace NPOI.SS.Formula.Atp;
+
+using System;
+using NPOI.SS.Formula.Eval;
+using NPOI.SS.Formula.Functions;
+using NPOI.SS.Formula;
+/**
+ * Implementation of Excel 'Analysis ToolPak' function ISEVEN() ISODD()<br/>
+ * 
+ * @author Josh Micich
+ */
+public class ParityFunction : FreeRefFunction
 {
-    using System;
-    using NPOI.SS.Formula.Eval;
-    using NPOI.SS.Formula.Functions;
-    using NPOI.SS.Formula;
-    /**
-     * Implementation of Excel 'Analysis ToolPak' function ISEVEN() ISODD()<br/>
-     * 
-     * @author Josh Micich
-     */
-    public class ParityFunction : FreeRefFunction
+
+    public static readonly FreeRefFunction IS_EVEN = new ParityFunction(0);
+    public static readonly FreeRefFunction IS_ODD = new ParityFunction(1);
+    private readonly int _desiredParity;
+
+    private ParityFunction(int desiredParity)
     {
-
-        public static readonly FreeRefFunction IS_EVEN = new ParityFunction(0);
-        public static readonly FreeRefFunction IS_ODD = new ParityFunction(1);
-        private readonly int _desiredParity;
-
-        private ParityFunction(int desiredParity)
+        _desiredParity = desiredParity;
+    }
+    public ValueEval Evaluate(ValueEval[] args, OperationEvaluationContext ec) 
+    {
+        if (args.Length != 1)
         {
-            _desiredParity = desiredParity;
-        }
-        public ValueEval Evaluate(ValueEval[] args, OperationEvaluationContext ec) 
-        {
-            if (args.Length != 1)
-            {
-                return ErrorEval.VALUE_INVALID;
-            }
-
-            int val;
-            try
-            {
-                val = EvaluateArgParity(args[0], ec.RowIndex, ec.ColumnIndex);
-            }
-            catch (EvaluationException e)
-            {
-                return e.GetErrorEval();
-            }
-
-            return BoolEval.ValueOf(val == _desiredParity);
+            return ErrorEval.VALUE_INVALID;
         }
 
-        private static int EvaluateArgParity(ValueEval arg, int srcCellRow, int srcCellCol)
+        int val;
+        try
         {
-            ValueEval ve = OperandResolver.GetSingleValue(arg, srcCellRow, srcCellCol);
-
-            double d = OperandResolver.CoerceValueToDouble(ve);
-            if (d < 0)
-            {
-                d = -d;
-            }
-            long v = (long)Math.Floor(d);
-            return (int)(v & 0x0001);
+            val = EvaluateArgParity(args[0], ec.RowIndex, ec.ColumnIndex);
         }
+        catch (EvaluationException e)
+        {
+            return e.GetErrorEval();
+        }
+
+        return BoolEval.ValueOf(val == _desiredParity);
+    }
+
+    private static int EvaluateArgParity(ValueEval arg, int srcCellRow, int srcCellCol)
+    {
+        ValueEval ve = OperandResolver.GetSingleValue(arg, srcCellRow, srcCellCol);
+
+        double d = OperandResolver.CoerceValueToDouble(ve);
+        if (d < 0)
+        {
+            d = -d;
+        }
+        long v = (long)Math.Floor(d);
+        return (int)(v & 0x0001);
     }
 }

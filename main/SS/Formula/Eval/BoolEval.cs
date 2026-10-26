@@ -18,67 +18,66 @@
  * Created on May 8, 2005
  *
  */
-namespace NPOI.SS.Formula.Eval
-{
-    using System;
-    using System.Text;
-    using NPOI.SS.Formula.PTG;
+namespace NPOI.SS.Formula.Eval;
 
+using System;
+using System.Text;
+using NPOI.SS.Formula.PTG;
+
+
+/**
+ * @author Amol S. Deshmukh &lt; amolweb at ya hoo dot com &gt;
+ *  
+ */
+public class BoolEval : NumericValueEval, StringValueEval
+{
+
+    private bool value;
+
+    public static readonly BoolEval FALSE = new BoolEval(false);
+    public static readonly BoolEval TRUE = new BoolEval(true);
 
     /**
-     * @author Amol S. Deshmukh &lt; amolweb at ya hoo dot com &gt;
-     *  
+     * Convenience method for the following:<br/>
+     * <c>(b ? BoolEval.TRUE : BoolEval.FALSE)</c>
+     * @return a <c>BoolEval</c> instance representing <c>b</c>.
      */
-    public class BoolEval : NumericValueEval, StringValueEval
+    public static BoolEval ValueOf(bool b)
     {
+        // TODO - Find / Replace all occurrences
+        return b ? TRUE : FALSE;
+    }
 
-        private bool value;
+    public BoolEval(Ptg ptg)
+    {
+        this.value = ((BoolPtg)ptg).Value;
+    }
 
-        public static readonly BoolEval FALSE = new BoolEval(false);
-        public static readonly BoolEval TRUE = new BoolEval(true);
+    private BoolEval(bool value)
+    {
+        this.value = value;
+    }
 
-        /**
-         * Convenience method for the following:<br/>
-         * <c>(b ? BoolEval.TRUE : BoolEval.FALSE)</c>
-         * @return a <c>BoolEval</c> instance representing <c>b</c>.
-         */
-        public static BoolEval ValueOf(bool b)
-        {
-            // TODO - Find / Replace all occurrences
-            return b ? TRUE : FALSE;
-        }
+    public bool BooleanValue
+    {
+        get { return value; }
+    }
 
-        public BoolEval(Ptg ptg)
-        {
-            this.value = ((BoolPtg)ptg).Value;
-        }
+    public double NumberValue
+    {
+        get{return value ? 1 : 0;}
+    }
 
-        private BoolEval(bool value)
-        {
-            this.value = value;
-        }
-
-        public bool BooleanValue
-        {
-            get { return value; }
-        }
-
-        public double NumberValue
-        {
-            get{return value ? 1 : 0;}
-        }
-
-        public String StringValue
-        {
-            get { return value ? "TRUE" : "FALSE"; }
-        }
-        public override String ToString()
-        {
-            StringBuilder sb = new StringBuilder(64);
-            sb.Append(GetType().Name).Append(" [");
-            sb.Append(StringValue);
-            sb.Append("]");
-            return sb.ToString();
-        }
+    public String StringValue
+    {
+        get { return value ? "TRUE" : "FALSE"; }
+    }
+    public override String ToString()
+    {
+        StringBuilder sb = new StringBuilder(64);
+        sb.Append(GetType().Name).Append(" [");
+        sb.Append(StringValue);
+        sb.Append("]");
+        return sb.ToString();
     }
 }

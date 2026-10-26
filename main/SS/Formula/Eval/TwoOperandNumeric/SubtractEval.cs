@@ -15,18 +15,17 @@
 * limitations Under the License.
 */
 
-namespace NPOI.SS.Formula.Eval
-{
-    /**
-     * @author Amol S. Deshmukh &lt; amolweb at ya hoo dot com &gt;
-     *  
-     */
-    public class SubtractEval : TwoOperandNumericOperation
-    {
+namespace NPOI.SS.Formula.Eval.TwoOperandNumeric;
 
-        public override double Evaluate(double d0, double d1)
-        {
-            return d0 - d1;
-        }
+/**
+ * @author Amol S. Deshmukh &lt; amolweb at ya hoo dot com &gt;
+ *  
+ */
+public class SubtractEval : TwoOperandNumericOperation
+{
+
+    public override double Evaluate(double d0, double d1)
+    {
+        return d0 - d1;
     }
 }

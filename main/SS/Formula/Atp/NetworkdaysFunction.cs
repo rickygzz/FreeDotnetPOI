@@ -18,71 +18,70 @@
 using NPOI.SS.Formula.Functions;
 using NPOI.SS.Formula.Eval;
 
-namespace NPOI.SS.Formula.Atp
+namespace NPOI.SS.Formula.Atp;
+
+/**
+ * Implementation of Excel 'Analysis ToolPak' function NETWORKDAYS()<br/>
+ * Returns the number of workdays given a starting and an ending date, considering an interval of holidays. A workday is any non
+ * saturday/sunday date.
+ * <p/>
+ * <b>Syntax</b><br/>
+ * <b>NETWORKDAYS</b>(<b>startDate</b>, <b>endDate</b>, holidays)
+ * <p/>
+ * 
+ * @author jfaenomoto@gmail.com
+ */
+public class NetworkdaysFunction : FreeRefFunction
 {
+
+    public static FreeRefFunction instance = new NetworkdaysFunction(ArgumentsEvaluator.instance);
+
+    private ArgumentsEvaluator evaluator;
+
     /**
-     * Implementation of Excel 'Analysis ToolPak' function NETWORKDAYS()<br/>
-     * Returns the number of workdays given a starting and an ending date, considering an interval of holidays. A workday is any non
-     * saturday/sunday date.
-     * <p/>
-     * <b>Syntax</b><br/>
-     * <b>NETWORKDAYS</b>(<b>startDate</b>, <b>endDate</b>, holidays)
-     * <p/>
+     * Constructor.
      * 
-     * @author jfaenomoto@gmail.com
+     * @param anEvaluator an injected {@link ArgumentsEvaluator}.
      */
-    public class NetworkdaysFunction : FreeRefFunction
+    private NetworkdaysFunction(ArgumentsEvaluator anEvaluator)
     {
+        // enforces singleton
+        this.evaluator = anEvaluator;
+    }
 
-        public static FreeRefFunction instance = new NetworkdaysFunction(ArgumentsEvaluator.instance);
-
-        private ArgumentsEvaluator evaluator;
-
-        /**
-         * Constructor.
-         * 
-         * @param anEvaluator an injected {@link ArgumentsEvaluator}.
-         */
-        private NetworkdaysFunction(ArgumentsEvaluator anEvaluator)
+    /**
+     * Evaluate for NETWORKDAYS. Given two dates and a optional date or interval of holidays, determines how many working days are there
+     * between those dates.
+     * 
+     * @return {@link ValueEval} for the number of days between two dates.
+     */
+    public ValueEval Evaluate(ValueEval[] args, OperationEvaluationContext ec)
+    {
+        if (args.Length < 2 || args.Length > 3)
         {
-            // enforces singleton
-            this.evaluator = anEvaluator;
+            return ErrorEval.VALUE_INVALID;
         }
 
-        /**
-         * Evaluate for NETWORKDAYS. Given two dates and a optional date or interval of holidays, determines how many working days are there
-         * between those dates.
-         * 
-         * @return {@link ValueEval} for the number of days between two dates.
-         */
-        public ValueEval Evaluate(ValueEval[] args, OperationEvaluationContext ec)
+        int srcCellRow = ec.RowIndex;
+        int srcCellCol = ec.ColumnIndex;
+
+        double start, end;
+        double[] holidays;
+        try
         {
-            if (args.Length < 2 || args.Length > 3)
+            start = ArgumentsEvaluator.EvaluateDateArg(args[0], srcCellRow, srcCellCol);
+            end = ArgumentsEvaluator.EvaluateDateArg(args[1], srcCellRow, srcCellCol);
+            if (start > end)
             {
-                return ErrorEval.VALUE_INVALID;
+                return ErrorEval.NAME_INVALID;
             }
-
-            int srcCellRow = ec.RowIndex;
-            int srcCellCol = ec.ColumnIndex;
-
-            double start, end;
-            double[] holidays;
-            try
-            {
-                start = ArgumentsEvaluator.EvaluateDateArg(args[0], srcCellRow, srcCellCol);
-                end = ArgumentsEvaluator.EvaluateDateArg(args[1], srcCellRow, srcCellCol);
-                if (start > end)
-                {
-                    return ErrorEval.NAME_INVALID;
-                }
-                ValueEval holidaysCell = args.Length == 3 ? args[2] : null;
-                holidays = ArgumentsEvaluator.EvaluateDatesArg(holidaysCell, srcCellRow, srcCellCol);
-                return new NumberEval(WorkdayCalculator.instance.CalculateWorkdays(start, end, holidays));
-            }
-            catch (EvaluationException)
-            {
-                return ErrorEval.VALUE_INVALID;
-            }
+            ValueEval holidaysCell = args.Length == 3 ? args[2] : null;
+            holidays = ArgumentsEvaluator.EvaluateDatesArg(holidaysCell, srcCellRow, srcCellCol);
+            return new NumberEval(WorkdayCalculator.instance.CalculateWorkdays(start, end, holidays));
+        }
+        catch (EvaluationException)
+        {
+            return ErrorEval.VALUE_INVALID;
         }
     }
 }

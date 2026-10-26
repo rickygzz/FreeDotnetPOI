@@ -20,49 +20,48 @@ using System.Text;
 using NPOI.SS.Formula.Functions;
 using NPOI.SS.Formula.Eval;
 
-namespace NPOI.SS.Formula.Atp
+namespace NPOI.SS.Formula.Atp;
+
+class IfError : FreeRefFunction
 {
-    class IfError : FreeRefFunction
+
+    public static FreeRefFunction Instance = new IfError();
+
+    private IfError()
     {
+        // enforce singleton
+    }
 
-        public static FreeRefFunction Instance = new IfError();
-
-        private IfError()
+    public ValueEval Evaluate(ValueEval[] args, OperationEvaluationContext ec)
+    {
+        if (args.Length != 2)
         {
-            // enforce singleton
+            return ErrorEval.VALUE_INVALID;
         }
 
-        public ValueEval Evaluate(ValueEval[] args, OperationEvaluationContext ec)
+        ValueEval val;
+        try
         {
-            if (args.Length != 2)
-            {
-                return ErrorEval.VALUE_INVALID;
-            }
-
-            ValueEval val;
-            try
-            {
-                val = EvaluateInternal(args[0], args[1], ec.RowIndex, ec.ColumnIndex);
-            }
-            catch (EvaluationException e)
-            {
-                return e.GetErrorEval();
-            }
-
-            return val;
+            val = EvaluateInternal(args[0], args[1], ec.RowIndex, ec.ColumnIndex);
+        }
+        catch (EvaluationException e)
+        {
+            return e.GetErrorEval();
         }
 
-        private static ValueEval EvaluateInternal(ValueEval arg, ValueEval iferror, int srcCellRow, int srcCellCol)
+        return val;
+    }
+
+    private static ValueEval EvaluateInternal(ValueEval arg, ValueEval iferror, int srcCellRow, int srcCellCol)
+    {
+        arg = WorkbookEvaluator.DereferenceResult(arg, srcCellRow, srcCellCol);
+        if (arg is ErrorEval)
         {
-            arg = WorkbookEvaluator.DereferenceResult(arg, srcCellRow, srcCellCol);
-            if (arg is ErrorEval)
-            {
-               return iferror;
-            }
-            else
-            {
-                return arg;
-            }
+           return iferror;
+        }
+        else
+        {
+            return arg;
         }
     }
 }

@@ -18,17 +18,16 @@
  * Created on May 8, 2005
  *
  */
-namespace NPOI.SS.Formula.Eval
+namespace NPOI.SS.Formula.Eval.RelationalOperation;
+
+/**
+ * @author Amol S. Deshmukh &lt; amolweb at ya hoo dot com &gt;
+ *  
+ */
+public class GreaterThanEval : RelationalOperationEval
 {
-    /**
-     * @author Amol S. Deshmukh &lt; amolweb at ya hoo dot com &gt;
-     *  
-     */
-    public class GreaterThanEval : RelationalOperationEval
+    public override bool ConvertComparisonResult(int cmpResult)
     {
-        public override bool ConvertComparisonResult(int cmpResult)
-        {
-            return cmpResult > 0;
-        }
+        return cmpResult > 0;
     }
 }

@@ -15,70 +15,69 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.SS.Formula.Atp
+namespace NPOI.SS.Formula.Atp;
+
+using NPOI.SS.Formula.Functions;
+using NPOI.SS.Formula.Eval;
+using System;
+
+
+/**
+ * Implementation of Excel 'Analysis ToolPak' function MROUND()<br/>
+ *
+ * Returns a number rounded to the desired multiple.<p/>
+ *
+ * <b>Syntax</b><br/>
+ * <b>MROUND</b>(<b>number</b>, <b>multiple</b>)
+ *
+ * <p/>
+ *
+ * @author Yegor Kozlov
+ */
+class MRound : FreeRefFunction
 {
-    using NPOI.SS.Formula.Functions;
-    using NPOI.SS.Formula.Eval;
-    using System;
 
+    public static FreeRefFunction Instance = new MRound();
 
-    /**
-     * Implementation of Excel 'Analysis ToolPak' function MROUND()<br/>
-     *
-     * Returns a number rounded to the desired multiple.<p/>
-     *
-     * <b>Syntax</b><br/>
-     * <b>MROUND</b>(<b>number</b>, <b>multiple</b>)
-     *
-     * <p/>
-     *
-     * @author Yegor Kozlov
-     */
-    class MRound : FreeRefFunction
+    private MRound()
     {
+        // enforce singleton
+    }
 
-        public static FreeRefFunction Instance = new MRound();
+    public ValueEval Evaluate(ValueEval[] args, OperationEvaluationContext ec)
+    {
+        double number, multiple, result;
 
-        private MRound()
+        if (args.Length != 2)
         {
-            // enforce singleton
+            return ErrorEval.VALUE_INVALID;
         }
 
-        public ValueEval Evaluate(ValueEval[] args, OperationEvaluationContext ec)
+        try
         {
-            double number, multiple, result;
+            number = OperandResolver.CoerceValueToDouble(OperandResolver.GetSingleValue(args[0], ec.RowIndex, ec.ColumnIndex));
+            multiple = OperandResolver.CoerceValueToDouble(OperandResolver.GetSingleValue(args[1], ec.RowIndex, ec.ColumnIndex));
 
-            if (args.Length != 2)
+            if (multiple == 0.0)
             {
-                return ErrorEval.VALUE_INVALID;
+                result = 0.0;
             }
-
-            try
+            else
             {
-                number = OperandResolver.CoerceValueToDouble(OperandResolver.GetSingleValue(args[0], ec.RowIndex, ec.ColumnIndex));
-                multiple = OperandResolver.CoerceValueToDouble(OperandResolver.GetSingleValue(args[1], ec.RowIndex, ec.ColumnIndex));
-
-                if (multiple == 0.0)
+                if (number * multiple < 0)
                 {
-                    result = 0.0;
+                    // Returns #NUM! because the number and the multiple have different signs
+                    throw new EvaluationException(ErrorEval.NUM_ERROR);
                 }
-                else
-                {
-                    if (number * multiple < 0)
-                    {
-                        // Returns #NUM! because the number and the multiple have different signs
-                        throw new EvaluationException(ErrorEval.NUM_ERROR);
-                    }
-                    result = multiple * Math.Round(number / multiple, MidpointRounding.AwayFromZero);
-                    
-                }
-                NumericFunction.CheckValue(result);
-                return new NumberEval(result);
+                result = multiple * Math.Round(number / multiple, MidpointRounding.AwayFromZero);
+                
             }
-            catch (EvaluationException e)
-            {
-                return e.GetErrorEval();
-            }
+            NumericFunction.CheckValue(result);
+            return new NumberEval(result);
+        }
+        catch (EvaluationException e)
+        {
+            return e.GetErrorEval();
         }
     }
 }

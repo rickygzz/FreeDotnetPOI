@@ -18,21 +18,19 @@
 namespace NPOI.SS.Formula
 {
 
-    using System;
-    using System.Collections;
-    using System.Collections.Generic;
-    using System.Globalization;
-    using System.Text; 
     using Cysharp.Text;
-    using System.Text.RegularExpressions;
-    using NPOI.HSSF.UserModel;
     using NPOI.SS.Formula.Constant;
-    using NPOI.SS.Formula.Function;
+    using NPOI.SS.Formula.Functions;
     using NPOI.SS.Formula.PTG;
     using NPOI.SS.UserModel;
     using NPOI.SS.Util;
     using NPOI.Util;
     using SixLabors.Fonts.Unicode;
+    using System;
+    using System.Collections;
+    using System.Collections.Generic;
+    using System.Globalization;
+    using System.Text;
 
     /// <summary>
     /// Specific exception thrown when a supplied formula does not Parse properly.
@@ -2397,14 +2395,14 @@ namespace NPOI.SS.Formula
         //{--------------------------------------------------------------}
         //{ Parse and Translate an Assignment Statement }
         /*
-    procedure Assignment;
-    var Name: string[8];
-    begin
-       Name := GetName;
-       Match('=');
-       Expression;
+            procedure Assignment;
+            var Name: string[8];
+            begin
+               Name := GetName;
+               Match('=');
+               Expression;
 
-    end;
+            end;
          **/
 
 
