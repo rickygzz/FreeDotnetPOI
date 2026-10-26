@@ -14,26 +14,24 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 ==================================================================== */
-namespace NPOI.SS.Extractor
+namespace NPOI.SS.Extractor;
+
+using System;
+
+/**
+ * Common interface for Excel text extractors, covering
+ *  HSSF and XSSF
+ */
+public interface IExcelExtractor
 {
-    using System;
-
+    bool IncludeCellComments { get; set; }
+    bool IncludeSheetNames { get; set; }
+    bool FormulasNotResults { get; set; }
+    bool IncludeHeadersFooters { get; set; }
+    //Add a tab delimiter for each empty cell.
+    bool AddTabEachEmptyCell { get; set; }
     /**
-     * Common interface for Excel text extractors, covering
-     *  HSSF and XSSF
+     * Retreives the text contents of the file
      */
-    public interface IExcelExtractor
-    {
-        bool IncludeCellComments { get; set; }
-        bool IncludeSheetNames { get; set; }
-        bool FormulasNotResults { get; set; }
-        bool IncludeHeadersFooters { get; set; }
-        //Add a tab delimiter for each empty cell.
-        bool AddTabEachEmptyCell { get; set; }
-        /**
-         * Retreives the text contents of the file
-         */
-        String Text { get; }
-    }
-
+    String Text { get; }
 }

@@ -20,34 +20,33 @@ using System.Text;
 using NPOI.SS.Formula.Functions;
 using NPOI.SS.Formula.Eval;
 
-namespace NPOI.SS.Formula.Atp
+namespace NPOI.SS.Formula.Atp;
+
+class Ifs : FreeRefFunction
 {
-    class Ifs : FreeRefFunction
+    public static FreeRefFunction Instance = new Ifs();
+
+    private Ifs()
     {
-        public static FreeRefFunction Instance = new Ifs();
+        // enforce singleton
+    }
 
-        private Ifs()
+    public ValueEval Evaluate(ValueEval[] args, OperationEvaluationContext ec)
+    {
+        if (args.Length % 2 != 0)
         {
-            // enforce singleton
+            return ErrorEval.VALUE_INVALID;
         }
 
-        public ValueEval Evaluate(ValueEval[] args, OperationEvaluationContext ec)
+        for (int i = 0; i < args.Length; i = i + 2)
         {
-            if (args.Length % 2 != 0)
+            BoolEval logicalTest = (BoolEval)args[i];
+            if ( logicalTest.BooleanValue )
             {
-                return ErrorEval.VALUE_INVALID;
+                return args[i + 1];
             }
-
-            for (int i = 0; i < args.Length; i = i + 2)
-            {
-                BoolEval logicalTest = (BoolEval)args[i];
-                if ( logicalTest.BooleanValue )
-                {
-                    return args[i + 1];
-                }
-            }
-
-            return ErrorEval.NA;
         }
+
+        return ErrorEval.NA;
     }
 }

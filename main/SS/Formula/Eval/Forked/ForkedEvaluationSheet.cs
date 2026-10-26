@@ -20,154 +20,153 @@ using System.Collections.Generic;
 using NPOI.SS.Formula;
 using NPOI.SS.UserModel;
 using NPOI.SS.Util;
-namespace NPOI.SS.Formula.Eval.Forked
+
+namespace NPOI.SS.Formula.Eval.Forked;
+
+
+
+/**
+ * Represents a sheet being used for forked Evaluation.  Initially, objects of this class contain
+ * only the cells from the master workbook. By calling {@link #getOrCreateUpdatableCell(int, int)},
+ * the master cell object is logically Replaced with a {@link ForkedEvaluationCell} instance, which
+ * will be used in all subsequent Evaluations.
+ *
+ * @author Josh Micich
+ */
+class ForkedEvaluationSheet : IEvaluationSheet
 {
 
-
+    private readonly IEvaluationSheet _masterSheet;
     /**
-     * Represents a sheet being used for forked Evaluation.  Initially, objects of this class contain
-     * only the cells from the master workbook. By calling {@link #getOrCreateUpdatableCell(int, int)},
-     * the master cell object is logically Replaced with a {@link ForkedEvaluationCell} instance, which
-     * will be used in all subsequent Evaluations.
-     *
-     * @author Josh Micich
+     * Only cells which have been split are Put in this map.  (This has been done to conserve memory).
      */
-    class ForkedEvaluationSheet : IEvaluationSheet
+    private readonly Dictionary<RowColKey, ForkedEvaluationCell> _sharedCellsByRowCol;
+
+    public ForkedEvaluationSheet(IEvaluationSheet masterSheet)
     {
+        _masterSheet = masterSheet;
+        _sharedCellsByRowCol = new Dictionary<RowColKey, ForkedEvaluationCell>();
+    }
 
-        private readonly IEvaluationSheet _masterSheet;
-        /**
-         * Only cells which have been split are Put in this map.  (This has been done to conserve memory).
-         */
-        private readonly Dictionary<RowColKey, ForkedEvaluationCell> _sharedCellsByRowCol;
+    public IEvaluationCell GetCell(int rowIndex, int columnIndex)
+    {
+        RowColKey key = new RowColKey(rowIndex, columnIndex);
 
-        public ForkedEvaluationSheet(IEvaluationSheet masterSheet)
+        ForkedEvaluationCell result = null;
+        if (_sharedCellsByRowCol.TryGetValue(key, out ForkedEvaluationCell value))
+            result = value;
+
+        if (result == null)
         {
-            _masterSheet = masterSheet;
-            _sharedCellsByRowCol = new Dictionary<RowColKey, ForkedEvaluationCell>();
+            return _masterSheet.GetCell(rowIndex, columnIndex);
         }
+        return result;
+    }
 
-        public IEvaluationCell GetCell(int rowIndex, int columnIndex)
+    public ForkedEvaluationCell GetOrCreateUpdatableCell(int rowIndex, int columnIndex)
+    {
+        RowColKey key = new RowColKey(rowIndex, columnIndex);
+
+        ForkedEvaluationCell result = null;
+        if (_sharedCellsByRowCol.TryGetValue(key, out ForkedEvaluationCell value))
+            result = value;
+        if (result == null)
         {
-            RowColKey key = new RowColKey(rowIndex, columnIndex);
-
-            ForkedEvaluationCell result = null;
-            if (_sharedCellsByRowCol.TryGetValue(key, out ForkedEvaluationCell value))
-                result = value;
-
-            if (result == null)
+            IEvaluationCell mcell = _masterSheet.GetCell(rowIndex, columnIndex);
+            if (mcell == null)
             {
-                return _masterSheet.GetCell(rowIndex, columnIndex);
+                CellReference cr = new CellReference(rowIndex, columnIndex);
+                throw new InvalidOperationException("Underlying cell '"
+                        + cr.FormatAsString() + "' is missing in master sheet.");
             }
-            return result;
+            result = new ForkedEvaluationCell(this, mcell);
+            _sharedCellsByRowCol[key] = result;
         }
+        return result;
+    }
 
-        public ForkedEvaluationCell GetOrCreateUpdatableCell(int rowIndex, int columnIndex)
+    public void CopyUpdatedCells(ISheet sheet)
+    {
+        RowColKey[] keys = new RowColKey[_sharedCellsByRowCol.Count];
+        _sharedCellsByRowCol.Keys.CopyTo(keys, 0);
+        Array.Sort(keys);
+        for (int i = 0; i < keys.Length; i++)
         {
-            RowColKey key = new RowColKey(rowIndex, columnIndex);
-
-            ForkedEvaluationCell result = null;
-            if (_sharedCellsByRowCol.TryGetValue(key, out ForkedEvaluationCell value))
-                result = value;
-            if (result == null)
+            RowColKey key = keys[i];
+            IRow row = sheet.GetRow(key.RowIndex);
+            if (row == null)
             {
-                IEvaluationCell mcell = _masterSheet.GetCell(rowIndex, columnIndex);
-                if (mcell == null)
-                {
-                    CellReference cr = new CellReference(rowIndex, columnIndex);
-                    throw new InvalidOperationException("Underlying cell '"
-                            + cr.FormatAsString() + "' is missing in master sheet.");
-                }
-                result = new ForkedEvaluationCell(this, mcell);
-                _sharedCellsByRowCol[key] = result;
+                row = sheet.CreateRow(key.RowIndex);
             }
-            return result;
-        }
-
-        public void CopyUpdatedCells(ISheet sheet)
-        {
-            RowColKey[] keys = new RowColKey[_sharedCellsByRowCol.Count];
-            _sharedCellsByRowCol.Keys.CopyTo(keys, 0);
-            Array.Sort(keys);
-            for (int i = 0; i < keys.Length; i++)
+            ICell destCell = row.GetCell(key.ColumnIndex);
+            if (destCell == null)
             {
-                RowColKey key = keys[i];
-                IRow row = sheet.GetRow(key.RowIndex);
-                if (row == null)
-                {
-                    row = sheet.CreateRow(key.RowIndex);
-                }
-                ICell destCell = row.GetCell(key.ColumnIndex);
-                if (destCell == null)
-                {
-                    destCell = row.CreateCell(key.ColumnIndex);
-                }
-
-                ForkedEvaluationCell srcCell = _sharedCellsByRowCol[(key)];
-                srcCell.CopyValue(destCell);
-            }
-        }
-
-        public int GetSheetIndex(IEvaluationWorkbook mewb)
-        {
-            return mewb.GetSheetIndex(_masterSheet);
-        }
-
-        /* (non-Javadoc)
-         * leave the map alone, if it needs resetting, reusing this class is probably a bad idea.
-         * @see org.apache.poi.ss.formula.EvaluationSheet#clearAllCachedResultValues()
-         */
-        public void ClearAllCachedResultValues()
-        {
-            _masterSheet.ClearAllCachedResultValues();
-        }
-
-        private sealed class RowColKey : IComparable<RowColKey>
-        {
-            private readonly int _rowIndex;
-            private readonly int _columnIndex;
-
-            public RowColKey(int rowIndex, int columnIndex)
-            {
-                _rowIndex = rowIndex;
-                _columnIndex = columnIndex;
+                destCell = row.CreateCell(key.ColumnIndex);
             }
 
-            public override bool Equals(Object obj)
-            {
-                //assert obj is RowColKey : "these private cache key instances are only Compared to themselves";
-                RowColKey other = (RowColKey)obj;
-                return _rowIndex == other._rowIndex && _columnIndex == other._columnIndex;
-            }
-
-            public override int GetHashCode()
-            {
-                return _rowIndex ^ _columnIndex;
-            }
-            public int CompareTo(RowColKey o)
-            {
-                int cmp = _rowIndex - o._rowIndex;
-                if (cmp != 0)
-                {
-                    return cmp;
-                }
-                return _columnIndex - o._columnIndex;
-            }
-            public int RowIndex
-            {
-                get
-                {
-                    return _rowIndex;
-                }
-            }
-            public int ColumnIndex
-            {
-                get
-                {
-                    return _columnIndex;
-                }
-            }
+            ForkedEvaluationCell srcCell = _sharedCellsByRowCol[(key)];
+            srcCell.CopyValue(destCell);
         }
     }
 
+    public int GetSheetIndex(IEvaluationWorkbook mewb)
+    {
+        return mewb.GetSheetIndex(_masterSheet);
+    }
+
+    /* (non-Javadoc)
+     * leave the map alone, if it needs resetting, reusing this class is probably a bad idea.
+     * @see org.apache.poi.ss.formula.EvaluationSheet#clearAllCachedResultValues()
+     */
+    public void ClearAllCachedResultValues()
+    {
+        _masterSheet.ClearAllCachedResultValues();
+    }
+
+    private sealed class RowColKey : IComparable<RowColKey>
+    {
+        private readonly int _rowIndex;
+        private readonly int _columnIndex;
+
+        public RowColKey(int rowIndex, int columnIndex)
+        {
+            _rowIndex = rowIndex;
+            _columnIndex = columnIndex;
+        }
+
+        public override bool Equals(Object obj)
+        {
+            //assert obj is RowColKey : "these private cache key instances are only Compared to themselves";
+            RowColKey other = (RowColKey)obj;
+            return _rowIndex == other._rowIndex && _columnIndex == other._columnIndex;
+        }
+
+        public override int GetHashCode()
+        {
+            return _rowIndex ^ _columnIndex;
+        }
+        public int CompareTo(RowColKey o)
+        {
+            int cmp = _rowIndex - o._rowIndex;
+            if (cmp != 0)
+            {
+                return cmp;
+            }
+            return _columnIndex - o._columnIndex;
+        }
+        public int RowIndex
+        {
+            get
+            {
+                return _rowIndex;
+            }
+        }
+        public int ColumnIndex
+        {
+            get
+            {
+                return _columnIndex;
+            }
+        }
+    }
 }

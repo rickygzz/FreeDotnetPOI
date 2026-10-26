@@ -15,97 +15,96 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.SS.Formula.Atp
+namespace NPOI.SS.Formula.Atp;
+
+using System;
+using NPOI.SS.Formula.Eval;
+using NPOI.SS.Formula.Functions;
+using NPOI.SS.Formula;
+
+/**
+ * Implementation of Excel 'Analysis ToolPak' function YEARFRAC()<br/>
+ * 
+ * Returns the fraction of the year spanned by two dates.<p/>
+ * 
+ * <b>Syntax</b><br/>
+ * <b>YEARFRAC</b>(<b>startDate</b>, <b>endDate</b>, basis)<p/>
+ * 
+ * The <b>basis</b> optionally specifies the behaviour of YEARFRAC as follows:
+ * 
+ * <table border="0" cellpadding="1" cellspacing="0" summary="basis parameter description">
+ *   <tr><th>Value</th><th>Days per Month</th><th>Days per Year</th></tr>
+ *   <tr align='center'><td>0 (default)</td><td>30</td><td>360</td></tr>
+ *   <tr align='center'><td>1</td><td>actual</td><td>actual</td></tr>
+ *   <tr align='center'><td>2</td><td>actual</td><td>360</td></tr>
+ *   <tr align='center'><td>3</td><td>actual</td><td>365</td></tr>
+ *   <tr align='center'><td>4</td><td>30</td><td>360</td></tr>
+ * </table>
+ * 
+ */
+class YearFrac : FreeRefFunction
 {
-    using System;
-    using NPOI.SS.Formula.Eval;
-    using NPOI.SS.Formula.Functions;
-    using NPOI.SS.Formula;
 
-    /**
-     * Implementation of Excel 'Analysis ToolPak' function YEARFRAC()<br/>
-     * 
-     * Returns the fraction of the year spanned by two dates.<p/>
-     * 
-     * <b>Syntax</b><br/>
-     * <b>YEARFRAC</b>(<b>startDate</b>, <b>endDate</b>, basis)<p/>
-     * 
-     * The <b>basis</b> optionally specifies the behaviour of YEARFRAC as follows:
-     * 
-     * <table border="0" cellpadding="1" cellspacing="0" summary="basis parameter description">
-     *   <tr><th>Value</th><th>Days per Month</th><th>Days per Year</th></tr>
-     *   <tr align='center'><td>0 (default)</td><td>30</td><td>360</td></tr>
-     *   <tr align='center'><td>1</td><td>actual</td><td>actual</td></tr>
-     *   <tr align='center'><td>2</td><td>actual</td><td>360</td></tr>
-     *   <tr align='center'><td>3</td><td>actual</td><td>365</td></tr>
-     *   <tr align='center'><td>4</td><td>30</td><td>360</td></tr>
-     * </table>
-     * 
-     */
-    class YearFrac : FreeRefFunction
+    public static FreeRefFunction instance = new YearFrac();
+
+    private YearFrac()
     {
+        // enforce singleton
+    }
 
-        public static FreeRefFunction instance = new YearFrac();
-
-        private YearFrac()
+    public ValueEval Evaluate(ValueEval[] args, OperationEvaluationContext ec)
+    {
+        int srcCellRow = ec.RowIndex;
+        int srcCellCol = ec.ColumnIndex;
+        double result;
+        try
         {
-            // enforce singleton
-        }
-
-        public ValueEval Evaluate(ValueEval[] args, OperationEvaluationContext ec)
-        {
-            int srcCellRow = ec.RowIndex;
-            int srcCellCol = ec.ColumnIndex;
-            double result;
-            try
+            int basis = 0; // default
+            switch (args.Length)
             {
-                int basis = 0; // default
-                switch (args.Length)
-                {
-                    case 3:
-                        basis = EvaluateIntArg(args[2], srcCellRow, srcCellCol);
-                        break;
-                    case 2:
-                        //basis = EvaluateIntArg(args[2], srcCellRow, srcCellCol);
-                        break;
-                    default:
-                        return ErrorEval.VALUE_INVALID;
-                }
-                double startDateVal = EvaluateDateArg(args[0], srcCellRow, srcCellCol);
-                double endDateVal = EvaluateDateArg(args[1], srcCellRow, srcCellCol);
-                result = YearFracCalculator.Calculate(startDateVal, endDateVal, basis);
+                case 3:
+                    basis = EvaluateIntArg(args[2], srcCellRow, srcCellCol);
+                    break;
+                case 2:
+                    //basis = EvaluateIntArg(args[2], srcCellRow, srcCellCol);
+                    break;
+                default:
+                    return ErrorEval.VALUE_INVALID;
             }
-            catch (EvaluationException e)
-            {
-                return e.GetErrorEval();
-            }
-
-            return new NumberEval(result);
+            double startDateVal = EvaluateDateArg(args[0], srcCellRow, srcCellCol);
+            double endDateVal = EvaluateDateArg(args[1], srcCellRow, srcCellCol);
+            result = YearFracCalculator.Calculate(startDateVal, endDateVal, basis);
         }
-
-        private static double EvaluateDateArg(ValueEval arg, int srcCellRow, int srcCellCol)
+        catch (EvaluationException e)
         {
-            ValueEval ve = OperandResolver.GetSingleValue(arg, srcCellRow, (short)srcCellCol);
-
-            if (ve is StringEval eval)
-            {
-                String strVal = eval.StringValue;
-                Double dVal = OperandResolver.ParseDouble(strVal);
-                if (!double.IsNaN(dVal))
-                {
-                    return dVal;
-                }
-                DateTime date = DateParser.ParseDate(strVal);
-                return NPOI.SS.UserModel.DateUtil.GetExcelDate(date, false);
-            }
-            return OperandResolver.CoerceValueToDouble(ve);
+            return e.GetErrorEval();
         }
 
+        return new NumberEval(result);
+    }
 
-        private static int EvaluateIntArg(ValueEval arg, int srcCellRow, int srcCellCol)
+    private static double EvaluateDateArg(ValueEval arg, int srcCellRow, int srcCellCol)
+    {
+        ValueEval ve = OperandResolver.GetSingleValue(arg, srcCellRow, (short)srcCellCol);
+
+        if (ve is StringEval eval)
         {
-            ValueEval ve = OperandResolver.GetSingleValue(arg, srcCellRow, srcCellCol);
-            return OperandResolver.CoerceValueToInt(ve);
+            String strVal = eval.StringValue;
+            Double dVal = OperandResolver.ParseDouble(strVal);
+            if (!double.IsNaN(dVal))
+            {
+                return dVal;
+            }
+            DateTime date = DateParser.ParseDate(strVal);
+            return NPOI.SS.UserModel.DateUtil.GetExcelDate(date, false);
         }
+        return OperandResolver.CoerceValueToDouble(ve);
+    }
+
+
+    private static int EvaluateIntArg(ValueEval arg, int srcCellRow, int srcCellCol)
+    {
+        ValueEval ve = OperandResolver.GetSingleValue(arg, srcCellRow, srcCellCol);
+        return OperandResolver.CoerceValueToInt(ve);
     }
 }

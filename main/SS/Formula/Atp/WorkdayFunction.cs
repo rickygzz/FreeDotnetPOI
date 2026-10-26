@@ -20,65 +20,63 @@ using NPOI.SS.Formula.Eval;
 using NPOI.SS.Formula.Functions;
 using NPOI.SS.UserModel;
 
-namespace NPOI.SS.Formula.Atp
+namespace NPOI.SS.Formula.Atp;
+
+/**
+* Implementation of Excel 'Analysis ToolPak' function WORKDAY()<br/>
+* Returns the date past a number of workdays beginning at a start date, considering an interval of holidays. A workday is any non
+* saturday/sunday date.
+* <p/>
+* <b>Syntax</b><br/>
+* <b>WORKDAY</b>(<b>startDate</b>, <b>days</b>, holidays)
+* <p/>
+* 
+* @author jfaenomoto@gmail.com
+*/
+class WorkdayFunction : FreeRefFunction
 {
-    /**
- * Implementation of Excel 'Analysis ToolPak' function WORKDAY()<br/>
- * Returns the date past a number of workdays beginning at a start date, considering an interval of holidays. A workday is any non
- * saturday/sunday date.
- * <p/>
- * <b>Syntax</b><br/>
- * <b>WORKDAY</b>(<b>startDate</b>, <b>days</b>, holidays)
- * <p/>
- * 
- * @author jfaenomoto@gmail.com
- */
-    class WorkdayFunction : FreeRefFunction
+
+    public static FreeRefFunction instance = new WorkdayFunction(ArgumentsEvaluator.instance);
+
+    private ArgumentsEvaluator evaluator;
+
+    private WorkdayFunction(ArgumentsEvaluator anEvaluator)
     {
+        // enforces singleton
+        this.evaluator = anEvaluator;
+    }
 
-        public static FreeRefFunction instance = new WorkdayFunction(ArgumentsEvaluator.instance);
-
-        private ArgumentsEvaluator evaluator;
-
-        private WorkdayFunction(ArgumentsEvaluator anEvaluator)
+    /**
+     * Evaluate for WORKDAY. Given a date, a number of days and a optional date or interval of holidays, determines which date it is past
+     * number of parametrized workdays.
+     * 
+     * @return {@link ValueEval} with date as its value.
+     */
+    public ValueEval Evaluate(ValueEval[] args, OperationEvaluationContext ec)
+    {
+        if (args.Length < 2 || args.Length > 3)
         {
-            // enforces singleton
-            this.evaluator = anEvaluator;
+            return ErrorEval.VALUE_INVALID;
         }
 
-        /**
-         * Evaluate for WORKDAY. Given a date, a number of days and a optional date or interval of holidays, determines which date it is past
-         * number of parametrized workdays.
-         * 
-         * @return {@link ValueEval} with date as its value.
-         */
-        public ValueEval Evaluate(ValueEval[] args, OperationEvaluationContext ec)
+        int srcCellRow = ec.RowIndex;
+        int srcCellCol = ec.ColumnIndex;
+
+        double start;
+        int days;
+        double[] holidays;
+        try
         {
-            if (args.Length < 2 || args.Length > 3)
-            {
-                return ErrorEval.VALUE_INVALID;
-            }
-
-            int srcCellRow = ec.RowIndex;
-            int srcCellCol = ec.ColumnIndex;
-
-            double start;
-            int days;
-            double[] holidays;
-            try
-            {
-                start = ArgumentsEvaluator.EvaluateDateArg(args[0], srcCellRow, srcCellCol);
-                days = (int)Math.Floor(ArgumentsEvaluator.EvaluateNumberArg(args[1], srcCellRow, srcCellCol));
-                ValueEval holidaysCell = args.Length == 3 ? args[2] : null;
-                holidays = ArgumentsEvaluator.EvaluateDatesArg(holidaysCell, srcCellRow, srcCellCol);
-                return new NumberEval(DateUtil.GetExcelDate(WorkdayCalculator.instance.CalculateWorkdays(start, days, holidays)));
-            }
-            catch (EvaluationException)
-            {
-                return ErrorEval.VALUE_INVALID;
-            }
+            start = ArgumentsEvaluator.EvaluateDateArg(args[0], srcCellRow, srcCellCol);
+            days = (int)Math.Floor(ArgumentsEvaluator.EvaluateNumberArg(args[1], srcCellRow, srcCellCol));
+            ValueEval holidaysCell = args.Length == 3 ? args[2] : null;
+            holidays = ArgumentsEvaluator.EvaluateDatesArg(holidaysCell, srcCellRow, srcCellCol);
+            return new NumberEval(DateUtil.GetExcelDate(WorkdayCalculator.instance.CalculateWorkdays(start, days, holidays)));
         }
-
+        catch (EvaluationException)
+        {
+            return ErrorEval.VALUE_INVALID;
+        }
     }
 
 }

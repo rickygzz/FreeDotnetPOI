@@ -4,66 +4,65 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace NPOI.SS.Formula.Atp
+namespace NPOI.SS.Formula.Atp;
+
+public class Switch : FreeRefFunction
 {
-    public class Switch : FreeRefFunction
+    public static FreeRefFunction instance = new Switch();
+
+    private Switch()
     {
-        public static FreeRefFunction instance = new Switch();
+        // enforce singleton
+    }
+    public ValueEval Evaluate(ValueEval[] args, OperationEvaluationContext ec)
+    {
+        if (args.Length < 3) return ErrorEval.NA;
 
-        private Switch()
+        ValueEval expression;
+        try
         {
-            // enforce singleton
+            expression = OperandResolver.GetSingleValue(args[0], ec.RowIndex, ec.ColumnIndex);
         }
-        public ValueEval Evaluate(ValueEval[] args, OperationEvaluationContext ec)
+        catch
         {
-            if (args.Length < 3) return ErrorEval.NA;
+            return ErrorEval.NA;
+        }
 
-            ValueEval expression;
+        for (int i = 1; i < args.Length; i = i + 2)
+        {
+
             try
             {
-                expression = OperandResolver.GetSingleValue(args[0], ec.RowIndex, ec.ColumnIndex);
+                ValueEval value = OperandResolver.GetSingleValue(args[i], ec.RowIndex, ec.ColumnIndex);
+                ValueEval result = args[i + 1];
+                //ValueEval result = OperandResolver.getSingleValue(args[i+1],ec.RowIndex,ec.ColumnIndex) ;
+
+
+                ValueEval evaluate = (new EqualEval()).Evaluate(new ValueEval[] { expression, value }, ec.RowIndex, ec.ColumnIndex);
+                if (evaluate is BoolEval boolEval)
+                {
+                    bool booleanValue = boolEval.BooleanValue;
+                    if (booleanValue)
+                    {
+                        return result;
+                    }
+
+                }
+
             }
-            catch
+            catch (EvaluationException)
             {
                 return ErrorEval.NA;
             }
 
-            for (int i = 1; i < args.Length; i = i + 2)
+            if (i + 2 == args.Length - 1)
             {
-
-                try
-                {
-                    ValueEval value = OperandResolver.GetSingleValue(args[i], ec.RowIndex, ec.ColumnIndex);
-                    ValueEval result = args[i + 1];
-                    //ValueEval result = OperandResolver.getSingleValue(args[i+1],ec.RowIndex,ec.ColumnIndex) ;
-
-
-                    ValueEval evaluate = (new EqualEval()).Evaluate(new ValueEval[] { expression, value }, ec.RowIndex, ec.ColumnIndex);
-                    if (evaluate is BoolEval boolEval)
-                    {
-                        bool booleanValue = boolEval.BooleanValue;
-                        if (booleanValue)
-                        {
-                            return result;
-                        }
-
-                    }
-
-                }
-                catch (EvaluationException)
-                {
-                    return ErrorEval.NA;
-                }
-
-                if (i + 2 == args.Length - 1)
-                {
-                    //last value in args is the default one
-                    return args[args.Length - 1];
-                }
-
+                //last value in args is the default one
+                return args[args.Length - 1];
             }
 
-            return ErrorEval.NA;
         }
+
+        return ErrorEval.NA;
     }
 }

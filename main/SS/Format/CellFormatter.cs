@@ -14,116 +14,116 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 ==================================================================== */
-namespace NPOI.SS.Format
+
+namespace NPOI.SS.Format;
+
+using System;
+using System.Text;
+using System.Globalization;
+using NPOI.Util;
+
+
+
+
+/**
+ * This is the abstract supertype for the various cell formatters.
+ *
+ * @author Ken Arnold, Industrious Media LLC
+ */
+public abstract class CellFormatter
 {
-    using System;
-    using System.Text;
-    using System.Globalization;
-    using NPOI.Util;
-
-
-
+    /** The original specified format. */
+    protected String format;
+    protected CultureInfo locale;
+    /**
+     * This is the locale used to Get a consistent format result from which to
+     * work.
+     */
+    public static readonly CultureInfo LOCALE = CultureInfo.GetCultureInfo("en-US");
 
     /**
-     * This is the abstract supertype for the various cell formatters.
+     * Creates a new formatter object, storing the format in {@link #format}.
      *
-     * @author Ken Arnold, Industrious Media LLC
+     * @param format The format.
      */
-    public abstract class CellFormatter
+    public CellFormatter(String format)
+        : this(LocaleUtil.GetUserLocale(), format)
     {
-        /** The original specified format. */
-        protected String format;
-        protected CultureInfo locale;
-        /**
-         * This is the locale used to Get a consistent format result from which to
-         * work.
-         */
-        public static readonly CultureInfo LOCALE = CultureInfo.GetCultureInfo("en-US");
+    }
 
-        /**
-         * Creates a new formatter object, storing the format in {@link #format}.
-         *
-         * @param format The format.
-         */
-        public CellFormatter(String format)
-            : this(LocaleUtil.GetUserLocale(), format)
-        {
-        }
+    /**
+     * Creates a new formatter object, storing the format in {@link #format}.
+     *
+     * @param locale The locale.
+     * @param format The format.
+     */
+    public CellFormatter(CultureInfo locale, String format)
+    {
+        this.locale = locale;
+        this.format = format;
+    }
 
-        /**
-         * Creates a new formatter object, storing the format in {@link #format}.
-         *
-         * @param locale The locale.
-         * @param format The format.
-         */
-        public CellFormatter(CultureInfo locale, String format)
-        {
-            this.locale = locale;
-            this.format = format;
-        }
+    // /** The logger to use in the formatting code. */
+    //static Logger logger = Logger.GetLogger(typeof(CellFormatter).Name);
 
-        // /** The logger to use in the formatting code. */
-        //static Logger logger = Logger.GetLogger(typeof(CellFormatter).Name);
+    /**
+     * Format a value according the format string.
+     *
+     * @param toAppendTo The buffer to append to.
+     * @param value      The value to format.
+     */
+    public abstract void FormatValue(StringBuilder toAppendTo, Object value);
 
-        /**
-         * Format a value according the format string.
-         *
-         * @param toAppendTo The buffer to append to.
-         * @param value      The value to format.
-         */
-        public abstract void FormatValue(StringBuilder toAppendTo, Object value);
+    /**
+     * Format a value according to the type, in the most basic way.
+     *
+     * @param toAppendTo The buffer to append to.
+     * @param value      The value to format.
+     */
+    public abstract void SimpleValue(StringBuilder toAppendTo, Object value);
 
-        /**
-         * Format a value according to the type, in the most basic way.
-         *
-         * @param toAppendTo The buffer to append to.
-         * @param value      The value to format.
-         */
-        public abstract void SimpleValue(StringBuilder toAppendTo, Object value);
+    /**
+     * Formats the value, returning the resulting string.
+     *
+     * @param value The value to format.
+     *
+     * @return The value, formatted.
+     */
+    public String Format(Object value)
+    {
+        StringBuilder sb = new StringBuilder();
+        FormatValue(sb, value);
+        return sb.ToString();
+    }
 
-        /**
-         * Formats the value, returning the resulting string.
-         *
-         * @param value The value to format.
-         *
-         * @return The value, formatted.
-         */
-        public String Format(Object value)
-        {
-            StringBuilder sb = new StringBuilder();
-            FormatValue(sb, value);
-            return sb.ToString();
-        }
+    /**
+     * Formats the value in the most basic way, returning the resulting string.
+     *
+     * @param value The value to format.
+     *
+     * @return The value, formatted.
+     */
+    public String SimpleFormat(Object value)
+    {
+        StringBuilder sb = new StringBuilder();
+        SimpleValue(sb, value);
+        return sb.ToString();
+    }
 
-        /**
-         * Formats the value in the most basic way, returning the resulting string.
-         *
-         * @param value The value to format.
-         *
-         * @return The value, formatted.
-         */
-        public String SimpleFormat(Object value)
-        {
-            StringBuilder sb = new StringBuilder();
-            SimpleValue(sb, value);
-            return sb.ToString();
-        }
+    /**
+     * Returns the input string, surrounded by quotes.
+     *
+     * @param str The string to quote.
+     *
+     * @return The input string, surrounded by quotes.
+     */
+    static String Quote(String str)
+    {
+        return '"' + str + '"';
+    }
 
-        /**
-         * Returns the input string, surrounded by quotes.
-         *
-         * @param str The string to quote.
-         *
-         * @return The input string, surrounded by quotes.
-         */
-        static String Quote(String str)
-        {
-            return '"' + str + '"';
-        }
-
-        public override string ToString()
-        {
-            return format;
-        }
+    public override string ToString()
+    {
+        return format;
     }
 }

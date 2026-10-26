@@ -14,11 +14,12 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 ==================================================================== */
-namespace NPOI.SS.Format
-{
-    using System;
 
-    /**
+namespace NPOI.SS.Format;
+
+using System;
+
+/**
 * Internal helper class for CellNumberFormatter
 *
 * This class represents a single modification to a result string.  The way
@@ -30,114 +31,112 @@ namespace NPOI.SS.Format
 * them all, dealing with overlapping modifications.
 */
 
-    public class CellNumberStringMod : IComparable<CellNumberStringMod>
+public class CellNumberStringMod : IComparable<CellNumberStringMod>
+{
+    public const int BEFORE = 1;
+    public const int AFTER = 2;
+    public const int REPLACE = 3;
+
+    private CellNumberFormatter.Special special;
+    private int op;
+    //private CharSequence toAdd;
+    private string toAdd;
+    private CellNumberFormatter.Special end;
+    private bool startInclusive;
+    private bool endInclusive;
+
+    public CellNumberStringMod(CellNumberFormatter.Special special, string toAdd, int op)
     {
-        public const int BEFORE = 1;
-        public const int AFTER = 2;
-        public const int REPLACE = 3;
+        this.special = special;
+        this.toAdd = toAdd;
+        this.op = op;
+    }
 
-        private CellNumberFormatter.Special special;
-        private int op;
-        //private CharSequence toAdd;
-        private string toAdd;
-        private CellNumberFormatter.Special end;
-        private bool startInclusive;
-        private bool endInclusive;
+    public CellNumberStringMod(CellNumberFormatter.Special start, bool startInclusive, CellNumberFormatter.Special end, bool endInclusive, char toAdd)
+            : this(start, startInclusive, end, endInclusive)
+    {
+        ;
+        this.toAdd = toAdd + "";
+    }
 
-        public CellNumberStringMod(CellNumberFormatter.Special special, string toAdd, int op)
+    public CellNumberStringMod(CellNumberFormatter.Special start, bool startInclusive, CellNumberFormatter.Special end, bool endInclusive)
+    {
+        special = start;
+        this.startInclusive = startInclusive;
+        this.end = end;
+        this.endInclusive = endInclusive;
+        op = REPLACE;
+        toAdd = "";
+    }
+
+    public int CompareTo(CellNumberStringMod that)
+    {
+        int diff = special.pos - that.special.pos;
+        return (diff != 0) ? diff : (op - that.op);
+    }
+
+
+    public override bool Equals(Object that)
+    {
+        try
         {
-            this.special = special;
-            this.toAdd = toAdd;
-            this.op = op;
+            return CompareTo((CellNumberStringMod)that) == 0;
         }
-
-        public CellNumberStringMod(CellNumberFormatter.Special start, bool startInclusive, CellNumberFormatter.Special end, bool endInclusive, char toAdd)
-                : this(start, startInclusive, end, endInclusive)
+        catch
         {
-            ;
-            this.toAdd = toAdd + "";
-        }
-
-        public CellNumberStringMod(CellNumberFormatter.Special start, bool startInclusive, CellNumberFormatter.Special end, bool endInclusive)
-        {
-            special = start;
-            this.startInclusive = startInclusive;
-            this.end = end;
-            this.endInclusive = endInclusive;
-            op = REPLACE;
-            toAdd = "";
-        }
-
-        public int CompareTo(CellNumberStringMod that)
-        {
-            int diff = special.pos - that.special.pos;
-            return (diff != 0) ? diff : (op - that.op);
-        }
-
-
-        public override bool Equals(Object that)
-        {
-            try
-            {
-                return CompareTo((CellNumberStringMod)that) == 0;
-            }
-            catch
-            {
-                // NullPointerException or CastException
-                return false;
-            }
-        }
-
-
-        public override int GetHashCode()
-        {
-            return special.GetHashCode() + op;
-        }
-
-        public CellNumberFormatter.Special GetSpecial()
-        {
-            return special;
-        }
-
-        public int Op
-        {
-            get
-            {
-                return op;
-            }
-        }
-
-        public string ToAdd
-        {
-            get
-            {
-                return toAdd;
-            }
-        }
-
-        public CellNumberFormatter.Special End
-        {
-            get
-            {
-                return end;
-            }
-        }
-
-        public bool IsStartInclusive
-        {
-            get
-            {
-                return startInclusive;
-            }
-        }
-
-        public bool IsEndInclusive
-        {
-            get
-            {
-                return endInclusive;
-            }
+            // NullPointerException or CastException
+            return false;
         }
     }
 
+
+    public override int GetHashCode()
+    {
+        return special.GetHashCode() + op;
+    }
+
+    public CellNumberFormatter.Special GetSpecial()
+    {
+        return special;
+    }
+
+    public int Op
+    {
+        get
+        {
+            return op;
+        }
+    }
+
+    public string ToAdd
+    {
+        get
+        {
+            return toAdd;
+        }
+    }
+
+    public CellNumberFormatter.Special End
+    {
+        get
+        {
+            return end;
+        }
+    }
+
+    public bool IsStartInclusive
+    {
+        get
+        {
+            return startInclusive;
+        }
+    }
+
+    public bool IsEndInclusive
+    {
+        get
+        {
+            return endInclusive;
+        }
+    }
 }
