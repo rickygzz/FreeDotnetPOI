@@ -29,44 +29,43 @@ using System;
 
 using NPOI.POIFS.FileSystem;
 
-namespace NPOI.POIFS.EventFileSystem
+namespace NPOI.POIFS.EventFileSystem;
+
+/// <summary>
+/// EventArgs for POIFSReader
+/// author: Tony Qu
+/// </summary>
+public class POIFSReaderEventArgs:EventArgs
 {
-    /// <summary>
-    /// EventArgs for POIFSReader
-    /// author: Tony Qu
-    /// </summary>
-    public class POIFSReaderEventArgs:EventArgs
+    public POIFSReaderEventArgs(string name, POIFSDocumentPath path, OPOIFSDocument document)
     {
-        public POIFSReaderEventArgs(string name, POIFSDocumentPath path, OPOIFSDocument document)
-        {
-            this.name = name;
-            this.path = path;
-            this.document = document;
-        }
-
-        private POIFSDocumentPath path;
-        private OPOIFSDocument document;
-        private string name;
-
-        public virtual POIFSDocumentPath Path
-        {
-            get { return path; }
-        }
-        public virtual OPOIFSDocument Document
-        {
-            get { return document; }
-        }
-        public virtual DocumentInputStream Stream
-        {
-            get { 
-                return new DocumentInputStream(this.document); 
-            }
-        }
-        public virtual string Name
-        {
-            get { return name; }
-        }
+        this.name = name;
+        this.path = path;
+        this.document = document;
     }
 
-    public delegate void POIFSReaderEventHandler(object sender, POIFSReaderEventArgs e);
+    private POIFSDocumentPath path;
+    private OPOIFSDocument document;
+    private string name;
+
+    public virtual POIFSDocumentPath Path
+    {
+        get { return path; }
+    }
+    public virtual OPOIFSDocument Document
+    {
+        get { return document; }
+    }
+    public virtual DocumentInputStream Stream
+    {
+        get { 
+            return new DocumentInputStream(this.document); 
+        }
+    }
+    public virtual string Name
+    {
+        get { return name; }
+    }
 }
+
+public delegate void POIFSReaderEventHandler(object sender, POIFSReaderEventArgs e);

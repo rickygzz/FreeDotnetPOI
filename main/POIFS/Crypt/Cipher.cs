@@ -2,144 +2,139 @@
 using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Security;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
 
-namespace NPOI.POIFS.Crypt
+namespace NPOI.POIFS.Crypt;
+
+public class Cipher
 {
-    public class Cipher
+    public const int DECRYPT_MODE = 2;
+    public const int ENCRYPT_MODE = 1;
+    public const int WRAP_MODE = 3;
+    public const int UNWRAP_MODE = 4;
+
+    public const int PUBLIC_KEY = 1;
+    public const int PRIVATE_KEY = 2;
+    public const int SECRET_KEY = 3;
+
+    protected IBufferedCipher cipherImpl;
+    private CipherAlgorithm _alogrithm;
+
+    public CipherAlgorithm Algorithm
     {
-        public const int DECRYPT_MODE = 2;
-        public const int ENCRYPT_MODE = 1;
-        public const int WRAP_MODE = 3;
-        public const int UNWRAP_MODE = 4;
+        get => _alogrithm;
+        set => _alogrithm = value;
+    }
 
-        public const int PUBLIC_KEY = 1;
-        public const int PRIVATE_KEY = 2;
-        public const int SECRET_KEY = 3;
-
-        protected IBufferedCipher cipherImpl;
-        private CipherAlgorithm _alogrithm;
-
-        public CipherAlgorithm Algorithm
+    public static Cipher GetInstance(string transformation)
+    {
+        Cipher cihpher = new Cipher()
         {
-            get => _alogrithm;
-            set => _alogrithm = value;
+            cipherImpl = CipherUtilities.GetCipher(transformation)
+        };
+
+        return cihpher;
+    }
+
+    public static Cipher GetInstance(string transformation, string provider)
+    {
+        return GetInstance(transformation);
+    }
+
+    public void Init(int cipherMode, IKey key, AlgorithmParameterSpec aps)
+    {
+        ICipherParameters cp;
+        if (aps is RC2ParameterSpec spec)
+        {
+            cp = new RC2Parameters(key.GetEncoded(), spec.GetEffectiveKeyBits());
         }
-
-        public static Cipher GetInstance(string transformation)
+        else if (aps is IvParameterSpec parameterSpec)
         {
-            Cipher cihpher = new Cipher()
-            {
-                cipherImpl = CipherUtilities.GetCipher(transformation)
-            };
-
-            return cihpher;
+            cp = new KeyParameter(key.GetEncoded());
+            cp = new ParametersWithIV(cp, parameterSpec.GetIV());
         }
-
-        public static Cipher GetInstance(string transformation, string provider)
+        else
         {
-            return GetInstance(transformation);
+            throw new NotImplementedException();
         }
+        cipherImpl.Init(cipherMode == ENCRYPT_MODE, cp);
+    }
 
-        public void Init(int cipherMode, IKey key, AlgorithmParameterSpec aps)
+    public void Init(int cipherMode, IKey key)
+    {
+        ICipherParameters cp = new RC2Parameters(key.GetEncoded());
+        cipherImpl.Init(cipherMode == ENCRYPT_MODE, cp);
+    }
+    public void Init(int cipherMode, ICipherParameters cipherParameters)
+    {
+        cipherImpl.Init(cipherMode == ENCRYPT_MODE, cipherParameters);
+    }
+
+    public static int GetMaxAllowedKeyLength(string jceId)
+    {
+        /*
+         * rc4/RC4/128
+         * aes128/AES/128
+         * aes192/AES/128
+         * aes256/AES/128
+         * rc2/RC2/128
+         * des/DES/64
+         * des3/DESede/2147483647
+         * des3_112/DESede/2147483647
+         * rsa/RSA/2147483647
+         */
+        switch (jceId)
         {
-            ICipherParameters cp;
-            if (aps is RC2ParameterSpec spec)
-            {
-                cp = new RC2Parameters(key.GetEncoded(), spec.GetEffectiveKeyBits());
-            }
-            else if (aps is IvParameterSpec parameterSpec)
-            {
-                cp = new KeyParameter(key.GetEncoded());
-                cp = new ParametersWithIV(cp, parameterSpec.GetIV());
-            }
-            else
-            {
+            case "RC2": return 128;
+            case "RC4": return 128;
+            case "DES": return 64;
+            case "AES": return 128;
+            case "DESede": return 2147483647;
+            case "RSA": return 2147483647;
+            default:
                 throw new NotImplementedException();
-            }
-            cipherImpl.Init(cipherMode == ENCRYPT_MODE, cp);
         }
+    }
 
-        public void Init(int cipherMode, IKey key)
+    public int Update(byte[] input, int inputOffset, int inputLen, byte[] output)
+    {
+        if ((input == null) || (inputOffset < 0) || (inputLen > input.Length - inputOffset) || (inputLen < 0))
         {
-            ICipherParameters cp = new RC2Parameters(key.GetEncoded());
-            cipherImpl.Init(cipherMode == ENCRYPT_MODE, cp);
+            throw new ArgumentException("Bad arguments");
         }
-        public void Init(int cipherMode, ICipherParameters cipherParameters)
-        {
-            cipherImpl.Init(cipherMode == ENCRYPT_MODE, cipherParameters);
-        }
+        return cipherImpl.ProcessBytes(input, inputOffset, inputLen, output, 0);
+    }
 
-        public static int GetMaxAllowedKeyLength(string jceId)
+    public int Update(byte[] input, int inputOffset, int inputLen, byte[] output, int outputOffset)
+    {
+        if ((input == null) || (inputOffset < 0) || (inputLen > input.Length - inputOffset) || (inputLen < 0) || (outputOffset < 0))
         {
-            /*
-             * rc4/RC4/128
-             * aes128/AES/128
-             * aes192/AES/128
-             * aes256/AES/128
-             * rc2/RC2/128
-             * des/DES/64
-             * des3/DESede/2147483647
-             * des3_112/DESede/2147483647
-             * rsa/RSA/2147483647
-             */
-            switch (jceId)
-            {
-                case "RC2": return 128;
-                case "RC4": return 128;
-                case "DES": return 64;
-                case "AES": return 128;
-                case "DESede": return 2147483647;
-                case "RSA": return 2147483647;
-                default:
-                    throw new NotImplementedException();
-            }
+            throw new ArgumentException("Bad arguments");
         }
+        return cipherImpl.ProcessBytes(input, inputOffset, inputLen, output, outputOffset);
+    }
 
-        public int Update(byte[] input, int inputOffset, int inputLen, byte[] output)
-        {
-            if ((input == null) || (inputOffset < 0) || (inputLen > input.Length - inputOffset) || (inputLen < 0))
-            {
-                throw new ArgumentException("Bad arguments");
-            }
-            return cipherImpl.ProcessBytes(input, inputOffset, inputLen, output, 0);
-        }
+    public byte[] Update(byte[] ibuffer, int inOff, int length)
+    {
+        return cipherImpl.ProcessBytes(ibuffer, inOff, length);
+    }
 
-        public int Update(byte[] input, int inputOffset, int inputLen, byte[] output, int outputOffset)
-        {
-            if ((input == null) || (inputOffset < 0) || (inputLen > input.Length - inputOffset) || (inputLen < 0) || (outputOffset < 0))
-            {
-                throw new ArgumentException("Bad arguments");
-            }
-            return cipherImpl.ProcessBytes(input, inputOffset, inputLen, output, outputOffset);
-        }
+    public byte[] DoFinal(byte[] block)
+    {
+        return cipherImpl.DoFinal(block);
+    }
 
-        public byte[] Update(byte[] ibuffer, int inOff, int length)
-        {
-            return cipherImpl.ProcessBytes(ibuffer, inOff, length);
-        }
+    //public byte[] DoFinal(byte[] block, int v, int posInChunk)
+    //{
+    //    return cipherImpl.DoFinal(block, v, posInChunk);
+    //}
 
-        public byte[] DoFinal(byte[] block)
-        {
-            return cipherImpl.DoFinal(block);
-        }
+    public int DoFinal(byte[] input, int inputOffset, int inputLen, byte[] output)
+    {
+        return cipherImpl.DoFinal(input, inputOffset, inputLen, output, 0);
+    }
 
-        //public byte[] DoFinal(byte[] block, int v, int posInChunk)
-        //{
-        //    return cipherImpl.DoFinal(block, v, posInChunk);
-        //}
-
-        public int DoFinal(byte[] input, int inputOffset, int inputLen, byte[] output)
-        {
-            return cipherImpl.DoFinal(input, inputOffset, inputLen, output, 0);
-        }
-
-        public byte[] DoFinal()
-        {
-            return cipherImpl.DoFinal();
-        }
+    public byte[] DoFinal()
+    {
+        return cipherImpl.DoFinal();
     }
 }

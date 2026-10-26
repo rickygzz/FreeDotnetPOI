@@ -22,138 +22,137 @@ using NPOI.POIFS.FileSystem;
 using NPOI.POIFS.Properties;
 using NPOI.POIFS.Dev;
 
-namespace NPOI.POIFS.FileSystem
+namespace NPOI.POIFS.FileSystem;
+
+/// <summary>
+/// Simple implementation of DocumentEntry
+/// @author Marc Johnson (mjohnson at apache dot org)
+/// </summary>
+public class DocumentNode : EntryNode, POIFSViewable, DocumentEntry
 {
-    /// <summary>
-    /// Simple implementation of DocumentEntry
-    /// @author Marc Johnson (mjohnson at apache dot org)
-    /// </summary>
-    public class DocumentNode : EntryNode, POIFSViewable, DocumentEntry
+    // underlying POIFSDocument instance
+    private readonly OPOIFSDocument _document;
+
+    /**
+     * create a DocumentNode. This method Is not public by design; it
+     * Is intended strictly for the internal use of this package
+     *
+     * @param property the DocumentProperty for this DocumentEntry
+     * @param parent the parent of this entry
+     */
+
+    public DocumentNode(DocumentProperty property, DirectoryNode parent):base(property, parent)
     {
-        // underlying POIFSDocument instance
-        private readonly OPOIFSDocument _document;
+        _document = property.Document;
+    }
 
-        /**
-         * create a DocumentNode. This method Is not public by design; it
-         * Is intended strictly for the internal use of this package
-         *
-         * @param property the DocumentProperty for this DocumentEntry
-         * @param parent the parent of this entry
-         */
+    /**
+     * get the POIFSDocument
+     *
+     * @return the internal POIFSDocument
+     */
 
-        public DocumentNode(DocumentProperty property, DirectoryNode parent):base(property, parent)
+    public OPOIFSDocument Document
+    {
+        get { return _document; }
+    }
+
+
+    /**
+     * get the zize of the document, in bytes
+     *
+     * @return size in bytes
+     */
+
+    public int Size
+    {
+        get { return Property.Size; }
+    }
+
+
+    /**
+     * Is this a DocumentEntry?
+     *
+     * @return true if the Entry Is a DocumentEntry, else false
+     */
+
+    public override bool IsDocumentEntry
+    {
+        get{return true;}
+    }
+
+
+    /**
+     * extensions use this method to verify internal rules regarding
+     * deletion of the underlying store.
+     *
+     * @return true if it's ok to delete the underlying store, else
+     *         false
+     */
+
+    protected override bool IsDeleteOK
+    {
+        get { return true; }
+    }
+
+
+    /**
+     * Get an array of objects, some of which may implement
+     * POIFSViewable
+     *
+     * @return an array of Object; may not be null, but may be empty
+     */
+
+    public Object[] ViewableArray
+    {
+        get { return []; }
+    }
+
+    /**
+     * Get an Iterator of objects, some of which may implement
+     * POIFSViewable
+     *
+     * @return an Iterator; may not be null, but may have an empty
+     * back end store
+     */
+
+    public IEnumerator<Object> ViewableIterator
+    {
+        get
         {
-            _document = property.Document;
-        }
+            List<Object> components = new List<Object>();
 
-        /**
-         * get the POIFSDocument
-         *
-         * @return the internal POIFSDocument
-         */
-
-        public OPOIFSDocument Document
-        {
-            get { return _document; }
-        }
-
-
-        /**
-         * get the zize of the document, in bytes
-         *
-         * @return size in bytes
-         */
-
-        public int Size
-        {
-            get { return Property.Size; }
-        }
-
-
-        /**
-         * Is this a DocumentEntry?
-         *
-         * @return true if the Entry Is a DocumentEntry, else false
-         */
-
-        public override bool IsDocumentEntry
-        {
-            get{return true;}
-        }
-
-
-        /**
-         * extensions use this method to verify internal rules regarding
-         * deletion of the underlying store.
-         *
-         * @return true if it's ok to delete the underlying store, else
-         *         false
-         */
-
-        protected override bool IsDeleteOK
-        {
-            get { return true; }
-        }
-
-
-        /**
-         * Get an array of objects, some of which may implement
-         * POIFSViewable
-         *
-         * @return an array of Object; may not be null, but may be empty
-         */
-
-        public Object[] ViewableArray
-        {
-            get { return []; }
-        }
-
-        /**
-         * Get an Iterator of objects, some of which may implement
-         * POIFSViewable
-         *
-         * @return an Iterator; may not be null, but may have an empty
-         * back end store
-         */
-
-        public IEnumerator<Object> ViewableIterator
-        {
-            get
+            components.Add(Property);
+            if (_document != null)
             {
-                List<Object> components = new List<Object>();
-
-                components.Add(Property);
-                if (_document != null)
-                {
-                    components.Add(_document);
-                }
-                return components.GetEnumerator();
+                components.Add(_document);
             }
+            return components.GetEnumerator();
         }
+    }
 
-        /**
-         * Give viewers a hint as to whether to call getViewableArray or
-         * getViewableIterator
-         *
-         * @return true if a viewer should call getViewableArray, false if
-         *         a viewer should call getViewableIterator
-         */
+    /**
+     * Give viewers a hint as to whether to call getViewableArray or
+     * getViewableIterator
+     *
+     * @return true if a viewer should call getViewableArray, false if
+     *         a viewer should call getViewableIterator
+     */
 
-        public bool PreferArray
-        {
-            get { return false; }
-        }
+    public bool PreferArray
+    {
+        get { return false; }
+    }
 
-        /**
-         * Provides a short description of the object, to be used when a
-         * POIFSViewable object has not provided its contents.
-         *
-         * @return short description
-         */
+    /**
+     * Provides a short description of the object, to be used when a
+     * POIFSViewable object has not provided its contents.
+     *
+     * @return short description
+     */
 
-        public String ShortDescription
-        {
-            get{return Name;}
-        }
+    public String ShortDescription
+    {
+        get{return Name;}
     }
 }

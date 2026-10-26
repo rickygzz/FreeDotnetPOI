@@ -17,49 +17,47 @@
 
 using NPOI.Util;
 
-namespace NPOI.POIFS.Crypt
+namespace NPOI.POIFS.Crypt;
+
+using System;
+
+
+public interface IEncryptionInfoBuilder
 {
-    using System;
+    /**
+ * Initialize the builder from a stream
+ */
+    void Initialize(EncryptionInfo ei, ILittleEndianInput dis);
 
+    /**
+ * Initialize the builder from scratch
+ */
 
-    public interface IEncryptionInfoBuilder
-    {
-        /**
-     * Initialize the builder from a stream
-     */
-        void Initialize(EncryptionInfo ei, ILittleEndianInput dis);
+    void Initialize(EncryptionInfo ei, CipherAlgorithm cipherAlgorithm, HashAlgorithm hashAlgorithm, int keyBits,
+        int blockSize, ChainingMode chainingMode);
 
-        /**
-     * Initialize the builder from scratch
-     */
+    /**
+ * @return the header data
+ */
+    EncryptionHeader GetHeader();
 
-        void Initialize(EncryptionInfo ei, CipherAlgorithm cipherAlgorithm, HashAlgorithm hashAlgorithm, int keyBits,
-            int blockSize, ChainingMode chainingMode);
+    /**
+ * @return the verifier data
+ */
+    EncryptionVerifier GetVerifier();
 
-        /**
-     * @return the header data
-     */
-        EncryptionHeader GetHeader();
+    /**
+ * @return the decryptor
+ */
+    Decryptor GetDecryptor();
 
-        /**
-     * @return the verifier data
-     */
-        EncryptionVerifier GetVerifier();
+    /**
+ * @return the encryptor
+ */
+    Encryptor GetEncryptor();
 
-        /**
-     * @return the decryptor
-     */
-        Decryptor GetDecryptor();
-
-        /**
-     * @return the encryptor
-     */
-        Encryptor GetEncryptor();
-
-        /**
+    /**
 		* @return the EncryptionInfo
 		*/
-        EncryptionInfo GetEncryptionInfo();
-    }
-
+    EncryptionInfo GetEncryptionInfo();
 }

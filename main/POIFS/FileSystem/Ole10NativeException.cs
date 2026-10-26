@@ -15,17 +15,16 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.POIFS.FileSystem
-{
-    using System;
+namespace NPOI.POIFS.FileSystem;
 
-    [Serializable]
-    public class Ole10NativeException : Exception
+using System;
+
+[Serializable]
+public class Ole10NativeException : Exception
+{
+    public Ole10NativeException(String message):base(message)
     {
-        public Ole10NativeException(String message):base(message)
-        {
-            
-        }
+        
     }
 }
 

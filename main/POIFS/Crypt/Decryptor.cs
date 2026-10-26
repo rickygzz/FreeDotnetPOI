@@ -17,159 +17,158 @@
 
 using System.IO;
 
-namespace NPOI.POIFS.Crypt
+namespace NPOI.POIFS.Crypt;
+
+using System;
+
+using NPOI.POIFS.FileSystem;
+using NPOI.Util;
+
+public abstract class Decryptor
 {
-    using System;
+    public static String DEFAULT_PASSWORD = "VelvetSweatshop";
+    public static String DEFAULT_POIFS_ENTRY = "EncryptedPackage";
 
-    using NPOI.POIFS.FileSystem;
-    using NPOI.Util;
+    protected internal IEncryptionInfoBuilder builder;
+    private ISecretKey secretKey;
+    private byte[] verifier, integrityHmacKey, integrityHmacValue;
 
-    public abstract class Decryptor
+    protected Decryptor(IEncryptionInfoBuilder builder)
     {
-        public static String DEFAULT_PASSWORD = "VelvetSweatshop";
-        public static String DEFAULT_POIFS_ENTRY = "EncryptedPackage";
+        this.builder = builder;
+    }
 
-        protected internal IEncryptionInfoBuilder builder;
-        private ISecretKey secretKey;
-        private byte[] verifier, integrityHmacKey, integrityHmacValue;
+    /**
+ * Return a stream with decrypted data.
+ * <p>
+ * Use {@link #getLength()} to Get the size of that data that can be safely read from the stream.
+ * Just Reading to the end of the input stream is not sufficient because there are
+ * normally pAdding bytes that must be discarded
+ * </p>
+ *
+ * @param dir the node to read from
+ * @return decrypted stream
+ */
+    public abstract InputStream GetDataStream(DirectoryNode dir);
 
-        protected Decryptor(IEncryptionInfoBuilder builder)
-        {
-            this.builder = builder;
-        }
-
-        /**
-     * Return a stream with decrypted data.
-     * <p>
-     * Use {@link #getLength()} to Get the size of that data that can be safely read from the stream.
-     * Just Reading to the end of the input stream is not sufficient because there are
-     * normally pAdding bytes that must be discarded
-     * </p>
+    /**
+     * Wraps a stream for decryption<p>
      *
-     * @param dir the node to read from
+     * As we are handling streams and don't know the total length beforehand,
+     * it's the callers duty to care for the length of the entries.
+     *
+     * @param stream the stream to be wrapped
+     * @param initialPos initial/current byte position within the stream
      * @return decrypted stream
      */
-        public abstract InputStream GetDataStream(DirectoryNode dir);
+    public virtual InputStream GetDataStream(InputStream stream, int size, int initialPos)
+    {
+        throw new EncryptedDocumentException("this decryptor doesn't support reading from a stream");
+    }
 
-        /**
-         * Wraps a stream for decryption<p>
-         *
-         * As we are handling streams and don't know the total length beforehand,
-         * it's the callers duty to care for the length of the entries.
-         *
-         * @param stream the stream to be wrapped
-         * @param initialPos initial/current byte position within the stream
-         * @return decrypted stream
-         */
-        public virtual InputStream GetDataStream(InputStream stream, int size, int initialPos)
-        {
-            throw new EncryptedDocumentException("this decryptor doesn't support reading from a stream");
-        }
+    public abstract bool VerifyPassword(String password);
 
-        public abstract bool VerifyPassword(String password);
+    /**
+ * Returns the length of the encrypted data that can be safely read with
+ * {@link #getDataStream(NPOI.POIFS.FileSystem.DirectoryNode)}.
+ * Just Reading to the end of the input stream is not sufficient because there are
+ * normally pAdding bytes that must be discarded
+ *
+ * <p>
+ *    The length variable is Initialized in {@link #getDataStream(NPOI.POIFS.FileSystem.DirectoryNode)},
+ *    an attempt to call GetLength() prior to GetDataStream() will result in InvalidOperationException.
+ * </p>
+ *
+ * @return length of the encrypted data
+ * @throws InvalidOperationException if {@link #getDataStream(NPOI.POIFS.FileSystem.DirectoryNode)}
+ * was not called
+ */
+    public abstract long GetLength();
 
-        /**
-     * Returns the length of the encrypted data that can be safely read with
-     * {@link #getDataStream(NPOI.POIFS.FileSystem.DirectoryNode)}.
-     * Just Reading to the end of the input stream is not sufficient because there are
-     * normally pAdding bytes that must be discarded
+
+    /**
+     * Sets the chunk size of the data stream.
+     * Needs to be set before the data stream is requested.
+     * When not set, the implementation uses method specific default values
      *
-     * <p>
-     *    The length variable is Initialized in {@link #getDataStream(NPOI.POIFS.FileSystem.DirectoryNode)},
-     *    an attempt to call GetLength() prior to GetDataStream() will result in InvalidOperationException.
-     * </p>
-     *
-     * @return length of the encrypted data
-     * @throws InvalidOperationException if {@link #getDataStream(NPOI.POIFS.FileSystem.DirectoryNode)}
-     * was not called
+     * @param chunkSize the chunk size, i.e. the block size with the same encryption key
      */
-        public abstract long GetLength();
+    public virtual void SetChunkSize(int chunkSize)
+    {
+        throw new EncryptedDocumentException("this decryptor doesn't support changing the chunk size");
+    }
 
+    public static Decryptor GetInstance(EncryptionInfo info)
+    {
+        Decryptor d = info.Decryptor;
+        if (d == null)
+        {
+            throw new EncryptedDocumentException("Unsupported version");
+        }
+        return d;
+    }
 
-        /**
-         * Sets the chunk size of the data stream.
-         * Needs to be set before the data stream is requested.
-         * When not set, the implementation uses method specific default values
-         *
-         * @param chunkSize the chunk size, i.e. the block size with the same encryption key
-         */
-        public virtual void SetChunkSize(int chunkSize)
-        {
-            throw new EncryptedDocumentException("this decryptor doesn't support changing the chunk size");
-        }
+    public InputStream GetDataStream(NPOIFSFileSystem fs)
+    {
+        return GetDataStream(fs.Root);
+    }
+    public InputStream GetDataStream(OPOIFSFileSystem fs)
+    {
+        return GetDataStream(fs.Root);
+    }
+    public InputStream GetDataStream(POIFSFileSystem fs)
+    {
+        return GetDataStream(fs.Root);
+    }
 
-        public static Decryptor GetInstance(EncryptionInfo info)
-        {
-            Decryptor d = info.Decryptor;
-            if (d == null)
-            {
-                throw new EncryptedDocumentException("Unsupported version");
-            }
-            return d;
-        }
+    // for tests
+    public byte[] GetVerifier()
+    {
+        return verifier;
+    }
 
-        public InputStream GetDataStream(NPOIFSFileSystem fs)
-        {
-            return GetDataStream(fs.Root);
-        }
-        public InputStream GetDataStream(OPOIFSFileSystem fs)
-        {
-            return GetDataStream(fs.Root);
-        }
-        public InputStream GetDataStream(POIFSFileSystem fs)
-        {
-            return GetDataStream(fs.Root);
-        }
+    public ISecretKey GetSecretKey()
+    {
+        return secretKey;
+    }
 
-        // for tests
-        public byte[] GetVerifier()
-        {
-            return verifier;
-        }
+    public byte[] GetIntegrityHmacKey()
+    {
+        return integrityHmacKey;
+    }
 
-        public ISecretKey GetSecretKey()
-        {
-            return secretKey;
-        }
+    public byte[] GetIntegrityHmacValue()
+    {
+        return integrityHmacValue;
+    }
 
-        public byte[] GetIntegrityHmacKey()
-        {
-            return integrityHmacKey;
-        }
+    protected void SetSecretKey(ISecretKey secretKey)
+    {
+        this.secretKey = secretKey;
+    }
 
-        public byte[] GetIntegrityHmacValue()
-        {
-            return integrityHmacValue;
-        }
+    protected void SetVerifier(byte[] verifier)
+    {
+        this.verifier = verifier;
+    }
 
-        protected void SetSecretKey(ISecretKey secretKey)
-        {
-            this.secretKey = secretKey;
-        }
+    protected void SetIntegrityHmacKey(byte[] integrityHmacKey)
+    {
+        this.integrityHmacKey = integrityHmacKey;
+    }
 
-        protected void SetVerifier(byte[] verifier)
-        {
-            this.verifier = verifier;
-        }
+    protected void SetIntegrityHmacValue(byte[] integrityHmacValue)
+    {
+        this.integrityHmacValue = integrityHmacValue;
+    }
 
-        protected void SetIntegrityHmacKey(byte[] integrityHmacKey)
-        {
-            this.integrityHmacKey = integrityHmacKey;
-        }
+    protected int GetBlockSizeInBytes()
+    {
+        return builder.GetHeader().BlockSize;
+    }
 
-        protected void SetIntegrityHmacValue(byte[] integrityHmacValue)
-        {
-            this.integrityHmacValue = integrityHmacValue;
-        }
-
-        protected int GetBlockSizeInBytes()
-        {
-            return builder.GetHeader().BlockSize;
-        }
-
-        protected int GetKeySizeInBytes()
-        {
-            return builder.GetHeader().KeySize/8;
-        }
+    protected int GetKeySizeInBytes()
+    {
+        return builder.GetHeader().KeySize/8;
     }
 }

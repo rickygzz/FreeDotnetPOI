@@ -15,37 +15,36 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.POIFS.Crypt
+namespace NPOI.POIFS.Crypt;
+
+using System;
+
+public class CipherProvider
 {
-    using System;
+    public static readonly CipherProvider rc4 = new CipherProvider("RC4", 1,
+        "Microsoft Base Cryptographic Provider v1.0");
+    public static readonly CipherProvider aes = new CipherProvider("AES", 0x18,
+        "Microsoft Enhanced RSA and AES Cryptographic Provider");
 
-    public class CipherProvider
+    public static CipherProvider[] Values = new CipherProvider[] { rc4, aes };
+
+    public static CipherProvider FromEcmaId(int ecmaId)
     {
-        public static readonly CipherProvider rc4 = new CipherProvider("RC4", 1,
-            "Microsoft Base Cryptographic Provider v1.0");
-        public static readonly CipherProvider aes = new CipherProvider("AES", 0x18,
-            "Microsoft Enhanced RSA and AES Cryptographic Provider");
-
-        public static CipherProvider[] Values = new CipherProvider[] { rc4, aes };
-
-        public static CipherProvider FromEcmaId(int ecmaId)
+        foreach (CipherProvider cp in CipherProvider.Values)
         {
-            foreach (CipherProvider cp in CipherProvider.Values)
-            {
-                if (cp.ecmaId == ecmaId) return cp;
-            }
-            throw new EncryptedDocumentException("cipher provider not found");
+            if (cp.ecmaId == ecmaId) return cp;
         }
+        throw new EncryptedDocumentException("cipher provider not found");
+    }
 
-        public String jceId { get;set;}
-        public int ecmaId { get;set;}
-        public String cipherProviderName { get;set;}
+    public String jceId { get;set;}
+    public int ecmaId { get;set;}
+    public String cipherProviderName { get;set;}
 
-        public CipherProvider(String jceId, int ecmaId, String cipherProviderName)
-        {
-            this.jceId = jceId;
-            this.ecmaId = ecmaId;
-            this.cipherProviderName = cipherProviderName;
-        }
+    public CipherProvider(String jceId, int ecmaId, String cipherProviderName)
+    {
+        this.jceId = jceId;
+        this.ecmaId = ecmaId;
+        this.cipherProviderName = cipherProviderName;
     }
 }

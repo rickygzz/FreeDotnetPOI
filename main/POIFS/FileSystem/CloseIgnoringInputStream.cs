@@ -28,86 +28,85 @@
 using System;
 using System.IO;
 
-namespace NPOI.POIFS.FileSystem
+namespace NPOI.POIFS.FileSystem;
+
+internal sealed class CloseIgnoringInputStream : Stream
 {
-    internal sealed class CloseIgnoringInputStream : Stream
+
+    private readonly Stream _is;
+
+    public CloseIgnoringInputStream(Stream stream)
     {
+        _is = stream;
+    }
+    public int Read()
+    {
+        return (int)_is.ReadByte();
+    }
+    public override int Read(byte[] b, int off, int len)
+    {
+        return _is.Read(b, off, len);
+    }
+    public override void Close()
+    {
+        // do nothing
+    }
+    public override void Flush()
+    {
+    }
+    public override long Seek(long offset, SeekOrigin origin)
+    {
+        return 0L;
+    }
 
-        private readonly Stream _is;
+    public override void SetLength(long value)
+    {
+    }
+    // Properties
+    public override bool CanRead
+    {
+        get
+        {
+            return true;
+        }
+    }
 
-        public CloseIgnoringInputStream(Stream stream)
+    public override bool CanSeek
+    {
+        get
         {
-            _is = stream;
+            return true;
         }
-        public int Read()
-        {
-            return (int)_is.ReadByte();
-        }
-        public override int Read(byte[] b, int off, int len)
-        {
-            return _is.Read(b, off, len);
-        }
-        public override void Close()
-        {
-            // do nothing
-        }
-        public override void Flush()
-        {
-        }
-        public override long Seek(long offset, SeekOrigin origin)
-        {
-            return 0L;
-        }
+    }
 
-        public override void SetLength(long value)
+    public override bool CanWrite
+    {
+        get
         {
+            return false;
         }
-        // Properties
-        public override bool CanRead
-        {
-            get
-            {
-                return true;
-            }
-        }
+    }
 
-        public override bool CanSeek
+    public override long Length
+    {
+        get
         {
-            get
-            {
-                return true;
-            }
+            return (long)this._is.Length;
         }
+    }
 
-        public override bool CanWrite
+    public override long Position
+    {
+        get
         {
-            get
-            {
-                return false;
-            }
+            return (long)this._is.Position;
         }
-
-        public override long Length
+        set
         {
-            get
-            {
-                return (long)this._is.Length;
-            }
+            this._is.Position = Convert.ToInt32(value);
         }
-
-        public override long Position
-        {
-            get
-            {
-                return (long)this._is.Position;
-            }
-            set
-            {
-                this._is.Position = Convert.ToInt32(value);
-            }
-        }
-        public override void Write(byte[] buffer, int offset, int count)
-        {
-        }
+    }
+    public override void Write(byte[] buffer, int offset, int count)
+    {
     }
 }

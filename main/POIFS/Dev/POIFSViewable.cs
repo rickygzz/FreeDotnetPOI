@@ -28,48 +28,47 @@
 using System;
 using System.Collections.Generic;
 
-namespace NPOI.POIFS.Dev
+namespace NPOI.POIFS.Dev;
+
+/// <summary>
+/// Interface for a drill-down viewable object. Such an object has
+/// content that may or may not be displayed, at the discretion of the
+/// viewer. The content is returned to the viewer as an array or as an
+/// Iterator, and the object provides a clue as to which technique the
+/// viewer should use to get its content.
+/// 
+/// A POIFSViewable object is also expected to provide a short
+/// description of itself, that can be used by a viewer when the
+/// viewable object is collapsed.
+/// </summary>
+public interface POIFSViewable
 {
     /// <summary>
-    /// Interface for a drill-down viewable object. Such an object has
-    /// content that may or may not be displayed, at the discretion of the
-    /// viewer. The content is returned to the viewer as an array or as an
-    /// Iterator, and the object provides a clue as to which technique the
-    /// viewer should use to get its content.
-    /// 
-    /// A POIFSViewable object is also expected to provide a short
-    /// description of itself, that can be used by a viewer when the
-    /// viewable object is collapsed.
+    /// Get an array of objects, some of which may implement
+    /// POIFSViewable
     /// </summary>
-    public interface POIFSViewable
-    {
-        /// <summary>
-        /// Get an array of objects, some of which may implement
-        /// POIFSViewable
-        /// </summary>
-        /// <value>an array of Object; may not be null, but may be empty</value>
-        Object[] ViewableArray { get; }
+    /// <value>an array of Object; may not be null, but may be empty</value>
+    Object[] ViewableArray { get; }
 
-        /// <summary>
-        /// Get an Iterator of objects, some of which may implement POIFSViewable
-        /// </summary>
-        /// <value>an Iterator; may not be null, but may have an empty
-        /// back end store</value>
-        IEnumerator<Object> ViewableIterator { get; }
+    /// <summary>
+    /// Get an Iterator of objects, some of which may implement POIFSViewable
+    /// </summary>
+    /// <value>an Iterator; may not be null, but may have an empty
+    /// back end store</value>
+    IEnumerator<Object> ViewableIterator { get; }
 
-        /// <summary>
-        /// Give viewers a hint as to whether to call <see cref="ViewableArray"/> or
-        /// <see cref="ViewableIterator"/>
-        /// </summary>
-        /// <value><see langword="true"/> if a viewer should call <see cref="ViewableArray"/>, <see langword="false"/> if
-        /// a viewer should call <see cref="ViewableIterator"/></value>
-        bool PreferArray { get; }
+    /// <summary>
+    /// Give viewers a hint as to whether to call <see cref="ViewableArray"/> or
+    /// <see cref="ViewableIterator"/>
+    /// </summary>
+    /// <value><see langword="true"/> if a viewer should call <see cref="ViewableArray"/>, <see langword="false"/> if
+    /// a viewer should call <see cref="ViewableIterator"/></value>
+    bool PreferArray { get; }
 
-        /// <summary>
-        /// Provides a short description of the object, to be used when a
-        /// POIFSViewable object has not provided its contents.
-        /// </summary>
-        /// <value>short description</value>
-        string ShortDescription { get; }
-    }
+    /// <summary>
+    /// Provides a short description of the object, to be used when a
+    /// POIFSViewable object has not provided its contents.
+    /// </summary>
+    /// <value>short description</value>
+    string ShortDescription { get; }
 }
