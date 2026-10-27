@@ -15,57 +15,56 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.SS.UserModel
+namespace NPOI.SS.UserModel;
+
+using NPOI.POIFS.FileSystem;
+
+/// <summary>
+/// <para>
+/// Common interface for OLE shapes, i.e. shapes linked to embedded documents
+/// </para>
+/// <para>
+/// </para>
+/// </summary>
+/// @since POI 3.16-beta2
+public interface IObjectData : ISimpleShape
 {
-    using NPOI.POIFS.FileSystem;
+    /// <summary>
+    /// data portion, for an ObjectData that doesn't have an associated POIFS Directory Entry
+    /// </summary>
+    byte[] ObjectData { get; }
+
+
+    /// <summary>does this ObjectData have an associated POIFS Directory Entry?
+    ///(Not all do, those that don't have a data portion)
+    /// </summary>
+    bool HasDirectoryEntry();
 
     /// <summary>
     /// <para>
-    /// Common interface for OLE shapes, i.e. shapes linked to embedded documents
-    /// </para>
-    /// <para>
+    /// Gets the object data. Only call for ones that have
+    /// data though. See {@link #hasDirectoryEntry()}.
+    /// The caller has to close the corresponding POIFSFileSystem
     /// </para>
     /// </summary>
-    /// @since POI 3.16-beta2
-    public interface IObjectData : ISimpleShape
-    {
-        /// <summary>
-        /// data portion, for an ObjectData that doesn't have an associated POIFS Directory Entry
-        /// </summary>
-        byte[] ObjectData { get; }
+    /// <return>object data as an OLE2 directory./// </return>
+    /// <throws name="IOException">if there was an error Reading the data. </throws>
+    DirectoryEntry Directory { get; }
 
 
-        /// <summary>does this ObjectData have an associated POIFS Directory Entry?
-        ///(Not all do, those that don't have a data portion)
-        /// </summary>
-        bool HasDirectoryEntry();
+    /// <summary>
+    /// </summary>
+    /// <return>the OLE2 Class Name of the object/// </return>
+    string OLE2ClassName { get; }
 
-        /// <summary>
-        /// <para>
-        /// Gets the object data. Only call for ones that have
-        /// data though. See {@link #hasDirectoryEntry()}.
-        /// The caller has to close the corresponding POIFSFileSystem
-        /// </para>
-        /// </summary>
-        /// <return>object data as an OLE2 directory./// </return>
-        /// <throws name="IOException">if there was an error Reading the data. </throws>
-        DirectoryEntry Directory { get; }
+    /// <summary>
+    /// </summary>
+    /// <return>a filename suggestion - inspecting/interpreting the Directory object probably gives a better result</return>
+    string FileName { get; }
 
-
-        /// <summary>
-        /// </summary>
-        /// <return>the OLE2 Class Name of the object/// </return>
-        string OLE2ClassName { get; }
-
-        /// <summary>
-        /// </summary>
-        /// <return>a filename suggestion - inspecting/interpreting the Directory object probably gives a better result</return>
-        string FileName { get; }
-
-        /// <summary>
-        /// </summary>
-        /// <return>the preview picture
-        /// </return>
-        IPictureData PictureData { get; }
-    }
+    /// <summary>
+    /// </summary>
+    /// <return>the preview picture
+    /// </return>
+    IPictureData PictureData { get; }
 }

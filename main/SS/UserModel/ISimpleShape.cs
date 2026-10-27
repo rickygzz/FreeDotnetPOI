@@ -15,9 +15,8 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.SS.UserModel
+namespace NPOI.SS.UserModel;
+
+public interface ISimpleShape : IShape
 {
-    public interface ISimpleShape : IShape
-    {
-    }
 }

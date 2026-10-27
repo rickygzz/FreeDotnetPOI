@@ -17,51 +17,46 @@
 ==================================================================== */
 
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
 
-namespace NPOI.Util
+namespace NPOI.Util;
+
+/// <summary>
+/// This is similar to <see cref="RecordFormatException"/>, except this is thrown
+/// when there's a higher order problem with parsing a document beyond individual records.
+/// </summary>
+public class DocumentFormatException : RuntimeException
 {
-    /// <summary>
-    /// This is similar to <see cref="RecordFormatException"/>, except this is thrown
-    /// when there's a higher order problem with parsing a document beyond individual records.
-    /// </summary>
-    public class DocumentFormatException : RuntimeException
+
+    public DocumentFormatException(string exception)
+        : base(exception)
     {
 
-        public DocumentFormatException(string exception)
-            : base(exception)
-        {
+    }
 
-        }
+    public DocumentFormatException(string exception, Exception ex)
+        : base(exception, ex)
+    {
+        
+    }
 
-        public DocumentFormatException(string exception, Exception ex)
-            : base(exception, ex)
-        {
-            
-        }
+    public DocumentFormatException(Exception thr)
+        : base(thr)
+    {
+        
+    }
 
-        public DocumentFormatException(Exception thr)
-            : base(thr)
+    /// <summary>
+    /// Syntactic sugar to check whether a DocumentFormatException should
+    /// be thrown.  If assertTrue is <c>false</c>, this will throw this
+    /// exception with the message.
+    /// </summary>
+    /// <param name="assertTrue"></param>
+    /// <param name="message"></param>
+    public static void Check(bool assertTrue, string message)
+    {
+        if(!assertTrue)
         {
-            
-        }
-
-        /// <summary>
-        /// Syntactic sugar to check whether a DocumentFormatException should
-        /// be thrown.  If assertTrue is <c>false</c>, this will throw this
-        /// exception with the message.
-        /// </summary>
-        /// <param name="assertTrue"></param>
-        /// <param name="message"></param>
-        public static void Check(bool assertTrue, string message)
-        {
-            if(!assertTrue)
-            {
-                throw new DocumentFormatException(message);
-            }
+            throw new DocumentFormatException(message);
         }
     }
 }

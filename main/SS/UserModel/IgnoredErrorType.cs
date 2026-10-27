@@ -15,87 +15,86 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.SS.UserModel
-{
-    using System;
+namespace NPOI.SS.UserModel;
+
+using System;
+
+/**
+ * Types of ignored workbook and worksheet error.
+ * 
+ * TODO Implement these for HSSF too, using FeatFormulaErr2,
+ *  see bugzilla bug #46136 for details
+ */
+public enum IgnoredErrorType {
+    /**
+     * ????. Probably XSSF-only.
+     */
+    CalculatedColumn,
 
     /**
-     * Types of ignored workbook and worksheet error.
-     * 
-     * TODO Implement these for HSSF too, using FeatFormulaErr2,
-     *  see bugzilla bug #46136 for details
+     * Whether to check for references to empty cells.
+     * HSSF + XSSF.
      */
-    public enum IgnoredErrorType {
-        /**
-         * ????. Probably XSSF-only.
-         */
-        CalculatedColumn,
+    EmptyCellReference,
 
-        /**
-         * Whether to check for references to empty cells.
-         * HSSF + XSSF.
-         */
-        EmptyCellReference,
+    /**
+     * Whether to check for calculation/Evaluation errors.
+     * HSSF + XSSF.
+     */
+    EvaluationError,
 
-        /**
-         * Whether to check for calculation/Evaluation errors.
-         * HSSF + XSSF.
-         */
-        EvaluationError,
+    /**
+     * Whether to check formulas in the range of the shared feature 
+     *  that are inconsistent with formulas in neighbouring cells.
+     * HSSF + XSSF.
+     */
+    Formula,
 
-        /**
-         * Whether to check formulas in the range of the shared feature 
-         *  that are inconsistent with formulas in neighbouring cells.
-         * HSSF + XSSF.
-         */
-        Formula,
+    /**
+     * Whether to check formulas in the range of the shared feature 
+     * with references to less than the entirety of a range Containing 
+     * continuous data.
+     * HSSF + XSSF.
+     */
+    FormulaRange,
 
-        /**
-         * Whether to check formulas in the range of the shared feature 
-         * with references to less than the entirety of a range Containing 
-         * continuous data.
-         * HSSF + XSSF.
-         */
-        FormulaRange,
+    /**
+     * ????. Is this XSSF-specific the same as performDataValidation
+     *  in HSSF?
+     */
+    ListDataValidation,
 
-        /**
-         * ????. Is this XSSF-specific the same as performDataValidation
-         *  in HSSF?
-         */
-        ListDataValidation,
+    /**
+     * Whether to check the format of string values and warn
+     *  if they look to actually be numeric values.
+     * HSSF + XSSF.
+     */
+    NumberStoredAsText,
 
-        /**
-         * Whether to check the format of string values and warn
-         *  if they look to actually be numeric values.
-         * HSSF + XSSF.
-         */
-        NumberStoredAsText,
+    /**
+     * ????. Is this XSSF-specific the same as CheckDateTimeFormats
+     *  in HSSF?
+     */
+    TwoDigitTextYear,
 
-        /**
-         * ????. Is this XSSF-specific the same as CheckDateTimeFormats
-         *  in HSSF?
-         */
-        TwoDigitTextYear,
+    /**
+     * Whether to check for unprotected formulas.
+     * HSSF + XSSF.
+     */
+    UnlockedFormula
+}
 
-        /**
-         * Whether to check for unprotected formulas.
-         * HSSF + XSSF.
-         */
-        UnlockedFormula
-    }
-
-    public static class IgnoredErrorTypeValues
-    {
-        public static IgnoredErrorType[] Values = new IgnoredErrorType[] {
-            IgnoredErrorType.CalculatedColumn,
-            IgnoredErrorType.EmptyCellReference,
-            IgnoredErrorType.EvaluationError,
-            IgnoredErrorType.Formula,
-            IgnoredErrorType.FormulaRange,
-            IgnoredErrorType.ListDataValidation,
-            IgnoredErrorType.NumberStoredAsText,
-            IgnoredErrorType.TwoDigitTextYear,
-            IgnoredErrorType.UnlockedFormula
-        };
-    }
+public static class IgnoredErrorTypeValues
+{
+    public static IgnoredErrorType[] Values = new IgnoredErrorType[] {
+        IgnoredErrorType.CalculatedColumn,
+        IgnoredErrorType.EmptyCellReference,
+        IgnoredErrorType.EvaluationError,
+        IgnoredErrorType.Formula,
+        IgnoredErrorType.FormulaRange,
+        IgnoredErrorType.ListDataValidation,
+        IgnoredErrorType.NumberStoredAsText,
+        IgnoredErrorType.TwoDigitTextYear,
+        IgnoredErrorType.UnlockedFormula
+    };
 }

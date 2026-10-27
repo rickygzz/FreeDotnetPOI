@@ -15,213 +15,211 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.SS.Util
+namespace NPOI.SS.Util;
+
+using NPOI.SS.UserModel;
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+
+/**
+ * For POI internal use only
+ *
+ * @author Josh Micich
+ */
+public class SSCellRange<K> : ICellRange<K> where K:ICell
 {
-    using System;
 
-    using NPOI.SS.UserModel;
-    using System.Collections.Generic;
-    using System.Globalization;
+    private readonly int _height;
+    private readonly int _width;
+    private readonly K[] _flattenedArray;
+    private readonly int _firstRow;
+    private readonly int _firstColumn;
 
-    /**
-     * For POI internal use only
-     *
-     * @author Josh Micich
-     */
-    public class SSCellRange<K> : ICellRange<K> where K:ICell
+    private SSCellRange(int firstRow, int firstColumn, int height, int width, K[] flattenedArray)
+    {
+        _firstRow = firstRow;
+        _firstColumn = firstColumn;
+        _height = height;
+        _width = width;
+        _flattenedArray = (K[])flattenedArray.Clone();
+    }
+
+    public static SSCellRange<K> Create(int firstRow, int firstColumn, int height, int width, List<K> flattenedList, Type cellClass)
+    {
+        int nItems = flattenedList.Count;
+        if (height * width != nItems)
+        {
+            throw new ArgumentException("Array size mismatch.");
+        }
+
+        K[] flattenedArray = (K[])Array.CreateInstance(cellClass, nItems);
+        flattenedArray=flattenedList.ToArray();
+        return new SSCellRange<K>(firstRow, firstColumn, height, width, flattenedArray);
+    }
+
+
+
+    public K GetCell(int relativeRowIndex, int relativeColumnIndex)
+    {
+        if (relativeRowIndex < 0 || relativeRowIndex >= _height)
+        {
+            throw new IndexOutOfRangeException("Specified row " + relativeRowIndex
+                    + " is outside the allowable range (0.." + (_height - 1) + ").");
+        }
+        if (relativeColumnIndex < 0 || relativeColumnIndex >= _width)
+        {
+            throw new IndexOutOfRangeException("Specified colummn " + relativeColumnIndex
+                    + " is outside the allowable range (0.." + (_width - 1) + ").");
+        }
+        int flatIndex = _width * relativeRowIndex + relativeColumnIndex;
+        return _flattenedArray[flatIndex];
+    }
+
+    internal sealed class ArrayIterator<T> :IEnumerator<T>
     {
 
-        private readonly int _height;
-        private readonly int _width;
-        private readonly K[] _flattenedArray;
-        private readonly int _firstRow;
-        private readonly int _firstColumn;
+        private readonly T[] _array;
+        private int _index;
 
-        private SSCellRange(int firstRow, int firstColumn, int height, int width, K[] flattenedArray)
+        public ArrayIterator(T[] array)
         {
-            _firstRow = firstRow;
-            _firstColumn = firstColumn;
-            _height = height;
-            _width = width;
-            _flattenedArray = (K[])flattenedArray.Clone();
+            _array = (T[])array.Clone();
+            _index = 0;
         }
 
-        public static SSCellRange<K> Create(int firstRow, int firstColumn, int height, int width, List<K> flattenedList, Type cellClass)
+        #region IEnumerator<D> Members
+        public bool MoveNext()
         {
-            int nItems = flattenedList.Count;
-            if (height * width != nItems)
-            {
-                throw new ArgumentException("Array size mismatch.");
-            }
-
-            K[] flattenedArray = (K[])Array.CreateInstance(cellClass, nItems);
-            flattenedArray=flattenedList.ToArray();
-            return new SSCellRange<K>(firstRow, firstColumn, height, width, flattenedArray);
+            return _index < _array.Length;
         }
 
-
-
-        public K GetCell(int relativeRowIndex, int relativeColumnIndex)
+        public void Remove()
         {
-            if (relativeRowIndex < 0 || relativeRowIndex >= _height)
-            {
-                throw new IndexOutOfRangeException("Specified row " + relativeRowIndex
-                        + " is outside the allowable range (0.." + (_height - 1) + ").");
-            }
-            if (relativeColumnIndex < 0 || relativeColumnIndex >= _width)
-            {
-                throw new IndexOutOfRangeException("Specified colummn " + relativeColumnIndex
-                        + " is outside the allowable range (0.." + (_width - 1) + ").");
-            }
-            int flatIndex = _width * relativeRowIndex + relativeColumnIndex;
-            return _flattenedArray[flatIndex];
+            throw new NotSupportedException("Cannot remove cells from this CellRange.");
         }
 
-        internal sealed class ArrayIterator<T> :IEnumerator<T>
+        public void Reset()
+        { 
+        }
+
+        public T Current
         {
-
-            private readonly T[] _array;
-            private int _index;
-
-            public ArrayIterator(T[] array)
+            get
             {
-                _array = (T[])array.Clone();
-                _index = 0;
-            }
-
-            #region IEnumerator<D> Members
-            public bool MoveNext()
-            {
-                return _index < _array.Length;
-            }
-
-            public void Remove()
-            {
-                throw new NotSupportedException("Cannot remove cells from this CellRange.");
-            }
-
-            public void Reset()
-            { 
-            }
-
-            public T Current
-            {
-                get
+                if (_index >= _array.Length)
                 {
-                    if (_index >= _array.Length)
-                    {
-                        throw new ArgumentNullException(_index.ToString(CultureInfo.CurrentCulture));
-                    }
-                    return _array[_index++];
+                    throw new ArgumentNullException(_index.ToString(CultureInfo.CurrentCulture));
                 }
-            }
-
-
-            #endregion
-
-            #region IDisposable Members
-
-            public void Dispose()
-            {
-                //do nothing?
-            }
-
-            #endregion
-
-            #region IEnumerator Members
-
-            object System.Collections.IEnumerator.Current
-            {
-                get { return this.Current; }
-            }
-
-            #endregion
-        }
-
-        #region CellRange<K> Members
-
-
-        public K TopLeftCell
-        {
-            get { return _flattenedArray[0]; }
-        }
-
-        public K[] FlattenedCells
-        {
-            get {
-                return (K[])_flattenedArray.Clone();
+                return _array[_index++];
             }
         }
 
-        public K[][] Cells
-        {
-            get {
-                Type itemCls = _flattenedArray.GetType();
-                K[][] result = (K[][])Array.CreateInstance(itemCls, _height);
-                itemCls = itemCls.GetElementType();
-                for (int r = _height - 1; r >= 0; r--)
-                {
-                    result[r] = (K[])Array.CreateInstance(itemCls, _width);
-                    int flatIndex = _width * r;
-                    Array.Copy(_flattenedArray, flatIndex, result[r], 0, _width);
-                }
-                return result;
-            }
-        }
 
-        public int Height
-        {
-            get
-            {
-                return _height;
-            }
-        }
-        public int Width
-        {
-            get
-            {
-                return _width;
-            }
-        }
-        public int Size
-        {
-            get
-            {
-                return _height * _width;
-            }
-        }
-
-        public String ReferenceText
-        {
-            get
-            {
-                CellRangeAddress cra = new CellRangeAddress(_firstRow, _firstRow + _height - 1, _firstColumn, _firstColumn + _width - 1);
-                return cra.FormatAsString();
-            }
-        }
         #endregion
 
+        #region IDisposable Members
 
-
-
-        #region IEnumerable<K> Members
-
-        public IEnumerator<K> GetEnumerator()
+        public void Dispose()
         {
-            return new ArrayIterator<K>(_flattenedArray);
+            //do nothing?
         }
 
         #endregion
 
-        #region IEnumerable Members
+        #region IEnumerator Members
 
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+        object System.Collections.IEnumerator.Current
         {
-            throw new NotImplementedException();
+            get { return this.Current; }
         }
 
         #endregion
     }
+
+    #region CellRange<K> Members
+
+
+    public K TopLeftCell
+    {
+        get { return _flattenedArray[0]; }
+    }
+
+    public K[] FlattenedCells
+    {
+        get {
+            return (K[])_flattenedArray.Clone();
+        }
+    }
+
+    public K[][] Cells
+    {
+        get {
+            Type itemCls = _flattenedArray.GetType();
+            K[][] result = (K[][])Array.CreateInstance(itemCls, _height);
+            itemCls = itemCls.GetElementType();
+            for (int r = _height - 1; r >= 0; r--)
+            {
+                result[r] = (K[])Array.CreateInstance(itemCls, _width);
+                int flatIndex = _width * r;
+                Array.Copy(_flattenedArray, flatIndex, result[r], 0, _width);
+            }
+            return result;
+        }
+    }
+
+    public int Height
+    {
+        get
+        {
+            return _height;
+        }
+    }
+    public int Width
+    {
+        get
+        {
+            return _width;
+        }
+    }
+    public int Size
+    {
+        get
+        {
+            return _height * _width;
+        }
+    }
+
+    public String ReferenceText
+    {
+        get
+        {
+            CellRangeAddress cra = new CellRangeAddress(_firstRow, _firstRow + _height - 1, _firstColumn, _firstColumn + _width - 1);
+            return cra.FormatAsString();
+        }
+    }
+    #endregion
+
+
+
+
+    #region IEnumerable<K> Members
+
+    public IEnumerator<K> GetEnumerator()
+    {
+        return new ArrayIterator<K>(_flattenedArray);
+    }
+
+    #endregion
+
+    #region IEnumerable Members
+
+    System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+    {
+        throw new NotImplementedException();
+    }
+
+    #endregion
 }
 
 

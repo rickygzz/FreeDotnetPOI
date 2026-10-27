@@ -27,6 +27,7 @@ using System.Text;using Cysharp.Text;
 using System.Globalization;
 using SixLabors.ImageSharp;
 using NPOI.Util;
+using NPOI;
 
 /**
  * Objects of this class represent a single part of a cell format expression.

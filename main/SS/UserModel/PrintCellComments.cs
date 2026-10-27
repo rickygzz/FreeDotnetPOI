@@ -15,61 +15,59 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.SS.UserModel
+namespace NPOI.SS.UserModel;
+
+
+/**
+ * These enumerations specify how cell comments shall be displayed for paper printing purposes.
+ *
+ * @author Gisella Bronzetti
+ */
+public class PrintCellComments
 {
 
     /**
-     * These enumerations specify how cell comments shall be displayed for paper printing purposes.
-     *
-     * @author Gisella Bronzetti
+     * Do not print cell comments.
      */
-    public class PrintCellComments
+    public static PrintCellComments NONE;
+    /**
+     * Print cell comments as displayed.
+     */
+    public static PrintCellComments AS_DISPLAYED;
+    /**
+     * Print cell comments at end of document.
+     */
+    public static PrintCellComments AT_END;
+
+
+    static PrintCellComments()
+    { 
+        _table= new PrintCellComments[4];
+        NONE = new PrintCellComments(1);
+        AS_DISPLAYED = new PrintCellComments(2);
+        AT_END = new PrintCellComments(3);
+    }
+
+    private readonly int comments;
+
+    private PrintCellComments(int comments)
     {
+        this.comments = comments;
+        _table[this.Value] = this;
+    }
 
-        /**
-         * Do not print cell comments.
-         */
-        public static PrintCellComments NONE;
-        /**
-         * Print cell comments as displayed.
-         */
-        public static PrintCellComments AS_DISPLAYED;
-        /**
-         * Print cell comments at end of document.
-         */
-        public static PrintCellComments AT_END;
-
-
-        static PrintCellComments()
-        { 
-            _table= new PrintCellComments[4];
-            NONE = new PrintCellComments(1);
-            AS_DISPLAYED = new PrintCellComments(2);
-            AT_END = new PrintCellComments(3);
-        }
-
-        private readonly int comments;
-
-        private PrintCellComments(int comments)
+    public int Value
+    {
+        get
         {
-            this.comments = comments;
-            _table[this.Value] = this;
-        }
-
-        public int Value
-        {
-            get
-            {
-                return comments;
-            }
-        }
-
-        private static readonly PrintCellComments[] _table;
-
-        public static PrintCellComments ValueOf(int value)
-        {
-            return _table[value];
+            return comments;
         }
     }
 
+    private static readonly PrintCellComments[] _table;
+
+    public static PrintCellComments ValueOf(int value)
+    {
+        return _table[value];
+    }
 }

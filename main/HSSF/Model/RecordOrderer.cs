@@ -1,18 +1,18 @@
 ﻿/* ====================================================================
-   Licensed to the Apache Software Foundation (ASF) under one or more
-   contributor license agreements.  See the NOTICE file distributed with
-   this work for additional information regarding copyright ownership.
-   The ASF licenses this file to You under the Apache License, Version 2.0
-   (the "License"); you may not use this file except in compliance with
-   the License.  You may obtain a copy of the License at
+    Licensed to the Apache Software Foundation (ASF) under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The ASF licenses this file to You under the Apache License, Version 2.0
+    (the "License"); you may not use this file except in compliance with
+    the License.  You may obtain a copy of the License at
 
-       http://www.apache.org/licenses/LICENSE-2.0
+        http://www.apache.org/licenses/LICENSE-2.0
 
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
 ==================================================================== */
 
 namespace NPOI.HSSF.Model;
@@ -24,25 +24,26 @@ using System.Collections.Generic;
 using NPOI.HSSF.Record.PivotTable;
 
 /**
- * Finds correct insert positions for records in workbook streams<p/>
- * 
- * See OOO excelfileformat.pdf sec. 4.2.5 'Record Order in a BIFF8 Workbook Stream'
- * 
- * @author Josh Micich
- */
+* Finds correct insert positions for records in workbook streams<p/>
+*
+* See OOO excelfileformat.pdf sec. 4.2.5 'Record Order in a BIFF8 Workbook Stream'
+*
+* @author Josh Micich
+*/
 public class RecordOrderer
 {
 
-    // TODO - simplify logic using a generalised record ordering
+    // TODO - simplify logic using a generalized record ordering
 
     private RecordOrderer()
     {
         // no instances of this class
     }
+
     /**
-     * Adds the specified new record in the correct place in sheet records list
-     * 
-     */
+    * Adds the specified new record in the correct place in sheet records list
+    *
+    */
     public static void AddNewSheetRecord(List<RecordBase> sheetRecords, RecordBase newRecord)
     {
         int index = FindSheetInsertPos(sheetRecords, newRecord.GetType());
@@ -81,7 +82,6 @@ public class RecordOrderer
     /// Finds the index where the protection block should be inserted
     /// </summary>
     /// <param name="records">the records for this sheet</param>
-    /// <returns></returns>
     /// <remark>
     /// + BOF
     /// o INDEX
@@ -116,8 +116,6 @@ public class RecordOrderer
     /// <summary>
     /// These records may occur between the 'Worksheet Protection Block' and DIMENSION:
     /// </summary>
-    /// <param name="rb"></param>
-    /// <returns></returns>
     /// <remarks>
     /// o DEFCOLWIDTH
     /// oo COLINFO
@@ -188,8 +186,6 @@ public class RecordOrderer
     /// <summary>
     /// Find correct position to add new CFHeader record
     /// </summary>
-    /// <param name="records"></param>
-    /// <returns></returns>
     private static int FindInsertPosForNewCondFormatTable(List<RecordBase> records)
     {
 
@@ -212,7 +208,7 @@ public class RecordOrderer
                 case PaneRecord.sid:
                 case SelectionRecord.sid:
                 case UnknownRecord.STANDARDWIDTH_0099:
-                // MergedCellsTable usually here 
+                // MergedCellsTable usually here
                 case UnknownRecord.LABELRANGES_015F:
                 case UnknownRecord.PHONETICPR_00EF:
                     // ConditionalFormattingTable goes here
@@ -231,14 +227,14 @@ public class RecordOrderer
             Object rb = records[i];
             if (rb is not Record rec)
             {
-                // DataValidityTable, ConditionalFormattingTable, 
+                // DataValidityTable, ConditionalFormattingTable,
                 // even PageSettingsBlock (which doesn't normally appear after 'View Settings')
                 continue;
             }
 
             switch (rec.Sid)
             {
-                // 'View Settings' (4 records) 
+                // 'View Settings' (4 records)
                 case WindowTwoRecord.sid:
                 case SCLRecord.sid:
                 case PaneRecord.sid:
@@ -251,27 +247,26 @@ public class RecordOrderer
         throw new InvalidOperationException("Did not Find Window2 record");
     }
 
-
     /**
-     * Finds the index where the sheet validations header record should be inserted
-     * @param records the records for this sheet
-     * 
-     * + WINDOW2
-     * o SCL
-     * o PANE
-     * oo SELECTION
-     * o STANDARDWIDTH
-     * oo MERGEDCELLS
-     * o LABELRANGES
-     * o PHONETICPR
-     * o Conditional Formatting Table
-     * o Hyperlink Table
-     * o Data Validity Table
-     * o SHEETLAYOUT
-     * o SHEETPROTECTION
-     * o RANGEPROTECTION
-     * + EOF
-     */
+    * Finds the index where the sheet validations header record should be inserted
+    * @param records the records for this sheet
+    *
+    * + WINDOW2
+    * o SCL
+    * o PANE
+    * oo SELECTION
+    * o STANDARDWIDTH
+    * oo MERGEDCELLS
+    * o LABELRANGES
+    * o PHONETICPR
+    * o Conditional Formatting Table
+    * o Hyperlink Table
+    * o Data Validity Table
+    * o SHEETLAYOUT
+    * o SHEETPROTECTION
+    * o RANGEPROTECTION
+    * + EOF
+    */
     private static int FindDataValidationTableInsertPos(List<RecordBase> records)
     {
         int i = records.Count - 1;
@@ -289,7 +284,7 @@ public class RecordOrderer
                 if (!IsDVTSubsequentRecord(nextRec.Sid))
                 {
                     throw new InvalidOperationException("Unexpected (" + nextRec.GetType().Name
-                            + ") found after (" + rb.GetType().Name + ")");
+                        + ") found after (" + rb.GetType().Name + ")");
                 }
                 return i + 1;
             }
@@ -297,12 +292,11 @@ public class RecordOrderer
             if (!IsDVTSubsequentRecord(rec.Sid))
             {
                 throw new InvalidOperationException("Unexpected (" + rec.GetType().Name
-                        + ") while looking for DV Table insert pos");
+                    + ") while looking for DV Table insert pos");
             }
         }
         return 0;
     }
-
 
     private static bool IsDVTPriorRecord(RecordBase rb)
     {
@@ -333,20 +327,21 @@ public class RecordOrderer
     {
         switch (sid)
         {
-            //case UnknownRecord.SHEETEXT_0862:
+            // case UnknownRecord.SHEETEXT_0862:
             case SheetExtRecord.sid:
             case UnknownRecord.SHEETPROTECTION_0867:
             case UnknownRecord.PLV_MAC:
-            //case UnknownRecord.RANGEPROTECTION_0868:
-            case FeatRecord.sid: 
+            // case UnknownRecord.RANGEPROTECTION_0868:
+            case FeatRecord.sid:
             case EOFRecord.sid:
                 return true;
         }
         return false;
     }
+
     /**
-     * DIMENSIONS record is always present
-     */
+    * DIMENSIONS record is always present
+    */
     private static int GetDimensionsIndex(List<RecordBase> records)
     {
         int nRecs = records.Count;
@@ -407,11 +402,9 @@ public class RecordOrderer
     }
     /// <summary>
     /// if the specified record ID terminates a sequence of Row block records
-    /// It is assumed that at least one row or cell value record has been found prior to the current 
+    /// It is assumed that at least one row or cell value record has been found prior to the current
     /// record
     /// </summary>
-    /// <param name="sid"></param>
-    /// <returns></returns>
     public static bool IsEndOfRowBlock(int sid)
     {
         switch (sid)
@@ -440,8 +433,6 @@ public class RecordOrderer
     /// <summary>
     /// Whether the specified record id normally appears in the row blocks section of the sheet records
     /// </summary>
-    /// <param name="sid"></param>
-    /// <returns></returns>
     public static bool IsRowBlockRecord(int sid)
     {
         switch (sid)
@@ -460,7 +451,6 @@ public class RecordOrderer
             case SharedFormulaRecord.sid:
             case TableRecord.sid:
                 return true;
-
         }
         return false;
     }

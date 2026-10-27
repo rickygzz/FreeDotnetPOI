@@ -15,63 +15,62 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.SS.UserModel
+namespace NPOI.SS.UserModel;
+
+
+/**
+ * The enumeration value indicating the print orientation for a sheet.
+ *
+ * @author Gisella Bronzetti
+ */
+public class PrintOrientation
 {
 
     /**
-     * The enumeration value indicating the print orientation for a sheet.
-     *
-     * @author Gisella Bronzetti
+     * orientation not specified
      */
-    public class PrintOrientation
+    public static PrintOrientation DEFAULT;
+    /**
+     * portrait orientation
+     */
+    public static PrintOrientation PORTRAIT;
+
+    /**
+     * landscape orientations
+     */
+    public static PrintOrientation LANDSCAPE;
+
+    static PrintOrientation()
+    { 
+        _table = new PrintOrientation[4];
+        DEFAULT = new PrintOrientation(1);
+        PORTRAIT = new PrintOrientation(2);
+        LANDSCAPE = new PrintOrientation(3);
+    }
+
+    private readonly int orientation;
+
+    private PrintOrientation(int orientation)
     {
+        this.orientation = orientation;
 
-        /**
-         * orientation not specified
-         */
-        public static PrintOrientation DEFAULT;
-        /**
-         * portrait orientation
-         */
-        public static PrintOrientation PORTRAIT;
+        _table[this.Value] = this;
+    }
 
-        /**
-         * landscape orientations
-         */
-        public static PrintOrientation LANDSCAPE;
 
-        static PrintOrientation()
-        { 
-            _table = new PrintOrientation[4];
-            DEFAULT = new PrintOrientation(1);
-            PORTRAIT = new PrintOrientation(2);
-            LANDSCAPE = new PrintOrientation(3);
-        }
-
-        private readonly int orientation;
-
-        private PrintOrientation(int orientation)
+    public int Value
+    {
+        get
         {
-            this.orientation = orientation;
-
-            _table[this.Value] = this;
+            return orientation;
         }
+    }
 
 
-        public int Value
-        {
-            get
-            {
-                return orientation;
-            }
-        }
+    private static readonly PrintOrientation[] _table;
 
-
-        private static readonly PrintOrientation[] _table;
-
-        public static PrintOrientation ValueOf(int value)
-        {
-            return _table[value];
-        }
+    public static PrintOrientation ValueOf(int value)
+    {
+        return _table[value];
     }
 }

@@ -14,31 +14,31 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 ==================================================================== */
-namespace NPOI.SS.UserModel
+
+namespace NPOI.SS.UserModel;
+
+using System;
+/// <summary>
+/// Common interface for NPOI.SS.UserModel.Header and NPOI.SS.UserModel.Footer
+/// </summary>
+public interface IHeaderFooter
 {
-    using System;
     /// <summary>
-    /// Common interface for NPOI.SS.UserModel.Header and NPOI.SS.UserModel.Footer
+    /// Gets or sets the left side of the header or footer.
     /// </summary>
-    public interface IHeaderFooter
-    {
-        /// <summary>
-        /// Gets or sets the left side of the header or footer.
-        /// </summary>
-        /// <value>The string representing the left side.</value>
-        String Left { get; set; }
+    /// <value>The string representing the left side.</value>
+    String Left { get; set; }
 
-        /// <summary>
-        /// Gets or sets the center of the header or footer.
-        /// </summary>
-        /// <value>The string representing the center.</value>
-        String Center { get; set; }
+    /// <summary>
+    /// Gets or sets the center of the header or footer.
+    /// </summary>
+    /// <value>The string representing the center.</value>
+    String Center { get; set; }
 
-        /// <summary>
-        /// Gets or sets the right side of the header or footer.
-        /// </summary>
-        /// <value>The string representing the right side.</value>
-        String Right { get; set; }
-    }
+    /// <summary>
+    /// Gets or sets the right side of the header or footer.
+    /// </summary>
+    /// <value>The string representing the right side.</value>
+    String Right { get; set; }
 }
 

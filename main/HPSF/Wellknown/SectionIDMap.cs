@@ -48,24 +48,24 @@ using System.Threading;
 /// </summary>
 public class SectionIDMap
 {
-    private static ThreadLocal<Dictionary<ClassID,PropertyIDMap>> defaultMap =
-    new ThreadLocal<Dictionary<ClassID,PropertyIDMap>>();
+    private static ThreadLocal<Dictionary<ClassID,PropertyIDMap>> defaultMap = new();
     /**
     * The SummaryInformation's section's format ID.
     */
     public static ClassID SUMMARY_INFORMATION_ID =
-        new ClassID("{F29F85E0-4FF9-1068-AB91-08002B27B3D9}");
+        new("{F29F85E0-4FF9-1068-AB91-08002B27B3D9}");
 
     /**
     * The DocumentSummaryInformation's first and second sections' format
     * ID.
     */
     private static readonly ClassID DOC_SUMMARY_INFORMATION =
-        new ClassID("{D5CDD502-2E9C-101B-9397-08002B2CF9AE}");
+        new("{D5CDD502-2E9C-101B-9397-08002B2CF9AE}");
     private static ClassID USER_DEFINED_PROPERTIES =
-        new ClassID("{D5CDD505-2E9C-101B-9397-08002B2CF9AE}");
+        new("{D5CDD505-2E9C-101B-9397-08002B2CF9AE}");
 
-    public static ClassID[] DOCUMENT_SUMMARY_INFORMATION_ID = {
+    public static readonly ClassID[] DOCUMENT_SUMMARY_INFORMATION_ID =
+    {
         DOC_SUMMARY_INFORMATION, USER_DEFINED_PROPERTIES
     };
 
@@ -84,7 +84,8 @@ public class SectionIDMap
         Dictionary<ClassID,PropertyIDMap> m = defaultMap.Value;
         if (m == null)
         {
-            m = new Dictionary<ClassID, PropertyIDMap> {
+            m = new Dictionary<ClassID, PropertyIDMap>
+            {
                 {
                     SUMMARY_INFORMATION_ID,
                     PropertyIDMap.SummaryInformationProperties
@@ -96,6 +97,7 @@ public class SectionIDMap
             };
             defaultMap.Value = m;
         }
+
         return new SectionIDMap();
     }
 
@@ -116,6 +118,7 @@ public class SectionIDMap
         long pid)
     {
         PropertyIDMap m = GetInstance().Get(sectionFormatID);
+
         if (m == null)
         {
             return UNDEFINED;
@@ -154,6 +157,7 @@ public class SectionIDMap
     {
         return GetInstance().Put(sectionFormatID, propertyIDMap);
     }
+
     /**
     * Associates the string representation of a section format ID with a {@link PropertyIDMap}
     *
@@ -162,7 +166,8 @@ public class SectionIDMap
     *
     * @return the previous PropertyIDMap stored under this key, or {@code null} if there wasn't one
     */
-    protected PropertyIDMap Put(String key, PropertyIDMap value) {
+    protected PropertyIDMap Put(String key, PropertyIDMap value)
+    {
         return (PropertyIDMap)Put(new ClassID(key), value);
     }
 }

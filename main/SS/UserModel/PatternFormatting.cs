@@ -17,22 +17,20 @@
  * ====================================================================
  */
 
-namespace NPOI.SS.UserModel
+namespace NPOI.SS.UserModel;
+
+/**
+ * @author Yegor Kozlov
+ */
+public interface IPatternFormatting
 {
-    /**
-     * @author Yegor Kozlov
-     */
-    public interface IPatternFormatting
-    {
-        short FillBackgroundColor { get; set; }
+    short FillBackgroundColor { get; set; }
 
-        short FillForegroundColor { get; set; }
+    short FillForegroundColor { get; set; }
 
-        IColor FillBackgroundColorColor { get; set; }
+    IColor FillBackgroundColorColor { get; set; }
 
-        IColor FillForegroundColorColor { get; set; }
+    IColor FillForegroundColorColor { get; set; }
 
-        FillPattern FillPattern { get; set; }
-    }
-
+    FillPattern FillPattern { get; set; }
 }

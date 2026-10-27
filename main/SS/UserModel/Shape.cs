@@ -15,28 +15,27 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.SS.UserModel
+namespace NPOI.SS.UserModel;
+
+public interface IShape
 {
-    public interface IShape
-    {
-        string ShapeName { get; }
-        IChildAnchor Anchor { get; }
+    string ShapeName { get; }
+    IChildAnchor Anchor { get; }
 
-        IShape Parent { get; }
+    IShape Parent { get; }
 
-        uint ID { get; }
-        string Name { get; set; }
-        void SetLineStyleColor(int red, int green, int blue);
-        void SetFillColor(int red, int green, int blue);
+    uint ID { get; }
+    string Name { get; set; }
+    void SetLineStyleColor(int red, int green, int blue);
+    void SetFillColor(int red, int green, int blue);
 
-        int LineStyleColor { get; }
+    int LineStyleColor { get; }
 
-        int FillColor { get; set; }
-        double LineWidth { get; set; }
-        LineStyle LineStyle { get; set; }
-        LineEndingCapType LineEndingCapType{ get; set; }
-        CompoundLineType CompoundLineType { get; set; }
-        bool IsNoFill { get; set; }
-        int CountOfAllChildren { get; }
-    }
+    int FillColor { get; set; }
+    double LineWidth { get; set; }
+    LineStyle LineStyle { get; set; }
+    LineEndingCapType LineEndingCapType{ get; set; }
+    CompoundLineType CompoundLineType { get; set; }
+    bool IsNoFill { get; set; }
+    int CountOfAllChildren { get; }
 }

@@ -17,46 +17,45 @@
 
 using System;
 
-namespace NPOI.SS.UserModel
+namespace NPOI.SS.UserModel;
+
+/**
+ * This interface isn't implemented ...
+ */
+[Obsolete("deprecated in POI 3.16 beta1, scheduled for removal in 3.18")]
+public interface ITextbox : IShape
 {
+
+    //public const short OBJECT_TYPE_TEXT = 6;
+
     /**
-     * This interface isn't implemented ...
+     * @return  the rich text string for this textbox.
      */
-    [Obsolete("deprecated in POI 3.16 beta1, scheduled for removal in 3.18")]
-    public interface ITextbox : IShape
-    {
-
-        //public const short OBJECT_TYPE_TEXT = 6;
-
-        /**
-         * @return  the rich text string for this textbox.
-         */
-        IRichTextString String { get; set; }
+    IRichTextString String { get; set; }
 
 
-        /**
-         * @return  Returns the left margin within the textbox.
-         */
-        int MarginLeft { get; set; }
+    /**
+     * @return  Returns the left margin within the textbox.
+     */
+    int MarginLeft { get; set; }
 
 
-        /**
-         * @return    returns the right margin within the textbox.
-         */
-        int MarginRight { get; set; }
+    /**
+     * @return    returns the right margin within the textbox.
+     */
+    int MarginRight { get; set; }
 
 
-        /**
-         * @return  returns the top margin within the textbox.
-         */
-        int MarginTop { get; set; }
+    /**
+     * @return  returns the top margin within the textbox.
+     */
+    int MarginTop { get; set; }
 
-        /**
-         * s the bottom margin within the textbox.
-         */
-        int MarginBottom { get; set; }
+    /**
+     * s the bottom margin within the textbox.
+     */
+    int MarginBottom { get; set; }
 
-        short HorizontalAlignment { get; set; }
-        short VerticalAlignment { get; set; }
-    }
+    short HorizontalAlignment { get; set; }
+    short VerticalAlignment { get; set; }
 }

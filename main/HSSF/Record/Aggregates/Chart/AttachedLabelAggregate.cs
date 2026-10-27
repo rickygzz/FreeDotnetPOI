@@ -1,18 +1,18 @@
 ﻿/* ====================================================================
-   Licensed to the Apache Software Foundation (ASF) Under one or more
-   contributor license agreements.  See the NOTICE file distributed with
-   this work for Additional information regarding copyright ownership.
-   The ASF licenses this file to You Under the Apache License, Version 2.0
-   (the "License"); you may not use this file except in compliance with
-   the License.  You may obtain a copy of the License at
+    Licensed to the Apache Software Foundation (ASF) Under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for Additional information regarding copyright ownership.
+    The ASF licenses this file to You Under the Apache License, Version 2.0
+    (the "License"); you may not use this file except in compliance with
+    the License.  You may obtain a copy of the License at
 
-       http://www.apache.org/licenses/LICENSE-2.0
+        http://www.apache.org/licenses/LICENSE-2.0
 
-   Unless required by applicable law or agreed to in writing, software
-   distributed Under the License is distributed on an "AS Is" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations Under the License.
+    Unless required by applicable law or agreed to in writing, software
+    distributed Under the License is distributed on an "AS Is" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations Under the License.
 ==================================================================== */
 
 using NPOI.HSSF.Model;
@@ -59,7 +59,7 @@ public class AttachedLabelAggregate : ChartRecordAggregate
         _isFirst = cs.AttachLabelCount == 0;
         cs.AttachLabelCount++;
         text = (TextRecord)rs.GetNext();
-        rs.GetNext();//BeginRecord
+        rs.GetNext();// BeginRecord
         pos = (PosRecord)rs.GetNext();
         if (rs.PeekNextChartSid() == FontIndexRecord.sid)
         {
@@ -98,7 +98,7 @@ public class AttachedLabelAggregate : ChartRecordAggregate
         {
             crtMlFrt = new CrtMlFrtAggregate(rs, this);
         }
-        Record r = rs.GetNext();//EndRecord
+        Record r = rs.GetNext();// EndRecord
         Debug.Assert(r.GetType() == typeof(EndRecord));
     }
     public override void VisitContainedRecords(RecordVisitor rv)
@@ -108,33 +108,51 @@ public class AttachedLabelAggregate : ChartRecordAggregate
         rv.VisitRecord(pos);
 
         if (fontX != null)
+        {
             rv.VisitRecord(fontX);
+        }
 
         if (alRuns != null)
+        {
             rv.VisitRecord(alRuns);
+        }
 
         rv.VisitRecord(brai);
 
         if (seriesText != null)
+        {
             rv.VisitRecord(seriesText);
+        }
 
         if (frame != null)
+        {
             frame.VisitContainedRecords(rv);
+        }
 
         if (objectLink != null)
+        {
             rv.VisitRecord(objectLink);
+        }
 
         if (dataLab != null)
+        {
             rv.VisitRecord(dataLab);
+        }
 
         if (crtLayout != null)
+        {
             rv.VisitRecord(crtLayout);
+        }
 
         if (textProps != null)
+        {
             textProps.VisitContainedRecords(rv);
+        }
 
         if (crtMlFrt != null)
+        {
             crtMlFrt.VisitContainedRecords(rv);
+        }
 
         WriteEndBlock(rv);
         rv.VisitRecord(EndRecord.instance);

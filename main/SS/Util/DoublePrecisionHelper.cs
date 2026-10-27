@@ -17,76 +17,68 @@
  * ====================================================================
  */
 using ExtendedNumerics;
-using NPOI.SS.Formula.UDF;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Security.Permissions;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace NPOI.SS.Util
+namespace NPOI.SS.Util;
+
+internal static class DoublePrecisionHelper
 {
-    internal static class DoublePrecisionHelper
+    public static double GetFractionPart(double number)
     {
-        public static double GetFractionPart(double number)
+        return Math.Abs(number - Math.Truncate(number));
+    }
+    public static double DropDigitsAfterSignificantOnes(double number, int digits)
+    {
+        if (number == 0.0) return 0.0;
+
+        var isNegative = number < 0;
+        var positiveNumber = isNegative ? -number : number;
+
+        var mostSignificantDigit = Math.Floor(Math.Log10(positiveNumber));
+        var multiplier = Math.Pow(10, digits - mostSignificantDigit - 1);
+
+        var newNumber = positiveNumber * multiplier;
+        newNumber = GetFractionPart(newNumber) >= 0.5 ? Math.Truncate(newNumber) + 1 : Math.Truncate(newNumber);
+
+        newNumber /= multiplier;
+        return isNegative ? -newNumber : newNumber;
+    }
+
+    public static bool IsIntegerWithDigitsDropped(this double number, int significantDigits)
+    {
+        return Math.Abs(GetFractionPart(DropDigitsAfterSignificantOnes(number, significantDigits))) == 0.0;
+    }
+
+    public static bool IsIntegerWithDigitsDropped(this BigDecimal number, int significantDigits)
+    {
+        if (number.IsZero())
+            return true;
+
+        if (number.IsNegative())
+            number = -number;
+
+        int decimalPlaces = number.DecimalPlaces;
+        int realSigDigits = number.SignifigantDigits;
+        int integerPlaces = realSigDigits - decimalPlaces;
+
+        if (integerPlaces >= significantDigits)
         {
-            return Math.Abs(number - Math.Truncate(number));
+            return true;
         }
-        public static double DropDigitsAfterSignificantOnes(double number, int digits)
+
+        BigDecimal fracPart = number.GetFractionalPart();
+
+        if (fracPart.IsZero())
         {
-            if (number == 0.0) return 0.0;
-
-            var isNegative = number < 0;
-            var positiveNumber = isNegative ? -number : number;
-
-            var mostSignificantDigit = Math.Floor(Math.Log10(positiveNumber));
-            var multiplier = Math.Pow(10, digits - mostSignificantDigit - 1);
-
-            var newNumber = positiveNumber * multiplier;
-            newNumber = GetFractionPart(newNumber) >= 0.5 ? Math.Truncate(newNumber) + 1 : Math.Truncate(newNumber);
-
-            newNumber /= multiplier;
-            return isNegative ? -newNumber : newNumber;
+            return true;
         }
 
-        public static bool IsIntegerWithDigitsDropped(this double number, int significantDigits)
-        {
-            return Math.Abs(GetFractionPart(DropDigitsAfterSignificantOnes(number, significantDigits))) == 0.0;
-        }
+        decimalPlaces = Math.Min(decimalPlaces, significantDigits - integerPlaces);
 
-        public static bool IsIntegerWithDigitsDropped(this BigDecimal number, int significantDigits)
-        {
-            if (number.IsZero())
-                return true;
+        BigDecimal exp = BigDecimal.Pow(10, decimalPlaces);
+        fracPart *= exp;
+        fracPart = BigDecimal.Round(fracPart);
 
-            if (number.IsNegative())
-                number = -number;
-
-            int decimalPlaces = number.DecimalPlaces;
-            int realSigDigits = number.SignifigantDigits;
-            int integerPlaces = realSigDigits - decimalPlaces;
-
-            if (integerPlaces >= significantDigits)
-            {
-                return true;
-            }
-
-            BigDecimal fracPart = number.GetFractionalPart();
-
-            if (fracPart.IsZero())
-            {
-                return true;
-            }
-
-            decimalPlaces = Math.Min(decimalPlaces, significantDigits - integerPlaces);
-
-            BigDecimal exp = BigDecimal.Pow(10, decimalPlaces);
-            fracPart *= exp;
-            fracPart = BigDecimal.Round(fracPart);
-
-            return fracPart.IsZero() || fracPart == exp;
-        }
+        return fracPart.IsZero() || fracPart == exp;
     }
 }

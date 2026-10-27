@@ -25,44 +25,43 @@
  * 
  * ==============================================================*/
 
-namespace NPOI.Util.Collections
-{
-    //public sealed class EmptyEnumerable
-    //    : IEnumerable
-    //{
-    //    public static readonly IEnumerable Instance = new EmptyEnumerable();
+namespace NPOI.Util.Collections;
 
-    //    private EmptyEnumerable()
-    //    {
-    //    }
+//public sealed class EmptyEnumerable
+//    : IEnumerable
+//{
+//    public static readonly IEnumerable Instance = new EmptyEnumerable();
 
-    //    public IEnumerator GetEnumerator()
-    //    {
-    //        return EmptyEnumerator.Instance;
-    //    }
-    //}
+//    private EmptyEnumerable()
+//    {
+//    }
 
-    //public sealed class EmptyEnumerator
-    //    : IEnumerator
-    //{
-    //    public static readonly IEnumerator Instance = new EmptyEnumerator();
+//    public IEnumerator GetEnumerator()
+//    {
+//        return EmptyEnumerator.Instance;
+//    }
+//}
 
-    //    private EmptyEnumerator()
-    //    {
-    //    }
+//public sealed class EmptyEnumerator
+//    : IEnumerator
+//{
+//    public static readonly IEnumerator Instance = new EmptyEnumerator();
 
-    //    public bool MoveNext()
-    //    {
-    //        return false;
-    //    }
+//    private EmptyEnumerator()
+//    {
+//    }
 
-    //    public void Reset()
-    //    {
-    //    }
+//    public bool MoveNext()
+//    {
+//        return false;
+//    }
 
-    //    public object Current
-    //    {
-    //        get { throw new InvalidOperationException("No elements"); }
-    //    }
-    //}
-}
+//    public void Reset()
+//    {
+//    }
+
+//    public object Current
+//    {
+//        get { throw new InvalidOperationException("No elements"); }
+//    }
+//}

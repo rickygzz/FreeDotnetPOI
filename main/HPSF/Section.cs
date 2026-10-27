@@ -26,6 +26,7 @@ using Cysharp.Text;
 // using TreeBidiMap;
 using NPOI.HPSF.Wellknown;
 using NPOI.Util;
+using NPOI.Util.Collections.BidirectionalDictionary;
 
 /// <summary>
 /// Represents a section in a {@link PropertySet}.

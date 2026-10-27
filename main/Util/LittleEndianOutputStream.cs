@@ -15,133 +15,132 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.Util
+namespace NPOI.Util;
+
+using System;
+using System.IO;
+
+/// <summary>
+/// Wraps an <see cref="FilterOutputStream"/> providing <see cref="NPOI.Util.ILittleEndianOutput"/>
+/// </summary>
+/// <remarks>@author Josh Micich</remarks>
+public class LittleEndianOutputStream : FilterOutputStream,  ILittleEndianOutput, IDisposable
 {
-    using System;
-    using System.IO;
-
-    /// <summary>
-    /// Wraps an <see cref="FilterOutputStream"/> providing <see cref="NPOI.Util.ILittleEndianOutput"/>
-    /// </summary>
-    /// <remarks>@author Josh Micich</remarks>
-    public class LittleEndianOutputStream : FilterOutputStream,  ILittleEndianOutput, IDisposable
+    public void Dispose()
     {
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
 
-        protected virtual void Dispose(bool disposing)
+    protected virtual void Dispose(bool disposing)
+    {
+        if (disposing)
         {
-            if (disposing)
-            {
-                this.Close();
-            }
+            this.Close();
         }
+    }
 
-        public override void Close()
+    public override void Close()
+    {
+        base.Close();
+        if (null != out1)
         {
-            base.Close();
-            if (null != out1)
-            {
-                out1.Dispose();
-                out1 = null;
-            }
+            out1.Dispose();
+            out1 = null;
         }
+    }
 
-        protected internal Stream out1 = null;
+    protected internal Stream out1 = null;
 
-        public LittleEndianOutputStream(Stream out1) : base(null)
+    public LittleEndianOutputStream(Stream out1) : base(null)
+    {
+        this.out1 = out1;
+    }
+
+    public LittleEndianOutputStream(OutputStream outputStream) : base(outputStream)
+    {
+        this.out1 = outputStream;
+    }
+
+    public void WriteByte(int v)
+    {
+        try
         {
-            this.out1 = out1;
+            out1.WriteByte((byte)v);
         }
-
-        public LittleEndianOutputStream(OutputStream outputStream) : base(outputStream)
+        catch (IOException e)
         {
-            this.out1 = outputStream;
+            throw new RuntimeException(e);
         }
+    }
 
-        public void WriteByte(int v)
-        {
-            try
-            {
-                out1.WriteByte((byte)v);
-            }
-            catch (IOException e)
-            {
-                throw new RuntimeException(e);
-            }
-        }
+    public void WriteDouble(double v)
+    {
+        WriteLong(BitConverter.DoubleToInt64Bits(v));
+    }
 
-        public void WriteDouble(double v)
+    public void WriteInt(int v)
+    {
+        int b3 = (v >> 24) & 0xFF;
+        int b2 = (v >> 16) & 0xFF;
+        int b1 = (v >> 8) & 0xFF;
+        int b0 = (v >> 0) & 0xFF;
+        try
         {
-            WriteLong(BitConverter.DoubleToInt64Bits(v));
+            out1.WriteByte((byte)b0);
+            out1.WriteByte((byte)b1);
+            out1.WriteByte((byte)b2);
+            out1.WriteByte((byte)b3);
         }
+        catch (IOException e)
+        {
+            throw new RuntimeException(e);
+        }
+    }
 
-        public void WriteInt(int v)
-        {
-            int b3 = (v >> 24) & 0xFF;
-            int b2 = (v >> 16) & 0xFF;
-            int b1 = (v >> 8) & 0xFF;
-            int b0 = (v >> 0) & 0xFF;
-            try
-            {
-                out1.WriteByte((byte)b0);
-                out1.WriteByte((byte)b1);
-                out1.WriteByte((byte)b2);
-                out1.WriteByte((byte)b3);
-            }
-            catch (IOException e)
-            {
-                throw new RuntimeException(e);
-            }
-        }
+    public void WriteLong(long v)
+    {
+        WriteInt((int)(v >> 0));
+        WriteInt((int)(v >> 32));
+    }
 
-        public void WriteLong(long v)
+    public void WriteShort(int v)
+    {
+        int b1 = (v >> 8) & 0xFF;
+        int b0 = (v >> 0) & 0xFF;
+        try
         {
-            WriteInt((int)(v >> 0));
-            WriteInt((int)(v >> 32));
+            out1.WriteByte((byte)b0);
+            out1.WriteByte((byte)b1);
         }
+        catch (IOException e)
+        {
+            throw new RuntimeException(e);
+        }
+    }
+    public override void Write(byte[] b)
+    {
+        // suppress IOException for interface method
 
-        public void WriteShort(int v)
+        try
         {
-            int b1 = (v >> 8) & 0xFF;
-            int b0 = (v >> 0) & 0xFF;
-            try
-            {
-                out1.WriteByte((byte)b0);
-                out1.WriteByte((byte)b1);
-            }
-            catch (IOException e)
-            {
-                throw new RuntimeException(e);
-            }
+            out1.Write(b, 0, b.Length);
         }
-        public override void Write(byte[] b)
+        catch (IOException e)
         {
-            // suppress IOException for interface method
-
-            try
-            {
-                out1.Write(b, 0, b.Length);
-            }
-            catch (IOException e)
-            {
-                throw new RuntimeException(e);
-            }
+            throw new RuntimeException(e);
         }
-        public override void Write(byte[] b, int off, int len)
+    }
+    public override void Write(byte[] b, int off, int len)
+    {
+        // suppress IOException for interface method
+        try
         {
-            // suppress IOException for interface method
-            try
-            {
-                out1.Write(b, off, len);
-            }
-            catch (IOException e)
-            {
-                throw new RuntimeException(e);
-            }
+            out1.Write(b, off, len);
+        }
+        catch (IOException e)
+        {
+            throw new RuntimeException(e);
         }
     }
 }

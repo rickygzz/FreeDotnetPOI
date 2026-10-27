@@ -36,7 +36,7 @@ public sealed class EscherDggRecord : EscherRecord
     // private int field_2_numIdClusters;
     private int field_3_numShapesSaved;
     private int field_4_drawingsSaved;
-    private List<FileIdCluster> field_5_fileIdClusters = new List<FileIdCluster>();
+    private readonly List<FileIdCluster> field_5_fileIdClusters = [];
     private int maxDgId;
 
     public class FileIdCluster
@@ -93,7 +93,7 @@ public sealed class EscherDggRecord : EscherRecord
         {
             int drawingGroupId = LittleEndian.GetInt(data, pos + size);
             int numShapeIdsUsed = LittleEndian.GetInt(data, pos + size + 4);
-            FileIdCluster fic = new FileIdCluster(drawingGroupId, numShapeIdsUsed);
+            FileIdCluster fic = new(drawingGroupId, numShapeIdsUsed);
             field_5_fileIdClusters.Add(fic);
             maxDgId = Math.Max(maxDgId, drawingGroupId);
             size += 8;
@@ -244,7 +244,7 @@ public sealed class EscherDggRecord : EscherRecord
     {
         get
         {
-            return field_5_fileIdClusters.ToArray();
+            return [.. field_5_fileIdClusters];
         }
         set
         {
@@ -279,7 +279,7 @@ public sealed class EscherDggRecord : EscherRecord
     /// <returns>the new <see cref="FileIdCluster"/></returns>
     public FileIdCluster AddCluster(int dgId, int numShapedUsed, bool sort)
     {
-        FileIdCluster ficNew = new FileIdCluster(dgId, numShapedUsed);
+        FileIdCluster ficNew = new(dgId, numShapedUsed);
         field_5_fileIdClusters.Add(ficNew);
         maxDgId = Math.Min(maxDgId, dgId);
         if (sort)
@@ -332,7 +332,7 @@ public sealed class EscherDggRecord : EscherRecord
     /// <returns>the next available Drawing group id</returns>
     public short FindNewDrawingGroupId()
     {
-        BitArray bs = new BitArray(field_5_fileIdClusters.Count + 32);
+        BitArray bs = new(field_5_fileIdClusters.Count + 32);
         bs.Set(0, true);
         foreach (FileIdCluster fic in field_5_fileIdClusters)
         {
@@ -388,7 +388,7 @@ public sealed class EscherDggRecord : EscherRecord
         int shapeId = index * 1024 + ficAdd.NumShapeIdsUsed;
         ficAdd.IncrementUsedShapeId();
 
-        dg.NumShapes = dg.NumShapes + 1;
+        dg.NumShapes++;
         dg.LastMSOSPID = shapeId;
         field_1_shapeIdMax = Math.Max(field_1_shapeIdMax, shapeId + 1);
 
@@ -396,22 +396,21 @@ public sealed class EscherDggRecord : EscherRecord
     }
     protected object[][] GetAttributeMap()
     {
-        List<object> fldIds = new List<object>();
-        fldIds.Add("FileId Clusters");
-        fldIds.Add(field_5_fileIdClusters.Count);
+        List<object> fldIds = ["FileId Clusters", field_5_fileIdClusters.Count];
         foreach (FileIdCluster fic in field_5_fileIdClusters)
         {
             fldIds.Add("Group" + fic.field_1_drawingGroupId);
             fldIds.Add(fic.field_2_numShapeIdsUsed);
         }
 
-        return new object[][] {
-            new object[] { "ShapeIdMax", field_1_shapeIdMax },
-            new object[] { "NumIdClusters", NumIdClusters },
-            new object[] { "NumShapesSaved", field_3_numShapesSaved },
-            new object[] { "DrawingsSaved", field_4_drawingsSaved },
-            fldIds.ToArray()
-        };
+        return
+        [
+            ["ShapeIdMax", field_1_shapeIdMax],
+            ["NumIdClusters", NumIdClusters],
+            ["NumShapesSaved", field_3_numShapesSaved],
+            ["DrawingsSaved", field_4_drawingsSaved],
+            [.. fldIds]
+        ];
     }
 
     /// <summary>
@@ -435,7 +434,7 @@ public sealed class EscherDggRecord : EscherRecord
         //        {
         //            extraData = "error";
         //        }
-        StringBuilder field_5_string = new StringBuilder();
+        StringBuilder field_5_string = new();
         for (int i = 0; i < field_5_fileIdClusters.Count; i++)
         {
             field_5_string.Append("  DrawingGroupId").Append(i + 1).Append(": ");
@@ -458,7 +457,7 @@ public sealed class EscherDggRecord : EscherRecord
 
     public override String ToXml(String tab)
     {
-        StringBuilder builder = new StringBuilder();
+        StringBuilder builder = new();
         builder.Append(tab)
             .Append(FormatXmlRecordHeader(
                 GetType().Name,

@@ -15,93 +15,92 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.SS.UserModel
-{
+namespace NPOI.SS.UserModel;
 
+
+
+/**
+ * Charset represents the basic set of characters associated with a font (that it can display), and 
+ * corresponds to the ANSI codepage (8-bit or DBCS) of that character set used by a given language. 
+ * 
+ * @author Gisella Bronzetti
+ */
+public class FontCharset
+{
+    public static readonly FontCharset ANSI = new FontCharset(0);
+    public static readonly FontCharset DEFAULT = new FontCharset(1);
+    public static readonly FontCharset SYMBOL = new FontCharset(2);
+    public static readonly FontCharset MAC = new FontCharset(77);
+    public static readonly FontCharset SHIFTJIS = new FontCharset(128);
+    public static readonly FontCharset HANGEUL = new FontCharset(129);
+    public static readonly FontCharset JOHAB = new FontCharset(130);
+    public static readonly FontCharset GB2312 = new FontCharset(134);
+    public static readonly FontCharset CHINESEBIG5 = new FontCharset(136);
+    public static readonly FontCharset GREEK = new FontCharset(161);
+    public static readonly FontCharset TURKISH = new FontCharset(162);
+    public static readonly FontCharset VIETNAMESE = new FontCharset(163);
+    public static readonly FontCharset HEBREW = new FontCharset(177);
+    public static readonly FontCharset ARABIC = new FontCharset(178);
+    public static readonly FontCharset BALTIC = new FontCharset(186);
+    public static readonly FontCharset RUSSIAN = new FontCharset(204);
+    public static readonly FontCharset THAI = new FontCharset(222);
+    public static readonly FontCharset EASTEUROPE = new FontCharset(238);
+    public static readonly FontCharset OEM = new FontCharset(255);
+
+
+    private readonly int charset;
+
+    private FontCharset(int value)
+    {
+        charset = value;
+    }
 
     /**
-     * Charset represents the basic set of characters associated with a font (that it can display), and 
-     * corresponds to the ANSI codepage (8-bit or DBCS) of that character set used by a given language. 
-     * 
-     * @author Gisella Bronzetti
+     * Returns value of this charset
+     *
+     * @return value of this charset
      */
-    public class FontCharset
+    public int Value
     {
-        public static readonly FontCharset ANSI = new FontCharset(0);
-        public static readonly FontCharset DEFAULT = new FontCharset(1);
-        public static readonly FontCharset SYMBOL = new FontCharset(2);
-        public static readonly FontCharset MAC = new FontCharset(77);
-        public static readonly FontCharset SHIFTJIS = new FontCharset(128);
-        public static readonly FontCharset HANGEUL = new FontCharset(129);
-        public static readonly FontCharset JOHAB = new FontCharset(130);
-        public static readonly FontCharset GB2312 = new FontCharset(134);
-        public static readonly FontCharset CHINESEBIG5 = new FontCharset(136);
-        public static readonly FontCharset GREEK = new FontCharset(161);
-        public static readonly FontCharset TURKISH = new FontCharset(162);
-        public static readonly FontCharset VIETNAMESE = new FontCharset(163);
-        public static readonly FontCharset HEBREW = new FontCharset(177);
-        public static readonly FontCharset ARABIC = new FontCharset(178);
-        public static readonly FontCharset BALTIC = new FontCharset(186);
-        public static readonly FontCharset RUSSIAN = new FontCharset(204);
-        public static readonly FontCharset THAI = new FontCharset(222);
-        public static readonly FontCharset EASTEUROPE = new FontCharset(238);
-        public static readonly FontCharset OEM = new FontCharset(255);
-
-
-        private readonly int charset;
-
-        private FontCharset(int value)
+        get
         {
-            charset = value;
+            return charset;
         }
+    }
 
-        /**
-         * Returns value of this charset
-         *
-         * @return value of this charset
-         */
-        public int Value
+    private static readonly FontCharset[] _table = null;
+
+    static FontCharset()
+    {
+        if (_table == null)
         {
-            get
-            {
-                return charset;
-            }
+            _table = new FontCharset[256];
+            _table[0] = FontCharset.ANSI;
+            _table[1] = FontCharset.DEFAULT;
+            _table[2] = FontCharset.SYMBOL;
+            _table[77] = FontCharset.MAC;
+            _table[128] = FontCharset.SHIFTJIS;
+            _table[129] = FontCharset.HANGEUL;
+            _table[130] = FontCharset.JOHAB;
+            _table[134] = FontCharset.GB2312;
+            _table[136] = FontCharset.CHINESEBIG5;
+            _table[161] = FontCharset.GREEK;
+            _table[162] = FontCharset.TURKISH;
+            _table[163] = FontCharset.VIETNAMESE;
+            _table[177] = FontCharset.HEBREW;
+            _table[178] = FontCharset.ARABIC;
+            _table[186] = FontCharset.BALTIC;
+            _table[204] = FontCharset.RUSSIAN;
+            _table[222] = FontCharset.THAI;
+            _table[238] = FontCharset.EASTEUROPE;
+            _table[255] = FontCharset.OEM;
         }
+    }
 
-        private static readonly FontCharset[] _table = null;
-
-        static FontCharset()
-        {
-            if (_table == null)
-            {
-                _table = new FontCharset[256];
-                _table[0] = FontCharset.ANSI;
-                _table[1] = FontCharset.DEFAULT;
-                _table[2] = FontCharset.SYMBOL;
-                _table[77] = FontCharset.MAC;
-                _table[128] = FontCharset.SHIFTJIS;
-                _table[129] = FontCharset.HANGEUL;
-                _table[130] = FontCharset.JOHAB;
-                _table[134] = FontCharset.GB2312;
-                _table[136] = FontCharset.CHINESEBIG5;
-                _table[161] = FontCharset.GREEK;
-                _table[162] = FontCharset.TURKISH;
-                _table[163] = FontCharset.VIETNAMESE;
-                _table[177] = FontCharset.HEBREW;
-                _table[178] = FontCharset.ARABIC;
-                _table[186] = FontCharset.BALTIC;
-                _table[204] = FontCharset.RUSSIAN;
-                _table[222] = FontCharset.THAI;
-                _table[238] = FontCharset.EASTEUROPE;
-                _table[255] = FontCharset.OEM;
-            }
-        }
-
-        public static FontCharset ValueOf(int value)
-        {
-            if(value>=0&&value<=255)
-                return _table[value];
-            return null;
-        }
+    public static FontCharset ValueOf(int value)
+    {
+        if(value>=0&&value<=255)
+            return _table[value];
+        return null;
     }
 }

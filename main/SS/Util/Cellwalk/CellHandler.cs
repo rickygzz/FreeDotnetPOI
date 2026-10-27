@@ -15,22 +15,21 @@
    limitations under the License.
    ==================================================================== */
 
-namespace NPOI.SS.Util.CellWalk
+namespace NPOI.SS.Util.CellWalk;
+
+using NPOI.SS.UserModel;
+
+/**
+ * Represents callback for CellWalk traverse method.  
+ * @author Roman Kashitsyn
+ */
+public interface ICellHandler
 {
-    using NPOI.SS.UserModel;
 
     /**
-     * Represents callback for CellWalk traverse method.  
-     * @author Roman Kashitsyn
+     * @param cell current cell
+     * @param ctx information about invokation context
      */
-    public interface ICellHandler
-    {
+    void OnCell(ICell cell, ICellWalkContext ctx);
 
-        /**
-         * @param cell current cell
-         * @param ctx information about invokation context
-         */
-        void OnCell(ICell cell, ICellWalkContext ctx);
-
-    }
 }

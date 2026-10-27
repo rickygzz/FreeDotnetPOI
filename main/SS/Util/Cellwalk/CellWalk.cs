@@ -15,134 +15,132 @@
    limitations under the License.
    ==================================================================== */
 
-namespace NPOI.SS.Util.CellWalk
+namespace NPOI.SS.Util.CellWalk;
+
+
+using NPOI.SS.UserModel;
+using NPOI.SS.Util;
+
+/**
+ * Traverse cell range.
+ *
+ * @author Roman Kashitsyn
+ */
+public class CellWalk
 {
 
-    using NPOI.SS.UserModel;
-    using NPOI.SS.Util;
+    private ISheet sheet;
+    private CellRangeAddress range;
+    private bool traverseEmptyCells;
+
+    public CellWalk(ISheet sheet, CellRangeAddress range)
+    {
+        this.sheet = sheet;
+        this.range = range;
+        this.traverseEmptyCells = false;
+    }
 
     /**
-     * Traverse cell range.
-     *
-     * @author Roman Kashitsyn
+     * Should we call handler on empty (blank) cells. Default is
+     * false.
+     * @return true if handler should be called on empty (blank)
+     * cells, false otherwise.
      */
-    public class CellWalk
+    public bool IsTraverseEmptyCells()
     {
+        return traverseEmptyCells;
+    }
 
-        private ISheet sheet;
-        private CellRangeAddress range;
-        private bool traverseEmptyCells;
+    /**
+     * Sets the traverseEmptyCells property.
+     * @param traverseEmptyCells new property value
+     */
+    public void SetTraverseEmptyCells(bool traverseEmptyCells)
+    {
+        this.traverseEmptyCells = traverseEmptyCells;
+    }
 
-        public CellWalk(ISheet sheet, CellRangeAddress range)
+    /**
+     * Traverse cell range from top left to bottom right cell.
+     * @param handler handler to call on each appropriate cell
+     */
+    public void Traverse(ICellHandler handler)
+    {
+        int firstRow = range.FirstRow;
+        int lastRow = range.LastRow;
+        int firstColumn = range.FirstColumn;
+        int lastColumn = range.LastColumn;
+        int width = lastColumn - firstColumn + 1;
+        SimpleCellWalkContext ctx = new SimpleCellWalkContext();
+        IRow currentRow = null;
+        ICell currentCell = null;
+
+        for (ctx.rowNumber = firstRow; ctx.rowNumber <= lastRow; ++ctx.rowNumber)
         {
-            this.sheet = sheet;
-            this.range = range;
-            this.traverseEmptyCells = false;
-        }
-
-        /**
-         * Should we call handler on empty (blank) cells. Default is
-         * false.
-         * @return true if handler should be called on empty (blank)
-         * cells, false otherwise.
-         */
-        public bool IsTraverseEmptyCells()
-        {
-            return traverseEmptyCells;
-        }
-
-        /**
-         * Sets the traverseEmptyCells property.
-         * @param traverseEmptyCells new property value
-         */
-        public void SetTraverseEmptyCells(bool traverseEmptyCells)
-        {
-            this.traverseEmptyCells = traverseEmptyCells;
-        }
-
-        /**
-         * Traverse cell range from top left to bottom right cell.
-         * @param handler handler to call on each appropriate cell
-         */
-        public void Traverse(ICellHandler handler)
-        {
-            int firstRow = range.FirstRow;
-            int lastRow = range.LastRow;
-            int firstColumn = range.FirstColumn;
-            int lastColumn = range.LastColumn;
-            int width = lastColumn - firstColumn + 1;
-            SimpleCellWalkContext ctx = new SimpleCellWalkContext();
-            IRow currentRow = null;
-            ICell currentCell = null;
-
-            for (ctx.rowNumber = firstRow; ctx.rowNumber <= lastRow; ++ctx.rowNumber)
+            currentRow = sheet.GetRow(ctx.rowNumber);
+            if (currentRow == null)
             {
-                currentRow = sheet.GetRow(ctx.rowNumber);
-                if (currentRow == null)
+                continue;
+            }
+            for (ctx.colNumber = firstColumn; ctx.colNumber <= lastColumn; ++ctx.colNumber)
+            {
+                currentCell = currentRow.GetCell(ctx.colNumber);
+
+                if (currentCell == null)
                 {
                     continue;
                 }
-                for (ctx.colNumber = firstColumn; ctx.colNumber <= lastColumn; ++ctx.colNumber)
+                if (IsEmpty(currentCell) && !traverseEmptyCells)
                 {
-                    currentCell = currentRow.GetCell(ctx.colNumber);
-
-                    if (currentCell == null)
-                    {
-                        continue;
-                    }
-                    if (IsEmpty(currentCell) && !traverseEmptyCells)
-                    {
-                        continue;
-                    }
-
-                    ctx.ordinalNumber =
-                        (ctx.rowNumber - firstRow) * width +
-                        (ctx.colNumber - firstColumn + 1);
-
-                    handler.OnCell(currentCell, ctx);
+                    continue;
                 }
-            }
-        }
 
-        private static bool IsEmpty(ICell cell)
-        {
-            return cell.CellType == CellType.Blank;
-        }
+                ctx.ordinalNumber =
+                    (ctx.rowNumber - firstRow) * width +
+                    (ctx.colNumber - firstColumn + 1);
 
-        /**
-         * Inner class to hold walk context.
-         * @author Roman Kashitsyn
-         */
-        private sealed class SimpleCellWalkContext : ICellWalkContext
-        {
-            public long ordinalNumber = 0;
-            public int rowNumber = 0;
-            public int colNumber = 0;
-
-            public long OrdinalNumber
-            {
-                get
-                {
-                    return ordinalNumber;
-                }
-            }
-
-            public int RowNumber
-            {
-                get
-                {
-                    return rowNumber;
-                }
-            }
-
-            public int ColumnNumber
-            {
-                get
-                {
-                    return colNumber;
-                }
+                handler.OnCell(currentCell, ctx);
             }
         }
     }
 
+    private static bool IsEmpty(ICell cell)
+    {
+        return cell.CellType == CellType.Blank;
+    }
+
+    /**
+     * Inner class to hold walk context.
+     * @author Roman Kashitsyn
+     */
+    private sealed class SimpleCellWalkContext : ICellWalkContext
+    {
+        public long ordinalNumber = 0;
+        public int rowNumber = 0;
+        public int colNumber = 0;
+
+        public long OrdinalNumber
+        {
+            get
+            {
+                return ordinalNumber;
+            }
+        }
+
+        public int RowNumber
+        {
+            get
+            {
+                return rowNumber;
+            }
+        }
+
+        public int ColumnNumber
+        {
+            get
+            {
+                return colNumber;
+            }
+        }
+    }
 }

@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
+﻿using System.IO;
 using System.Threading;
 
-namespace NPOI.Util
-{
+namespace NPOI.Util;
+
 	public static class RecyclableMemory
 	{
 		private static Microsoft.IO.RecyclableMemoryStreamManager _memoryManager;
@@ -40,4 +37,3 @@ namespace NPOI.Util
 			return MemoryManager.GetStream(null, capacity);
 		}
 	}
-}

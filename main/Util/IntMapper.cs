@@ -17,104 +17,101 @@
 ==================================================================== */
 
 
-namespace NPOI.Util
+namespace NPOI.Util;
+
+using System.Collections.Generic;
+
+/// <summary>
+/// A List of objects that are indexed AND keyed by an int; also allows for Getting
+/// the index of a value in the list
+/// 
+/// <p>I am happy is someone wants to re-implement this without using the
+/// internal list and hashmap. If so could you please make sure that
+/// you can add elements half way into the list and have the value-key mappings
+/// update</p>
+/// </summary>
+/// <typeparam name="T"></typeparam>
+/// <remarks>@author Jason Height</remarks>
+public class IntMapper<T>
 {
-    using System.Collections.Generic;
+    private readonly List<T> elements;
+    private readonly Dictionary<T, int> valueKeyMap;
+
+    private static readonly int _default_size = 10;
 
     /// <summary>
-    /// A List of objects that are indexed AND keyed by an int; also allows for Getting
-    /// the index of a value in the list
-    /// 
-    /// <p>I am happy is someone wants to re-implement this without using the
-    /// internal list and hashmap. If so could you please make sure that
-    /// you can add elements half way into the list and have the value-key mappings
-    /// update</p>
+    /// create an IntMapper of default size
     /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <remarks>@author Jason Height</remarks>
-    public class IntMapper<T>
+    public IntMapper()
+        : this(_default_size)
     {
-        private readonly List<T> elements;
-        private readonly Dictionary<T, int> valueKeyMap;
+    }
 
-        private static readonly int _default_size = 10;
+    public IntMapper(int InitialCapacity)
+    {
+        elements = new List<T>(InitialCapacity);
+        valueKeyMap = new Dictionary<T, int>(InitialCapacity);
+    }
 
-        /// <summary>
-        /// create an IntMapper of default size
-        /// </summary>
-        public IntMapper()
-            : this(_default_size)
+    /// <summary>
+    /// Appends the specified element to the end of this list
+    /// </summary>
+    /// <param name="value">element to be Appended to this list.</param>
+    /// <returns>return true (as per the general contract of the Collection.add method)</returns>
+    public bool Add(T value)
+    {
+        int index = elements.Count;
+        elements.Add(value);
+        valueKeyMap[value] = index;
+        return true;
+    }
+    /// <summary>
+    /// Gets the size.
+    /// </summary>
+    public int Size
+    {
+        get
         {
+            return elements.Count;
         }
+    }
+    /// <summary>
+    /// Gets the T object at the specified index.
+    /// </summary>
+    /// <param name="index"></param>
+    /// <returns></returns>
+    public T this[int index]
+    {
+        get { return elements[index]; }
+    }
+    /// <summary>
+    /// Gets the index of T object.
+    /// </summary>
+    /// <param name="o">The o.</param>
+    /// <returns></returns>
+    public int GetIndex(T o)
+    {
+        if (!valueKeyMap.TryGetValue(o, out int index))
+            return -1;
+        return index;
+        /*
+        int i = valueKeyMap[(o)];
+        if (i == null)
+            return -1;
+        return i;*/
+    }
+    /// <summary>
+    /// Gets the enumerator.
+    /// </summary>
+    /// <returns></returns>
+    public IEnumerator<T> GetEnumerator()
+    {
+        return elements.GetEnumerator();
+    }
 
-        public IntMapper(int InitialCapacity)
-        {
-            elements = new List<T>(InitialCapacity);
-            valueKeyMap = new Dictionary<T, int>(InitialCapacity);
-        }
-
-        /// <summary>
-        /// Appends the specified element to the end of this list
-        /// </summary>
-        /// <param name="value">element to be Appended to this list.</param>
-        /// <returns>return true (as per the general contract of the Collection.add method)</returns>
-        public bool Add(T value)
-        {
-            int index = elements.Count;
-            elements.Add(value);
-            valueKeyMap[value] = index;
-            return true;
-        }
-        /// <summary>
-        /// Gets the size.
-        /// </summary>
-        public int Size
-        {
-            get
-            {
-                return elements.Count;
-            }
-        }
-        /// <summary>
-        /// Gets the T object at the specified index.
-        /// </summary>
-        /// <param name="index"></param>
-        /// <returns></returns>
-        public T this[int index]
-        {
-            get { return elements[index]; }
-        }
-        /// <summary>
-        /// Gets the index of T object.
-        /// </summary>
-        /// <param name="o">The o.</param>
-        /// <returns></returns>
-        public int GetIndex(T o)
-        {
-            if (!valueKeyMap.TryGetValue(o, out int index))
-                return -1;
-            return index;
-            /*
-            int i = valueKeyMap[(o)];
-            if (i == null)
-                return -1;
-            return i;*/
-        }
-        /// <summary>
-        /// Gets the enumerator.
-        /// </summary>
-        /// <returns></returns>
-        public IEnumerator<T> GetEnumerator()
-        {
-            return elements.GetEnumerator();
-        }
-
-        public void Clear()
-        {
-            elements.Clear();
-            valueKeyMap.Clear();
-        }
-    }   // end public class IntMapper
-
-
-}
+    public void Clear()
+    {
+        elements.Clear();
+        valueKeyMap.Clear();
+    }
+}   // end public class IntMapper

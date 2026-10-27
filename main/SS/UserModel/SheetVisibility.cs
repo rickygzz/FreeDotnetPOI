@@ -15,31 +15,30 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.SS.UserModel
+namespace NPOI.SS.UserModel;
+
+/// <summary>
+/// Specifies sheet visibility
+/// </summary>
+public enum SheetVisibility : int
 {
     /// <summary>
-    /// Specifies sheet visibility
+    /// Indicates the sheet is visible.
     /// </summary>
-    public enum SheetVisibility : int
-    {
-        /// <summary>
-        /// Indicates the sheet is visible.
-        /// </summary>
-        Visible = 0,
+    Visible = 0,
 
-        /// <summary>
-        /// Indicates the book window is hidden, but can be shown by the user via the user interface.
-        /// </summary>
-        Hidden = 1,
+    /// <summary>
+    /// Indicates the book window is hidden, but can be shown by the user via the user interface.
+    /// </summary>
+    Hidden = 1,
 
-        /// <summary>
-        /// Indicates the sheet is hidden and cannot be shown in the user interface (UI).
-        /// </summary>
-        /// <remarks>
-        /// In Excel this state is only available programmatically in VBA:
-        /// ThisWorkbook.Sheets("MySheetName").Visible = xlSheetVeryHidden
-        /// 
-        /// </remarks>
-        VeryHidden = 2
-    }
+    /// <summary>
+    /// Indicates the sheet is hidden and cannot be shown in the user interface (UI).
+    /// </summary>
+    /// <remarks>
+    /// In Excel this state is only available programmatically in VBA:
+    /// ThisWorkbook.Sheets("MySheetName").Visible = xlSheetVeryHidden
+    /// 
+    /// </remarks>
+    VeryHidden = 2
 }

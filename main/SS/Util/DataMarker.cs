@@ -19,76 +19,76 @@
 
 using System;
 using NPOI.SS.UserModel;
-namespace NPOI.SS.Util
+
+namespace NPOI.SS.Util;
+
+/// <summary>
+/// Represents data marker used in charts.
+/// @author Roman Kashitsyn
+/// </summary>
+public class DataMarker
 {
+
+    private ISheet sheet;
+    private CellRangeAddress range;
+
     /// <summary>
-    /// Represents data marker used in charts.
-    /// @author Roman Kashitsyn
+    /// constructor
     /// </summary>
-    public class DataMarker
+    /// <param name="sheet">the sheet where data located.</param>
+    /// <param name="range">the range within that sheet.</param>
+    public DataMarker(ISheet sheet, CellRangeAddress range)
     {
+        this.sheet = sheet;
+        this.range = range;
+    }
 
-        private ISheet sheet;
-        private CellRangeAddress range;
-
-        /// <summary>
-        /// constructor
-        /// </summary>
-        /// <param name="sheet">the sheet where data located.</param>
-        /// <param name="range">the range within that sheet.</param>
-        public DataMarker(ISheet sheet, CellRangeAddress range)
+    /// <summary>
+    /// get or set the sheet marker points to.
+    /// </summary>
+    public ISheet Sheet
+    {
+        get
         {
-            this.sheet = sheet;
-            this.range = range;
+            return sheet;
         }
-
-        /// <summary>
-        /// get or set the sheet marker points to.
-        /// </summary>
-        public ISheet Sheet
+        set
         {
-            get
-            {
-                return sheet;
-            }
-            set
-            {
-                this.sheet = value;
-            }
+            this.sheet = value;
         }
+    }
 
 
-        /// <summary>
-        /// get or set range of the marker.
-        /// </summary>
-        public CellRangeAddress Range
+    /// <summary>
+    /// get or set range of the marker.
+    /// </summary>
+    public CellRangeAddress Range
+    {
+        get
         {
-            get
-            {
-                return range;
-            }
-            set
-            {
-                range = value;
-            }
+            return range;
         }
-
-        /// <summary>
-        /// Formats data marker using canonical format, for example
-        /// 'SheetName!$A$1:$A$5'.
-        /// </summary>
-        /// <returns>formatted data marker</returns>
-        public String FormatAsString()
+        set
         {
-            String sheetName = (sheet == null) ? (null) : (sheet.SheetName);
-            if (range == null)
-            {
-                return null;
-            }
-            else
-            {
-                return range.FormatAsString(sheetName, true);
-            }
+            range = value;
+        }
+    }
+
+    /// <summary>
+    /// Formats data marker using canonical format, for example
+    /// 'SheetName!$A$1:$A$5'.
+    /// </summary>
+    /// <returns>formatted data marker</returns>
+    public String FormatAsString()
+    {
+        String sheetName = (sheet == null) ? (null) : (sheet.SheetName);
+        if (range == null)
+        {
+            return null;
+        }
+        else
+        {
+            return range.FormatAsString(sheetName, true);
         }
     }
 }

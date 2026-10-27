@@ -30,7 +30,8 @@ using System.Reflection;
 /// </summary>
 public class DefaultEscherRecordFactory : IEscherRecordFactory
 {
-    private static readonly Type[] escherRecordClasses = {
+    private static readonly Type[] escherRecordClasses =
+    {
 
         typeof(EscherBSERecord), typeof(EscherOptRecord), typeof(EscherTertiaryOptRecord),
         typeof(EscherClientAnchorRecord),
