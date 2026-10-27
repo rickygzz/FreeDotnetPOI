@@ -18,47 +18,46 @@
 
 using System;
 
-namespace NPOI.XSSF.Binary
+namespace NPOI.XSSF.Binary;
+
+using NPOI;
+using NPOI.OpenXml4Net.OPC;
+
+/// <summary>
+/// <para>
+/// Need to have this mirror class of <see cref="UserModel.XSSFRelation" />
+/// because of conflicts with regular ooxml relations.
+/// If we Assert.Failed to break this into a separate class, in the cases of SharedStrings and Styles,
+/// 2 parts would exist, and &quot;Packages shall not contain equivalent part names...&quot;
+/// </para>
+/// <para>
+/// 
+/// Also, we need to avoid the possibility of breaking the marshalling process for xml.
+/// </para>
+/// </summary>
+public class XSSFBRelation : POIXMLRelation
 {
-    using NPOI;
-    using NPOI.OpenXml4Net.OPC;
+    //private static  POILogger log = POILogFactory.GetLogger(XSSFBRelation.class);
 
-    /// <summary>
-    /// <para>
-    /// Need to have this mirror class of <see cref="UserModel.XSSFRelation" />
-    /// because of conflicts with regular ooxml relations.
-    /// If we Assert.Failed to break this into a separate class, in the cases of SharedStrings and Styles,
-    /// 2 parts would exist, and &quot;Packages shall not contain equivalent part names...&quot;
-    /// </para>
-    /// <para>
-    /// 
-    /// Also, we need to avoid the possibility of breaking the marshalling process for xml.
-    /// </para>
-    /// </summary>
-    public class XSSFBRelation : POIXMLRelation
+    public static  XSSFBRelation SHARED_STRINGS_BINARY = new XSSFBRelation(
+        "application/vnd.ms-excel.sharedStrings",
+        "http://schemas.Openxmlformats.org/officeDocument/2006/relationships/sharedStrings",
+        "/xl/sharedStrings.bin",
+        null
+);
+
+    public static  XSSFBRelation STYLES_BINARY = new XSSFBRelation(
+        "application/vnd.ms-excel.styles",
+        PackageRelationshipTypes.STYLE_PART,
+        "/xl/styles.bin",
+        null
+);
+
+    private XSSFBRelation(String type, String rel, String defaultName, Type cls)
+        : base(type, rel, defaultName, cls)
     {
-        //private static  POILogger log = POILogFactory.GetLogger(XSSFBRelation.class);
-
-        public static  XSSFBRelation SHARED_STRINGS_BINARY = new XSSFBRelation(
-            "application/vnd.ms-excel.sharedStrings",
-            "http://schemas.Openxmlformats.org/officeDocument/2006/relationships/sharedStrings",
-            "/xl/sharedStrings.bin",
-            null
-    );
-
-        public static  XSSFBRelation STYLES_BINARY = new XSSFBRelation(
-            "application/vnd.ms-excel.styles",
-            PackageRelationshipTypes.STYLE_PART,
-            "/xl/styles.bin",
-            null
-    );
-
-        private XSSFBRelation(String type, String rel, String defaultName, Type cls)
-            : base(type, rel, defaultName, cls)
-        {
-
-        }
 
     }
+
 }
 

@@ -15,60 +15,52 @@
    limitations under the License.
 ==================================================================== */
 
+using NPOI.Util;
 
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
+namespace NPOI.XSSF.Binary;
 
-namespace NPOI.XSSF.Binary
+/// <summary>
+/// This class encapsulates what the spec calls a "Cell" object.
+/// I added "Header" to clarify that this does not contain the contents
+/// of the cell, only the column number, the style id and the phonetic bool
+/// </summary>
+/// @since 3.16-beta3
+public class XSSFBCellHeader
 {
-    using NPOI.Util;
+    public static int Length = 8;
 
     /// <summary>
-    /// This class encapsulates what the spec calls a "Cell" object.
-    /// I added "Header" to clarify that this does not contain the contents
-    /// of the cell, only the column number, the style id and the phonetic bool
     /// </summary>
-    /// @since 3.16-beta3
-    public class XSSFBCellHeader
+    /// <param name="data">raw data</param>
+    /// <param name="offset">offset at which to start reading the record</param>
+    /// <param name="currentRow">0-based current row count</param>
+    /// <param name="cell">cell buffer to update</param>
+    public static void Parse(byte[] data, int offset, int currentRow, XSSFBCellHeader cell)
     {
-        public static int Length = 8;
-
-        /// <summary>
-        /// </summary>
-        /// <param name="data">raw data</param>
-        /// <param name="offset">offset at which to start reading the record</param>
-        /// <param name="currentRow">0-based current row count</param>
-        /// <param name="cell">cell buffer to update</param>
-        public static void Parse(byte[] data, int offset, int currentRow, XSSFBCellHeader cell)
-        {
-            int colNum = XSSFBUtils.CastToInt(LittleEndian.GetUInt(data, offset));
-            offset += LittleEndian.INT_SIZE;
-            int styleIdx = XSSFBUtils.Get24BitInt(data, offset);
-            offset += 3;
-            //TODO: range checking
-            bool showPhonetic = false;//TODO: fill this out
-            cell.Reset(currentRow, colNum, styleIdx, showPhonetic);
-        }
-
-        private int rowNum;
-        private int colNum;
-        private int styleIdx;
-        private bool showPhonetic;
-
-        public void Reset(int rowNum, int colNum, int styleIdx, bool showPhonetic)
-        {
-            this.rowNum = rowNum;
-            this.colNum = colNum;
-            this.styleIdx = styleIdx;
-            this.showPhonetic = showPhonetic;
-        }
-
-        public int ColNum => colNum;
-
-        public int StyleIdx => styleIdx;
+        int colNum = XSSFBUtils.CastToInt(LittleEndian.GetUInt(data, offset));
+        offset += LittleEndian.INT_SIZE;
+        int styleIdx = XSSFBUtils.Get24BitInt(data, offset);
+        offset += 3;
+        //TODO: range checking
+        bool showPhonetic = false;//TODO: fill this out
+        cell.Reset(currentRow, colNum, styleIdx, showPhonetic);
     }
+
+    private int rowNum;
+    private int colNum;
+    private int styleIdx;
+    private bool showPhonetic;
+
+    public void Reset(int rowNum, int colNum, int styleIdx, bool showPhonetic)
+    {
+        this.rowNum = rowNum;
+        this.colNum = colNum;
+        this.styleIdx = styleIdx;
+        this.showPhonetic = showPhonetic;
+    }
+
+    public int ColNum => colNum;
+
+    public int StyleIdx => styleIdx;
 }
 

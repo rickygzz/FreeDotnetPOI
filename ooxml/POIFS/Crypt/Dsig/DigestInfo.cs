@@ -22,44 +22,42 @@
    Copyright (C) 2008-2014 FedICT.
    ================================================================= */
 
-namespace NPOI.POIFS.Crypt.Dsig
+namespace NPOI.POIFS.Crypt.Dsig;
+
+using System;
+using System.Runtime.Serialization;
+using NPOI.POIFS.Crypt;
+
+/**
+ * Digest Information data transfer class.
+ */
+public class DigestInfo : ISerializable
 {
-    using System;
-    using System.Runtime.Serialization;
-    using NPOI.POIFS.Crypt;
+
+    private static long serialVersionUID = 1L;
 
     /**
-     * Digest Information data transfer class.
+     * Main constructor.
+     * 
+     * @param digestValue
+     * @param hashAlgo
+     * @param description
      */
-    public class DigestInfo : ISerializable
+    public DigestInfo(byte[] digestValue, HashAlgorithm hashAlgo, String description)
     {
-
-        private static long serialVersionUID = 1L;
-
-        /**
-         * Main constructor.
-         * 
-         * @param digestValue
-         * @param hashAlgo
-         * @param description
-         */
-        public DigestInfo(byte[] digestValue, HashAlgorithm hashAlgo, String description)
-        {
-            this.digestValue = digestValue;
-            this.hashAlgo = hashAlgo;
-            this.description = description;
-        }
-
-        public byte[] digestValue;
-
-        public String description;
-
-        public HashAlgorithm hashAlgo;
-
-        public void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            throw new NotImplementedException();
-        }
+        this.digestValue = digestValue;
+        this.hashAlgo = hashAlgo;
+        this.description = description;
     }
 
+    public byte[] digestValue;
+
+    public String description;
+
+    public HashAlgorithm hashAlgo;
+
+    public void GetObjectData(SerializationInfo info, StreamingContext context)
+    {
+        throw new NotImplementedException();
+    }
 }

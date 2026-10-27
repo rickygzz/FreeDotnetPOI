@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿namespace NPOI.POIFS.Crypt.Dsig;
 
-namespace NPOI.POIFS.Crypt.Dsig
+public interface ISignatureConfigurable
 {
-    public interface ISignatureConfigurable
-    {
-        void SetSignatureConfig(SignatureConfig signatureConfig);
-    }
+    void SetSignatureConfig(SignatureConfig signatureConfig);
 }

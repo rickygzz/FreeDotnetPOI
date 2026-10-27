@@ -15,57 +15,49 @@
    limitations under the License.
 ==================================================================== */
 
+using NPOI.Util;
 
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
+namespace NPOI.XSSF.Binary;
 
-namespace NPOI.XSSF.Binary
+
+/// <summary>
+/// </summary>
+/// @since 3.16-beta3
+internal class XSSFBCellRange
 {
+    //TODO: Convert this to generate an AreaReference
 
-    using NPOI.Util;
-
+    public static  int Length = 4* LittleEndian.INT_SIZE;
     /// <summary>
+    /// Parses an RfX cell range from the data starting at the offset.
+    /// This performs no range checking.
     /// </summary>
-    /// @since 3.16-beta3
-    internal class XSSFBCellRange
+    /// <param name="data">raw bytes</param>
+    /// <param name="offset">offset at which to start reading from data</param>
+    /// <param name="cellRange">to overwrite. If null, a new cellRange will be created.</param>
+    /// <return>a mutable cell range.</return>
+    public static XSSFBCellRange parse(byte[] data, int offset, XSSFBCellRange cellRange)
     {
-        //TODO: Convert this to generate an AreaReference
-
-        public static  int Length = 4* LittleEndian.INT_SIZE;
-        /// <summary>
-        /// Parses an RfX cell range from the data starting at the offset.
-        /// This performs no range checking.
-        /// </summary>
-        /// <param name="data">raw bytes</param>
-        /// <param name="offset">offset at which to start reading from data</param>
-        /// <param name="cellRange">to overwrite. If null, a new cellRange will be created.</param>
-        /// <return>a mutable cell range.</return>
-        public static XSSFBCellRange parse(byte[] data, int offset, XSSFBCellRange cellRange)
+        if(cellRange == null)
         {
-            if(cellRange == null)
-            {
-                cellRange = new XSSFBCellRange();
-            }
-            cellRange.firstRow = XSSFBUtils.CastToInt(LittleEndian.GetUInt(data, offset));
-            offset += LittleEndian.INT_SIZE;
-            cellRange.lastRow = XSSFBUtils.CastToInt(LittleEndian.GetUInt(data, offset));
-            offset += LittleEndian.INT_SIZE;
-            cellRange.firstCol = XSSFBUtils.CastToInt(LittleEndian.GetUInt(data, offset));
-            offset += LittleEndian.INT_SIZE;
-            cellRange.lastCol = XSSFBUtils.CastToInt(LittleEndian.GetUInt(data, offset));
-
-            return cellRange;
+            cellRange = new XSSFBCellRange();
         }
+        cellRange.firstRow = XSSFBUtils.CastToInt(LittleEndian.GetUInt(data, offset));
+        offset += LittleEndian.INT_SIZE;
+        cellRange.lastRow = XSSFBUtils.CastToInt(LittleEndian.GetUInt(data, offset));
+        offset += LittleEndian.INT_SIZE;
+        cellRange.firstCol = XSSFBUtils.CastToInt(LittleEndian.GetUInt(data, offset));
+        offset += LittleEndian.INT_SIZE;
+        cellRange.lastCol = XSSFBUtils.CastToInt(LittleEndian.GetUInt(data, offset));
 
-        internal int firstRow;
-        internal int lastRow;
-        internal int firstCol;
-        internal int lastCol;
-
-
+        return cellRange;
     }
+
+    internal int firstRow;
+    internal int lastRow;
+    internal int firstCol;
+    internal int lastCol;
+
+
 }
 

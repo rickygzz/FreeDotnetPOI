@@ -14,19 +14,18 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 ==================================================================== */
-namespace NPOI.XSSF.Streaming.Properties
-{
-    public abstract class Property
-    {
-        public const int COMMENT = 1;
-        public const int HYPERLINK = 2;
-        public object _value;
-        public Property _next;
+namespace NPOI.XSSF.Streaming.Properties;
 
-        protected Property(object value)
-        {
-            _value = value;
-        }
-        public abstract int GetType();
+public abstract class Property
+{
+    public const int COMMENT = 1;
+    public const int HYPERLINK = 2;
+    public object _value;
+    public Property _next;
+
+    protected Property(object value)
+    {
+        _value = value;
     }
+    public abstract int GetType();
 }

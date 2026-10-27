@@ -22,37 +22,35 @@
    Copyright (C) 2008-2014 FedICT.
    ================================================================= */
 
-namespace NPOI.POIFS.Crypt.Dsig.Services
+namespace NPOI.POIFS.Crypt.Dsig.Services;
+
+using Org.BouncyCastle.X509;
+using System;
+using System.Collections.Generic;
+
+
+
+
+/**
+ * Interface for trust validator of a TSP.
+ * 
+ * @author Frank Cornelis
+ * 
+ */
+public interface ITimeStampServiceValidator
 {
-    using Org.BouncyCastle.X509;
-    using System;
-    using System.Collections.Generic;
-
-
-
 
     /**
-     * Interface for trust validator of a TSP.
+     * Validates the given certificate chain.
      * 
-     * @author Frank Cornelis
-     * 
+     * @param certificateChain
+     * @param revocationData
+     *            the optional data Container that should be Filled with
+     *            revocation data that was used to validate the given
+     *            certificate chain.
+     * @throws Exception
+     *             in case the certificate chain is invalid.
      */
-    public interface ITimeStampServiceValidator
-    {
-
-        /**
-         * Validates the given certificate chain.
-         * 
-         * @param certificateChain
-         * @param revocationData
-         *            the optional data Container that should be Filled with
-         *            revocation data that was used to validate the given
-         *            certificate chain.
-         * @throws Exception
-         *             in case the certificate chain is invalid.
-         */
-        void Validate(List<X509Certificate> certificateChain,
-                RevocationData revocationData);
-    }
-
+    void Validate(List<X509Certificate> certificateChain,
+            RevocationData revocationData);
 }

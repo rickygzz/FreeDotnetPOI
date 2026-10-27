@@ -15,50 +15,48 @@
    limitations under the License.
 ==================================================================== */
 using NPOI.SS.Formula;
-using NPOI.XSSF.UserModel;
 
-namespace NPOI.XSSF.Streaming
+namespace NPOI.XSSF.Streaming;
+
+public class SXSSFEvaluationSheet : IEvaluationSheet //XSSFEvaluationSheet
 {
-    public class SXSSFEvaluationSheet : IEvaluationSheet //XSSFEvaluationSheet
+    private readonly SXSSFSheet _xs;
+
+    public SXSSFEvaluationSheet(SXSSFSheet sheet)
     {
-        private readonly SXSSFSheet _xs;
+        _xs = sheet;
+    }
 
-        public SXSSFEvaluationSheet(SXSSFSheet sheet)
-        {
-            _xs = sheet;
-        }
+    public SXSSFSheet GetSXSSFSheet()
+    {
+        return _xs;
+    }
 
-        public SXSSFSheet GetSXSSFSheet()
+    public IEvaluationCell GetCell(int rowIndex, int columnIndex)
+    {
+        SXSSFRow row = (SXSSFRow)_xs.GetRow(rowIndex);                
+        if (row == null)
         {
-            return _xs;
-        }
-
-        public IEvaluationCell GetCell(int rowIndex, int columnIndex)
-        {
-            SXSSFRow row = (SXSSFRow)_xs.GetRow(rowIndex);                
-            if (row == null)
+            if (rowIndex <= _xs.LastFlushedRowNumber)
             {
-                if (rowIndex <= _xs.LastFlushedRowNumber)
-                {
-                    throw new RowFlushedException(rowIndex);
-                }
-                return null;
+                throw new RowFlushedException(rowIndex);
             }
-            SXSSFCell cell = (SXSSFCell)row.GetCell(columnIndex);
-            if (cell == null)
-            {
-                return null;
-            }
-            return new SXSSFEvaluationCell(cell, this);
+            return null;
         }
-
-        /* (non-JavaDoc), inherit JavaDoc from EvaluationSheet
-         * @since POI 3.15 beta 3
-         */
-
-        public void ClearAllCachedResultValues()
+        SXSSFCell cell = (SXSSFCell)row.GetCell(columnIndex);
+        if (cell == null)
         {
-            // nothing to do
+            return null;
         }
+        return new SXSSFEvaluationCell(cell, this);
+    }
+
+    /* (non-JavaDoc), inherit JavaDoc from EvaluationSheet
+     * @since POI 3.15 beta 3
+     */
+
+    public void ClearAllCachedResultValues()
+    {
+        // nothing to do
     }
 }

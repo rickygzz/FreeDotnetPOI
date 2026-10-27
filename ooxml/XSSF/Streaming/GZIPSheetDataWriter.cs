@@ -19,39 +19,38 @@ using ICSharpCode.SharpZipLib.GZip;
 using NPOI.Util;
 using NPOI.XSSF.Model;
 
-namespace NPOI.XSSF.Streaming
+namespace NPOI.XSSF.Streaming;
+
+public class GZIPSheetDataWriter : SheetDataWriter
 {
-    public class GZIPSheetDataWriter : SheetDataWriter
+    public GZIPSheetDataWriter() : base()
     {
-        public GZIPSheetDataWriter() : base()
-        {
 
-        }
+    }
 
-        /**
-         * @param sharedStringsTable the shared strings table, or null if inline text is used
-         */
-        public GZIPSheetDataWriter(SharedStringsTable sharedStringsTable) : base(sharedStringsTable)
-        {
-        }
+    /**
+     * @param sharedStringsTable the shared strings table, or null if inline text is used
+     */
+    public GZIPSheetDataWriter(SharedStringsTable sharedStringsTable) : base(sharedStringsTable)
+    {
+    }
 
-        /**
-         * @return temp file to write sheet data
-         */
+    /**
+     * @return temp file to write sheet data
+     */
 
-        public override FileInfo CreateTempFile()
-        {
-            return TempFile.CreateTempFile("poi-sxssf-sheet-xml", ".gz");
-        }
-        
-        protected override Stream DecorateInputStream(Stream fis)
-        {
-            return new GZipInputStream(fis);
-        }
+    public override FileInfo CreateTempFile()
+    {
+        return TempFile.CreateTempFile("poi-sxssf-sheet-xml", ".gz");
+    }
+    
+    protected override Stream DecorateInputStream(Stream fis)
+    {
+        return new GZipInputStream(fis);
+    }
 
-        protected override Stream DecorateOutputStream(Stream fos)
-        {
-            return new GZipOutputStream(fos);
-        }
+    protected override Stream DecorateOutputStream(Stream fos)
+    {
+        return new GZipOutputStream(fos);
     }
 }

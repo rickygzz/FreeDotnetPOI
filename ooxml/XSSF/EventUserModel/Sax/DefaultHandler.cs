@@ -13,39 +13,38 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 ==================================================================== */
-namespace NPOI.XSSF.EventUserModel.Sax
+namespace NPOI.XSSF.EventUserModel.Sax;
+
+using System;
+
+/// <summary>
+/// An <see cref="IContentHandler"/> whose methods do nothing. Derive from it and override
+/// only the events you need.
+/// </summary>
+public class DefaultHandler : IContentHandler
 {
-    using System;
-
-    /// <summary>
-    /// An <see cref="IContentHandler"/> whose methods do nothing. Derive from it and override
-    /// only the events you need.
-    /// </summary>
-    public class DefaultHandler : IContentHandler
+    /// <inheritdoc/>
+    public virtual void StartDocument()
     {
-        /// <inheritdoc/>
-        public virtual void StartDocument()
-        {
-        }
+    }
 
-        /// <inheritdoc/>
-        public virtual void EndDocument()
-        {
-        }
+    /// <inheritdoc/>
+    public virtual void EndDocument()
+    {
+    }
 
-        /// <inheritdoc/>
-        public virtual void StartElement(String uri, String localName, String qName, IAttributes attributes)
-        {
-        }
+    /// <inheritdoc/>
+    public virtual void StartElement(String uri, String localName, String qName, IAttributes attributes)
+    {
+    }
 
-        /// <inheritdoc/>
-        public virtual void EndElement(String uri, String localName, String qName)
-        {
-        }
+    /// <inheritdoc/>
+    public virtual void EndElement(String uri, String localName, String qName)
+    {
+    }
 
-        /// <inheritdoc/>
-        public virtual void Characters(char[] ch, int start, int length)
-        {
-        }
+    /// <inheritdoc/>
+    public virtual void Characters(char[] ch, int start, int length)
+    {
     }
 }

@@ -22,152 +22,151 @@
    Copyright (C) 2008-2014 FedICT.
    ================================================================= */
 
-namespace NPOI.POIFS.Crypt.Dsig.Services
+namespace NPOI.POIFS.Crypt.Dsig.Services;
+
+using System;
+using System.Collections.Generic;
+using System.Runtime.Serialization;
+
+/**
+ * Container class for PKI revocation data.
+ * 
+ * @author Frank Cornelis
+ * 
+ */
+public class RevocationData
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Runtime.Serialization;
+
+    private List<byte[]> crls;
+
+    private List<byte[]> ocsps;
 
     /**
-     * Container class for PKI revocation data.
-     * 
-     * @author Frank Cornelis
-     * 
+     * Default constructor.
      */
-    public class RevocationData
+    public RevocationData()
     {
-
-        private List<byte[]> crls;
-
-        private List<byte[]> ocsps;
-
-        /**
-         * Default constructor.
-         */
-        public RevocationData()
-        {
-            this.crls = new List<byte[]>();
-            this.ocsps = new List<byte[]>();
-        }
-
-        /**
-         * Adds a CRL to this revocation data Set.
-         * 
-         * @param encodedCrl
-         */
-        public void AddCRL(byte[] encodedCrl)
-        {
-            this.crls.Add(encodedCrl);
-        }
-
-        /**
-         * Adds a CRL to this revocation data Set.
-         * 
-         * @param crl
-         */
-        public void AddCRL(X509CRL crl)
-        {
-            byte[] encodedCrl;
-            try
-            {
-                encodedCrl = crl.getEncoded(); ;
-            }
-            catch (CRLException e)
-            {
-                throw new ArgumentException("CRL coding error: "
-                        + e.Message, e);
-            }
-            AddCRL(encodedCrl);
-        }
-
-        /**
-         * Adds an OCSP response to this revocation data Set.
-         * 
-         * @param encodedOcsp
-         */
-        public void AddOCSP(byte[] encodedOcsp)
-        {
-            this.ocsps.Add(encodedOcsp);
-        }
-
-        /**
-         * Gives back a list of all CRLs.
-         * 
-         * @return a list of all CRLs
-         */
-        public List<byte[]> GetCRLs()
-        {
-            return this.crls;
-        }
-
-        /**
-         * Gives back a list of all OCSP responses.
-         * 
-         * @return a list of all OCSP response
-         */
-        public List<byte[]> GetOCSPs()
-        {
-            return this.ocsps;
-        }
-
-        /**
-         * Returns <code>true</code> if this revocation data Set holds OCSP
-         * responses.
-         * 
-         * @return <code>true</code> if this revocation data Set holds OCSP
-         * responses.
-         */
-        public bool HasOCSPs()
-        {
-            return this.ocsps.Count > 0;
-        }
-
-        /**
-         * Returns <code>true</code> if this revocation data Set holds CRLs.
-         * 
-         * @return <code>true</code> if this revocation data Set holds CRLs.
-         */
-        public bool HasCRLs()
-        {
-            return this.crls.Count > 0;
-        }
-
-        /**
-         * Returns <code>true</code> if this revocation data is not empty.
-         * 
-         * @return <code>true</code> if this revocation data is not empty.
-         */
-        public bool HasRevocationDataEntries()
-        {
-            return HasOCSPs() || HasCRLs();
-        }
+        this.crls = new List<byte[]>();
+        this.ocsps = new List<byte[]>();
     }
 
-    public class X509CRL
+    /**
+     * Adds a CRL to this revocation data Set.
+     * 
+     * @param encodedCrl
+     */
+    public void AddCRL(byte[] encodedCrl)
     {
-        public byte[] getEncoded()
-        {
-            throw new NotImplementedException();
-        }
+        this.crls.Add(encodedCrl);
     }
 
-    [Serializable]
-    internal sealed class CRLException : Exception
+    /**
+     * Adds a CRL to this revocation data Set.
+     * 
+     * @param crl
+     */
+    public void AddCRL(X509CRL crl)
     {
-        public CRLException()
+        byte[] encodedCrl;
+        try
         {
+            encodedCrl = crl.getEncoded(); ;
         }
+        catch (CRLException e)
+        {
+            throw new ArgumentException("CRL coding error: "
+                    + e.Message, e);
+        }
+        AddCRL(encodedCrl);
+    }
 
-        public CRLException(string message) : base(message)
-        {
-        }
+    /**
+     * Adds an OCSP response to this revocation data Set.
+     * 
+     * @param encodedOcsp
+     */
+    public void AddOCSP(byte[] encodedOcsp)
+    {
+        this.ocsps.Add(encodedOcsp);
+    }
 
-        public CRLException(string message, Exception innerException) : base(message, innerException)
-        {
-        }
+    /**
+     * Gives back a list of all CRLs.
+     * 
+     * @return a list of all CRLs
+     */
+    public List<byte[]> GetCRLs()
+    {
+        return this.crls;
+    }
 
-        protected CRLException(SerializationInfo info, StreamingContext context) : base(info, context)
-        {
-        }
+    /**
+     * Gives back a list of all OCSP responses.
+     * 
+     * @return a list of all OCSP response
+     */
+    public List<byte[]> GetOCSPs()
+    {
+        return this.ocsps;
+    }
+
+    /**
+     * Returns <code>true</code> if this revocation data Set holds OCSP
+     * responses.
+     * 
+     * @return <code>true</code> if this revocation data Set holds OCSP
+     * responses.
+     */
+    public bool HasOCSPs()
+    {
+        return this.ocsps.Count > 0;
+    }
+
+    /**
+     * Returns <code>true</code> if this revocation data Set holds CRLs.
+     * 
+     * @return <code>true</code> if this revocation data Set holds CRLs.
+     */
+    public bool HasCRLs()
+    {
+        return this.crls.Count > 0;
+    }
+
+    /**
+     * Returns <code>true</code> if this revocation data is not empty.
+     * 
+     * @return <code>true</code> if this revocation data is not empty.
+     */
+    public bool HasRevocationDataEntries()
+    {
+        return HasOCSPs() || HasCRLs();
+    }
+}
+
+public class X509CRL
+{
+    public byte[] getEncoded()
+    {
+        throw new NotImplementedException();
+    }
+}
+
+[Serializable]
+internal sealed class CRLException : Exception
+{
+    public CRLException()
+    {
+    }
+
+    public CRLException(string message) : base(message)
+    {
+    }
+
+    public CRLException(string message, Exception innerException) : base(message, innerException)
+    {
+    }
+
+    protected CRLException(SerializationInfo info, StreamingContext context) : base(info, context)
+    {
     }
 }

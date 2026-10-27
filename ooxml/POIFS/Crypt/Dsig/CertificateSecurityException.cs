@@ -22,23 +22,21 @@
    Copyright (C) 2008-2014 FedICT.
    ================================================================= */
 
-namespace NPOI.POIFS.Crypt.Dsig
+namespace NPOI.POIFS.Crypt.Dsig;
+
+using System;
+using System.Security;
+
+/**
+ * Exception thrown in case there is something wrong with the incoming eID
+ * certificate.
+ * 
+ * @author Frank Cornelis
+ * 
+ */
+public class CertificateSecurityException : SecurityException
 {
-    using System;
-    using System.Security;
 
-    /**
-     * Exception thrown in case there is something wrong with the incoming eID
-     * certificate.
-     * 
-     * @author Frank Cornelis
-     * 
-     */
-    public class CertificateSecurityException : SecurityException
-    {
-
-        private static long serialVersionUID = 1L;
-
-    }
+    private static long serialVersionUID = 1L;
 
 }

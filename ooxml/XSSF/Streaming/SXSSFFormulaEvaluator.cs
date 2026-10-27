@@ -21,125 +21,124 @@ using NPOI.SS.UserModel;
 using NPOI.Util;
 using NPOI.XSSF.UserModel;
 
-namespace NPOI.XSSF.Streaming
+namespace NPOI.XSSF.Streaming;
+
+public class SXSSFFormulaEvaluator : BaseXSSFFormulaEvaluator
 {
-    public class SXSSFFormulaEvaluator : BaseXSSFFormulaEvaluator
+    private static POILogger logger = POILogFactory.GetLogger(typeof(SXSSFFormulaEvaluator));
+
+    private IWorkbook wb;
+
+    public SXSSFFormulaEvaluator(SXSSFWorkbook workbook) : this(workbook, null, null)
     {
-        private static POILogger logger = POILogFactory.GetLogger(typeof(SXSSFFormulaEvaluator));
+    }
 
-        private IWorkbook wb;
+    private SXSSFFormulaEvaluator(SXSSFWorkbook workbook, IStabilityClassifier stabilityClassifier, UDFFinder udfFinder) 
+        : this(workbook, new WorkbookEvaluator(SXSSFEvaluationWorkbook.Create(workbook), stabilityClassifier, udfFinder))
+    {
 
-        public SXSSFFormulaEvaluator(SXSSFWorkbook workbook) : this(workbook, null, null)
+    }
+
+    private SXSSFFormulaEvaluator(SXSSFWorkbook workbook, WorkbookEvaluator bookEvaluator) 
+        : base(bookEvaluator)
+    {
+        this.wb = workbook;
+    }
+
+    public static SXSSFFormulaEvaluator Create(SXSSFWorkbook workbook, IStabilityClassifier stabilityClassifier, UDFFinder udfFinder)
+    {
+        return new SXSSFFormulaEvaluator(workbook, stabilityClassifier, udfFinder);
+    }
+
+    public override void NotifySetFormula(ICell cell)
+    {
+        _bookEvaluator.NotifyUpdateCell(new SXSSFEvaluationCell((SXSSFCell)cell));
+    }
+    public override void NotifyDeleteCell(ICell cell)
+    {
+        _bookEvaluator.NotifyDeleteCell(new SXSSFEvaluationCell((SXSSFCell)cell));
+    }
+    public override void NotifyUpdateCell(ICell cell)
+    {
+        _bookEvaluator.NotifyUpdateCell(new SXSSFEvaluationCell((SXSSFCell)cell));
+    }
+    protected override IEvaluationCell ToEvaluationCell(ICell cell)
+    {
+        if (cell is not SXSSFCell sxssfCell)
         {
+            throw new ArgumentException("Unexpected type of cell: " + cell.GetType() + "." +
+                    " Only SXSSFCells can be evaluated.");
         }
 
-        private SXSSFFormulaEvaluator(SXSSFWorkbook workbook, IStabilityClassifier stabilityClassifier, UDFFinder udfFinder) 
-            : this(workbook, new WorkbookEvaluator(SXSSFEvaluationWorkbook.Create(workbook), stabilityClassifier, udfFinder))
-        {
+        return new SXSSFEvaluationCell(sxssfCell);
+    }
 
-        }
+    public static void EvaluateAllFormulaCells(SXSSFWorkbook wb, bool skipOutOfWindow)
+    {
+        SXSSFFormulaEvaluator eval = new SXSSFFormulaEvaluator(wb);
 
-        private SXSSFFormulaEvaluator(SXSSFWorkbook workbook, WorkbookEvaluator bookEvaluator) 
-            : base(bookEvaluator)
+        // Check they're all available
+        foreach (ISheet sheet in wb)
         {
-            this.wb = workbook;
-        }
-
-        public static SXSSFFormulaEvaluator Create(SXSSFWorkbook workbook, IStabilityClassifier stabilityClassifier, UDFFinder udfFinder)
-        {
-            return new SXSSFFormulaEvaluator(workbook, stabilityClassifier, udfFinder);
-        }
-
-        public override void NotifySetFormula(ICell cell)
-        {
-            _bookEvaluator.NotifyUpdateCell(new SXSSFEvaluationCell((SXSSFCell)cell));
-        }
-        public override void NotifyDeleteCell(ICell cell)
-        {
-            _bookEvaluator.NotifyDeleteCell(new SXSSFEvaluationCell((SXSSFCell)cell));
-        }
-        public override void NotifyUpdateCell(ICell cell)
-        {
-            _bookEvaluator.NotifyUpdateCell(new SXSSFEvaluationCell((SXSSFCell)cell));
-        }
-        protected override IEvaluationCell ToEvaluationCell(ICell cell)
-        {
-            if (cell is not SXSSFCell sxssfCell)
+            if (((SXSSFSheet)sheet).AllRowsFlushed)
             {
-                throw new ArgumentException("Unexpected type of cell: " + cell.GetType() + "." +
-                        " Only SXSSFCells can be evaluated.");
+                throw new SheetsFlushedException();
+            }
+        }
+
+        // Process the sheets as best we can
+        foreach (ISheet sheet in wb)
+        {
+
+            // Check if any rows have already been flushed out
+            int lastFlushedRowNum = ((SXSSFSheet)sheet).LastFlushedRowNumber;
+            if (lastFlushedRowNum > -1)
+            {
+                if (!skipOutOfWindow) throw new RowFlushedException(0);
+                logger.Log(POILogger.INFO, "Rows up to " + lastFlushedRowNum + " have already been flushed, skipping");
             }
 
-            return new SXSSFEvaluationCell(sxssfCell);
-        }
-
-        public static void EvaluateAllFormulaCells(SXSSFWorkbook wb, bool skipOutOfWindow)
-        {
-            SXSSFFormulaEvaluator eval = new SXSSFFormulaEvaluator(wb);
-
-            // Check they're all available
-            foreach (ISheet sheet in wb)
+            // Evaluate what we have
+            foreach (IRow r in sheet)
             {
-                if (((SXSSFSheet)sheet).AllRowsFlushed)
+                foreach (ICell c in r)
                 {
-                    throw new SheetsFlushedException();
-                }
-            }
-
-            // Process the sheets as best we can
-            foreach (ISheet sheet in wb)
-            {
-
-                // Check if any rows have already been flushed out
-                int lastFlushedRowNum = ((SXSSFSheet)sheet).LastFlushedRowNumber;
-                if (lastFlushedRowNum > -1)
-                {
-                    if (!skipOutOfWindow) throw new RowFlushedException(0);
-                    logger.Log(POILogger.INFO, "Rows up to " + lastFlushedRowNum + " have already been flushed, skipping");
-                }
-
-                // Evaluate what we have
-                foreach (IRow r in sheet)
-                {
-                    foreach (ICell c in r)
+                    if (c.CellType == CellType.Formula)
                     {
-                        if (c.CellType == CellType.Formula)
-                        {
-                            eval.EvaluateFormulaCell(c);
-                        }
+                        eval.EvaluateFormulaCell(c);
                     }
                 }
             }
         }
-
-        /**
-         * Loops over rows and cells, evaluating formula cells there.
-         * If any sheets are inactive, or any cells outside of the window,
-         *  will give an Exception.
-         * For SXSSF, you generally don't want to use this method, instead
-         *  evaluate your formulas as you go before they leave the window.
-         */
-        public override void EvaluateAll()
-        {
-            // Have the evaluation done, with exceptions
-            EvaluateAllFormulaCells((SXSSFWorkbook)wb, false);
-        }
     }
 
-
-    public class SheetsFlushedException : Exception
+    /**
+     * Loops over rows and cells, evaluating formula cells there.
+     * If any sheets are inactive, or any cells outside of the window,
+     *  will give an Exception.
+     * For SXSSF, you generally don't want to use this method, instead
+     *  evaluate your formulas as you go before they leave the window.
+     */
+    public override void EvaluateAll()
     {
-        public SheetsFlushedException() : base("One or more sheets have been flushed, cannot evaluate all cells")
-        {
-
-        }
+        // Have the evaluation done, with exceptions
+        EvaluateAllFormulaCells((SXSSFWorkbook)wb, false);
     }
+}
 
-    public class RowFlushedException : Exception
+
+public class SheetsFlushedException : Exception
+{
+    public SheetsFlushedException() : base("One or more sheets have been flushed, cannot evaluate all cells")
     {
-        public RowFlushedException(int rowNum) : base("Row " + rowNum + " has been flushed, cannot evaluate all cells")
-        {
 
-        }
+    }
+}
+
+public class RowFlushedException : Exception
+{
+    public RowFlushedException(int rowNum) : base("Row " + rowNum + " has been flushed, cannot evaluate all cells")
+    {
+
     }
 }

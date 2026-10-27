@@ -22,37 +22,35 @@
    Copyright (C) 2008-2014 FedICT.
    ================================================================= */
 
-namespace NPOI.POIFS.Crypt.Dsig.Facets
+namespace NPOI.POIFS.Crypt.Dsig.Facets;
+
+using System;
+using System.Collections.Generic;
+using System.Security.Cryptography.Xml;
+using System.Xml;
+
+/**
+ * Signature Facet implementation to create enveloped signatures.
+ * 
+ * @author Frank Cornelis
+ * 
+ */
+public class EnvelopedSignatureFacet : SignatureFacet
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Security.Cryptography.Xml;
-    using System.Xml;
 
-    /**
-     * Signature Facet implementation to create enveloped signatures.
-     * 
-     * @author Frank Cornelis
-     * 
-     */
-    public class EnvelopedSignatureFacet : SignatureFacet
+
+    public override void preSign(XmlDocument document
+        , List<Reference> references
+        , List<XmlNode> objects)
     {
+        //List<Transform> transforms = new List<Transform>();
+        //Transform envelopedTransform = newTransform(CanonicalizationMethod.ENVELOPED);
+        //transforms.Add(envelopedTransform);
+        //Transform exclusiveTransform = newTransform(CanonicalizationMethod.EXCLUSIVE);
+        //transforms.Add(exclusiveTransform);
 
-
-        public override void preSign(XmlDocument document
-            , List<Reference> references
-            , List<XmlNode> objects)
-        {
-            //List<Transform> transforms = new List<Transform>();
-            //Transform envelopedTransform = newTransform(CanonicalizationMethod.ENVELOPED);
-            //transforms.Add(envelopedTransform);
-            //Transform exclusiveTransform = newTransform(CanonicalizationMethod.EXCLUSIVE);
-            //transforms.Add(exclusiveTransform);
-
-            //Reference reference = newReference("", transforms, null, null, null);
-            //references.Add(reference);
-            throw new NotImplementedException();
-        }
+        //Reference reference = newReference("", transforms, null, null, null);
+        //references.Add(reference);
+        throw new NotImplementedException();
     }
-
 }

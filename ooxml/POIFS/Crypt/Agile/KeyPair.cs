@@ -14,33 +14,32 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 ==================================================================== */
-namespace NPOI.POIFS.Crypt.Agile
+namespace NPOI.POIFS.Crypt.Agile;
+
+public class KeyPair
 {
-    public class KeyPair
+    private IPrivateKey privateKey;
+    private IPublicKey publicKey;
+    public KeyPair(IPublicKey publicKey, IPrivateKey privateKey)
     {
-        private IPrivateKey privateKey;
-        private IPublicKey publicKey;
-        public KeyPair(IPublicKey publicKey, IPrivateKey privateKey)
-        {
-            this.publicKey = publicKey;
-            this.privateKey = privateKey;
-        }
-        public IPublicKey getPublic()
-        {
-            return publicKey;
-        }
-        public IPrivateKey getPrivate()
-        {
-            return privateKey;
-        }
+        this.publicKey = publicKey;
+        this.privateKey = privateKey;
     }
-    
-    public interface IPrivateKey: IKey
+    public IPublicKey getPublic()
     {
+        return publicKey;
+    }
+    public IPrivateKey getPrivate()
+    {
+        return privateKey;
+    }
+}
 
-    }
-    public interface IPublicKey : IKey
-    {
+public interface IPrivateKey: IKey
+{
 
-    }
+}
+public interface IPublicKey : IKey
+{
+
 }

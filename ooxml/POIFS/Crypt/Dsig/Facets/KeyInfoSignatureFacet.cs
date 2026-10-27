@@ -22,117 +22,116 @@
    Copyright (C) 2008-2014 FedICT.
    ================================================================= */
 
-namespace NPOI.POIFS.Crypt.Dsig.Facets
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Xml;
+namespace NPOI.POIFS.Crypt.Dsig.Facets;
 
-    /**
+using System;
+using System.Collections.Generic;
+using System.Xml;
+
+/**
 * Signature Facet implementation that Adds ds:KeyInfo to the XML signature.
 * 
 * @author Frank Cornelis
 * 
 */
-    public class KeyInfoSignatureFacet : SignatureFacet
+public class KeyInfoSignatureFacet : SignatureFacet
+{
+
+
+    public override void postSign(XmlDocument document)
     {
+        throw new NotImplementedException();
 
+        //XmlNodeList nl = document.GetElementsByTagNameNS(XML_DIGSIG_NS, "Object");
 
-        public override void postSign(XmlDocument document)
-        {
-            throw new NotImplementedException();
+        ///*
+        // * Make sure we insert right After the ds:SignatureValue element, just
+        // * before the first ds:Object element.
+        // */
+        //XmlNode nextSibling = (nl.Count == 0) ? null : nl.Item(0);
 
-            //XmlNodeList nl = document.GetElementsByTagNameNS(XML_DIGSIG_NS, "Object");
+        ///*
+        // * Construct the ds:KeyInfo element using JSR 105.
+        // */
+        //KeyInfoFactory keyInfoFactory = signatureConfig.KeyInfoFactory;
+        //List<Object> x509DataObjects = new List<Object>();
+        //X509Certificate signingCertificate = signatureConfig.SigningCertificateChain.Get(0);
 
-            ///*
-            // * Make sure we insert right After the ds:SignatureValue element, just
-            // * before the first ds:Object element.
-            // */
-            //XmlNode nextSibling = (nl.Count == 0) ? null : nl.Item(0);
+        //List<Object> keyInfoContent = new List<Object>();
 
-            ///*
-            // * Construct the ds:KeyInfo element using JSR 105.
-            // */
-            //KeyInfoFactory keyInfoFactory = signatureConfig.KeyInfoFactory;
-            //List<Object> x509DataObjects = new List<Object>();
-            //X509Certificate signingCertificate = signatureConfig.SigningCertificateChain.Get(0);
+        //if (signatureConfig.IsIncludeKeyValue())
+        //{
+        //    KeyValue keyValue;
+        //    try
+        //    {
+        //        keyValue = keyInfoFactory.NewKeyValue(signingCertificate.PublicKey);
+        //    }
+        //    catch (KeyException e)
+        //    {
+        //        throw new Exception("key exception: " + e.Message, e);
+        //    }
+        //    keyInfoContent.Add(keyValue);
+        //}
 
-            //List<Object> keyInfoContent = new List<Object>();
+        //if (signatureConfig.IsIncludeIssuerSerial())
+        //{
+        //    x509DataObjects.Add(keyInfoFactory.NewX509IssuerSerial(
+        //        signingCertificate.IssuerX500Principal.ToString(),
+        //        signingCertificate.SerialNumber));
+        //}
 
-            //if (signatureConfig.IsIncludeKeyValue())
-            //{
-            //    KeyValue keyValue;
-            //    try
-            //    {
-            //        keyValue = keyInfoFactory.NewKeyValue(signingCertificate.PublicKey);
-            //    }
-            //    catch (KeyException e)
-            //    {
-            //        throw new Exception("key exception: " + e.Message, e);
-            //    }
-            //    keyInfoContent.Add(keyValue);
-            //}
+        //if (signatureConfig.IsIncludeEntireCertificateChain())
+        //{
+        //    x509DataObjects.AddAll(signatureConfig.SigningCertificateChain);
+        //}
+        //else
+        //{
+        //    x509DataObjects.Add(signingCertificate);
+        //}
 
-            //if (signatureConfig.IsIncludeIssuerSerial())
-            //{
-            //    x509DataObjects.Add(keyInfoFactory.NewX509IssuerSerial(
-            //        signingCertificate.IssuerX500Principal.ToString(),
-            //        signingCertificate.SerialNumber));
-            //}
+        //if (!x509DataObjects.IsEmpty())
+        //{
+        //    X509Data x509Data = keyInfoFactory.NewX509Data(x509DataObjects);
+        //    keyInfoContent.Add(x509Data);
+        //}
+        //KeyInfo keyInfo = keyInfoFactory.NewKeyInfo(keyInfoContent);
+        //DOMKeyInfo domKeyInfo = (DOMKeyInfo)keyInfo;
 
-            //if (signatureConfig.IsIncludeEntireCertificateChain())
-            //{
-            //    x509DataObjects.AddAll(signatureConfig.SigningCertificateChain);
-            //}
-            //else
-            //{
-            //    x509DataObjects.Add(signingCertificate);
-            //}
+        //Key key = new Key() {
+        //    private static long serialVersionUID = 1L;
 
-            //if (!x509DataObjects.IsEmpty())
-            //{
-            //    X509Data x509Data = keyInfoFactory.NewX509Data(x509DataObjects);
-            //    keyInfoContent.Add(x509Data);
-            //}
-            //KeyInfo keyInfo = keyInfoFactory.NewKeyInfo(keyInfoContent);
-            //DOMKeyInfo domKeyInfo = (DOMKeyInfo)keyInfo;
+        //    public String GetAlgorithm() {
+        //        return null;
+        //    }
 
-            //Key key = new Key() {
-            //    private static long serialVersionUID = 1L;
+        //    public byte[] GetEncoded() {
+        //        return null;
+        //    }
 
-            //    public String GetAlgorithm() {
-            //        return null;
-            //    }
+        //    public String GetFormat() {
+        //        return null;
+        //    }
+        //};
 
-            //    public byte[] GetEncoded() {
-            //        return null;
-            //    }
+        //Element n = document.DocumentElement;
+        //DOMSignContext domSignContext = new DOMSignContext(key, n, nextSibling);
+        //foreach (Entry<String, String> me in signatureConfig.NamespacePrefixes.EntrySet())
+        //{
+        //    domSignContext.PutNamespacePrefix(me.Key, me.Value);
+        //}
 
-            //    public String GetFormat() {
-            //        return null;
-            //    }
-            //};
+        //DOMStructure domStructure = new DOMStructure(n);
+        //domKeyInfo.Marshal(domStructure, domSignContext);
 
-            //Element n = document.DocumentElement;
-            //DOMSignContext domSignContext = new DOMSignContext(key, n, nextSibling);
-            //foreach (Entry<String, String> me in signatureConfig.NamespacePrefixes.EntrySet())
-            //{
-            //    domSignContext.PutNamespacePrefix(me.Key, me.Value);
-            //}
-
-            //DOMStructure domStructure = new DOMStructure(n);
-            //domKeyInfo.Marshal(domStructure, domSignContext);
-
-            //// Move keyinfo into the right place
-            //if (nextSibling != null)
-            //{
-            //    NodeList kiNl = document.GetElementsByTagNameNS(XML_DIGSIG_NS, "KeyInfo");
-            //    if (kiNl.Length != 1)
-            //    {
-            //        throw new Exception("KeyInfo wasn't Set");
-            //    }
-            //    nextSibling.ParentNode.InsertBefore(kiNl.Item(0), nextSibling);
-            //}
-        }
+        //// Move keyinfo into the right place
+        //if (nextSibling != null)
+        //{
+        //    NodeList kiNl = document.GetElementsByTagNameNS(XML_DIGSIG_NS, "KeyInfo");
+        //    if (kiNl.Length != 1)
+        //    {
+        //        throw new Exception("KeyInfo wasn't Set");
+        //    }
+        //    nextSibling.ParentNode.InsertBefore(kiNl.Item(0), nextSibling);
+        //}
     }
 }

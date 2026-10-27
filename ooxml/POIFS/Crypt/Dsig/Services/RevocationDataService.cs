@@ -22,33 +22,33 @@
    Copyright (C) 2008-2014 FedICT.
    ================================================================= */
 
-namespace NPOI.POIFS.Crypt.Dsig.Services
+using System;
+using System.Collections.Generic;
+using System.Security.Cryptography.X509Certificates;
+
+namespace NPOI.POIFS.Crypt.Dsig.Services;
+
+
+
+
+
+
+/**
+ * Interface for a service that retrieves revocation data about some given
+ * certificate chain.
+ * 
+ * @author Frank Cornelis
+ * 
+ */
+public interface IRevocationDataService
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Security.Cryptography.X509Certificates;
-
-
-
 
     /**
-     * Interface for a service that retrieves revocation data about some given
-     * certificate chain.
+     * Gives back the revocation data corresponding with the given certificate
+     * chain.
      * 
-     * @author Frank Cornelis
-     * 
+     * @param certificateChain the certificate chain
+     * @return the revocation data corresponding with the given certificate chain.
      */
-    public interface IRevocationDataService
-    {
-
-        /**
-         * Gives back the revocation data corresponding with the given certificate
-         * chain.
-         * 
-         * @param certificateChain the certificate chain
-         * @return the revocation data corresponding with the given certificate chain.
-         */
-        RevocationData GetRevocationData(List<X509Certificate> certificateChain);
-    }
-
+    RevocationData GetRevocationData(List<X509Certificate> certificateChain);
 }

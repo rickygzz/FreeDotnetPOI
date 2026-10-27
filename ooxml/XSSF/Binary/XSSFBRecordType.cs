@@ -17,109 +17,101 @@
 
 
 using EnumsNET;
-using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.IO;
-using System.Text;
 
-namespace NPOI.XSSF.Binary
+namespace NPOI.XSSF.Binary;
+
+/// <summary>
+/// </summary>
+/// @since 3.16-beta3
+public enum XSSFBRecordType
 {
+    BrtCellBlank = 1,
+    BrtCellRk = 2,
+    BrtCellError = 3,
+    BrtCellBool = 4,
+    BrtCellReal = 5,
+    BrtCellSt = 6,
+    BrtCellIsst = 7,
+    BrtFmlaString = 8,
+    BrtFmlaNum = 9,
+    BrtFmlaBool = 10,
+    BrtFmlaError = 11,
+    BrtRowHdr = 0,
+    BrtCellRString = 62,
+    BrtBeginSheet = 129,
+    BrtWsProp = 147,
+    BrtWsDim = 148,
+    BrtColInfo = 60,
+    BrtBeginSheetData = 145,
+    BrtEndSheetData = 146,
+    BrtHLink = 494,
+    BrtBeginHeaderFooter = 479,
 
-    using NPOI.Util;
+    //comments
+    BrtBeginCommentAuthors = 630,
+    BrtEndCommentAuthors = 631,
+    BrtCommentAuthor = 632,
+    BrtBeginComment = 635,
+    BrtCommentText = 637,
+    BrtEndComment = 636,
 
-    /// <summary>
-    /// </summary>
-    /// @since 3.16-beta3
-    public enum XSSFBRecordType
+    //styles table
+    BrtXf = 47,
+    BrtFmt = 44,
+    BrtBeginFmts = 615,
+    BrtEndFmts = 616,
+    BrtBeginCellXFs = 617,
+    BrtEndCellXFs = 618,
+    BrtBeginCellStyleXFS = 626,
+    BrtEndCellStyleXFS = 627,
+
+    //stored strings table
+    BrtSstItem = 19, //stored strings items
+    BrtBeginSst = 159, //stored strings begin sst
+    BrtEndSst = 160, //stored strings end sst
+
+    BrtBundleSh = 156, //defines worksheet in wb part
+
+    BrtAbsPath15 = 2071, //Excel 2013 path where the file was stored in wbpart
+
+    //TODO -- implement these as needed
+    //BrtFileVersion = 128, //file version
+    //BrtWbProp = 153, //Workbook prop contains 1904/1900-date based bit
+    Unimplemented = -1
+}
+
+public class XSSFBRecordTypeClass
+{
+    private static  Dictionary<int, XSSFBRecordType> TYPE_MAP =
+        new Dictionary<int, XSSFBRecordType>();
+
+    static XSSFBRecordTypeClass()
     {
-        BrtCellBlank = 1,
-        BrtCellRk = 2,
-        BrtCellError = 3,
-        BrtCellBool = 4,
-        BrtCellReal = 5,
-        BrtCellSt = 6,
-        BrtCellIsst = 7,
-        BrtFmlaString = 8,
-        BrtFmlaNum = 9,
-        BrtFmlaBool = 10,
-        BrtFmlaError = 11,
-        BrtRowHdr = 0,
-        BrtCellRString = 62,
-        BrtBeginSheet = 129,
-        BrtWsProp = 147,
-        BrtWsDim = 148,
-        BrtColInfo = 60,
-        BrtBeginSheetData = 145,
-        BrtEndSheetData = 146,
-        BrtHLink = 494,
-        BrtBeginHeaderFooter = 479,
-
-        //comments
-        BrtBeginCommentAuthors = 630,
-        BrtEndCommentAuthors = 631,
-        BrtCommentAuthor = 632,
-        BrtBeginComment = 635,
-        BrtCommentText = 637,
-        BrtEndComment = 636,
-
-        //styles table
-        BrtXf = 47,
-        BrtFmt = 44,
-        BrtBeginFmts = 615,
-        BrtEndFmts = 616,
-        BrtBeginCellXFs = 617,
-        BrtEndCellXFs = 618,
-        BrtBeginCellStyleXFS = 626,
-        BrtEndCellStyleXFS = 627,
-
-        //stored strings table
-        BrtSstItem = 19, //stored strings items
-        BrtBeginSst = 159, //stored strings begin sst
-        BrtEndSst = 160, //stored strings end sst
-
-        BrtBundleSh = 156, //defines worksheet in wb part
-
-        BrtAbsPath15 = 2071, //Excel 2013 path where the file was stored in wbpart
-
-        //TODO -- implement these as needed
-        //BrtFileVersion = 128, //file version
-        //BrtWbProp = 153, //Workbook prop contains 1904/1900-date based bit
-        Unimplemented = -1
+        foreach(XSSFBRecordType type in Enums.GetValues<XSSFBRecordType>())
+        {
+            TYPE_MAP[(int) type] = type;
+        }
     }
 
-    public class XSSFBRecordTypeClass
+    private  int id;
+
+    public XSSFBRecordTypeClass(int id)
     {
-        private static  Dictionary<int, XSSFBRecordType> TYPE_MAP =
-            new Dictionary<int, XSSFBRecordType>();
-
-        static XSSFBRecordTypeClass()
-        {
-            foreach(XSSFBRecordType type in Enums.GetValues<XSSFBRecordType>())
-            {
-                TYPE_MAP[(int) type] = type;
-            }
-        }
-
-        private  int id;
-
-        public XSSFBRecordTypeClass(int id)
-        {
-            this.id = id;
-        }
-
-        public int GetId()
-        {
-            return id;
-        }
-
-        public static XSSFBRecordType Lookup(int id)
-        {
-            XSSFBRecordType type = TYPE_MAP.TryGetValue(id, out XSSFBRecordType value) ? value : XSSFBRecordType.Unimplemented;
-
-            return type;
-        }
-
+        this.id = id;
     }
+
+    public int GetId()
+    {
+        return id;
+    }
+
+    public static XSSFBRecordType Lookup(int id)
+    {
+        XSSFBRecordType type = TYPE_MAP.TryGetValue(id, out XSSFBRecordType value) ? value : XSSFBRecordType.Unimplemented;
+
+        return type;
+    }
+
 }
 

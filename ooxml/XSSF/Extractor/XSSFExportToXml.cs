@@ -15,598 +15,597 @@
    limitations under the License.
 ==================================================================== */
 
-using System;
-using NPOI.XSSF.UserModel;
-using System.Xml;
-using System.Collections.Generic;
-using System.IO;
-using NPOI.XSSF.UserModel.Helpers;
-using System.Text.RegularExpressions;
-using NPOI.OpenXmlFormats.Spreadsheet;
 using NPOI.SS.UserModel;
-using System.Text;
 using NPOI.SS.Util;
 using NPOI.Util;
-namespace NPOI.XSSF.Extractor
+using NPOI.XSSF.UserModel;
+using NPOI.XSSF.UserModel.Helpers;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Xml;
+
+namespace NPOI.XSSF.Extractor;
+
+
+/**
+ *
+ * Maps an XLSX to an XML according to one of the mapping defined.
+ *
+ *
+ * The output XML Schema must respect this limitations:
+ *
+ * <ul>
+ * <li> all mandatory elements and attributes must be mapped (enable validation to check this)</li>
+ *
+ * <li> no &lt;any&gt; in complex type/element declaration </li>
+ * <li> no &lt;anyAttribute&gt; attributes declaration </li>
+ * <li> no recursive structures: recursive structures can't be nested more than one level </li>
+ * <li> no abstract elements: abstract complex types can be declared but must not be used in elements. </li>
+ * <li> no mixed content: an element can't contain simple text and child element(s) together </li>
+ * <li> no &lt;substitutionGroup&gt; in complex type/element declaration </li>
+ * </ul>
+ */
+public class XSSFExportToXml : IComparer<String>
 {
+
+    private readonly XSSFMap map;
+
+    /**
+     * Creates a new exporter and Sets the mapping to be used when generating the XML output document
+     *
+     * @param map the mapping rule to be used
+     */
+    public XSSFExportToXml(XSSFMap map)
+    {
+        this.map = map;
+    }
 
     /**
      *
-     * Maps an XLSX to an XML according to one of the mapping defined.
+     * Exports the data in an XML stream
      *
-     *
-     * The output XML Schema must respect this limitations:
-     *
-     * <ul>
-     * <li> all mandatory elements and attributes must be mapped (enable validation to check this)</li>
-     *
-     * <li> no &lt;any&gt; in complex type/element declaration </li>
-     * <li> no &lt;anyAttribute&gt; attributes declaration </li>
-     * <li> no recursive structures: recursive structures can't be nested more than one level </li>
-     * <li> no abstract elements: abstract complex types can be declared but must not be used in elements. </li>
-     * <li> no mixed content: an element can't contain simple text and child element(s) together </li>
-     * <li> no &lt;substitutionGroup&gt; in complex type/element declaration </li>
-     * </ul>
+     * @param os OutputStream in which will contain the output XML
+     * @param validate if true, validates the XML againts the XML Schema
+     * @throws SAXException
+     * @throws TransformerException  
+     * @throws ParserConfigurationException 
      */
-    public class XSSFExportToXml : IComparer<String>
+    public void ExportToXML(Stream os, bool validate)
     {
+        ExportToXML(os, "UTF-8", validate);
+    }
 
-        private readonly XSSFMap map;
+    private static XmlDocument GetEmptyDocument()
+    {
+        return new XmlDocument();
+    }
 
-        /**
-         * Creates a new exporter and Sets the mapping to be used when generating the XML output document
-         *
-         * @param map the mapping rule to be used
-         */
-        public XSSFExportToXml(XSSFMap map)
+    /**
+     * Exports the data in an XML stream
+     *
+     * @param os OutputStream in which will contain the output XML
+     * @param encoding the output charset encoding
+     * @param validate if true, validates the XML againts the XML Schema
+     * @throws SAXException
+     * @throws ParserConfigurationException 
+     * @throws TransformerException 
+     * @throws InvalidFormatException
+     */
+    public void ExportToXML(Stream os, String encoding, bool validate)
+    {
+        List<XSSFSingleXmlCell> SingleXMLCells = map.GetRelatedSingleXMLCell();
+        List<XSSFTable> tables = map.GetRelatedTables();
+
+        String rootElement = map.GetCTMap().RootElement;
+
+        XmlDocument doc = GetEmptyDocument();
+
+
+        XmlElement root = null;
+
+        if (IsNamespaceDeclared())
         {
-            this.map = map;
+            root = doc.CreateElement(rootElement,this.GetNamespace());
+        }
+        else
+        {
+            root = doc.CreateElement(rootElement);
+        }
+        doc.AppendChild(root);
+
+
+        List<String> xpaths = new List<String>();
+        Dictionary<String, XSSFSingleXmlCell> SingleXmlCellsMappings = new Dictionary<String, XSSFSingleXmlCell>();
+        Dictionary<String, XSSFTable> tableMappings = new Dictionary<String, XSSFTable>();
+
+        foreach (XSSFSingleXmlCell simpleXmlCell in SingleXMLCells)
+        {
+            xpaths.Add(simpleXmlCell.GetXpath());
+            SingleXmlCellsMappings[simpleXmlCell.GetXpath()] = simpleXmlCell;
+        }
+        foreach (XSSFTable table in tables)
+        {
+            String commonXPath = table.GetCommonXpath();
+            xpaths.Add(commonXPath);
+            tableMappings[commonXPath]=table;
         }
 
-        /**
-         *
-         * Exports the data in an XML stream
-         *
-         * @param os OutputStream in which will contain the output XML
-         * @param validate if true, validates the XML againts the XML Schema
-         * @throws SAXException
-         * @throws TransformerException  
-         * @throws ParserConfigurationException 
-         */
-        public void ExportToXML(Stream os, bool validate)
+
+        xpaths.Sort();
+
+        foreach (String xpath in xpaths)
         {
-            ExportToXML(os, "UTF-8", validate);
-        }
 
-        private static XmlDocument GetEmptyDocument()
-        {
-            return new XmlDocument();
-        }
+            XSSFSingleXmlCell simpleXmlCell;
+            if (SingleXmlCellsMappings.TryGetValue(xpath, out XSSFSingleXmlCell mapping))
+                simpleXmlCell = mapping;
+            else
+                simpleXmlCell=null;
+            XSSFTable table;
+            if (tableMappings.TryGetValue(xpath, out XSSFTable tableMapping))
+                table = tableMapping;
+            else
+                table = null;
 
-        /**
-         * Exports the data in an XML stream
-         *
-         * @param os OutputStream in which will contain the output XML
-         * @param encoding the output charset encoding
-         * @param validate if true, validates the XML againts the XML Schema
-         * @throws SAXException
-         * @throws ParserConfigurationException 
-         * @throws TransformerException 
-         * @throws InvalidFormatException
-         */
-        public void ExportToXML(Stream os, String encoding, bool validate)
-        {
-            List<XSSFSingleXmlCell> SingleXMLCells = map.GetRelatedSingleXMLCell();
-            List<XSSFTable> tables = map.GetRelatedTables();
-
-            String rootElement = map.GetCTMap().RootElement;
-
-            XmlDocument doc = GetEmptyDocument();
-
-
-            XmlElement root = null;
-
-            if (IsNamespaceDeclared())
+            if (!Regex.IsMatch(xpath, ".*\\[.*"))
             {
-                root = doc.CreateElement(rootElement,this.GetNamespace());
+
+                // Exports elements and attributes mapped with simpleXmlCell
+                if (simpleXmlCell != null)
+                {
+                    XSSFCell cell = (XSSFCell)simpleXmlCell.GetReferencedCell();
+                    if (cell != null)
+                    {
+                        XmlNode currentNode = GetNodeByXPath(xpath, doc.FirstChild, doc, false);
+                        XSSFExportToXml.mapCellOnNode(cell, currentNode);
+                    }
+                }
+
+                // Exports elements and attributes mapped with tables
+                if (table != null)
+                {
+
+                    List<XSSFTableColumn> tableColumns = table.GetColumns();
+
+                    XSSFSheet sheet = table.GetXSSFSheet();
+
+                    int startRow = table.StartCellReference.Row;
+                    // In mappings Created with Microsoft Excel the first row Contains the table header and must be Skipped
+                    startRow += 1;
+
+                    int endRow = table.EndCellReference.Row;
+
+                    for (int i = startRow; i <= endRow; i++)
+                    {
+                        XSSFRow row = (XSSFRow)sheet.GetRow(i);
+
+                        XmlNode tableRootNode = GetNodeByXPath(table.GetCommonXpath(), doc.FirstChild, doc, true);
+
+                        short startColumnIndex = table.StartCellReference.Col;
+
+                        foreach (XSSFTableColumn tableColumn in tableColumns)
+                        {
+                            XSSFCell cell = (XSSFCell)row.GetCell(startColumnIndex + tableColumn.ColumnIndex);
+                            if (cell != null)
+                            {
+                                XSSFXmlColumnPr xmlColumnPr = tableColumn.GetXmlColumnPr();
+                                if (xmlColumnPr != null)
+                                {
+                                    String localXPath = xmlColumnPr.LocalXPath;
+                                    XmlNode currentNode = GetNodeByXPath(localXPath,tableRootNode,doc,false);
+                                    mapCellOnNode(cell, currentNode);
+                                }
+                            }
+                        }
+
+                    }
+
+                }
             }
             else
             {
-                root = doc.CreateElement(rootElement);
-            }
-            doc.AppendChild(root);
-
-
-            List<String> xpaths = new List<String>();
-            Dictionary<String, XSSFSingleXmlCell> SingleXmlCellsMappings = new Dictionary<String, XSSFSingleXmlCell>();
-            Dictionary<String, XSSFTable> tableMappings = new Dictionary<String, XSSFTable>();
-
-            foreach (XSSFSingleXmlCell simpleXmlCell in SingleXMLCells)
-            {
-                xpaths.Add(simpleXmlCell.GetXpath());
-                SingleXmlCellsMappings[simpleXmlCell.GetXpath()] = simpleXmlCell;
-            }
-            foreach (XSSFTable table in tables)
-            {
-                String commonXPath = table.GetCommonXpath();
-                xpaths.Add(commonXPath);
-                tableMappings[commonXPath]=table;
-            }
-
-
-            xpaths.Sort();
-
-            foreach (String xpath in xpaths)
-            {
-
-                XSSFSingleXmlCell simpleXmlCell;
-                if (SingleXmlCellsMappings.TryGetValue(xpath, out XSSFSingleXmlCell mapping))
-                    simpleXmlCell = mapping;
-                else
-                    simpleXmlCell=null;
-                XSSFTable table;
-                if (tableMappings.TryGetValue(xpath, out XSSFTable tableMapping))
-                    table = tableMapping;
-                else
-                    table = null;
-
-                if (!Regex.IsMatch(xpath, ".*\\[.*"))
-                {
-
-                    // Exports elements and attributes mapped with simpleXmlCell
-                    if (simpleXmlCell != null)
-                    {
-                        XSSFCell cell = (XSSFCell)simpleXmlCell.GetReferencedCell();
-                        if (cell != null)
-                        {
-                            XmlNode currentNode = GetNodeByXPath(xpath, doc.FirstChild, doc, false);
-                            XSSFExportToXml.mapCellOnNode(cell, currentNode);
-                        }
-                    }
-
-                    // Exports elements and attributes mapped with tables
-                    if (table != null)
-                    {
-
-                        List<XSSFTableColumn> tableColumns = table.GetColumns();
-
-                        XSSFSheet sheet = table.GetXSSFSheet();
-
-                        int startRow = table.StartCellReference.Row;
-                        // In mappings Created with Microsoft Excel the first row Contains the table header and must be Skipped
-                        startRow += 1;
-
-                        int endRow = table.EndCellReference.Row;
-
-                        for (int i = startRow; i <= endRow; i++)
-                        {
-                            XSSFRow row = (XSSFRow)sheet.GetRow(i);
-
-                            XmlNode tableRootNode = GetNodeByXPath(table.GetCommonXpath(), doc.FirstChild, doc, true);
-
-                            short startColumnIndex = table.StartCellReference.Col;
-
-                            foreach (XSSFTableColumn tableColumn in tableColumns)
-                            {
-                                XSSFCell cell = (XSSFCell)row.GetCell(startColumnIndex + tableColumn.ColumnIndex);
-                                if (cell != null)
-                                {
-                                    XSSFXmlColumnPr xmlColumnPr = tableColumn.GetXmlColumnPr();
-                                    if (xmlColumnPr != null)
-                                    {
-                                        String localXPath = xmlColumnPr.LocalXPath;
-                                        XmlNode currentNode = GetNodeByXPath(localXPath,tableRootNode,doc,false);
-                                        mapCellOnNode(cell, currentNode);
-                                    }
-                                }
-                            }
-
-                        }
-
-                    }
-                }
-                else
-                {
-                    // TODO:  implement filtering management in xpath
-                }
-            }
-
-            bool isValid = true;
-            if (validate)
-            {
-                isValid = IsValid(doc);
-            }
-
-
-
-            if (isValid)
-            {
-
-                /////////////////
-                //Output the XML
-                XmlWriterSettings settings = new XmlWriterSettings();
-                settings.OmitXmlDeclaration = true;
-                settings.Indent=true;
-                settings.Encoding=Encoding.GetEncoding(encoding);
-                //create string from xml tree
-                using (XmlWriter xmlWriter = XmlWriter.Create(os, settings))
-                {
-                    doc.WriteTo(xmlWriter);
-                }
+                // TODO:  implement filtering management in xpath
             }
         }
 
-
-        /**
-         * Validate the generated XML against the XML Schema associated with the XSSFMap
-         *
-         * @param xml the XML to validate
-         * @return
-         */
-        private static bool IsValid(XmlDocument xml)
+        bool isValid = true;
+        if (validate)
         {
-            //bool isValid = false;
-            //try
-            //{
-            //    String language = "http://www.w3.org/2001/XMLSchema";
-            //    SchemaFactory factory = SchemaFactory.newInstance(language);
-
-            //    Source source = new DOMSource(map.GetSchema());
-            //    Schema schema = factory.newSchema(source);
-            //    XmlValidator validator = schema.newValidator();
-            //    validator.validate(new DOMSource(xml));
-            //    //if no exceptions where raised, the document is valid
-            //    isValid = true;
-
-
-            //}
-            //catch (IOException e)
-            //{
-            //    e.printStackTrace();
-            //}
-            //return isValid;
-            return true;
+            isValid = IsValid(doc);
         }
 
 
-        private static void mapCellOnNode(XSSFCell cell, XmlNode node)
+
+        if (isValid)
         {
 
-            String value = "";
-            switch (cell.CellType)
+            /////////////////
+            //Output the XML
+            XmlWriterSettings settings = new XmlWriterSettings();
+            settings.OmitXmlDeclaration = true;
+            settings.Indent=true;
+            settings.Encoding=Encoding.GetEncoding(encoding);
+            //create string from xml tree
+            using (XmlWriter xmlWriter = XmlWriter.Create(os, settings))
             {
+                doc.WriteTo(xmlWriter);
+            }
+        }
+    }
 
-                case CellType.String: value = cell.StringCellValue; break;
-                case CellType.Boolean: value += cell.BooleanCellValue; break;
-                case CellType.Error: value = cell.ErrorCellString; break;
-                case CellType.Formula:
-                    if(cell.CachedFormulaResultType== CellType.String)
-                    {
-                        value = cell.StringCellValue;
-                    }
-                    else
-                    {
-                        if(DateUtil.IsCellDateFormatted(cell))
-                        {
-                            value = XSSFExportToXml.GetFormattedDate(cell);
-                        }
-                        else if(cell.CachedFormulaResultType== CellType.Numeric)
-                        {
-                            value=cell.GetRawValue();
-                        }
-                        else
-                        {
-                            value+= cell.StringCellValue;
-                        }
-                    }
-                    break;
-                case CellType.Numeric:
+
+    /**
+     * Validate the generated XML against the XML Schema associated with the XSSFMap
+     *
+     * @param xml the XML to validate
+     * @return
+     */
+    private static bool IsValid(XmlDocument xml)
+    {
+        //bool isValid = false;
+        //try
+        //{
+        //    String language = "http://www.w3.org/2001/XMLSchema";
+        //    SchemaFactory factory = SchemaFactory.newInstance(language);
+
+        //    Source source = new DOMSource(map.GetSchema());
+        //    Schema schema = factory.newSchema(source);
+        //    XmlValidator validator = schema.newValidator();
+        //    validator.validate(new DOMSource(xml));
+        //    //if no exceptions where raised, the document is valid
+        //    isValid = true;
+
+
+        //}
+        //catch (IOException e)
+        //{
+        //    e.printStackTrace();
+        //}
+        //return isValid;
+        return true;
+    }
+
+
+    private static void mapCellOnNode(XSSFCell cell, XmlNode node)
+    {
+
+        String value = "";
+        switch (cell.CellType)
+        {
+
+            case CellType.String: value = cell.StringCellValue; break;
+            case CellType.Boolean: value += cell.BooleanCellValue; break;
+            case CellType.Error: value = cell.ErrorCellString; break;
+            case CellType.Formula:
+                if(cell.CachedFormulaResultType== CellType.String)
+                {
+                    value = cell.StringCellValue;
+                }
+                else
+                {
                     if(DateUtil.IsCellDateFormatted(cell))
                     {
                         value = XSSFExportToXml.GetFormattedDate(cell);
                     }
-                    else
+                    else if(cell.CachedFormulaResultType== CellType.Numeric)
                     {
-                        value+=cell.GetRawValue();
-                    }
-                    break;
-                default:
-                    break;
-            }
-            if (node is XmlElement currentElement)
-            {
-                currentElement.InnerText = value;
-            }
-            else
-            {
-                node.Value = value;
-            }
-        }
-
-        private static String RemoveNamespace(String elementName)
-        {
-            return Regex.IsMatch(elementName,".*:.*") ? elementName.Split(':')[1] : elementName;
-        }
-
-        private static String GetFormattedDate(XSSFCell cell)
-        {
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-            sdf.TimeZone= LocaleUtil.GetUserTimeZoneInfo();
-            return sdf.Format(cell.DateCellValue);
-        }
-
-        private XmlNode GetNodeByXPath(String xpath, XmlNode rootNode, XmlDocument doc, bool CreateMultipleInstances)
-        {
-            String[] xpathTokens = xpath.Split('/');
-
-
-            XmlNode currentNode = rootNode;
-            // The first token is empty, the second is the root node
-            for (int i = 2; i < xpathTokens.Length; i++)
-            {
-
-                String axisName = RemoveNamespace(xpathTokens[i]);
-
-
-                if (!axisName.StartsWith('@'))
-                {
-
-                    XmlNodeList list = currentNode.ChildNodes;
-
-                    XmlNode selectedNode = null;
-                    if (!(CreateMultipleInstances && i == xpathTokens.Length - 1))
-                    {
-                        // select the last child node only if we need to map to a single cell
-                        selectedNode = selectNode(axisName, list);
-                    }
-                    if (selectedNode == null)
-                    {
-                        selectedNode = CreateElement(doc, currentNode, axisName);
-                    }
-                    currentNode = selectedNode;
-                }
-                else
-                {
-
-
-                    XmlNode attribute = CreateAttribute(doc, currentNode, axisName);
-
-                    currentNode = attribute;
-                }
-            }
-            return currentNode;
-        }
-
-        private static XmlNode CreateAttribute(XmlDocument doc, XmlNode currentNode, String axisName)
-        {
-            String attributeName = axisName.Substring(1);
-            XmlAttributeCollection attributesMap = currentNode.Attributes;
-            XmlNode attribute = attributesMap.GetNamedItem(attributeName);
-            if (attribute == null)
-            {
-                attribute = doc.CreateAttribute(attributeName);
-                attributesMap.SetNamedItem(attribute);
-            }
-            return attribute;
-        }
-
-        private XmlNode CreateElement(XmlDocument doc, XmlNode currentNode, String axisName)
-        {
-            XmlNode selectedNode;
-            if (IsNamespaceDeclared())
-            {
-                selectedNode = doc.CreateElement(axisName, this.GetNamespace());
-            }
-            else
-            {
-                selectedNode = doc.CreateElement(axisName);
-            }
-            currentNode.AppendChild(selectedNode);
-            return selectedNode;
-        }
-
-        private static XmlNode selectNode(String axisName, XmlNodeList list)
-        {
-            XmlNode selectedNode = null;
-            for (int j = 0; j < list.Count; j++)
-            {
-                XmlNode node = list[j];
-                if (node.Name.Equals(axisName))
-                {
-                    selectedNode = node;
-                    break;
-                }
-            }
-            return selectedNode;
-        }
-
-
-        private bool IsNamespaceDeclared()
-        {
-            String schemaNamespace = GetNamespace();
-            return schemaNamespace != null && !schemaNamespace.Equals("");
-        }
-
-        private String GetNamespace()
-        {
-            return map.GetCTSchema().Namespace;
-        }
-
-
-        /**
-         * Compares two xpaths to define an ordering according to the XML Schema
-         *
-         */
-        public int Compare(String leftXpath, String rightXpath)
-        {
-
-            int result = 0;
-            string xmlSchema = map.GetSchema();
-            XmlDocument doc = new XmlDocument();
-            doc.LoadXml(xmlSchema);
-
-
-            String[] leftTokens = leftXpath.Split('/');
-            String[] rightTokens = rightXpath.Split('/');
-
-            int minLength = leftTokens.Length < rightTokens.Length ? leftTokens.Length : rightTokens.Length;
-
-            XmlNode localComplexTypeRootNode = doc.DocumentElement;
-
-
-            for (int i = 1; i < minLength; i++)
-            {
-
-                String leftElementName = leftTokens[i];
-                String rightElementName = rightTokens[i];
-
-                if (leftElementName.Equals(rightElementName))
-                {
-                    localComplexTypeRootNode = GetComplexTypeForElement(leftElementName,doc.DocumentElement, localComplexTypeRootNode);
-                }
-                else
-                {
-                    int leftIndex = XSSFExportToXml.IndexOfElementInComplexType(leftElementName, localComplexTypeRootNode);
-                    int rightIndex = XSSFExportToXml.IndexOfElementInComplexType(rightElementName, localComplexTypeRootNode);
-                    if (leftIndex != -1 && rightIndex != -1)
-                    {
-                        if (leftIndex < rightIndex)
-                        {
-                            result = -1;
-                        } if (leftIndex > rightIndex)
-                        {
-                            result = 1;
-                        }
+                        value=cell.GetRawValue();
                     }
                     else
                     {
-                        // NOTE: the xpath doesn't match correctly in the schema
+                        value+= cell.StringCellValue;
                     }
                 }
-            }
+                break;
+            case CellType.Numeric:
+                if(DateUtil.IsCellDateFormatted(cell))
+                {
+                    value = XSSFExportToXml.GetFormattedDate(cell);
+                }
+                else
+                {
+                    value+=cell.GetRawValue();
+                }
+                break;
+            default:
+                break;
+        }
+        if (node is XmlElement currentElement)
+        {
+            currentElement.InnerText = value;
+        }
+        else
+        {
+            node.Value = value;
+        }
+    }
 
-            return result;
+    private static String RemoveNamespace(String elementName)
+    {
+        return Regex.IsMatch(elementName,".*:.*") ? elementName.Split(':')[1] : elementName;
+    }
+
+    private static String GetFormattedDate(XSSFCell cell)
+    {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        sdf.TimeZone= LocaleUtil.GetUserTimeZoneInfo();
+        return sdf.Format(cell.DateCellValue);
+    }
+
+    private XmlNode GetNodeByXPath(String xpath, XmlNode rootNode, XmlDocument doc, bool CreateMultipleInstances)
+    {
+        String[] xpathTokens = xpath.Split('/');
+
+
+        XmlNode currentNode = rootNode;
+        // The first token is empty, the second is the root node
+        for (int i = 2; i < xpathTokens.Length; i++)
+        {
+
+            String axisName = RemoveNamespace(xpathTokens[i]);
+
+
+            if (!axisName.StartsWith('@'))
+            {
+
+                XmlNodeList list = currentNode.ChildNodes;
+
+                XmlNode selectedNode = null;
+                if (!(CreateMultipleInstances && i == xpathTokens.Length - 1))
+                {
+                    // select the last child node only if we need to map to a single cell
+                    selectedNode = selectNode(axisName, list);
+                }
+                if (selectedNode == null)
+                {
+                    selectedNode = CreateElement(doc, currentNode, axisName);
+                }
+                currentNode = selectedNode;
+            }
+            else
+            {
+
+
+                XmlNode attribute = CreateAttribute(doc, currentNode, axisName);
+
+                currentNode = attribute;
+            }
+        }
+        return currentNode;
+    }
+
+    private static XmlNode CreateAttribute(XmlDocument doc, XmlNode currentNode, String axisName)
+    {
+        String attributeName = axisName.Substring(1);
+        XmlAttributeCollection attributesMap = currentNode.Attributes;
+        XmlNode attribute = attributesMap.GetNamedItem(attributeName);
+        if (attribute == null)
+        {
+            attribute = doc.CreateAttribute(attributeName);
+            attributesMap.SetNamedItem(attribute);
+        }
+        return attribute;
+    }
+
+    private XmlNode CreateElement(XmlDocument doc, XmlNode currentNode, String axisName)
+    {
+        XmlNode selectedNode;
+        if (IsNamespaceDeclared())
+        {
+            selectedNode = doc.CreateElement(axisName, this.GetNamespace());
+        }
+        else
+        {
+            selectedNode = doc.CreateElement(axisName);
+        }
+        currentNode.AppendChild(selectedNode);
+        return selectedNode;
+    }
+
+    private static XmlNode selectNode(String axisName, XmlNodeList list)
+    {
+        XmlNode selectedNode = null;
+        for (int j = 0; j < list.Count; j++)
+        {
+            XmlNode node = list[j];
+            if (node.Name.Equals(axisName))
+            {
+                selectedNode = node;
+                break;
+            }
+        }
+        return selectedNode;
+    }
+
+
+    private bool IsNamespaceDeclared()
+    {
+        String schemaNamespace = GetNamespace();
+        return schemaNamespace != null && !schemaNamespace.Equals("");
+    }
+
+    private String GetNamespace()
+    {
+        return map.GetCTSchema().Namespace;
+    }
+
+
+    /**
+     * Compares two xpaths to define an ordering according to the XML Schema
+     *
+     */
+    public int Compare(String leftXpath, String rightXpath)
+    {
+
+        int result = 0;
+        string xmlSchema = map.GetSchema();
+        XmlDocument doc = new XmlDocument();
+        doc.LoadXml(xmlSchema);
+
+
+        String[] leftTokens = leftXpath.Split('/');
+        String[] rightTokens = rightXpath.Split('/');
+
+        int minLength = leftTokens.Length < rightTokens.Length ? leftTokens.Length : rightTokens.Length;
+
+        XmlNode localComplexTypeRootNode = doc.DocumentElement;
+
+
+        for (int i = 1; i < minLength; i++)
+        {
+
+            String leftElementName = leftTokens[i];
+            String rightElementName = rightTokens[i];
+
+            if (leftElementName.Equals(rightElementName))
+            {
+                localComplexTypeRootNode = GetComplexTypeForElement(leftElementName,doc.DocumentElement, localComplexTypeRootNode);
+            }
+            else
+            {
+                int leftIndex = XSSFExportToXml.IndexOfElementInComplexType(leftElementName, localComplexTypeRootNode);
+                int rightIndex = XSSFExportToXml.IndexOfElementInComplexType(rightElementName, localComplexTypeRootNode);
+                if (leftIndex != -1 && rightIndex != -1)
+                {
+                    if (leftIndex < rightIndex)
+                    {
+                        result = -1;
+                    } if (leftIndex > rightIndex)
+                    {
+                        result = 1;
+                    }
+                }
+                else
+                {
+                    // NOTE: the xpath doesn't match correctly in the schema
+                }
+            }
         }
 
-        private static int IndexOfElementInComplexType(String elementName, XmlNode complexType)
+        return result;
+    }
+
+    private static int IndexOfElementInComplexType(String elementName, XmlNode complexType)
+    {
+        if(complexType == null)
         {
-            if(complexType == null)
-            {
-                return -1;
+            return -1;
+        }
+
+        int indexOf = -1;
+        int i = 0;
+        XmlNode node = complexType.FirstChild;
+        String elementNameWithoutNamespace = RemoveNamespace(elementName);
+
+        while(node != null)
+        {
+            if(node is XmlElement && "element".Equals(node.LocalName)) {
+                XmlNode element = GetNameOrRefElement(node);
+                if(element.Value.Equals(elementNameWithoutNamespace))
+                {
+                    indexOf = i;
+                    break;
+                }
             }
+            i++;
+            node = node.NextSibling;
+        }
 
-            int indexOf = -1;
-            int i = 0;
-            XmlNode node = complexType.FirstChild;
-            String elementNameWithoutNamespace = RemoveNamespace(elementName);
+        return indexOf;
+    }
 
-            while(node != null)
+    private static XmlNode GetNameOrRefElement(XmlNode node)
+    {
+        XmlNode returnNode = node.Attributes.GetNamedItem("ref");
+        if(returnNode != null)
+        {
+            return returnNode;
+        }
+
+        return node.Attributes.GetNamedItem("name");
+    }
+
+    private static XmlNode GetComplexTypeForElement(String elementName, XmlNode xmlSchema, XmlNode localComplexTypeRootNode)
+    {
+        String elementNameWithoutNamespace = RemoveNamespace(elementName);
+
+        String complexTypeName = GetComplexTypeNameFromChildren(localComplexTypeRootNode, elementNameWithoutNamespace);
+
+        XmlNode complexTypeNode = null;
+        // Note: we expect that all the complex types are defined at root level
+        if(!"".Equals(complexTypeName))
+        {
+            complexTypeNode = GetComplexTypeNodeFromSchemaChildren(xmlSchema, null, complexTypeName);
+        }
+        return complexTypeNode;
+    }
+
+    private static String GetComplexTypeNameFromChildren(XmlNode localComplexTypeRootNode, String elementNameWithoutNamespace)
+    {
+        if(localComplexTypeRootNode == null)
+        {
+            return "";
+        }
+        XmlNode node  = localComplexTypeRootNode.FirstChild;
+        String complexTypeName = "";
+
+        while(node != null)
+        {
+            if(node is XmlElement && "element".Equals(node.LocalName))
             {
-                if(node is XmlElement && "element".Equals(node.LocalName)) {
-                    XmlNode element = GetNameOrRefElement(node);
-                    if(element.Value.Equals(elementNameWithoutNamespace))
+                XmlNode nameAttribute = node.Attributes.GetNamedItem("name");
+                if(nameAttribute.Value.Equals(elementNameWithoutNamespace))
+                {
+                    XmlNode complexTypeAttribute = node.Attributes.GetNamedItem("type");
+                    if(complexTypeAttribute != null)
                     {
-                        indexOf = i;
+                        complexTypeName = complexTypeAttribute.Value;
                         break;
                     }
                 }
-                i++;
-                node = node.NextSibling;
             }
-
-            return indexOf;
+            node = node.NextSibling;
         }
-
-        private static XmlNode GetNameOrRefElement(XmlNode node)
+        return complexTypeName;
+    }
+    private static XmlNode GetComplexTypeNodeFromSchemaChildren(XmlNode xmlSchema, XmlNode complexTypeNode, String complexTypeName)
+    {
+        XmlNode node = xmlSchema.FirstChild;
+        while(node != null)
         {
-            XmlNode returnNode = node.Attributes.GetNamedItem("ref");
-            if(returnNode != null)
+            if(node is XmlElement)
             {
-                return returnNode;
-            }
-
-            return node.Attributes.GetNamedItem("name");
-        }
-
-        private static XmlNode GetComplexTypeForElement(String elementName, XmlNode xmlSchema, XmlNode localComplexTypeRootNode)
-        {
-            String elementNameWithoutNamespace = RemoveNamespace(elementName);
-
-            String complexTypeName = GetComplexTypeNameFromChildren(localComplexTypeRootNode, elementNameWithoutNamespace);
-
-            XmlNode complexTypeNode = null;
-            // Note: we expect that all the complex types are defined at root level
-            if(!"".Equals(complexTypeName))
-            {
-                complexTypeNode = GetComplexTypeNodeFromSchemaChildren(xmlSchema, null, complexTypeName);
-            }
-            return complexTypeNode;
-        }
-
-        private static String GetComplexTypeNameFromChildren(XmlNode localComplexTypeRootNode, String elementNameWithoutNamespace)
-        {
-            if(localComplexTypeRootNode == null)
-            {
-                return "";
-            }
-            XmlNode node  = localComplexTypeRootNode.FirstChild;
-            String complexTypeName = "";
-
-            while(node != null)
-            {
-                if(node is XmlElement && "element".Equals(node.LocalName))
+                if(node.LocalName.Equals("complexType"))
                 {
                     XmlNode nameAttribute = node.Attributes.GetNamedItem("name");
-                    if(nameAttribute.Value.Equals(elementNameWithoutNamespace))
+                    if(nameAttribute.Value.Equals(complexTypeName))
                     {
-                        XmlNode complexTypeAttribute = node.Attributes.GetNamedItem("type");
-                        if(complexTypeAttribute != null)
+                        XmlNode sequence = node.FirstChild;
+                        while(sequence != null)
                         {
-                            complexTypeName = complexTypeAttribute.Value;
+                            if(sequence is XmlElement)
+                            {
+                                String localName = sequence.LocalName;
+                                if("sequence".Equals(localName) || "all".Equals(localName))
+                                {
+                                    complexTypeNode = sequence;
+                                    break;
+                                }
+                            }
+                            sequence = sequence.NextSibling;
+                        }
+                        if(complexTypeNode != null)
+                        {
                             break;
                         }
                     }
                 }
-                node = node.NextSibling;
             }
-            return complexTypeName;
+            node = node.NextSibling;
         }
-        private static XmlNode GetComplexTypeNodeFromSchemaChildren(XmlNode xmlSchema, XmlNode complexTypeNode, String complexTypeName)
-        {
-            XmlNode node = xmlSchema.FirstChild;
-            while(node != null)
-            {
-                if(node is XmlElement)
-                {
-                    if(node.LocalName.Equals("complexType"))
-                    {
-                        XmlNode nameAttribute = node.Attributes.GetNamedItem("name");
-                        if(nameAttribute.Value.Equals(complexTypeName))
-                        {
-                            XmlNode sequence = node.FirstChild;
-                            while(sequence != null)
-                            {
-                                if(sequence is XmlElement)
-                                {
-                                    String localName = sequence.LocalName;
-                                    if("sequence".Equals(localName) || "all".Equals(localName))
-                                    {
-                                        complexTypeNode = sequence;
-                                        break;
-                                    }
-                                }
-                                sequence = sequence.NextSibling;
-                            }
-                            if(complexTypeNode != null)
-                            {
-                                break;
-                            }
-                        }
-                    }
-                }
-                node = node.NextSibling;
-            }
-            return complexTypeNode;
-        }
+        return complexTypeNode;
     }
 }
