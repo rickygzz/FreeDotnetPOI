@@ -596,7 +596,7 @@ namespace NPOI.HPSF
         /// <exception cref="IOException">if an I/O exception occurs.</exception>
         public InputStream ToInputStream()
         {
-            MemoryStream psStream = new MemoryStream();
+            MemoryStream psStream = new();
             try
             {
                 Write(psStream);
@@ -659,7 +659,7 @@ namespace NPOI.HPSF
                         {
                             return CodePageUtil.GetStringFromCodePage(data, Property.DEFAULT_CODEPAGE);
                         }
-                        catch (UnsupportedEncodingException e)
+                        catch (UnsupportedEncodingException)
                         {
                             // doesn't happen ...
                             return "";
@@ -684,10 +684,12 @@ namespace NPOI.HPSF
         /// <return>true if this <see cref="PropertySet"/>
         /// represents a Document Summary Information, else <c>false</c>.
         /// </return>
-        public bool IsDocumentSummaryInformation => sections.Count != 0
+        public bool IsDocumentSummaryInformation =>
+            sections.Count != 0
             && matchesSummary(FirstSection.FormatID, SectionIDMap.DOCUMENT_SUMMARY_INFORMATION_ID);
 
-        internal static bool matchesSummary(ClassID actual, params ClassID[] expected) {
+        internal static bool matchesSummary(ClassID actual, params ClassID[] expected)
+        {
             foreach (ClassID sum in expected)
             {
                 if (sum.Equals(actual) || sum.EqualsInverted(actual))

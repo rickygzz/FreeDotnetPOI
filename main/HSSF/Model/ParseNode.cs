@@ -1,32 +1,33 @@
 ﻿/* ====================================================================
-   Licensed to the Apache Software Foundation (ASF) Under one or more
-   contributor license agreements.  See the NOTICE file distributed with
-   this work for Additional information regarding copyright ownership.
-   The ASF licenses this file to You Under the Apache License, Version 2.0
-   (the "License"); you may not use this file except in compliance with
-   the License.  You may obtain a copy of the License at
+    Licensed to the Apache Software Foundation (ASF) Under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for Additional information regarding copyright ownership.
+    The ASF licenses this file to You Under the Apache License, Version 2.0
+    (the "License"); you may not use this file except in compliance with
+    the License.  You may obtain a copy of the License at
 
-       http://www.apache.org/licenses/LICENSE-2.0
+        http://www.apache.org/licenses/LICENSE-2.0
 
-   Unless required by applicable law or agreed to in writing, software
-   distributed Under the License is distributed on an "AS Is" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations Under the License.
+    Unless required by applicable law or agreed to in writing, software
+    distributed Under the License is distributed on an "AS Is" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations Under the License.
 ==================================================================== */
-
-namespace NPOI.HSSF.Model;
 
 using System;
 using NPOI.SS.Formula.Functions;
 using NPOI.SS.Formula.PTG;
+
+namespace NPOI.HSSF.Model;
+
 /**
- * Represents a syntactic element from a formula by encapsulating the corresponding <c>Ptg</c>
- * token.  Each <c>ParseNode</c> may have child <c>ParseNode</c>s in the case when the wrapped
- * <c>Ptg</c> is non-atomic.
- * 
- * @author Josh Micich
- */
+* Represents a syntactic element from a formula by encapsulating the corresponding <c>Ptg</c>
+* token.  Each <c>ParseNode</c> may have child <c>ParseNode</c>s in the case when the wrapped
+* <c>Ptg</c> is non-atomic.
+*
+* @author Josh Micich
+*/
 class ParseNode
 {
 
@@ -53,17 +54,14 @@ class ParseNode
         }
         _tokenCount = tokenCount;
     }
-    public ParseNode(Ptg token):this(token, EMPTY_ARRAY) 
+    public ParseNode(Ptg token):this(token, EMPTY_ARRAY)
     {
-        
     }
     public ParseNode(Ptg token, ParseNode child0):this(token, new ParseNode[] { child0, })
     {
-        
     }
     public ParseNode(Ptg token, ParseNode child0, ParseNode child1): this(token, new ParseNode[] { child0, child1, })
     {
-       
     }
     private int GetTokenCount()
     {
@@ -75,7 +73,6 @@ class ParseNode
     ///  tokens for the specified tree.
     /// </summary>
     /// <param name="rootNode">The root node.</param>
-    /// <returns></returns>
     public static Ptg[] ToTokenArray(ParseNode rootNode)
     {
         TokenCollector temp = new TokenCollector(rootNode.GetTokenCount());
@@ -118,7 +115,7 @@ class ParseNode
         int trueParamSize = temp.SumTokenSizes(ifAttrIndex + 1, skipAfterTrueParamIndex);
 
         AttrPtg attrIf = AttrPtg.CreateIf(trueParamSize + 4); // distance to start of false parameter/tFuncVar. +4 for tAttrSkip after true
-        
+
         if (Children.Length > 2)
         {
             // false param present

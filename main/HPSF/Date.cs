@@ -27,7 +27,7 @@ internal sealed class Date
 
     internal Date() { }
 
-    internal void Read( LittleEndianByteArrayInputStream lei )
+    internal void Read(LittleEndianByteArrayInputStream lei)
     {
         lei.ReadFully(_value);
     }

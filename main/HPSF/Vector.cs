@@ -32,13 +32,13 @@ public class Vector
         this._type = type;
     }
 
-    internal void Read( LittleEndianByteArrayInputStream lei )
+    internal void Read(LittleEndianByteArrayInputStream lei)
     {
         long longLength = lei.ReadUInt();
 
-        if ( longLength > int.MaxValue )
+        if (longLength > int.MaxValue)
         {
-            throw new InvalidOperationException( "Vector is too long -- " + longLength );
+            throw new InvalidOperationException("Vector is too long -- " + longLength);
         }
         int length = (int) longLength;
 
@@ -49,7 +49,7 @@ public class Vector
         List<TypedPropertyValue> values = new List<TypedPropertyValue>();
 
         int paddedType = (_type == Variant.VT_VARIANT) ? 0 : _type;
-        for ( int i = 0; i < length; i++ )
+        for (int i = 0; i < length; i++)
         {
             TypedPropertyValue value = new TypedPropertyValue(paddedType, null);
             if (paddedType == 0)

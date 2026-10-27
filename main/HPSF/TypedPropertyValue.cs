@@ -40,7 +40,7 @@ public class TypedPropertyValue
         get { return _value; }
     }
 
-    internal void Read( LittleEndianByteArrayInputStream lei)
+    internal void Read(LittleEndianByteArrayInputStream lei)
     {
         _type = lei.ReadShort();
         short padding = lei.ReadShort();
@@ -92,7 +92,8 @@ public class TypedPropertyValue
                 _value = lei.ReadLong();
                 break;
 
-            case Variant.VT_UI8: {
+            case Variant.VT_UI8:
+            {
                 byte[] biBytesLE = new byte[LittleEndianConsts.LONG_SIZE];
                 lei.ReadFully(biBytesLE);
 
@@ -122,51 +123,51 @@ public class TypedPropertyValue
                 break;
 
             case Variant.VT_CY:
-                Currency cur = new Currency();
+                Currency cur = new();
                 cur.Read(lei);
                 _value = cur;
                 break;
 
             case Variant.VT_DATE:
-                Date date = new Date();
+                Date date = new();
                 date.Read(lei);
                 _value = date;
                 break;
 
             case Variant.VT_BSTR:
             case Variant.VT_LPSTR:
-                CodePageString cps = new CodePageString();
+                CodePageString cps = new();
                 cps.Read(lei);
                 _value = cps;
                 break;
 
             case Variant.VT_BOOL:
-                VariantBool vb = new VariantBool();
+                VariantBool vb = new();
                 vb.Read(lei);
                 _value = vb;
                 break;
 
             case Variant.VT_DECIMAL:
-                Decimal dec = new Decimal();
+                Decimal dec = new();
                 dec.Read(lei);
                 _value = dec;
                 break;
 
             case Variant.VT_LPWSTR:
-                UnicodeString us = new UnicodeString();
+                UnicodeString us = new();
                 us.Read(lei);
                 _value = us;
                 break;
 
             case Variant.VT_FILETIME:
-                Filetime ft = new Filetime();
+                Filetime ft = new();
                 ft.Read(lei);
                 _value = ft;
                 break;
 
             case Variant.VT_BLOB:
             case Variant.VT_BLOB_OBJECT:
-                Blob blob = new Blob();
+                Blob blob = new();
                 blob.Read(lei);
                 _value = blob;
                 break;
@@ -175,25 +176,25 @@ public class TypedPropertyValue
             case Variant.VT_STORAGE:
             case Variant.VT_STREAMED_OBJECT:
             case Variant.VT_STORED_OBJECT:
-                IndirectPropertyName ipn = new IndirectPropertyName();
+                IndirectPropertyName ipn = new();
                 ipn.Read(lei);
                 _value = ipn;
                 break;
 
             case Variant.VT_CF:
-                ClipboardData cd = new ClipboardData();
+                ClipboardData cd = new();
                 cd.Read(lei);
                 _value = cd;
                 break;
 
             case Variant.VT_CLSID:
-                GUID guid = new GUID();
+                GUID guid = new();
                 guid.Read(lei);
                 _value = lei;
                 break;
 
             case Variant.VT_VERSIONED_STREAM:
-                VersionedStream vs = new VersionedStream();
+                VersionedStream vs = new();
                 vs.Read(lei);
                 _value = vs;
                 break;
@@ -219,7 +220,7 @@ public class TypedPropertyValue
             case Variant.VT_VECTOR | Variant.VT_FILETIME:
             case Variant.VT_VECTOR | Variant.VT_CF:
             case Variant.VT_VECTOR | Variant.VT_CLSID:
-                Vector vec = new Vector( (short) ( _type & 0x0FFF ) );
+                Vector vec = new((short) (_type & 0x0FFF));
                 vec.Read(lei);
                 _value = vec;
                 break;
@@ -241,7 +242,7 @@ public class TypedPropertyValue
             case Variant.VT_ARRAY | Variant.VT_UI4:
             case Variant.VT_ARRAY | Variant.VT_INT:
             case Variant.VT_ARRAY | Variant.VT_UINT:
-                Array arr = new Array();
+                Array arr = new();
                 arr.Read(lei);
                 _value = arr;
                 break;
@@ -253,7 +254,7 @@ public class TypedPropertyValue
         }
     }
 
-    internal static void SkipPadding( LittleEndianByteArrayInputStream lei )
+    internal static void SkipPadding(LittleEndianByteArrayInputStream lei)
     {
         int offset = lei.GetReadIndex();
         int skipBytes = (4 - (offset & 3)) & 3;

@@ -1,18 +1,18 @@
 ﻿/* ====================================================================
-   Licensed to the Apache Software Foundation (ASF) Under one or more
-   contributor license agreements.  See the NOTICE file distributed with
-   this work for Additional information regarding copyright ownership.
-   The ASF licenses this file to You Under the Apache License, Version 2.0
-   (the "License"); you may not use this file except in compliance with
-   the License.  You may obtain a copy of the License at
+    Licensed to the Apache Software Foundation (ASF) Under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for Additional information regarding copyright ownership.
+    The ASF licenses this file to You Under the Apache License, Version 2.0
+    (the "License"); you may not use this file except in compliance with
+    the License.  You may obtain a copy of the License at
 
-       http://www.apache.org/licenses/LICENSE-2.0
+        http://www.apache.org/licenses/LICENSE-2.0
 
-   Unless required by applicable law or agreed to in writing, software
-   distributed Under the License is distributed on an "AS Is" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations Under the License.
+    Unless required by applicable law or agreed to in writing, software
+    distributed Under the License is distributed on an "AS Is" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations Under the License.
 ==================================================================== */
 
 namespace NPOI.HSSF.Model;
@@ -20,13 +20,12 @@ namespace NPOI.HSSF.Model;
 using System.Collections.Generic;
 using NPOI.HSSF.Record;
 
-
 /// <summary>
 /// List for records in Workbook
 /// </summary>
 public class WorkbookRecordList
 {
-    private List<Record> records = new List<Record>();
+    private List<Record> records = [];
 
     private int protpos = 0;   // holds the position of the protect record.
     private int bspos = 0;   // holds the position of the last bound sheet.
@@ -38,7 +37,6 @@ public class WorkbookRecordList
     private int supbookpos = 0;   // holds the position of sup book
     private int externsheetPos = 0;// holds the position of the extern sheet
     private int palettepos = -1;   // hold the position of the palette, if applicable
-
 
     /// <summary>
     /// Gets or sets the records.
@@ -62,11 +60,9 @@ public class WorkbookRecordList
     /// <summary>
     /// Gets the <see cref="NPOI.HSSF.Record.Record"/> at the specified index.
     /// </summary>
-    /// <value></value>
     public Record this[int index]
     {
         get { return (Record)records[index]; }
-
     }
 
     /// <summary>
@@ -77,16 +73,46 @@ public class WorkbookRecordList
     public void Add(int pos, Record r)
     {
         records.Insert(pos, r);
-        if (Protpos >= pos) Protpos=(protpos + 1);
-        if (Bspos >= pos) Bspos=(bspos + 1);
-        if (Tabpos >= pos) Tabpos=(tabpos + 1);
-        if (Fontpos >= pos) Fontpos=(fontpos + 1);
-        if (Xfpos >= pos) Xfpos=(xfpos + 1);
-        if (Backuppos >= pos) Backuppos=(backuppos + 1);
-        if (Namepos>= pos) Namepos=(namepos + 1);
-        if (Supbookpos >= pos) Supbookpos=(supbookpos + 1);
-        if ((Palettepos!= -1) && (Palettepos>= pos)) Palettepos=(palettepos + 1);
-        if (ExternsheetPos >= pos) ExternsheetPos=ExternsheetPos + 1;
+        if (Protpos >= pos)
+        {
+            Protpos=(protpos + 1);
+        }
+        if (Bspos >= pos)
+        {
+            Bspos=(bspos + 1);
+        }
+        if (Tabpos >= pos)
+        {
+            Tabpos=(tabpos + 1);
+        }
+        if (Fontpos >= pos)
+        {
+            Fontpos=(fontpos + 1);
+        }
+        if (Xfpos >= pos)
+        {
+            Xfpos=(xfpos + 1);
+        }
+        if (Backuppos >= pos)
+        {
+            Backuppos=(backuppos + 1);
+        }
+        if (Namepos>= pos)
+        {
+            Namepos=(namepos + 1);
+        }
+        if (Supbookpos >= pos)
+        {
+            Supbookpos=(supbookpos + 1);
+        }
+        if ((Palettepos!= -1) && (Palettepos>= pos))
+        {
+            Palettepos=(palettepos + 1);
+        }
+        if (ExternsheetPos >= pos)
+        {
+            ExternsheetPos=ExternsheetPos + 1;
+        }
     }
     public IEnumerator<Record> GetEnumerator()
     {
@@ -110,16 +136,46 @@ public class WorkbookRecordList
     public void Remove(int pos)
     {
         records.RemoveAt(pos);
-        if (Protpos >= pos) Protpos=protpos - 1;
-        if (Bspos >= pos) Bspos=bspos - 1;
-        if (Tabpos >= pos) Tabpos=tabpos - 1;
-        if (Fontpos >= pos) Fontpos=fontpos - 1;
-        if (Xfpos >= pos) Xfpos=xfpos - 1;
-        if (Backuppos >= pos) Backuppos=backuppos - 1;
-        if (Namepos >= pos) Namepos=Namepos - 1;
-        if (Supbookpos >= pos) Supbookpos=Supbookpos - 1;
-        if ((Palettepos != -1) && (Palettepos >= pos)) Palettepos=palettepos - 1;
-        if (ExternsheetPos >= pos) ExternsheetPos=ExternsheetPos- 1;
+        if (Protpos >= pos)
+        {
+            Protpos=protpos - 1;
+        }
+        if (Bspos >= pos)
+        {
+            Bspos=bspos - 1;
+        }
+        if (Tabpos >= pos)
+        {
+            Tabpos=tabpos - 1;
+        }
+        if (Fontpos >= pos)
+        {
+            Fontpos=fontpos - 1;
+        }
+        if (Xfpos >= pos)
+        {
+            Xfpos=xfpos - 1;
+        }
+        if (Backuppos >= pos)
+        {
+            Backuppos=backuppos - 1;
+        }
+        if (Namepos >= pos)
+        {
+            Namepos=Namepos - 1;
+        }
+        if (Supbookpos >= pos)
+        {
+            Supbookpos=Supbookpos - 1;
+        }
+        if ((Palettepos != -1) && (Palettepos >= pos))
+        {
+            Palettepos=palettepos - 1;
+        }
+        if (ExternsheetPos >= pos)
+        {
+            ExternsheetPos=ExternsheetPos- 1;
+        }
     }
 
     /// <summary>
@@ -138,7 +194,7 @@ public class WorkbookRecordList
     /// <value>The bspos.</value>
     public int Bspos
     {
-        get{return bspos;}
+        get { return bspos; }
         set { this.bspos = value; }
     }
 
@@ -177,7 +233,7 @@ public class WorkbookRecordList
     /// <value>The backuppos.</value>
     public int Backuppos
     {
-        get{return backuppos;}
+        get { return backuppos; }
         set { this.backuppos = value; }
     }
 
@@ -187,10 +243,9 @@ public class WorkbookRecordList
     /// <value>The palettepos.</value>
     public int Palettepos
     {
-        get{return palettepos;}
+        get { return palettepos; }
         set { this.palettepos = value; }
     }
-
 
     /// <summary>
     /// Gets or sets the namepos.
@@ -208,7 +263,7 @@ public class WorkbookRecordList
     /// <value>The supbookpos.</value>
     public int Supbookpos
     {
-        get{return supbookpos;}
+        get { return supbookpos; }
         set { this.supbookpos = value; }
     }
 
@@ -221,5 +276,4 @@ public class WorkbookRecordList
         get { return externsheetPos; }
         set { this.externsheetPos = value; }
     }
-
 }

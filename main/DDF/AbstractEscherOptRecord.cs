@@ -14,6 +14,7 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 ==================================================================== */
+
 using Cysharp.Text;
 using NPOI.Util;
 using System;
@@ -49,7 +50,6 @@ public abstract class AbstractEscherOptRecord : EscherRecord
         int bytesRemaining = ReadHeader(data, offset);
         short propertiesCount = ReadInstance(data, offset);
         int pos = offset + 8;
-
 
         properties = EscherPropertyFactory.CreateProperties(data, pos, propertiesCount);
 

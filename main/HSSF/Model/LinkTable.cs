@@ -1,18 +1,18 @@
 ﻿/* ====================================================================
-   Licensed to the Apache Software Foundation (ASF) Under one or more
-   contributor license agreements.  See the NOTICE file distributed with
-   this work for Additional information regarding copyright ownership.
-   The ASF licenses this file to You Under the Apache License, Version 2.0
-   (the "License"); you may not use this file except in compliance with
-   the License.  You may obtain a copy of the License at
+    Licensed to the Apache Software Foundation (ASF) Under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for Additional information regarding copyright ownership.
+    The ASF licenses this file to You Under the Apache License, Version 2.0
+    (the "License"); you may not use this file except in compliance with
+    the License.  You may obtain a copy of the License at
 
-       http://www.apache.org/licenses/LICENSE-2.0
+        http://www.apache.org/licenses/LICENSE-2.0
 
-   Unless required by applicable law or agreed to in writing, software
-   distributed Under the License is distributed on an "AS Is" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations Under the License.
+    Unless required by applicable law or agreed to in writing, software
+    distributed Under the License is distributed on an "AS Is" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations Under the License.
 ==================================================================== */
 
 namespace NPOI.HSSF.Model;
@@ -28,36 +28,36 @@ using NPOI.Util;
 using NPOI.SS.UserModel;
 
 /**
- * Link Table (OOO pdf reference: 4.10.3 ) <p/>
- *
- * The main data of all types of references is stored in the Link Table inside the Workbook Globals
- * Substream (4.2.5). The Link Table itself is optional and occurs only, if  there are any
- * references in the document.
- *  <p/>
- *
- *  In BIFF8 the Link Table consists of
- *  <ul>
- *  <li>zero or more EXTERNALBOOK Blocks<p/>
- *  	each consisting of
- *  	<ul>
- *  	<li>exactly one EXTERNALBOOK (0x01AE) record</li>
- *  	<li>zero or more EXTERNALNAME (0x0023) records</li>
- *  	<li>zero or more CRN Blocks<p/>
- *			each consisting of
- *  		<ul>
- *  		<li>exactly one XCT (0x0059)record</li>
- *  		<li>zero or more CRN (0x005A) records (documentation says one or more)</li>
- *  		</ul>
- *  	</li>
- *  	</ul>
- *  </li>
- *  <li>zero or one EXTERNSHEET (0x0017) record</li>
- *  <li>zero or more DEFINEDNAME (0x0018) records</li>
- *  </ul>
- *
- *
- * @author Josh Micich
- */
+* Link Table (OOO pdf reference: 4.10.3 ) <p/>
+*
+* The main data of all types of references is stored in the Link Table inside the Workbook Globals
+* Substream (4.2.5). The Link Table itself is optional and occurs only, if  there are any
+* references in the document.
+*  <p/>
+*
+*  In BIFF8 the Link Table consists of
+*  <ul>
+*  <li>zero or more EXTERNALBOOK Blocks<p/>
+*  	each consisting of
+*  	<ul>
+*  	<li>exactly one EXTERNALBOOK (0x01AE) record</li>
+*  	<li>zero or more EXTERNALNAME (0x0023) records</li>
+*  	<li>zero or more CRN Blocks<p/>
+*			each consisting of
+*  		<ul>
+*  		<li>exactly one XCT (0x0059)record</li>
+*  		<li>zero or more CRN (0x005A) records (documentation says one or more)</li>
+*  		</ul>
+*  	</li>
+*  	</ul>
+*  </li>
+*  <li>zero or one EXTERNSHEET (0x0017) record</li>
+*  <li>zero or more DEFINEDNAME (0x0018) records</li>
+*  </ul>
+*
+*
+* @author Josh Micich
+*/
 public class LinkTable
 {
     // TODO make this class into a record aggregate
@@ -74,7 +74,7 @@ public class LinkTable
         if (nItems < 1)
         {
             throw new Exception("Expected an EXTERNSHEET record but got ("
-                    + rs.PeekNextClass().Name + ")");
+                + rs.PeekNextClass().Name + ")");
         }
         if (nItems == 1)
         {
@@ -116,11 +116,12 @@ public class LinkTable
         private readonly SupBookRecord _externalBookRecord;
         internal ExternalNameRecord[] _externalNameRecords;
         private CRNBlock[] _crnBlocks;
+
         /**
-         * Create a new block for registering add-in functions
-         *
-         * @see org.apache.poi.hssf.model.LinkTable#addNameXPtg(String)
-         */
+        * Create a new block for registering add-in functions
+        *
+        * @see org.apache.poi.hssf.model.LinkTable#addNameXPtg(String)
+        */
         public ExternalBookBlock()
         {
             _externalBookRecord = SupBookRecord.CreateAddInFunctions();
@@ -156,10 +157,10 @@ public class LinkTable
         }
 
         /**
-         * Create a new block for internal references. It is called when constructing a new LinkTable.
-         *
-         * @see org.apache.poi.hssf.model.LinkTable#LinkTable(int, WorkbookRecordList)
-         */
+        * Create a new block for internal references. It is called when constructing a new LinkTable.
+        *
+        * @see org.apache.poi.hssf.model.LinkTable#LinkTable(int, WorkbookRecordList)
+        */
         public ExternalBookBlock(int numberOfSheets)
         {
             _externalBookRecord = SupBookRecord.CreateInternalReferences((short)numberOfSheets);
@@ -183,7 +184,6 @@ public class LinkTable
             return _externalNameRecords.Length - 1;
         }
 
-
         public SupBookRecord GetExternalBookRecord()
         {
             return _externalBookRecord;
@@ -194,9 +194,9 @@ public class LinkTable
             return _externalNameRecords[definedNameIndex].Text;
         }
         /**
-         * Performs case-insensitive search
-         * @return -1 if not found
-         */
+        * Performs case-insensitive search
+        * @return -1 if not found
+        */
         public int GetIndexOfName(String name)
         {
             for (int i = 0; i < _externalNameRecords.Length; i++)
@@ -213,7 +213,6 @@ public class LinkTable
         {
             return _externalNameRecords[definedNameIndex].Ix;
         }
-
     }
 
     private ExternalBookBlock[] _externalBookBlocks;
@@ -234,7 +233,7 @@ public class LinkTable
             temp.Add(new ExternalBookBlock(rs));
         }
 
-        //_externalBookBlocks = new ExternalBookBlock[temp.Count];
+        // _externalBookBlocks = new ExternalBookBlock[temp.Count];
         _externalBookBlocks = (ExternalBookBlock[])temp.ToArray(typeof(ExternalBookBlock));
         temp.Clear();
 
@@ -270,7 +269,7 @@ public class LinkTable
             else if (nextClass == typeof(NameCommentRecord))
             {
                 NameCommentRecord ncr = (NameCommentRecord)rs.GetNext();
-                //commentRecords.Add(ncr.NameText, ncr);
+                // commentRecords.Add(ncr.NameText, ncr);
                 commentRecords[ncr.NameText] = ncr;
             }
             else
@@ -284,14 +283,14 @@ public class LinkTable
         {
             _workbookRecordList.Records.Add(inputList[i]);
         }
-
     }
 
     public LinkTable(int numberOfSheets, WorkbookRecordList workbookRecordList)
     {
         _workbookRecordList = workbookRecordList;
         _definedNames = new List<NameRecord>();
-        _externalBookBlocks = new ExternalBookBlock[] {
+        _externalBookBlocks = new ExternalBookBlock[]
+        {
             new ExternalBookBlock(numberOfSheets),
         };
         _externSheetRecord = new ExternSheetRecord();
@@ -311,19 +310,18 @@ public class LinkTable
     }
 
     /**
-     * TODO - would not be required if calling code used RecordStream or similar
-     */
+    * TODO - would not be required if calling code used RecordStream or similar
+    */
     public int RecordCount
     {
         get { return _recordCount; }
     }
 
-
     public NameRecord GetSpecificBuiltinRecord(byte builtInCode, int sheetNumber)
     {
         foreach (var record in _definedNames)
         {
-            //print areas are one based
+            // print areas are one based
             if (record.BuiltInName == builtInCode && record.SheetNumber == sheetNumber)
             {
                 return record;
@@ -335,8 +333,8 @@ public class LinkTable
 
     public void RemoveBuiltinRecord(byte name, int sheetIndex)
     {
-        //the name array is smaller so searching through it should be faster than
-        //using the FindFirstXXXX methods
+        // the name array is smaller so searching through it should be faster than
+        // using the FindFirstXXXX methods
         NameRecord record = GetSpecificBuiltinRecord(name, sheetIndex);
         if (record != null)
         {
@@ -345,9 +343,9 @@ public class LinkTable
         // TODO - do we need "Workbook.records.Remove(...);" similar to that in Workbook.RemoveName(int namenum) {}?
     }
     /**
-     * @param extRefIndex as from a {@link Ref3DPtg} or {@link Area3DPtg}
-     * @return -1 if the reference is to an external book
-     */
+    * @param extRefIndex as from a {@link Ref3DPtg} or {@link Area3DPtg}
+    * @return -1 if the reference is to an external book
+    */
     public int GetFirstInternalSheetIndexForExtIndex(int extRefIndex)
     {
         if (extRefIndex >= _externSheetRecord.NumOfRefs || extRefIndex < 0)
@@ -357,9 +355,9 @@ public class LinkTable
         return _externSheetRecord.GetFirstSheetIndexFromRefIndex(extRefIndex);
     }
     /**
-     * @param extRefIndex as from a {@link Ref3DPtg} or {@link Area3DPtg}
-     * @return -1 if the reference is to an external book
-     */
+    * @param extRefIndex as from a {@link Ref3DPtg} or {@link Area3DPtg}
+    * @return -1 if the reference is to an external book
+    */
     public int GetLastInternalSheetIndexForExtIndex(int extRefIndex)
     {
         if (extRefIndex >= _externSheetRecord.NumOfRefs || extRefIndex < 0)
@@ -397,11 +395,11 @@ public class LinkTable
         return _externSheetRecord.FindRefIndexFromExtBookIndex(extBookIndex);
     }
     /**
-     * Finds the external name definition for the given name,
-     *  optionally restricted by externsheet index, and returns
-     *  (if found) as a NameXPtg.
-     * @param sheetRefIndex The Extern Sheet Index to look for, or -1 if any
-     */
+    * Finds the external name definition for the given name,
+    *  optionally restricted by externsheet index, and returns
+    *  (if found) as a NameXPtg.
+    * @param sheetRefIndex The Extern Sheet Index to look for, or -1 if any
+    */
     public NameXPtg GetNameXPtg(String name, int sheetRefIndex)
     {
         // first find any external book block that contains the name:
@@ -437,18 +435,23 @@ public class LinkTable
         // TODO - this Is messy
         // Not the most efficient way but the other way was causing too many bugs
         int idx = FindFirstRecordLocBySid(ExternSheetRecord.sid);
-        if (idx == -1) idx = FindFirstRecordLocBySid(SupBookRecord.sid);
-        if (idx == -1) idx = FindFirstRecordLocBySid(CountryRecord.sid);
+        if (idx == -1)
+        {
+            idx = FindFirstRecordLocBySid(SupBookRecord.sid);
+        }
+        if (idx == -1)
+        {
+            idx = FindFirstRecordLocBySid(CountryRecord.sid);
+        }
         int countNames = _definedNames.Count;
         _workbookRecordList.Add(idx + countNames, name);
-
     }
     /**
- * Register an external name in this workbook
- *
- * @param name  the name to register
- * @return a NameXPtg describing this name 
- */
+* Register an external name in this workbook
+*
+* @param name  the name to register
+* @return a NameXPtg describing this name
+*/
     public NameXPtg AddNameXPtg(String name)
     {
         int extBlockIndex = -1;
@@ -496,7 +499,10 @@ public class LinkTable
             Record record = (Record)iterator.Current;
             if (record is SupBookRecord bookRecord)
             {
-                if (bookRecord.IsAddInFunctions) break;
+                if (bookRecord.IsAddInFunctions)
+                {
+                    break;
+                }
             }
         }
         int numberOfNames = extBlock.NumberOfNames;
@@ -511,7 +517,6 @@ public class LinkTable
         _definedNames.RemoveAt(namenum);
     }
 
-
     private static int GetSheetIndex(String[] sheetNames, String sheetName)
     {
         for (int i = 0; i < sheetNames.Length; i++)
@@ -520,7 +525,6 @@ public class LinkTable
             {
                 return i;
             }
-
         }
         throw new InvalidOperationException("External workbook does not contain sheet '" + sheetName + "'");
     }
@@ -556,7 +560,7 @@ public class LinkTable
         {
             sheetNames[sn] = externalWorkbook.GetSheetName(sn);
         }
-        //\000 is octal digit in java, but c# think it is a '\0' and two zero.
+        // \000 is octal digit in java, but c# think it is a '\0' and two zero.
         String url = "\0" + name;
         ExternalBookBlock block = new ExternalBookBlock(url, sheetNames);
 
@@ -624,14 +628,16 @@ public class LinkTable
         }
         if (shIx1 == shIx2)
         {
-            return new String[] {
-				ebr.URL,
-				firstSheetName
-		};
+            return new String[]
+            {
+                ebr.URL,
+                firstSheetName
+        };
         }
         else
         {
-            return new String[] {
+            return new String[]
+            {
                 ebr.URL,
                 firstSheetName,
                 lastSheetName
@@ -659,25 +665,23 @@ public class LinkTable
             throw new InvalidOperationException("Could not find 'internal references' EXTERNALBOOK");
         }
 
-        //Trying to find reference to this sheet
+        // Trying to find reference to this sheet
         int j = _externSheetRecord.GetRefIxForSheet(thisWbIndex, firstSheetIndex, lastSheetIndex);
         if (j >= 0)
         {
             return j;
         }
-        //We haven't found reference to this sheet
+        // We haven't found reference to this sheet
         return _externSheetRecord.AddRef(thisWbIndex, firstSheetIndex, lastSheetIndex);
-
     }
 
-
     /**
-     * copied from Workbook
-     */
+    * copied from Workbook
+    */
     private int FindFirstRecordLocBySid(short sid)
     {
         int index = 0;
-        for (IEnumerator<Record> iterator = _workbookRecordList.GetEnumerator(); iterator.MoveNext(); )
+        for (IEnumerator<Record> iterator = _workbookRecordList.GetEnumerator(); iterator.MoveNext();)
         {
             Record record = iterator.Current;
 
@@ -725,9 +729,8 @@ public class LinkTable
         else
         {
             throw new IndexOutOfRangeException(
-                    "Ext Book Index relative but beyond the supported length, was " +
-                    extBookIndex + " but maximum is " + _externalBookBlocks.Length
-            );
+                "Ext Book Index relative but beyond the supported length, was "
+                + extBookIndex + " but maximum is " + _externalBookBlocks.Length);
         }
     }
     public int ResolveNameXIx(int refIndex, int definedNameIndex)
@@ -737,14 +740,14 @@ public class LinkTable
     }
 
     /**
-     * Changes an external referenced file to another file.
-     * A formular in Excel which refers a cell in another file is saved in two parts: 
-     * The referenced file is stored in an reference table. the row/cell information is saved separate.
-     * This method invokation will only change the reference in the lookup-table itself.
-     * @param oldUrl The old URL to search for and which is to be replaced
-     * @param newUrl The URL replacement
-     * @return true if the oldUrl was found and replaced with newUrl. Otherwise false
-     */
+    * Changes an external referenced file to another file.
+    * A formular in Excel which refers a cell in another file is saved in two parts:
+    * The referenced file is stored in an reference table. the row/cell information is saved separate.
+    * This method invokation will only change the reference in the lookup-table itself.
+    * @param oldUrl The old URL to search for and which is to be replaced
+    * @param newUrl The URL replacement
+    * @return true if the oldUrl was found and replaced with newUrl. Otherwise false
+    */
     public bool ChangeExternalReference(String oldUrl, String newUrl)
     {
         foreach (ExternalBookBlock ex in _externalBookBlocks)

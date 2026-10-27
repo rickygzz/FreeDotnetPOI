@@ -67,7 +67,7 @@ public class EscherDump
         short options;      // 4 bits for the version and 12 bits for the instance
         short recordId;
         int recordBytesRemaining;       // including enclosing records
-        StringBuilder stringBuf = new StringBuilder();
+        StringBuilder stringBuf;
         short nDumpSize;
         String recordName;
 
@@ -390,10 +390,10 @@ public class EscherDump
                     Read += in1.Read(buf, Read, buf.Length);
                 }
 
-                using (MemoryStream bin = new MemoryStream(buf))
+                using(MemoryStream bin = new(buf))
                 {
-                    Inflater inflater = new Inflater(false);
-                    using (InflaterInputStream zIn = new InflaterInputStream(bin, inflater))
+                    Inflater inflater = new(false);
+                    using(InflaterInputStream zIn = new(bin, inflater))
                     {
                         int bytesToDump = -1;
                         HexDump.Dump(zIn, 0, bytesToDump);
@@ -451,7 +451,8 @@ public class EscherDump
     /// <returns>A descriptive name.</returns>
     private static string PropertyName(short propertyId)
     {
-        PropName[] props = new PropName[] {
+        PropName[] props =
+        [
             new PropName(4, "transform.rotation"),
             new PropName(119, "protection.lockrotation"),
             new PropName(120, "protection.lockaspectratio"),
@@ -726,7 +727,7 @@ public class EscherDump
             new PropName(957, "groupshape.1dadjustment"),
             new PropName(958, "groupshape.hidden"),
             new PropName(959, "groupshape.print"),
-        };
+        ];
 
         for (int i = 0; i < props.Length; i++)
         {
