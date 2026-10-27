@@ -26,181 +26,180 @@
  * ==============================================================*/
 
 using System;
-using System.Text;
-using System.IO;
 using System.Collections;
+using System.IO;
+using System.Text;
 
-namespace NPOI.Util
+namespace NPOI.Util;
+
+public class HexRead
 {
-    public class HexRead
+    /// <summary>
+    /// This method reads hex data from a filename and returns a byte array.
+    /// The file may contain line comments that are preceeded with a # symbol.
+    /// </summary>
+    /// <param name="filename">The filename to read</param>
+    /// <returns>The bytes read from the file.</returns>
+    /// <exception cref="IOException">If there was a problem while reading the file.</exception>
+    public static byte[] ReadData( String filename )
     {
-        /// <summary>
-        /// This method reads hex data from a filename and returns a byte array.
-        /// The file may contain line comments that are preceeded with a # symbol.
-        /// </summary>
-        /// <param name="filename">The filename to read</param>
-        /// <returns>The bytes read from the file.</returns>
-        /// <exception cref="IOException">If there was a problem while reading the file.</exception>
-        public static byte[] ReadData( String filename )
+        FileStream stream = new FileStream(filename,FileMode.Open,FileAccess.Read);
+        try
         {
-            FileStream stream = new FileStream(filename,FileMode.Open,FileAccess.Read);
-            try
-            {
-                return ReadData( stream, -1 );
-            }
-            finally
-            {
-                stream.Close();
-            }
+            return ReadData( stream, -1 );
         }
-
-        /// <summary>
-        /// Same as ReadData(String) except that this method allows you to specify sections within
-        /// a file.  Sections are referenced using section headers in the form:
-        /// </summary>
-        /// <param name="stream">The stream.</param>
-        /// <param name="section">The section.</param>
-        /// <returns></returns>
-        public static byte[] ReadData(Stream stream, String section )
+        finally
         {
-        	
-            try
-            {
-                StringBuilder sectionText = new StringBuilder();
-                bool inSection = false;
-                int c = stream.ReadByte();
-                while ( c != -1 )
-                {
-                    switch ( c )
-                    {
-                        case '[':
-                            inSection = true;
-                            break;
-                        case '\n':
-                        case '\r':
-                            inSection = false;
-                            sectionText = new StringBuilder();
-                            break;
-                        case ']':
-                            inSection = false;
-                            if (sectionText.ToString().Equals(section))
-                            {
-                                return ReadData(stream, '[');
-                            }
-                            sectionText = new StringBuilder();
-                            break;
-                        default:
-                            if ( inSection ) sectionText.Append( (char) c );
-                            break;
-                    }
-                    c = stream.ReadByte();
-                }
-            }
-            finally
-            {
-                stream.Close();
-            }
-            throw new IOException( "Section '" + section + "' not found" );
+            stream.Close();
         }
-        /// <summary>
-        /// Reads the data.
-        /// </summary>
-        /// <param name="filename">The filename.</param>
-        /// <param name="section">The section.</param>
-        /// <returns></returns>
-        public static byte[] ReadData( String filename, String section )
-        {
-            using (FileStream stream = new FileStream(filename, FileMode.Open, FileAccess.Read))
-            {
-                return ReadData(stream, section);
-            }
-        }
+    }
 
-        /// <summary>
-        /// Reads the data.
-        /// </summary>
-        /// <param name="stream">The stream.</param>
-        /// <param name="eofChar">The EOF char.</param>
-        /// <returns></returns>
-        public static byte[] ReadData( Stream stream, int eofChar )
+    /// <summary>
+    /// Same as ReadData(String) except that this method allows you to specify sections within
+    /// a file.  Sections are referenced using section headers in the form:
+    /// </summary>
+    /// <param name="stream">The stream.</param>
+    /// <param name="section">The section.</param>
+    /// <returns></returns>
+    public static byte[] ReadData(Stream stream, String section )
+    {
+    	
+        try
         {
-            int characterCount = 0;
-            byte b = (byte) 0;
-            ArrayList bytes = new ArrayList();
-            char a = (char)('a' - 10);
-            char A = (char)('A' - 10);
-            while (true)
-            {
-                int count = stream.ReadByte();
-                int digitValue = -1;
-                if ('0' <= count && count <= '9')
-                {
-                    digitValue = count - '0';
-                }
-                else if ('A' <= count && count <= 'F')
-                {
-                    digitValue = count - A;
-                }
-                else if ('a' <= count && count <= 'f')
-                {
-                    digitValue = count - a;
-                }
-                else if ('#' == count)
-                {
-                    ReadToEOL(stream);
-                }
-                else if (-1 == count || eofChar == count)
-                {
-                    break;
-                }
-                // else: ignore the character
-
-                if (digitValue != -1)
-                {
-                    b <<= 4;
-                    b += (byte)digitValue;
-                    characterCount++;
-                    if (characterCount == 2)
-                    {
-                        bytes.Add(b);
-                        characterCount = 0;
-                        b = 0;
-                    }
-                }
-            }
-            byte[] polished = (byte[]) bytes.ToArray(typeof(byte) );
-            //byte[] rval = new byte[polished.Length];
-            //for ( int j = 0; j < polished.Length; j++ )
-            //{
-            //    rval[j] = polished[j];
-            //}
-            return polished;
-        }
-
-        /// <summary>
-        /// Reads from string.
-        /// </summary>
-        /// <param name="data">The data.</param>
-        /// <returns></returns>
-        public static byte[] ReadFromString(String data)
-        {
-            using (MemoryStream ms = new MemoryStream(Encoding.UTF8.GetBytes(data)))
-            {
-                return ReadData(ms, -1);
-            }
-        }
-
-        /// <summary>
-        /// Reads to EOL.
-        /// </summary>
-        /// <param name="stream">The stream.</param>
-        static private void ReadToEOL( Stream stream )
-        {
+            StringBuilder sectionText = new StringBuilder();
+            bool inSection = false;
             int c = stream.ReadByte();
-            while ( c != -1 && c != '\n' && c != '\r' )
+            while ( c != -1 )
             {
+                switch ( c )
+                {
+                    case '[':
+                        inSection = true;
+                        break;
+                    case '\n':
+                    case '\r':
+                        inSection = false;
+                        sectionText = new StringBuilder();
+                        break;
+                    case ']':
+                        inSection = false;
+                        if (sectionText.ToString().Equals(section))
+                        {
+                            return ReadData(stream, '[');
+                        }
+                        sectionText = new StringBuilder();
+                        break;
+                    default:
+                        if ( inSection ) sectionText.Append( (char) c );
+                        break;
+                }
                 c = stream.ReadByte();
             }
+        }
+        finally
+        {
+            stream.Close();
+        }
+        throw new IOException( "Section '" + section + "' not found" );
+    }
+    /// <summary>
+    /// Reads the data.
+    /// </summary>
+    /// <param name="filename">The filename.</param>
+    /// <param name="section">The section.</param>
+    /// <returns></returns>
+    public static byte[] ReadData( String filename, String section )
+    {
+        using (FileStream stream = new FileStream(filename, FileMode.Open, FileAccess.Read))
+        {
+            return ReadData(stream, section);
+        }
+    }
+
+    /// <summary>
+    /// Reads the data.
+    /// </summary>
+    /// <param name="stream">The stream.</param>
+    /// <param name="eofChar">The EOF char.</param>
+    /// <returns></returns>
+    public static byte[] ReadData( Stream stream, int eofChar )
+    {
+        int characterCount = 0;
+        byte b = (byte) 0;
+        ArrayList bytes = new ArrayList();
+        char a = (char)('a' - 10);
+        char A = (char)('A' - 10);
+        while (true)
+        {
+            int count = stream.ReadByte();
+            int digitValue = -1;
+            if ('0' <= count && count <= '9')
+            {
+                digitValue = count - '0';
+            }
+            else if ('A' <= count && count <= 'F')
+            {
+                digitValue = count - A;
+            }
+            else if ('a' <= count && count <= 'f')
+            {
+                digitValue = count - a;
+            }
+            else if ('#' == count)
+            {
+                ReadToEOL(stream);
+            }
+            else if (-1 == count || eofChar == count)
+            {
+                break;
+            }
+            // else: ignore the character
+
+            if (digitValue != -1)
+            {
+                b <<= 4;
+                b += (byte)digitValue;
+                characterCount++;
+                if (characterCount == 2)
+                {
+                    bytes.Add(b);
+                    characterCount = 0;
+                    b = 0;
+                }
+            }
+        }
+        byte[] polished = (byte[]) bytes.ToArray(typeof(byte) );
+        //byte[] rval = new byte[polished.Length];
+        //for ( int j = 0; j < polished.Length; j++ )
+        //{
+        //    rval[j] = polished[j];
+        //}
+        return polished;
+    }
+
+    /// <summary>
+    /// Reads from string.
+    /// </summary>
+    /// <param name="data">The data.</param>
+    /// <returns></returns>
+    public static byte[] ReadFromString(String data)
+    {
+        using (MemoryStream ms = new MemoryStream(Encoding.UTF8.GetBytes(data)))
+        {
+            return ReadData(ms, -1);
+        }
+    }
+
+    /// <summary>
+    /// Reads to EOL.
+    /// </summary>
+    /// <param name="stream">The stream.</param>
+    static private void ReadToEOL( Stream stream )
+    {
+        int c = stream.ReadByte();
+        while ( c != -1 && c != '\n' && c != '\r' )
+        {
+            c = stream.ReadByte();
         }
     }
 }

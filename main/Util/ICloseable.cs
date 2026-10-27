@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿namespace NPOI.Util;
 
-namespace NPOI.Util
+public interface ICloseable
 {
-    public interface ICloseable
-    {
-        void Close();
-    }
+    void Close();
 }

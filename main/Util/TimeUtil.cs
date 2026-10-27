@@ -17,17 +17,16 @@
 
 using System;
 
-namespace NPOI.Util
+namespace NPOI.Util;
+
+public static class TimeUtil
 {
-    public static class TimeUtil
+    public static long CurrentMillis()
     {
-        public static long CurrentMillis()
-        {
-            //从1970年1月1日至当前时间所经过的毫秒数
-            long currentTicks = DateTime.Now.Ticks;
-            DateTime dtFrom = new DateTime(1970, 1, 1, 0, 0, 0, 0);
-            long currentMillis = (currentTicks - dtFrom.Ticks) / 10000;
-            return currentMillis;
-        }
+        //从1970年1月1日至当前时间所经过的毫秒数
+        long currentTicks = DateTime.Now.Ticks;
+        DateTime dtFrom = new DateTime(1970, 1, 1, 0, 0, 0, 0);
+        long currentMillis = (currentTicks - dtFrom.Ticks) / 10000;
+        return currentMillis;
     }
 }

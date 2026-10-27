@@ -15,10 +15,11 @@
     limitations under the License.
 ==================================================================== */
 
-namespace NPOI.DDF;
-
 using NPOI.Util;
 using System.Diagnostics;
+
+namespace NPOI.DDF;
+
 public class SysIndexSource
 {
     private int opid = -1;

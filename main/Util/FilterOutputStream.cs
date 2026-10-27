@@ -1,46 +1,41 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
 
-namespace NPOI.Util
+namespace NPOI.Util;
+
+public class FilterOutputStream : OutputStream
 {
-    public class FilterOutputStream : OutputStream
+    protected OutputStream output;
+
+    public override long Position { get; set; }
+
+    public FilterOutputStream(OutputStream output)
     {
-        protected OutputStream output;
+        this.output = output;
+    }
+    public override void Write(int b)
+    {
+        output.Write(b);
+    }
+    public override void Write(byte[] b)
+    {
+        Write(b, 0, b.Length);
+    }
+    public override void Write(byte[] b, int off, int len)
+    {
+        if ((off | len | (b.Length - (len + off)) | (off + len)) < 0)
+            throw new IndexOutOfRangeException();
 
-        public override long Position { get; set; }
-
-        public FilterOutputStream(OutputStream output)
+        for (int i = 0; i < len; i++)
         {
-            this.output = output;
+            Write(b[off + i]);
         }
-        public override void Write(int b)
-        {
-            output.Write(b);
-        }
-        public override void Write(byte[] b)
-        {
-            Write(b, 0, b.Length);
-        }
-        public override void Write(byte[] b, int off, int len)
-        {
-            if ((off | len | (b.Length - (len + off)) | (off + len)) < 0)
-                throw new IndexOutOfRangeException();
-
-            for (int i = 0; i < len; i++)
-            {
-                Write(b[off + i]);
-            }
-        }
-        public override void Flush()
-        {
-            output?.Flush();
-        }
-        public override void Close()
-        {
-            Flush();
-        }
+    }
+    public override void Flush()
+    {
+        output?.Flush();
+    }
+    public override void Close()
+    {
+        Flush();
     }
 }

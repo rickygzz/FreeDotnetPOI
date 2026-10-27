@@ -15,32 +15,31 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.Util
+namespace NPOI.Util;
+
+/**
+ * 
+ * @author Josh Micich
+ */
+public interface ILittleEndianInput
 {
+    int Available();
+    int ReadByte();
+    int ReadUByte();
+    short ReadShort();
+    int ReadUShort();
+    int ReadInt();
+    long ReadLong();
+    double ReadDouble();
+    void ReadFully(byte[] buf);
+    void ReadFully(byte[] buf, int off, int len);
     /**
-     * 
-     * @author Josh Micich
-     */
-    public interface ILittleEndianInput
-    {
-        int Available();
-        int ReadByte();
-        int ReadUByte();
-        short ReadShort();
-        int ReadUShort();
-        int ReadInt();
-        long ReadLong();
-        double ReadDouble();
-        void ReadFully(byte[] buf);
-        void ReadFully(byte[] buf, int off, int len);
-        /**
-     * Usually acts the same as {@link #readFully(byte[], int, int)}, but
-     * for an encrypted stream the raw (unencrypted) data is filled 
-     *
-     * @param buf the byte array to receive the bytes
-     * @param off the start offset into the byte array 
-     * @param len the amount of bytes to fill
-     */
-        void ReadPlain(byte[] buf, int off, int len);
-    }
+ * Usually acts the same as {@link #readFully(byte[], int, int)}, but
+ * for an encrypted stream the raw (unencrypted) data is filled 
+ *
+ * @param buf the byte array to receive the bytes
+ * @param off the start offset into the byte array 
+ * @param len the amount of bytes to fill
+ */
+    void ReadPlain(byte[] buf, int off, int len);
 }

@@ -17,7 +17,7 @@
 
 namespace NPOI.SS.Format;
 
-using NPOI.Util;
+using NPOI;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using System;
