@@ -18,19 +18,18 @@
 
 using NPOI.Util;
 
-namespace NPOI.XSSF.Binary
+namespace NPOI.XSSF.Binary;
+
+/// <summary>
+/// Parse exception while reading an xssfb.
+/// </summary>
+/// @since 3.16-beta3
+public class XSSFBParseException : RuntimeException
 {
-    /// <summary>
-    /// Parse exception while reading an xssfb.
-    /// </summary>
-    /// @since 3.16-beta3
-    public class XSSFBParseException : RuntimeException
+    public XSSFBParseException(string msg)
+            : base(msg)
     {
-        public XSSFBParseException(string msg)
-                : base(msg)
-        {
-            ;
-        }
+        ;
     }
 }
 

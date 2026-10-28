@@ -16,16 +16,15 @@
 ==================================================================== */
 using NPOI.SS.UserModel;
 
-namespace NPOI.XSSF.Streaming.Values
+namespace NPOI.XSSF.Streaming.Values;
+
+public class ErrorFormulaValue : FormulaValue
 {
-    public class ErrorFormulaValue : FormulaValue
+    public byte PreEvaluatedValue;
+
+    public override CellType GetFormulaType()
     {
-        public byte PreEvaluatedValue;
-
-        public override CellType GetFormulaType()
-        {
-            return CellType.Error;
-        }
-
+        return CellType.Error;
     }
+
 }

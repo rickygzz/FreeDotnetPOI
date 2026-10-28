@@ -17,67 +17,61 @@
 
 
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
 
-namespace NPOI.XSSF.Binary
+namespace NPOI.XSSF.Binary;
+
+using NPOI.SS.UserModel;
+using NPOI.XSSF.UserModel;
+
+/// <summary>
+/// Wrapper class around String so that we can use it in Comment.
+/// Nothing has been implemented yet except for <see cref="getString()" />.
+/// </summary>
+/// @since 3.16-beta3
+public class XSSFBRichTextString : XSSFRichTextString
 {
-    using NPOI.SS.UserModel;
-    using NPOI.Util;
-    using NPOI.XSSF.UserModel;
 
-    /// <summary>
-    /// Wrapper class around String so that we can use it in Comment.
-    /// Nothing has been implemented yet except for <see cref="getString()" />.
-    /// </summary>
-    /// @since 3.16-beta3
-    public class XSSFBRichTextString : XSSFRichTextString
+    private  String @string;
+
+    public XSSFBRichTextString(String @string)
+    {
+        this.@string = @string;
+    }
+
+    public new void ApplyFont(int startIndex, int endIndex, short fontIndex)
     {
 
-        private  String @string;
+    }
 
-        public XSSFBRichTextString(String @string)
-        {
-            this.@string = @string;
-        }
+    public new void ApplyFont(int startIndex, int endIndex, IFont font)
+    {
 
-        public new void ApplyFont(int startIndex, int endIndex, short fontIndex)
-        {
+    }
 
-        }
+    public new void ApplyFont(IFont font)
+    {
 
-        public new void ApplyFont(int startIndex, int endIndex, IFont font)
-        {
+    }
 
-        }
+    public new void ClearFormatting()
+    {
 
-        public new void ApplyFont(IFont font)
-        {
+    }
+    public override String String => @string;
 
-        }
-
-        public new void ClearFormatting()
-        {
-
-        }
-        public override String String => @string;
-
-        public override int Length => @string.Length;
+    public override int Length => @string.Length;
 
 
-        public override int NumFormattingRuns => 0;
+    public override int NumFormattingRuns => 0;
 
-        public int GetIndexOfFormattingRun(int index)
-        {
-            return 0;
-        }
+    public int GetIndexOfFormattingRun(int index)
+    {
+        return 0;
+    }
 
-        public new void ApplyFont(short fontIndex)
-        {
+    public new void ApplyFont(short fontIndex)
+    {
 
-        }
     }
 }
 

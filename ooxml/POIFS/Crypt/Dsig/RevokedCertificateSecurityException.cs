@@ -22,22 +22,20 @@
    Copyright (C) 2008-2014 FedICT.
    ================================================================= */
 
-namespace NPOI.POIFS.Crypt.Dsig
+namespace NPOI.POIFS.Crypt.Dsig;
+
+using System;
+
+/**
+ * Exception thrown in case the incoming eID certificate has been revoked.
+ * 
+ * @author Frank Cornelis
+ * 
+ */
+public class RevokedCertificateSecurityException :
+        CertificateSecurityException
 {
-    using System;
 
-    /**
-     * Exception thrown in case the incoming eID certificate has been revoked.
-     * 
-     * @author Frank Cornelis
-     * 
-     */
-    public class RevokedCertificateSecurityException :
-            CertificateSecurityException
-    {
-
-        private static long serialVersionUID = 1L;
-
-    }
+    private static long serialVersionUID = 1L;
 
 }

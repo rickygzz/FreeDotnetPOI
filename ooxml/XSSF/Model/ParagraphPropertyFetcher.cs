@@ -19,76 +19,76 @@
 
 using NPOI.OpenXmlFormats.Dml.Spreadsheet;
 using NPOI.OpenXmlFormats.Dml;
-namespace NPOI.XSSF.Model
+
+namespace NPOI.XSSF.Model;
+
+/**
+ *  Used internally to navigate the paragraph text style hierarchy within a shape and fetch properties
+*/
+public abstract class ParagraphPropertyFetcher
 {
+    public abstract bool Fetch(CT_TextParagraphProperties props);
+    public abstract bool Fetch(CT_Shape props);
+}
+public abstract class ParagraphPropertyFetcher<T> : ParagraphPropertyFetcher
+{
+
+    private T _value;
+    private readonly int _level;
+
+    public T GetValue()
+    {
+        return _value;
+    }
+
+    public void SetValue(T val)
+    {
+        _value = val;
+    }
+
+    public ParagraphPropertyFetcher(int level)
+    {
+        _level = level;
+    }
+
     /**
-     *  Used internally to navigate the paragraph text style hierarchy within a shape and fetch properties
+    *
+    * @param shape the shape being examined
+    * @return true if the desired property was fetched
     */
-    public abstract class ParagraphPropertyFetcher
+    public override bool Fetch(CT_Shape shape)
     {
-        public abstract bool Fetch(CT_TextParagraphProperties props);
-        public abstract bool Fetch(CT_Shape props);
-    }
-    public abstract class ParagraphPropertyFetcher<T> : ParagraphPropertyFetcher
-    {
-
-        private T _value;
-        private readonly int _level;
-
-        public T GetValue()
+        //XmlObject[] o = shape.selectPath(
+        //        "declare namespace xdr='http://schemas.Openxmlformats.org/drawingml/2006/spreadsheetDrawing' " +
+        //        "declare namespace a='http://schemas.Openxmlformats.org/drawingml/2006/main' " +
+        //        ".//xdr:txBody/a:lstStyle/a:lvl" + (_level + 1) + "pPr"
+        //);
+        //if (o.Length == 1)
+        //{
+        //    CT_TextParagraphProperties props = (CT_TextParagraphProperties)o[0];
+        //    return Fetch(props);
+        //}
+        if (shape != null && shape.txBody != null && shape.txBody.lstStyle != null)
         {
-            return _value;
-        }
-
-        public void SetValue(T val)
-        {
-            _value = val;
-        }
-
-        public ParagraphPropertyFetcher(int level)
-        {
-            _level = level;
-        }
-
-        /**
-        *
-        * @param shape the shape being examined
-        * @return true if the desired property was fetched
-        */
-        public override bool Fetch(CT_Shape shape)
-        {
-            //XmlObject[] o = shape.selectPath(
-            //        "declare namespace xdr='http://schemas.Openxmlformats.org/drawingml/2006/spreadsheetDrawing' " +
-            //        "declare namespace a='http://schemas.Openxmlformats.org/drawingml/2006/main' " +
-            //        ".//xdr:txBody/a:lstStyle/a:lvl" + (_level + 1) + "pPr"
-            //);
-            //if (o.Length == 1)
-            //{
-            //    CT_TextParagraphProperties props = (CT_TextParagraphProperties)o[0];
-            //    return Fetch(props);
-            //}
-            if (shape != null && shape.txBody != null && shape.txBody.lstStyle != null)
+            CT_TextParagraphProperties props;
+            switch(this._level+1)
             {
-                CT_TextParagraphProperties props;
-                switch(this._level+1)
-                {
-                    case 1: props = shape.txBody.lstStyle.lvl1pPr; break;
-                    case 2: props = shape.txBody.lstStyle.lvl2pPr; break;
-                    case 3: props = shape.txBody.lstStyle.lvl3pPr; break;
-                    case 4: props = shape.txBody.lstStyle.lvl4pPr; break;
-                    case 5: props = shape.txBody.lstStyle.lvl5pPr; break;
-                    case 6: props = shape.txBody.lstStyle.lvl6pPr; break;
-                    case 7: props = shape.txBody.lstStyle.lvl7pPr; break;
-                    case 8: props = shape.txBody.lstStyle.lvl8pPr; break;
-                    case 9: props = shape.txBody.lstStyle.lvl9pPr; break;
-                    default: props = null; break;
-                }
-                if (props != null)
-                    return Fetch(props);
+                case 1: props = shape.txBody.lstStyle.lvl1pPr; break;
+                case 2: props = shape.txBody.lstStyle.lvl2pPr; break;
+                case 3: props = shape.txBody.lstStyle.lvl3pPr; break;
+                case 4: props = shape.txBody.lstStyle.lvl4pPr; break;
+                case 5: props = shape.txBody.lstStyle.lvl5pPr; break;
+                case 6: props = shape.txBody.lstStyle.lvl6pPr; break;
+                case 7: props = shape.txBody.lstStyle.lvl7pPr; break;
+                case 8: props = shape.txBody.lstStyle.lvl8pPr; break;
+                case 9: props = shape.txBody.lstStyle.lvl9pPr; break;
+                default: props = null; break;
             }
-            return false;
+            if (props != null)
+                return Fetch(props);
         }
-
-        
+        return false;
     }
+
+    
 }

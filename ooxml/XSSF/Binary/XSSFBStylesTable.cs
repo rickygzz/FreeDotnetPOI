@@ -17,108 +17,105 @@
 
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-namespace NPOI.XSSF.Binary
+namespace NPOI.XSSF.Binary;
+
+
+using NPOI;
+using NPOI.SS.UserModel;
+
+/// <summary>
+/// This is a very thin shim to gather number formats from styles.bin
+/// files.
+/// </summary>
+/// @since 3.16-beta3
+public class XSSFBStylesTable : XSSFBParser
 {
 
-    using NPOI;
-    using NPOI.SS.UserModel;
-    using NPOI.Util;
+    private  SortedDictionary<short, String> numberFormats = new SortedDictionary<short,String>();
+    private  List<short> styleIds = new List<short>();
 
-    /// <summary>
-    /// This is a very thin shim to gather number formats from styles.bin
-    /// files.
-    /// </summary>
-    /// @since 3.16-beta3
-    public class XSSFBStylesTable : XSSFBParser
+    private bool inCellXFS = false;
+    private bool inFmts = false;
+    public XSSFBStylesTable(Stream is1)
+    : base(is1)
+    {
+        Parse();
+    }
+
+    public String GetNumberFormatString(int idx)
+    {
+        short numberFormatIdx = GetNumberFormatIndex(idx);
+        if(numberFormats.TryGetValue(numberFormatIdx, out string value))
+        {
+            return value;
+        }
+
+        return BuiltinFormats.GetBuiltinFormat(numberFormatIdx);
+    }
+
+    public short GetNumberFormatIndex(int idx)
+    {
+        return styleIds[idx];
+    }
+    public override void HandleRecord(int recordType, byte[] data)
     {
 
-        private  SortedDictionary<short, String> numberFormats = new SortedDictionary<short,String>();
-        private  List<short> styleIds = new List<short>();
-
-        private bool inCellXFS = false;
-        private bool inFmts = false;
-        public XSSFBStylesTable(Stream is1)
-        : base(is1)
+        XSSFBRecordType type = XSSFBRecordTypeClass.Lookup(recordType);
+        switch(type)
         {
-            Parse();
-        }
+            case XSSFBRecordType.BrtBeginCellXFs:
+                inCellXFS = true;
+                break;
+            case XSSFBRecordType.BrtEndCellXFs:
+                inCellXFS = false;
+                break;
+            case XSSFBRecordType.BrtXf:
+                if(inCellXFS)
+                {
+                    handleBrtXFInCellXF(data);
+                }
+                break;
+            case XSSFBRecordType.BrtBeginFmts:
+                inFmts = true;
+                break;
+            case XSSFBRecordType.BrtEndFmts:
+                inFmts = false;
+                break;
+            case XSSFBRecordType.BrtFmt:
+                if(inFmts)
+                {
+                    handleFormat(data);
+                }
+                break;
 
-        public String GetNumberFormatString(int idx)
+        }
+    }
+
+    private void handleFormat(byte[] data)
+    {
+        int ifmt = data[0] & 0xFF;
+        if(ifmt > short.MaxValue)
         {
-            short numberFormatIdx = GetNumberFormatIndex(idx);
-            if(numberFormats.TryGetValue(numberFormatIdx, out string value))
-            {
-                return value;
-            }
-
-            return BuiltinFormats.GetBuiltinFormat(numberFormatIdx);
+            throw new POIXMLException("Format id must be a short");
         }
+        StringBuilder sb = new StringBuilder();
+        XSSFBUtils.ReadXLWideString(data, 2, sb);
+        String fmt = sb.ToString();
+        numberFormats[(short) ifmt] = fmt;
+    }
 
-        public short GetNumberFormatIndex(int idx)
-        {
-            return styleIds[idx];
-        }
-        public override void HandleRecord(int recordType, byte[] data)
-        {
+    private void handleBrtXFInCellXF(byte[] data)
+    {
+        int ifmtOffset = 2;
+        //int ifmtLength = 2;
 
-            XSSFBRecordType type = XSSFBRecordTypeClass.Lookup(recordType);
-            switch(type)
-            {
-                case XSSFBRecordType.BrtBeginCellXFs:
-                    inCellXFS = true;
-                    break;
-                case XSSFBRecordType.BrtEndCellXFs:
-                    inCellXFS = false;
-                    break;
-                case XSSFBRecordType.BrtXf:
-                    if(inCellXFS)
-                    {
-                        handleBrtXFInCellXF(data);
-                    }
-                    break;
-                case XSSFBRecordType.BrtBeginFmts:
-                    inFmts = true;
-                    break;
-                case XSSFBRecordType.BrtEndFmts:
-                    inFmts = false;
-                    break;
-                case XSSFBRecordType.BrtFmt:
-                    if(inFmts)
-                    {
-                        handleFormat(data);
-                    }
-                    break;
-
-            }
-        }
-
-        private void handleFormat(byte[] data)
-        {
-            int ifmt = data[0] & 0xFF;
-            if(ifmt > short.MaxValue)
-            {
-                throw new POIXMLException("Format id must be a short");
-            }
-            StringBuilder sb = new StringBuilder();
-            XSSFBUtils.ReadXLWideString(data, 2, sb);
-            String fmt = sb.ToString();
-            numberFormats[(short) ifmt] = fmt;
-        }
-
-        private void handleBrtXFInCellXF(byte[] data)
-        {
-            int ifmtOffset = 2;
-            //int ifmtLength = 2;
-
-            //numFmtId in xml terms
-            int ifmt = data[ifmtOffset] & 0xFF;//the second byte is ignored
-            styleIds.Add((short) ifmt);
-        }
+        //numFmtId in xml terms
+        int ifmt = data[ifmtOffset] & 0xFF;//the second byte is ignored
+        styleIds.Add((short) ifmt);
     }
 }
 

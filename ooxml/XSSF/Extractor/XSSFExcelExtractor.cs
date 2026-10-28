@@ -14,377 +14,374 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 ==================================================================== */
+using NPOI.OpenXml4Net.OPC;
+using NPOI.SS.UserModel;
+using NPOI.Util;
 using NPOI.XSSF.UserModel;
 using System;
-using NPOI.OpenXml4Net.OPC;
-using System.Text;
-using NPOI.SS.UserModel;
 using System.Globalization;
-using System.Collections.Generic;
-using NPOI.Util;
+using System.Text;
 
-namespace NPOI.XSSF.Extractor
+namespace NPOI.XSSF.Extractor;
+
+/**
+ * Helper class to extract text from an OOXML Excel file
+ */
+public class XSSFExcelExtractor : POIXMLTextExtractor, NPOI.SS.Extractor.IExcelExtractor
 {
-    /**
-     * Helper class to extract text from an OOXML Excel file
-     */
-    public class XSSFExcelExtractor : POIXMLTextExtractor, NPOI.SS.Extractor.IExcelExtractor
+    public static XSSFRelation[] SUPPORTED_TYPES = new XSSFRelation[] {
+        XSSFRelation.WORKBOOK, XSSFRelation.MACRO_TEMPLATE_WORKBOOK,
+        XSSFRelation.MACRO_ADDIN_WORKBOOK, XSSFRelation.TEMPLATE_WORKBOOK,
+        XSSFRelation.MACROS_WORKBOOK
+    };
+
+    private readonly XSSFWorkbook workbook;
+    private readonly DataFormatter dataFormatter;
+    private bool includeSheetNames = true;
+    private bool formulasNotResults;
+    private bool includeCellComments;
+    private bool includeHeadersFooters = true;
+    private bool includeTextBoxes = true;
+
+    public XSSFExcelExtractor(OPCPackage Container)
+        : this(new XSSFWorkbook(Container))
     {
-        public static XSSFRelation[] SUPPORTED_TYPES = new XSSFRelation[] {
-            XSSFRelation.WORKBOOK, XSSFRelation.MACRO_TEMPLATE_WORKBOOK,
-            XSSFRelation.MACRO_ADDIN_WORKBOOK, XSSFRelation.TEMPLATE_WORKBOOK,
-            XSSFRelation.MACROS_WORKBOOK
+
+    }
+    public XSSFExcelExtractor(XSSFWorkbook workbook)
+        : base(workbook)
+    {
+
+        this.workbook = workbook;
+        dataFormatter = new DataFormatter {
+            UseCachedValuesForFormulaCells = true
         };
-
-        private readonly XSSFWorkbook workbook;
-        private readonly DataFormatter dataFormatter;
-        private bool includeSheetNames = true;
-        private bool formulasNotResults;
-        private bool includeCellComments;
-        private bool includeHeadersFooters = true;
-        private bool includeTextBoxes = true;
-
-        public XSSFExcelExtractor(OPCPackage Container)
-            : this(new XSSFWorkbook(Container))
+    }
+    /// <summary>
+    ///  Should header and footer be included? Default is true
+    /// </summary>
+    public bool IncludeHeadersFooters
+    {
+        get
         {
-
+            return includeHeadersFooters;
         }
-        public XSSFExcelExtractor(XSSFWorkbook workbook)
-            : base(workbook)
+        set
         {
-
-            this.workbook = workbook;
-            dataFormatter = new DataFormatter {
-                UseCachedValuesForFormulaCells = true
-            };
+            includeHeadersFooters = value;
         }
-        /// <summary>
-        ///  Should header and footer be included? Default is true
-        /// </summary>
-        public bool IncludeHeadersFooters
+    }
+    /// <summary>
+    /// Should sheet names be included? Default is true
+    /// </summary>
+    /// <value>if set to <c>true</c> [include sheet names].</value>
+    public bool IncludeSheetNames
+    {
+        get
         {
-            get
-            {
-                return includeHeadersFooters;
-            }
-            set
-            {
-                includeHeadersFooters = value;
-            }
+            return includeSheetNames;
         }
-        /// <summary>
-        /// Should sheet names be included? Default is true
-        /// </summary>
-        /// <value>if set to <c>true</c> [include sheet names].</value>
-        public bool IncludeSheetNames
+        set
         {
-            get
-            {
-                return includeSheetNames;
-            }
-            set
-            {
-                includeSheetNames = value;
-            }
+            includeSheetNames = value;
         }
-        /// <summary>
-        /// Should we return the formula itself, and not
-        /// the result it produces? Default is false
-        /// </summary>
-        /// <value>if set to <c>true</c> [formulas not results].</value>
-        public bool FormulasNotResults
+    }
+    /// <summary>
+    /// Should we return the formula itself, and not
+    /// the result it produces? Default is false
+    /// </summary>
+    /// <value>if set to <c>true</c> [formulas not results].</value>
+    public bool FormulasNotResults
+    {
+        get
         {
-            get
-            {
-                return formulasNotResults;
-            }
-            set
-            {
-                formulasNotResults = value;
-            }
+            return formulasNotResults;
         }
-        /// <summary>
-        /// Should cell comments be included? Default is false
-        /// </summary>
-        /// <value>if set to <c>true</c> [include cell comments].</value>
-        public bool IncludeCellComments
+        set
         {
-            get
-            {
-                return includeCellComments;
-            }
-            set
-            {
-                includeCellComments = value;
-            }
+            formulasNotResults = value;
         }
-
-        public bool IncludeTextBoxes
+    }
+    /// <summary>
+    /// Should cell comments be included? Default is false
+    /// </summary>
+    /// <value>if set to <c>true</c> [include cell comments].</value>
+    public bool IncludeCellComments
+    {
+        get
         {
-            get
-            {
-                return includeTextBoxes;
-            }
-            set
-            {
-                includeTextBoxes = value;
-            }
+            return includeCellComments;
         }
-        public bool AddTabEachEmptyCell { get; set; } = true;
-        /**
-         * Should sheet names be included? Default is true
-         */
-        [Obsolete("use property IncludeSheetNames")]
-        [Removal(Version = "4.0")]
-        public void SetIncludeSheetNames(bool includeSheetNames)
+        set
         {
-            this.includeSheetNames = includeSheetNames;
-        }
-        /**
-         * Should we return the formula itself, and not
-         *  the result it produces? Default is false
-         */
-        [Obsolete("use property FormulasNotResults")]
-        [Removal(Version = "4.0")]
-        public void SetFormulasNotResults(bool formulasNotResults)
-        {
-            this.formulasNotResults = formulasNotResults;
-        }
-        /**
-         * Should cell comments be included? Default is false
-         */
-        [Obsolete("use property IncludeCellComments")]
-        [Removal(Version = "4.0")]
-        public void SetIncludeCellComments(bool includeCellComments)
-        {
-            this.includeCellComments = includeCellComments;
-        }
-        /**
-         * Should headers and footers be included? Default is true
-         */
-        [Obsolete("use property IncludeHeadersFooters")]
-        [Removal(Version = "4.0")]
-        public void SetIncludeHeadersFooters(bool includeHeadersFooters)
-        {
-            this.includeHeadersFooters = includeHeadersFooters;
-        }
-
-        /**
-         * Should text within textboxes be included? Default is true
-         * @param includeTextBoxes
-         */
-        [Obsolete("use property IncludeTextBoxes")]
-        [Removal(Version = "4.0")]
-        public void SetIncludeTextBoxes(bool includeTextBoxes)
-        {
-            this.includeTextBoxes = includeTextBoxes;
-        }
-        public void SetLocale(CultureInfo locale)
-        {
-            this.locale = locale;
-        }
-
-        private CultureInfo locale = null;
-        /**
-         * Retreives the text contents of the file
-         */
-        public override string Text
-        {
-            get
-            {
-                DataFormatter formatter;
-                if (locale == null)
-                {
-                    formatter = new DataFormatter();
-                }
-                else
-                {
-                    formatter = new DataFormatter(locale);
-                }
-
-                StringBuilder text = new StringBuilder();
-
-                foreach (ISheet sh in workbook)
-                {
-                    XSSFSheet sheet = (XSSFSheet)sh;
-                    if (includeSheetNames)
-                    {
-                        text.Append(sheet.SheetName + "\n");
-                    }
-
-                    // Header(s), if present
-                    if (includeHeadersFooters)
-                    {
-                        text.Append(
-                                XSSFExcelExtractor.ExtractHeaderFooter(sheet.FirstHeader)
-                        );
-                        text.Append(
-                                XSSFExcelExtractor.ExtractHeaderFooter(sheet.OddHeader)
-                        );
-                        text.Append(
-                                XSSFExcelExtractor.ExtractHeaderFooter(sheet.EvenHeader)
-                        );
-                    }
-
-                    // Rows and cells
-                    foreach (object rawR in sheet)
-                    {
-                        IRow row = (IRow)rawR;
-                        //IEnumerator<ICell> ri = row.GetEnumerator();
-                        bool firsttime = true;
-                        for (int j = 0; j < row.LastCellNum; j++)
-                        {
-                            // Add a tab delimiter for each empty cell.
-                            if(AddTabEachEmptyCell)
-                            {
-                                if(!firsttime)
-                                {
-                                    text.Append("\t");
-                                }
-                                else
-                                {
-                                    firsttime = false;
-                                }
-                            }
-
-                            ICell cell = row.GetCell(j);
-                            if (cell == null)
-                                continue;
-
-                            // Is it a formula one?
-                            if (cell.CellType == CellType.Formula)
-                            {
-                                if (formulasNotResults)
-                                {
-                                    String contents = cell.CellFormula;
-                                    CheckMaxTextSize(text, contents);
-                                    text.Append(contents);
-                                }
-                                else
-                                {
-                                    if (cell.CachedFormulaResultType == CellType.String)
-                                    {
-                                        HandleStringCell(text, cell);
-                                    }
-                                    else
-                                    {
-                                        HandleNonStringCell(text, cell, formatter);
-                                    }
-                                }
-
-                            }
-                            else if (cell.CellType == CellType.String)
-                            {
-                                HandleStringCell(text, cell);
-                            }
-                            else
-                            {
-                                HandleNonStringCell(text, cell, formatter);
-                            }
-
-                            // Output the comment, if requested and exists
-                            IComment comment = cell.CellComment;
-                            if (includeCellComments && comment != null)
-                            {
-                                // Replace any newlines with spaces, otherwise it
-                                //  breaks the output
-                                String commentText = comment.String.String.Replace('\n', ' ');
-                                CheckMaxTextSize(text, commentText);
-                                text.Append(" Comment by ").Append(comment.Author).Append(": ").Append(commentText);
-                            }
-                        }
-                        text.Append("\n");
-                    }
-                    // add textboxes
-                    if (includeTextBoxes)
-                    {
-                        XSSFDrawing drawing = sheet.GetDrawingPatriarch();
-                        if (drawing != null)
-                        {
-                            foreach (XSSFShape shape in drawing.GetShapes())
-                            {
-                                if (shape is XSSFSimpleShape simpleShape)
-                                {
-                                    String boxText = simpleShape.Text;
-                                    if (boxText.Length > 0)
-                                    {
-                                        text.Append(boxText);
-                                        text.Append('\n');
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    // Finally footer(s), if present
-                    if (includeHeadersFooters)
-                    {
-                        text.Append(
-                                XSSFExcelExtractor.ExtractHeaderFooter(sheet.FirstFooter)
-                        );
-                        text.Append(
-                                XSSFExcelExtractor.ExtractHeaderFooter(sheet.OddFooter)
-                        );
-                        text.Append(
-                                XSSFExcelExtractor.ExtractHeaderFooter(sheet.EvenFooter)
-                        );
-                    }
-                }
-
-                return text.ToString();
-            }
-        }
-
-        private void HandleStringCell(StringBuilder text, ICell cell)
-        {
-            string contents = cell.RichStringCellValue.String;
-            CheckMaxTextSize(text, contents);
-            text.Append(contents);
-        }
-
-        private void HandleNonStringCell(StringBuilder text, ICell cell, DataFormatter formatter)
-        {
-            CellType type = cell.CellType;
-            if (type == CellType.Formula)
-            {
-                type = cell.CachedFormulaResultType;
-            }
-
-            if (type == CellType.Numeric)
-            {
-                ICellStyle cs = cell.CellStyle;
-
-                if (cs.GetDataFormatString() != null)
-                {
-                    string contents1 = formatter.FormatRawCellContents(
-                          cell.NumericCellValue, cs.DataFormat, cs.GetDataFormatString()
-                    );
-                    
-                    CheckMaxTextSize(text, contents1);
-                    text.Append(contents1);
-                    return;
-                }
-            }
-
-            // No supported styling applies to this cell
-            string contents = dataFormatter.FormatCellValue(cell);
-
-            if(contents != null)
-            {
-                if(type == CellType.Error)
-                {
-                    // to match what XSSFEventBasedExcelExtractor does
-                    contents = "ERROR:" + contents;
-                }
-                CheckMaxTextSize(text, contents);
-                text.Append(contents);
-            }
-        }
-
-        private static string ExtractHeaderFooter(IHeaderFooter hf)
-        {
-            return NPOI.HSSF.Extractor.ExcelExtractor.ExtractHeaderFooter(hf);
+            includeCellComments = value;
         }
     }
 
+    public bool IncludeTextBoxes
+    {
+        get
+        {
+            return includeTextBoxes;
+        }
+        set
+        {
+            includeTextBoxes = value;
+        }
+    }
+    public bool AddTabEachEmptyCell { get; set; } = true;
+    /**
+     * Should sheet names be included? Default is true
+     */
+    [Obsolete("use property IncludeSheetNames")]
+    [Removal(Version = "4.0")]
+    public void SetIncludeSheetNames(bool includeSheetNames)
+    {
+        this.includeSheetNames = includeSheetNames;
+    }
+    /**
+     * Should we return the formula itself, and not
+     *  the result it produces? Default is false
+     */
+    [Obsolete("use property FormulasNotResults")]
+    [Removal(Version = "4.0")]
+    public void SetFormulasNotResults(bool formulasNotResults)
+    {
+        this.formulasNotResults = formulasNotResults;
+    }
+    /**
+     * Should cell comments be included? Default is false
+     */
+    [Obsolete("use property IncludeCellComments")]
+    [Removal(Version = "4.0")]
+    public void SetIncludeCellComments(bool includeCellComments)
+    {
+        this.includeCellComments = includeCellComments;
+    }
+    /**
+     * Should headers and footers be included? Default is true
+     */
+    [Obsolete("use property IncludeHeadersFooters")]
+    [Removal(Version = "4.0")]
+    public void SetIncludeHeadersFooters(bool includeHeadersFooters)
+    {
+        this.includeHeadersFooters = includeHeadersFooters;
+    }
+
+    /**
+     * Should text within textboxes be included? Default is true
+     * @param includeTextBoxes
+     */
+    [Obsolete("use property IncludeTextBoxes")]
+    [Removal(Version = "4.0")]
+    public void SetIncludeTextBoxes(bool includeTextBoxes)
+    {
+        this.includeTextBoxes = includeTextBoxes;
+    }
+    public void SetLocale(CultureInfo locale)
+    {
+        this.locale = locale;
+    }
+
+    private CultureInfo locale = null;
+    /**
+     * Retreives the text contents of the file
+     */
+    public override string Text
+    {
+        get
+        {
+            DataFormatter formatter;
+            if (locale == null)
+            {
+                formatter = new DataFormatter();
+            }
+            else
+            {
+                formatter = new DataFormatter(locale);
+            }
+
+            StringBuilder text = new StringBuilder();
+
+            foreach (ISheet sh in workbook)
+            {
+                XSSFSheet sheet = (XSSFSheet)sh;
+                if (includeSheetNames)
+                {
+                    text.Append(sheet.SheetName + "\n");
+                }
+
+                // Header(s), if present
+                if (includeHeadersFooters)
+                {
+                    text.Append(
+                            XSSFExcelExtractor.ExtractHeaderFooter(sheet.FirstHeader)
+                    );
+                    text.Append(
+                            XSSFExcelExtractor.ExtractHeaderFooter(sheet.OddHeader)
+                    );
+                    text.Append(
+                            XSSFExcelExtractor.ExtractHeaderFooter(sheet.EvenHeader)
+                    );
+                }
+
+                // Rows and cells
+                foreach (object rawR in sheet)
+                {
+                    IRow row = (IRow)rawR;
+                    //IEnumerator<ICell> ri = row.GetEnumerator();
+                    bool firsttime = true;
+                    for (int j = 0; j < row.LastCellNum; j++)
+                    {
+                        // Add a tab delimiter for each empty cell.
+                        if(AddTabEachEmptyCell)
+                        {
+                            if(!firsttime)
+                            {
+                                text.Append("\t");
+                            }
+                            else
+                            {
+                                firsttime = false;
+                            }
+                        }
+
+                        ICell cell = row.GetCell(j);
+                        if (cell == null)
+                            continue;
+
+                        // Is it a formula one?
+                        if (cell.CellType == CellType.Formula)
+                        {
+                            if (formulasNotResults)
+                            {
+                                String contents = cell.CellFormula;
+                                CheckMaxTextSize(text, contents);
+                                text.Append(contents);
+                            }
+                            else
+                            {
+                                if (cell.CachedFormulaResultType == CellType.String)
+                                {
+                                    HandleStringCell(text, cell);
+                                }
+                                else
+                                {
+                                    HandleNonStringCell(text, cell, formatter);
+                                }
+                            }
+
+                        }
+                        else if (cell.CellType == CellType.String)
+                        {
+                            HandleStringCell(text, cell);
+                        }
+                        else
+                        {
+                            HandleNonStringCell(text, cell, formatter);
+                        }
+
+                        // Output the comment, if requested and exists
+                        IComment comment = cell.CellComment;
+                        if (includeCellComments && comment != null)
+                        {
+                            // Replace any newlines with spaces, otherwise it
+                            //  breaks the output
+                            String commentText = comment.String.String.Replace('\n', ' ');
+                            CheckMaxTextSize(text, commentText);
+                            text.Append(" Comment by ").Append(comment.Author).Append(": ").Append(commentText);
+                        }
+                    }
+                    text.Append("\n");
+                }
+                // add textboxes
+                if (includeTextBoxes)
+                {
+                    XSSFDrawing drawing = sheet.GetDrawingPatriarch();
+                    if (drawing != null)
+                    {
+                        foreach (XSSFShape shape in drawing.GetShapes())
+                        {
+                            if (shape is XSSFSimpleShape simpleShape)
+                            {
+                                String boxText = simpleShape.Text;
+                                if (boxText.Length > 0)
+                                {
+                                    text.Append(boxText);
+                                    text.Append('\n');
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Finally footer(s), if present
+                if (includeHeadersFooters)
+                {
+                    text.Append(
+                            XSSFExcelExtractor.ExtractHeaderFooter(sheet.FirstFooter)
+                    );
+                    text.Append(
+                            XSSFExcelExtractor.ExtractHeaderFooter(sheet.OddFooter)
+                    );
+                    text.Append(
+                            XSSFExcelExtractor.ExtractHeaderFooter(sheet.EvenFooter)
+                    );
+                }
+            }
+
+            return text.ToString();
+        }
+    }
+
+    private void HandleStringCell(StringBuilder text, ICell cell)
+    {
+        string contents = cell.RichStringCellValue.String;
+        CheckMaxTextSize(text, contents);
+        text.Append(contents);
+    }
+
+    private void HandleNonStringCell(StringBuilder text, ICell cell, DataFormatter formatter)
+    {
+        CellType type = cell.CellType;
+        if (type == CellType.Formula)
+        {
+            type = cell.CachedFormulaResultType;
+        }
+
+        if (type == CellType.Numeric)
+        {
+            ICellStyle cs = cell.CellStyle;
+
+            if (cs.GetDataFormatString() != null)
+            {
+                string contents1 = formatter.FormatRawCellContents(
+                      cell.NumericCellValue, cs.DataFormat, cs.GetDataFormatString()
+                );
+                
+                CheckMaxTextSize(text, contents1);
+                text.Append(contents1);
+                return;
+            }
+        }
+
+        // No supported styling applies to this cell
+        string contents = dataFormatter.FormatCellValue(cell);
+
+        if(contents != null)
+        {
+            if(type == CellType.Error)
+            {
+                // to match what XSSFEventBasedExcelExtractor does
+                contents = "ERROR:" + contents;
+            }
+            CheckMaxTextSize(text, contents);
+            text.Append(contents);
+        }
+    }
+
+    private static string ExtractHeaderFooter(IHeaderFooter hf)
+    {
+        return NPOI.HSSF.Extractor.ExcelExtractor.ExtractHeaderFooter(hf);
+    }
 }

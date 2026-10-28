@@ -14,278 +14,277 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 ==================================================================== */
-namespace NPOI.XSSF.EventUserModel
+namespace NPOI.XSSF.EventUserModel;
+
+using NPOI.OpenXml4Net.OPC;
+using NPOI.XSSF.UserModel;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Text;
+using System.Xml;
+using NPOI.XSSF.EventUserModel.Sax;
+
+/// <summary>
+/// <para>
+/// This is a lightweight way to process the Shared Strings
+/// table. Most of the text cells will reference something
+/// from in here.
+/// </para>
+/// <para>
+/// Note that each SI entry can have multiple T elements, if the
+/// string is made up of bits with different formatting.
+/// </para>
+/// <para>
+/// Example input:
+/// <code>
+/// &lt;?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+/// &lt;sst xmlns="http://schemas.Openxmlformats.org/spreadsheetml/2006/main" count="2" uniqueCount="2">
+///   &lt;si>
+///     &lt;r>
+///       &lt;rPr>
+///         &lt;b />
+///         &lt;sz val="11" />
+///         &lt;color theme="1" />
+///         &lt;rFont val="Calibri" />
+///         &lt;family val="2" />
+///         &lt;scheme val="minor" />
+///       &lt;/rPr>
+///       &lt;t>This:&lt;/t>
+///     &lt;/r>
+///     &lt;r>
+///       &lt;rPr>
+///         &lt;sz val="11" />
+///         &lt;color theme="1" />
+///         &lt;rFont val="Calibri" />
+///         &lt;family val="2" />
+///         &lt;scheme val="minor" />
+///       &lt;/rPr>
+///       &lt;t xml:space="preserve">Causes Problems&lt;/t>
+///     &lt;/r>
+///   &lt;/si>
+///   &lt;si>
+///     &lt;t>This does not&lt;/t>
+///   &lt;/si>
+/// &lt;/sst>
+/// </code>
+/// </para>
+/// </summary>
+public class ReadOnlySharedStringsTable : DefaultHandler
 {
-    using NPOI.OpenXml4Net.OPC;
-    using NPOI.XSSF.UserModel;
-    using System;
-    using System.Collections.Generic;
-    using System.IO;
-    using System.Text;
-    using System.Xml;
-    using NPOI.XSSF.EventUserModel.Sax;
+    private bool includePhoneticRuns;
+    /// <summary>
+    /// An integer representing the total count of strings in the workbook. This count does not
+    /// include any numbers, it counts only the total of text strings in the workbook.
+    /// </summary>
+    private int count;
+
+    /// <summary>
+    /// An integer representing the total count of unique strings in the Shared String Table.
+    /// A string is unique even if it is a copy of another string, but has different formatting applied
+    /// at the character level.
+    /// </summary>
+    private int uniqueCount;
+
+    /// <summary>
+    /// The shared strings table.
+    /// </summary>
+    private List<String> strings;
+
+    /// <summary>
+    /// Map of phonetic strings (if they exist) indexed
+    /// with the integer matching the index in strings
+    /// </summary>
+    private Dictionary<int, String> phoneticStrings;
+
+    /// <summary>
+    /// Calls <see cref="ReadOnlySharedStringsTable(OPCPackage, bool)" /> with
+    /// a value of <c>true</c> for including phonetic runs
+    /// </summary>
+    /// <param name="pkg">The <see cref="OPCPackage"/> to use as basis for the shared-strings table.</param>
+    /// <exception cref="IOException"> If reading the data from the package fails.</exception>
+    /// <exception cref="XmlException"> if parsing the XML data fails.</exception>
+    public ReadOnlySharedStringsTable(OPCPackage pkg)
+        : this(pkg, true)
+    {
+    }
+
+    /// <summary>
+    /// </summary>
+    /// <param name="pkg">The <see cref="OPCPackage"/> to use as basis for the shared-strings table.</param>
+    /// <param name="includePhoneticRuns">whether or not to concatenate phoneticRuns onto the shared string</param>
+    /// <exception cref="IOException">IOException If reading the data from the package fails.</exception>
+    /// <exception cref="XmlException">XmlException if parsing the XML data fails.</exception>
+    /// @since POI 3.14-Beta3
+    public ReadOnlySharedStringsTable(OPCPackage pkg, bool includePhoneticRuns)
+    {
+        this.includePhoneticRuns = includePhoneticRuns;
+        List<PackagePart> parts =
+                pkg.GetPartsByContentType(XSSFRelation.SHARED_STRINGS.ContentType);
+
+        // Some workbooks have no shared strings table.
+        if (parts.Count > 0)
+        {
+            PackagePart sstPart = parts[0];
+            ReadFrom(sstPart.GetInputStream());
+        }
+    }
 
     /// <summary>
     /// <para>
-    /// This is a lightweight way to process the Shared Strings
-    /// table. Most of the text cells will reference something
-    /// from in here.
+    /// Like POIXMLDocumentPart constructor
     /// </para>
     /// <para>
-    /// Note that each SI entry can have multiple T elements, if the
-    /// string is made up of bits with different formatting.
-    /// </para>
-    /// <para>
-    /// Example input:
-    /// <code>
-    /// &lt;?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
-    /// &lt;sst xmlns="http://schemas.Openxmlformats.org/spreadsheetml/2006/main" count="2" uniqueCount="2">
-    ///   &lt;si>
-    ///     &lt;r>
-    ///       &lt;rPr>
-    ///         &lt;b />
-    ///         &lt;sz val="11" />
-    ///         &lt;color theme="1" />
-    ///         &lt;rFont val="Calibri" />
-    ///         &lt;family val="2" />
-    ///         &lt;scheme val="minor" />
-    ///       &lt;/rPr>
-    ///       &lt;t>This:&lt;/t>
-    ///     &lt;/r>
-    ///     &lt;r>
-    ///       &lt;rPr>
-    ///         &lt;sz val="11" />
-    ///         &lt;color theme="1" />
-    ///         &lt;rFont val="Calibri" />
-    ///         &lt;family val="2" />
-    ///         &lt;scheme val="minor" />
-    ///       &lt;/rPr>
-    ///       &lt;t xml:space="preserve">Causes Problems&lt;/t>
-    ///     &lt;/r>
-    ///   &lt;/si>
-    ///   &lt;si>
-    ///     &lt;t>This does not&lt;/t>
-    ///   &lt;/si>
-    /// &lt;/sst>
-    /// </code>
+    /// Calls <see cref="ReadOnlySharedStringsTable(PackagePart, bool)" />, with a
+    /// value of <c>true</c> to include phonetic runs.
     /// </para>
     /// </summary>
-    public class ReadOnlySharedStringsTable : DefaultHandler
+    /// @since POI 3.14-Beta1
+    public ReadOnlySharedStringsTable(PackagePart part)
+        : this(part, true)
     {
-        private bool includePhoneticRuns;
-        /// <summary>
-        /// An integer representing the total count of strings in the workbook. This count does not
-        /// include any numbers, it counts only the total of text strings in the workbook.
-        /// </summary>
-        private int count;
+    }
 
-        /// <summary>
-        /// An integer representing the total count of unique strings in the Shared String Table.
-        /// A string is unique even if it is a copy of another string, but has different formatting applied
-        /// at the character level.
-        /// </summary>
-        private int uniqueCount;
+    /// <summary>
+    /// Like POIXMLDocumentPart constructor
+    /// </summary>
+    /// @since POI 3.14-Beta3
+    public ReadOnlySharedStringsTable(PackagePart part, bool includePhoneticRuns)
 
-        /// <summary>
-        /// The shared strings table.
-        /// </summary>
-        private List<String> strings;
+    {
 
-        /// <summary>
-        /// Map of phonetic strings (if they exist) indexed
-        /// with the integer matching the index in strings
-        /// </summary>
-        private Dictionary<int, String> phoneticStrings;
+        this.includePhoneticRuns = includePhoneticRuns;
+        ReadFrom(part.GetInputStream());
+    }
 
-        /// <summary>
-        /// Calls <see cref="ReadOnlySharedStringsTable(OPCPackage, bool)" /> with
-        /// a value of <c>true</c> for including phonetic runs
-        /// </summary>
-        /// <param name="pkg">The <see cref="OPCPackage"/> to use as basis for the shared-strings table.</param>
-        /// <exception cref="IOException"> If reading the data from the package fails.</exception>
-        /// <exception cref="XmlException"> if parsing the XML data fails.</exception>
-        public ReadOnlySharedStringsTable(OPCPackage pkg)
-            : this(pkg, true)
+    /// <summary>
+    /// Read this shared strings table from an XML file.
+    /// </summary>
+    /// <param name="is1">The input stream containing the XML document.</param>
+    /// <exception cref="IOException"> if an error occurs while reading.</exception>
+    /// <exception cref="XmlException"> if parsing the XML data fails.</exception>
+    public void ReadFrom(Stream is1)
+    {
+        // test if the file is empty, otherwise parse it
+        //PushbackInputStream pis = new PushbackInputStream(is1, 1);
+        //int emptyTest = pis.Read();
+        //if (emptyTest > -1)
+        if(is1.Length > 0)
         {
+            //pis.Unread(emptyTest);
+            SaxParser.Parse(is1, this);
+        }
+    }
+
+    /// <summary>
+    /// Return an integer representing the total count of strings in the workbook. This count does not
+    /// include any numbers, it counts only the total of text strings in the workbook.
+    /// </summary>
+    /// <return>the total count of strings in the workbook</return>
+    public int Count => count;
+
+    /// <summary>
+    /// Returns an integer representing the total count of unique strings in the Shared String Table.
+    /// A string is unique even if it is a copy of another string, but has different formatting applied
+    /// at the character level.
+    /// </summary>
+    /// <return>the total count of unique strings in the workbook</return>
+    public int UniqueCount => uniqueCount;
+
+    /// <summary>
+    /// Return the string at a given index.
+    /// Formatting is ignored.
+    /// </summary>
+    /// <param name="idx">index of item to return.</param>
+    /// <return>the item at the specified position in this Shared String table.</return>
+    public String GetEntryAt(int idx)
+    {
+        return strings[idx];
+    }
+
+    public List<String> Items => strings;
+
+
+    //// ContentHandler methods ////
+
+    private StringBuilder characters;
+    private bool tIsOpen;
+    private bool inRPh;
+
+    public override void StartElement(String uri, String localName, String name,
+                             IAttributes attributes)
+    {
+        if (uri != null && !uri.Equals(XSSFRelation.NS_SPREADSHEETML))
+        {
+            return;
         }
 
-        /// <summary>
-        /// </summary>
-        /// <param name="pkg">The <see cref="OPCPackage"/> to use as basis for the shared-strings table.</param>
-        /// <param name="includePhoneticRuns">whether or not to concatenate phoneticRuns onto the shared string</param>
-        /// <exception cref="IOException">IOException If reading the data from the package fails.</exception>
-        /// <exception cref="XmlException">XmlException if parsing the XML data fails.</exception>
-        /// @since POI 3.14-Beta3
-        public ReadOnlySharedStringsTable(OPCPackage pkg, bool includePhoneticRuns)
+        if ("sst".Equals(localName))
         {
-            this.includePhoneticRuns = includePhoneticRuns;
-            List<PackagePart> parts =
-                    pkg.GetPartsByContentType(XSSFRelation.SHARED_STRINGS.ContentType);
+            String count = attributes.GetValue("count");
+            if (count != null) this.count = Int32.Parse(count);
+            String uniqueCount = attributes.GetValue("uniqueCount");
+            if (uniqueCount != null) this.uniqueCount = Int32.Parse(uniqueCount);
 
-            // Some workbooks have no shared strings table.
-            if (parts.Count > 0)
+            this.strings = new List<String>(this.uniqueCount);
+            this.phoneticStrings = new Dictionary<int, String>();
+            characters = new StringBuilder();
+        }
+        else if ("si".Equals(localName))
+        {
+            characters.Length = 0;
+        }
+        else if ("t".Equals(localName))
+        {
+            tIsOpen = true;
+        }
+        else if ("rPh".Equals(localName))
+        {
+            inRPh = true;
+            //append space...this assumes that rPh always comes After regular <t>
+            if (includePhoneticRuns && characters.Length > 0)
             {
-                PackagePart sstPart = parts[0];
-                ReadFrom(sstPart.GetInputStream());
+                characters.Append(" ");
             }
         }
+    }
 
-        /// <summary>
-        /// <para>
-        /// Like POIXMLDocumentPart constructor
-        /// </para>
-        /// <para>
-        /// Calls <see cref="ReadOnlySharedStringsTable(PackagePart, bool)" />, with a
-        /// value of <c>true</c> to include phonetic runs.
-        /// </para>
-        /// </summary>
-        /// @since POI 3.14-Beta1
-        public ReadOnlySharedStringsTable(PackagePart part)
-            : this(part, true)
+    public override void EndElement(String uri, String localName, String name)
+    {
+
+        if (uri != null && !uri.Equals(XSSFRelation.NS_SPREADSHEETML))
         {
+            return;
         }
 
-        /// <summary>
-        /// Like POIXMLDocumentPart constructor
-        /// </summary>
-        /// @since POI 3.14-Beta3
-        public ReadOnlySharedStringsTable(PackagePart part, bool includePhoneticRuns)
-
+        if ("si".Equals(localName))
         {
-
-            this.includePhoneticRuns = includePhoneticRuns;
-            ReadFrom(part.GetInputStream());
+            strings.Add(characters.ToString());
         }
-
-        /// <summary>
-        /// Read this shared strings table from an XML file.
-        /// </summary>
-        /// <param name="is1">The input stream containing the XML document.</param>
-        /// <exception cref="IOException"> if an error occurs while reading.</exception>
-        /// <exception cref="XmlException"> if parsing the XML data fails.</exception>
-        public void ReadFrom(Stream is1)
+        else if ("t".Equals(localName))
         {
-            // test if the file is empty, otherwise parse it
-            //PushbackInputStream pis = new PushbackInputStream(is1, 1);
-            //int emptyTest = pis.Read();
-            //if (emptyTest > -1)
-            if(is1.Length > 0)
-            {
-                //pis.Unread(emptyTest);
-                SaxParser.Parse(is1, this);
-            }
+            tIsOpen = false;
         }
-
-        /// <summary>
-        /// Return an integer representing the total count of strings in the workbook. This count does not
-        /// include any numbers, it counts only the total of text strings in the workbook.
-        /// </summary>
-        /// <return>the total count of strings in the workbook</return>
-        public int Count => count;
-
-        /// <summary>
-        /// Returns an integer representing the total count of unique strings in the Shared String Table.
-        /// A string is unique even if it is a copy of another string, but has different formatting applied
-        /// at the character level.
-        /// </summary>
-        /// <return>the total count of unique strings in the workbook</return>
-        public int UniqueCount => uniqueCount;
-
-        /// <summary>
-        /// Return the string at a given index.
-        /// Formatting is ignored.
-        /// </summary>
-        /// <param name="idx">index of item to return.</param>
-        /// <return>the item at the specified position in this Shared String table.</return>
-        public String GetEntryAt(int idx)
+        else if ("rPh".Equals(localName))
         {
-            return strings[idx];
+            inRPh = false;
         }
+    }
 
-        public List<String> Items => strings;
-
-
-        //// ContentHandler methods ////
-
-        private StringBuilder characters;
-        private bool tIsOpen;
-        private bool inRPh;
-
-        public override void StartElement(String uri, String localName, String name,
-                                 IAttributes attributes)
+    /// <summary>
+    /// Captures characters only if a t(ext) element is open.
+    /// </summary>
+    public override void Characters(char[] ch, int start, int length)
+    {
+        if (tIsOpen)
         {
-            if (uri != null && !uri.Equals(XSSFRelation.NS_SPREADSHEETML))
+            if (inRPh && includePhoneticRuns)
             {
-                return;
+                characters.Append(ch, start, length);
             }
-
-            if ("sst".Equals(localName))
+            else if (!inRPh)
             {
-                String count = attributes.GetValue("count");
-                if (count != null) this.count = Int32.Parse(count);
-                String uniqueCount = attributes.GetValue("uniqueCount");
-                if (uniqueCount != null) this.uniqueCount = Int32.Parse(uniqueCount);
-
-                this.strings = new List<String>(this.uniqueCount);
-                this.phoneticStrings = new Dictionary<int, String>();
-                characters = new StringBuilder();
-            }
-            else if ("si".Equals(localName))
-            {
-                characters.Length = 0;
-            }
-            else if ("t".Equals(localName))
-            {
-                tIsOpen = true;
-            }
-            else if ("rPh".Equals(localName))
-            {
-                inRPh = true;
-                //append space...this assumes that rPh always comes After regular <t>
-                if (includePhoneticRuns && characters.Length > 0)
-                {
-                    characters.Append(" ");
-                }
-            }
-        }
-
-        public override void EndElement(String uri, String localName, String name)
-        {
-
-            if (uri != null && !uri.Equals(XSSFRelation.NS_SPREADSHEETML))
-            {
-                return;
-            }
-
-            if ("si".Equals(localName))
-            {
-                strings.Add(characters.ToString());
-            }
-            else if ("t".Equals(localName))
-            {
-                tIsOpen = false;
-            }
-            else if ("rPh".Equals(localName))
-            {
-                inRPh = false;
-            }
-        }
-
-        /// <summary>
-        /// Captures characters only if a t(ext) element is open.
-        /// </summary>
-        public override void Characters(char[] ch, int start, int length)
-        {
-            if (tIsOpen)
-            {
-                if (inRPh && includePhoneticRuns)
-                {
-                    characters.Append(ch, start, length);
-                }
-                else if (!inRPh)
-                {
-                    characters.Append(ch, start, length);
-                }
+                characters.Append(ch, start, length);
             }
         }
     }

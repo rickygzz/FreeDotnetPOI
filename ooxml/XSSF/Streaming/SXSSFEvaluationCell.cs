@@ -14,163 +14,161 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 ==================================================================== */
-using System;
 using NPOI.SS.Formula;
 using NPOI.SS.UserModel;
 using NPOI.SS.Util;
 using NPOI.Util;
-using NPOI.XSSF.UserModel;
+using System;
 
-namespace NPOI.XSSF.Streaming
+namespace NPOI.XSSF.Streaming;
+
+public class SXSSFEvaluationCell : IEvaluationCell 
 {
-    public class SXSSFEvaluationCell : IEvaluationCell 
+    private readonly SXSSFEvaluationSheet _evalSheet;
+    private readonly SXSSFCell _cell;
+
+    public SXSSFEvaluationCell(SXSSFCell cell, SXSSFEvaluationSheet evaluationSheet)
     {
-        private readonly SXSSFEvaluationSheet _evalSheet;
-        private readonly SXSSFCell _cell;
+        _cell = cell;
+        _evalSheet = evaluationSheet;
+    }
 
-        public SXSSFEvaluationCell(SXSSFCell cell, SXSSFEvaluationSheet evaluationSheet)
+    public SXSSFEvaluationCell(SXSSFCell cell)
+        : this(cell, new SXSSFEvaluationSheet(cell.Sheet as SXSSFSheet))
+    {
+    }
+
+
+    public Object IdentityKey
+    {
+        get
         {
-            _cell = cell;
-            _evalSheet = evaluationSheet;
-        }
-
-        public SXSSFEvaluationCell(SXSSFCell cell)
-            : this(cell, new SXSSFEvaluationSheet(cell.Sheet as SXSSFSheet))
-        {
-        }
-
-
-        public Object IdentityKey
-        {
-            get
-            {
-                // save memory by just using the cell itself as the identity key
-                // Note - this assumes SXSSFCell has not overridden hashCode and equals
-                return _cell;
-            }
-        }
-
-        public SXSSFCell GetSXSSFCell()
-        {
+            // save memory by just using the cell itself as the identity key
+            // Note - this assumes SXSSFCell has not overridden hashCode and equals
             return _cell;
         }
+    }
 
-        public bool BooleanCellValue
-        {
-            get
-            {
-                return _cell.BooleanCellValue;
-            }
-        }
-        /**
-         * Will return {@link CellType} in a future version of POI.
-         * For forwards compatibility, do not hard-code cell type literals in your code.
-         *
-         * @return cell type
-         */
+    public SXSSFCell GetSXSSFCell()
+    {
+        return _cell;
+    }
 
-        public CellType CellType
+    public bool BooleanCellValue
+    {
+        get
         {
-            get
-            {
-                return _cell.CellType;
-            }
+            return _cell.BooleanCellValue;
         }
-        /**
-         * @since POI 3.15 beta 3
-         * @deprecated POI 3.15 beta 3.
-         * Will be deleted when we make the CellType enum transition. See bug 59791.
-         */
-        [Obsolete("use CellType instead")]
-        [Removal(Version = "4.2")]
-        public CellType CellTypeEnum
-        {
-            get
-            {
-                return _cell.CellType;
-            }
-        }
+    }
+    /**
+     * Will return {@link CellType} in a future version of POI.
+     * For forwards compatibility, do not hard-code cell type literals in your code.
+     *
+     * @return cell type
+     */
 
-        public int ColumnIndex
+    public CellType CellType
+    {
+        get
         {
-            get
-            {
-                return _cell.ColumnIndex;
-            }
-            
+            return _cell.CellType;
         }
+    }
+    /**
+     * @since POI 3.15 beta 3
+     * @deprecated POI 3.15 beta 3.
+     * Will be deleted when we make the CellType enum transition. See bug 59791.
+     */
+    [Obsolete("use CellType instead")]
+    [Removal(Version = "4.2")]
+    public CellType CellTypeEnum
+    {
+        get
+        {
+            return _cell.CellType;
+        }
+    }
 
-        public int ErrorCellValue
+    public int ColumnIndex
+    {
+        get
         {
-            get
-            {
-                return _cell.ErrorCellValue;
-            }
-            
+            return _cell.ColumnIndex;
         }
+        
+    }
 
-        public double NumericCellValue
+    public int ErrorCellValue
+    {
+        get
         {
-            get
-            {
-                return _cell.NumericCellValue;
-            }
+            return _cell.ErrorCellValue;
         }
+        
+    }
 
-        public int RowIndex
+    public double NumericCellValue
+    {
+        get
         {
-            get
-            {
-                return _cell.RowIndex;
-            }
+            return _cell.NumericCellValue;
         }
+    }
 
-        public IEvaluationSheet Sheet
+    public int RowIndex
+    {
+        get
         {
-            get
-            {
-                return _evalSheet;
-            }
+            return _cell.RowIndex;
         }
+    }
 
-        public String StringCellValue
+    public IEvaluationSheet Sheet
+    {
+        get
         {
-            get
-            {
-                return _cell.RichStringCellValue.String;
-            }
+            return _evalSheet;
         }
-        public bool IsPartOfArrayFormulaGroup
-        {
-            get
-            {
-                return _cell.IsPartOfArrayFormulaGroup;
-            }
-        }
+    }
 
-        public CellRangeAddress ArrayFormulaRange
+    public String StringCellValue
+    {
+        get
         {
-            get 
-            { 
-                return _cell.ArrayFormulaRange; 
-            }
+            return _cell.RichStringCellValue.String;
         }
-        /// <summary>
-        /// Will return CellType in a future version of POI. For forwards compatibility, do not hard-code cell type literals in your code.
-        /// </summary>
-        public CellType CachedFormulaResultType
+    }
+    public bool IsPartOfArrayFormulaGroup
+    {
+        get
         {
-            get
-            {
-                return _cell.CachedFormulaResultType;
-            }
+            return _cell.IsPartOfArrayFormulaGroup;
         }
+    }
 
-        [Obsolete("Will be removed at NPOI 2.8, Use CachedFormulaResultType instead.")]
-        [Removal(Version = "4.2")]
-        public CellType GetCachedFormulaResultTypeEnum()
-        {
-            return _cell.GetCachedFormulaResultTypeEnum();
+    public CellRangeAddress ArrayFormulaRange
+    {
+        get 
+        { 
+            return _cell.ArrayFormulaRange; 
         }
+    }
+    /// <summary>
+    /// Will return CellType in a future version of POI. For forwards compatibility, do not hard-code cell type literals in your code.
+    /// </summary>
+    public CellType CachedFormulaResultType
+    {
+        get
+        {
+            return _cell.CachedFormulaResultType;
+        }
+    }
+
+    [Obsolete("Will be removed at NPOI 2.8, Use CachedFormulaResultType instead.")]
+    [Removal(Version = "4.2")]
+    public CellType GetCachedFormulaResultTypeEnum()
+    {
+        return _cell.GetCachedFormulaResultTypeEnum();
     }
 }

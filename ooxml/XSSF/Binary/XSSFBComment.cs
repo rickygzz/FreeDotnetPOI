@@ -17,79 +17,72 @@
 
 
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
+using NPOI.SS.UserModel;
+using NPOI.SS.Util;
+using NPOI.XSSF.UserModel;
 
-namespace NPOI.XSSF.Binary
+namespace NPOI.XSSF.Binary;
+
+
+/// <summary>
+/// </summary>
+/// @since 3.16-beta3
+public class XSSFBComment : XSSFComment
 {
 
-    using NPOI.SS.UserModel;
-    using NPOI.SS.Util;
-    using NPOI.Util;
-    using NPOI.XSSF.UserModel;
+    private  CellAddress cellAddress;
+    private  String author;
+    private  XSSFBRichTextString comment;
+    private bool visible = true;
 
-    /// <summary>
-    /// </summary>
-    /// @since 3.16-beta3
-    public class XSSFBComment : XSSFComment
+    public XSSFBComment(CellAddress cellAddress, String author, String comment)
+    : base(null, null, null)
     {
-
-        private  CellAddress cellAddress;
-        private  String author;
-        private  XSSFBRichTextString comment;
-        private bool visible = true;
-
-        public XSSFBComment(CellAddress cellAddress, String author, String comment)
-        : base(null, null, null)
-        {
-            ;
-            this.cellAddress = cellAddress;
-            this.author = author;
-            this.comment = new XSSFBRichTextString(comment);
-        }
-
-        public override bool Visible
-        {
-            get => visible;
-            set => throw new ArgumentException("XSSFBComment is read only.");
-        }
-        public override CellAddress Address
-        {
-            get => cellAddress;
-            set => throw new ArgumentException("XSSFBComment is read only");
-        }
-
-        public override void SetAddress(int row, int col)
-        {
-            throw new ArgumentException("XSSFBComment is read only");
-
-        }
-        public override int Row
-        {
-            get => cellAddress.Row;
-            set => throw new ArgumentException("XSSFBComment is read only");
-        }
-
-        public override int Column
-        {
-            get => cellAddress.Column;
-            set => throw new ArgumentException("XSSFBComment is read only");
-        }
-
-        public override String Author
-        {
-            get => author;
-            set => throw new ArgumentException("XSSFBComment is read only");
-        }
-
-        public override IRichTextString String
-        {
-            get => comment;
-            set => throw new ArgumentException("XSSFBComment is read only");
-        }
-
-        public override IClientAnchor ClientAnchor => null;
+        ;
+        this.cellAddress = cellAddress;
+        this.author = author;
+        this.comment = new XSSFBRichTextString(comment);
     }
+
+    public override bool Visible
+    {
+        get => visible;
+        set => throw new ArgumentException("XSSFBComment is read only.");
+    }
+    public override CellAddress Address
+    {
+        get => cellAddress;
+        set => throw new ArgumentException("XSSFBComment is read only");
+    }
+
+    public override void SetAddress(int row, int col)
+    {
+        throw new ArgumentException("XSSFBComment is read only");
+
+    }
+    public override int Row
+    {
+        get => cellAddress.Row;
+        set => throw new ArgumentException("XSSFBComment is read only");
+    }
+
+    public override int Column
+    {
+        get => cellAddress.Column;
+        set => throw new ArgumentException("XSSFBComment is read only");
+    }
+
+    public override String Author
+    {
+        get => author;
+        set => throw new ArgumentException("XSSFBComment is read only");
+    }
+
+    public override IRichTextString String
+    {
+        get => comment;
+        set => throw new ArgumentException("XSSFBComment is read only");
+    }
+
+    public override IClientAnchor ClientAnchor => null;
 }

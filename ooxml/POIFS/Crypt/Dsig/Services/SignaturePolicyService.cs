@@ -22,48 +22,47 @@
    Copyright (C) 2008-2014 FedICT.
    ================================================================= */
 
-namespace NPOI.POIFS.Crypt.Dsig.Services
+namespace NPOI.POIFS.Crypt.Dsig.Services;
+
+using System;
+
+/**
+ * Interface for the signature policy service.
+ * 
+ * @author Frank Cornelis
+ * 
+ */
+public interface ISignaturePolicyService
 {
-    using System;
 
     /**
-     * Interface for the signature policy service.
+     * Gives back the signature policy identifier URI.
      * 
-     * @author Frank Cornelis
-     * 
+     * @return the signature policy identifier URI.
      */
-    public interface ISignaturePolicyService
-    {
+    String GetSignaturePolicyIdentifier();
 
-        /**
-         * Gives back the signature policy identifier URI.
-         * 
-         * @return the signature policy identifier URI.
-         */
-        String GetSignaturePolicyIdentifier();
+    /**
+     * Gives back the short description of the signature policy or
+     * <code>null</code> if a description is not available.
+     * 
+     * @return the description, or <code>null</code>.
+     */
+    String GetSignaturePolicyDescription();
 
-        /**
-         * Gives back the short description of the signature policy or
-         * <code>null</code> if a description is not available.
-         * 
-         * @return the description, or <code>null</code>.
-         */
-        String GetSignaturePolicyDescription();
+    /**
+     * Gives back the download URL where the signature policy document can be
+     * found. Can be <code>null</code> in case such a download location does not
+     * exist.
+     * 
+     * @return the download URL, or <code>null</code>.
+     */
+    String GetSignaturePolicyDownloadUrl();
 
-        /**
-         * Gives back the download URL where the signature policy document can be
-         * found. Can be <code>null</code> in case such a download location does not
-         * exist.
-         * 
-         * @return the download URL, or <code>null</code>.
-         */
-        String GetSignaturePolicyDownloadUrl();
-
-        /**
-         * Gives back the signature policy document.
-         * 
-         * @return the bytes of the signature policy document.
-         */
-        byte[] GetSignaturePolicyDocument();
-    }
+    /**
+     * Gives back the signature policy document.
+     * 
+     * @return the bytes of the signature policy document.
+     */
+    byte[] GetSignaturePolicyDocument();
 }

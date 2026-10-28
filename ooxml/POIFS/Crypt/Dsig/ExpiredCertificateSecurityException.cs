@@ -22,21 +22,19 @@
    Copyright (C) 2008-2014 FedICT.
    ================================================================= */
 
-namespace NPOI.POIFS.Crypt.Dsig
+namespace NPOI.POIFS.Crypt.Dsig;
+
+using System;
+
+/**
+ * Exception thrown in case the incoming eID certificate is expired.
+ * 
+ * @author Frank Cornelis
+ * 
+ */
+public class ExpiredCertificateSecurityException :
+        CertificateSecurityException
 {
-    using System;
 
-    /**
-     * Exception thrown in case the incoming eID certificate is expired.
-     * 
-     * @author Frank Cornelis
-     * 
-     */
-    public class ExpiredCertificateSecurityException :
-            CertificateSecurityException
-    {
-
-
-    }
 
 }

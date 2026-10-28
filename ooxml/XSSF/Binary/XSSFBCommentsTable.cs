@@ -17,88 +17,83 @@
 
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using NPOI.SS.Util;
+using NPOI.Util;
 
-namespace NPOI.XSSF.Binary
+namespace NPOI.XSSF.Binary;
+
+/// <summary>
+/// </summary>
+/// @since 3.16-beta3
+public class XSSFBCommentsTable : XSSFBParser
 {
+    private Dictionary<CellAddress, XSSFBComment> comments = new Dictionary<CellAddress, XSSFBComment>();
+    private Queue<CellAddress> commentAddresses = new Queue<CellAddress>();
+    private List<String> authors = new List<String>();
 
-    using NPOI.SS.Util;
-    using NPOI.Util;
+    //these are all used only during parsing, and they are mutable!
+    private int authorId = -1;
+    private CellAddress cellAddress = null;
+    private XSSFBCellRange cellRange = null;
+    private String comment = null;
+    private StringBuilder authorBuffer = new StringBuilder();
 
-    /// <summary>
-    /// </summary>
-    /// @since 3.16-beta3
-    public class XSSFBCommentsTable : XSSFBParser
+
+    public XSSFBCommentsTable(Stream is1)
+    : base(is1)
+    {
+        Parse();
+        foreach (var key in comments.Keys)
+        {
+            commentAddresses.Enqueue(key);
+        }
+        
+    }
+    public override void HandleRecord(int id, byte[] data)
     {
 
-        private Dictionary<CellAddress, XSSFBComment> comments = new Dictionary<CellAddress, XSSFBComment>();
-        private Queue<CellAddress> commentAddresses = new Queue<CellAddress>();
-        private List<String> authors = new List<String>();
-
-        //these are all used only during parsing, and they are mutable!
-        private int authorId = -1;
-        private CellAddress cellAddress = null;
-        private XSSFBCellRange cellRange = null;
-        private String comment = null;
-        private StringBuilder authorBuffer = new StringBuilder();
-
-
-        public XSSFBCommentsTable(Stream is1)
-        : base(is1)
+        XSSFBRecordType recordType = XSSFBRecordTypeClass.Lookup(id);
+        switch(recordType)
         {
-            Parse();
-            foreach (var key in comments.Keys)
-            {
-                commentAddresses.Enqueue(key);
-            }
-            
+            case XSSFBRecordType.BrtBeginComment:
+                int offset = 0;
+                authorId = XSSFBUtils.CastToInt(LittleEndian.GetUInt(data));
+                offset += LittleEndian.INT_SIZE;
+                cellRange = XSSFBCellRange.parse(data, offset, cellRange);
+                offset+= XSSFBCellRange.Length;
+                //for strict parsing; confirm that firstRow==lastRow and firstCol==colLats (2.4.28)
+                cellAddress = new CellAddress(cellRange.firstRow, cellRange.firstCol);
+                break;
+            case XSSFBRecordType.BrtCommentText:
+                XSSFBRichStr xssfbRichStr = XSSFBRichStr.Build(data, 0);
+                comment = xssfbRichStr.String;
+                break;
+            case XSSFBRecordType.BrtEndComment:
+                comments[cellAddress] = new XSSFBComment(cellAddress, authors[authorId], comment);
+                authorId = -1;
+                cellAddress = null;
+                break;
+            case XSSFBRecordType.BrtCommentAuthor:
+                authorBuffer.Length = 0;
+                XSSFBUtils.ReadXLWideString(data, 0, authorBuffer);
+                authors.Add(authorBuffer.ToString());
+                break;
         }
-        public override void HandleRecord(int id, byte[] data)
+    }
+
+
+    public Queue<CellAddress> Addresses => commentAddresses;
+
+    public XSSFBComment Get(CellAddress cellAddress)
+    {
+        if(cellAddress == null)
         {
-
-            XSSFBRecordType recordType = XSSFBRecordTypeClass.Lookup(id);
-            switch(recordType)
-            {
-                case XSSFBRecordType.BrtBeginComment:
-                    int offset = 0;
-                    authorId = XSSFBUtils.CastToInt(LittleEndian.GetUInt(data));
-                    offset += LittleEndian.INT_SIZE;
-                    cellRange = XSSFBCellRange.parse(data, offset, cellRange);
-                    offset+= XSSFBCellRange.Length;
-                    //for strict parsing; confirm that firstRow==lastRow and firstCol==colLats (2.4.28)
-                    cellAddress = new CellAddress(cellRange.firstRow, cellRange.firstCol);
-                    break;
-                case XSSFBRecordType.BrtCommentText:
-                    XSSFBRichStr xssfbRichStr = XSSFBRichStr.Build(data, 0);
-                    comment = xssfbRichStr.String;
-                    break;
-                case XSSFBRecordType.BrtEndComment:
-                    comments[cellAddress] = new XSSFBComment(cellAddress, authors[authorId], comment);
-                    authorId = -1;
-                    cellAddress = null;
-                    break;
-                case XSSFBRecordType.BrtCommentAuthor:
-                    authorBuffer.Length = 0;
-                    XSSFBUtils.ReadXLWideString(data, 0, authorBuffer);
-                    authors.Add(authorBuffer.ToString());
-                    break;
-            }
+            return null;
         }
-
-
-        public Queue<CellAddress> Addresses => commentAddresses;
-
-        public XSSFBComment Get(CellAddress cellAddress)
-        {
-            if(cellAddress == null)
-            {
-                return null;
-            }
-            return comments.TryGetValue(cellAddress, out XSSFBComment value) ? value : null;
-        }
+        return comments.TryGetValue(cellAddress, out XSSFBComment value) ? value : null;
     }
 }
 

@@ -15,83 +15,76 @@
    limitations under the License.
 ==================================================================== */
 
-
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.IO;
 using System.Text;
+using NPOI.XSSF.UserModel.Helpers;
 
-namespace NPOI.XSSF.Binary
+namespace NPOI.XSSF.Binary;
+
+/// <summary>
+/// </summary>
+/// @since 3.16-beta3
+public class XSSFBHeaderFooter
 {
-    using NPOI.Util;
-    using NPOI.XSSF.UserModel.Helpers;
 
-    /// <summary>
-    /// </summary>
-    /// @since 3.16-beta3
-    public class XSSFBHeaderFooter
+    private static  HeaderFooterHelper HEADER_FOOTER_HELPER = new HeaderFooterHelper();
+
+    private  String headerFooterTypeLabel;
+    private  bool isHeader;
+    private String rawString;
+
+
+    public XSSFBHeaderFooter(String headerFooterTypeLabel, bool isHeader)
     {
-
-        private static  HeaderFooterHelper HEADER_FOOTER_HELPER = new HeaderFooterHelper();
-
-        private  String headerFooterTypeLabel;
-        private  bool isHeader;
-        private String rawString;
-
-
-        public XSSFBHeaderFooter(String headerFooterTypeLabel, bool isHeader)
-        {
-            this.headerFooterTypeLabel = headerFooterTypeLabel;
-            this.isHeader = isHeader;
-        }
-
-        public String HeaderFooterTypeLabel => headerFooterTypeLabel;
-
-        public String RawString
-        {
-            get => rawString;
-            set => rawString = value;
-        }
-
-        public String String
-        {
-            get
-            {
-                StringBuilder sb = new StringBuilder();
-                String left = HEADER_FOOTER_HELPER.GetLeftSection(rawString);
-                String center = HEADER_FOOTER_HELPER.GetCenterSection(rawString);
-                String right = HEADER_FOOTER_HELPER.GetRightSection(rawString);
-                if(left != null && left.Length > 0)
-                {
-                    sb.Append(left);
-                }
-                if(center != null && center.Length > 0)
-                {
-                    if(sb.Length > 0)
-                    {
-                        sb.Append(" ");
-                    }
-                    sb.Append(center);
-                }
-                if(right != null && right.Length > 0)
-                {
-                    if(sb.Length > 0)
-                    {
-                        sb.Append(" ");
-                    }
-                    sb.Append(right);
-                }
-                return sb.ToString();
-            }
-            set
-            {
-                this.rawString = value;
-            }
-        }
-
-        public bool IsHeader => isHeader;
-
+        this.headerFooterTypeLabel = headerFooterTypeLabel;
+        this.isHeader = isHeader;
     }
+
+    public String HeaderFooterTypeLabel => headerFooterTypeLabel;
+
+    public String RawString
+    {
+        get => rawString;
+        set => rawString = value;
+    }
+
+    public String String
+    {
+        get
+        {
+            StringBuilder sb = new StringBuilder();
+            String left = HEADER_FOOTER_HELPER.GetLeftSection(rawString);
+            String center = HEADER_FOOTER_HELPER.GetCenterSection(rawString);
+            String right = HEADER_FOOTER_HELPER.GetRightSection(rawString);
+            if(left != null && left.Length > 0)
+            {
+                sb.Append(left);
+            }
+            if(center != null && center.Length > 0)
+            {
+                if(sb.Length > 0)
+                {
+                    sb.Append(" ");
+                }
+                sb.Append(center);
+            }
+            if(right != null && right.Length > 0)
+            {
+                if(sb.Length > 0)
+                {
+                    sb.Append(" ");
+                }
+                sb.Append(right);
+            }
+            return sb.ToString();
+        }
+        set
+        {
+            this.rawString = value;
+        }
+    }
+
+    public bool IsHeader => isHeader;
+
 }
 

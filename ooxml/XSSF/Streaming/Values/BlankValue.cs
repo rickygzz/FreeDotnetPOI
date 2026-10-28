@@ -16,14 +16,13 @@
 ==================================================================== */
 using NPOI.SS.UserModel;
 
-namespace NPOI.XSSF.Streaming.Values
+namespace NPOI.XSSF.Streaming.Values;
 
+
+public class BlankValue : Value
 {
-    public class BlankValue : Value
+    CellType Value.GetType()
     {
-        CellType Value.GetType()
-        {
-            return CellType.Blank;
-        }
+        return CellType.Blank;
     }
 }

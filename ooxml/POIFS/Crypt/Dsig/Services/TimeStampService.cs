@@ -22,37 +22,35 @@
    Copyright (C) 2008-2014 FedICT.
    ================================================================= */
 
-namespace NPOI.POIFS.Crypt.Dsig.Services
+namespace NPOI.POIFS.Crypt.Dsig.Services;
+
+using System;
+
+using NPOI.POIFS.Crypt.Dsig;
+
+
+/**
+ * Interface for a time-stamp service.
+ * 
+ * @author Frank Cornelis
+ * 
+ */
+public interface ITimeStampService : ISignatureConfigurable
 {
-    using System;
-
-    using NPOI.POIFS.Crypt.Dsig;
-
 
     /**
-     * Interface for a time-stamp service.
+     * Gives back the encoded time-stamp token for the given array of data
+     * bytes. We assume that the time-stamp token itself Contains its full
+     * certificate chain required for proper validation.
      * 
-     * @author Frank Cornelis
-     * 
+     * @param data
+     *            the data to be time-stamped.
+     * @param revocationData
+     *            the optional Container that needs to be Filled up with the
+     *            revocation data used to validate the TSA certificate chain.
+     * @return the DER encoded time-stamp token.
+     * @throws Exception
+     *             in case something went wrong.
      */
-    public interface ITimeStampService : ISignatureConfigurable
-    {
-
-        /**
-         * Gives back the encoded time-stamp token for the given array of data
-         * bytes. We assume that the time-stamp token itself Contains its full
-         * certificate chain required for proper validation.
-         * 
-         * @param data
-         *            the data to be time-stamped.
-         * @param revocationData
-         *            the optional Container that needs to be Filled up with the
-         *            revocation data used to validate the TSA certificate chain.
-         * @return the DER encoded time-stamp token.
-         * @throws Exception
-         *             in case something went wrong.
-         */
-        byte[] TimeStamp(byte[] data, RevocationData revocationData);
-    }
-
+    byte[] TimeStamp(byte[] data, RevocationData revocationData);
 }

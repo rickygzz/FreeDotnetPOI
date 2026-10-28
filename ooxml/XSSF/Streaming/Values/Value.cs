@@ -16,10 +16,9 @@
 ==================================================================== */
 using NPOI.SS.UserModel;
 
-namespace NPOI.XSSF.Streaming.Values
+namespace NPOI.XSSF.Streaming.Values;
+
+public interface Value
 {
-    public interface Value
-    {
-        CellType GetType();
-    }
+    CellType GetType();
 }

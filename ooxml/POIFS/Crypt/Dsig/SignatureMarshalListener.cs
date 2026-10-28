@@ -15,88 +15,85 @@
    limitations under the License.
 ==================================================================== */
 
-namespace NPOI.POIFS.Crypt.Dsig
+using System;
+using System.Xml;
+
+namespace NPOI.POIFS.Crypt.Dsig;
+
+/**
+ * This listener class is used, to modify the to be digested xml document,
+ * e.g. to register id attributes or Set prefixes for registered namespaces
+ */
+public class SignatureMarshalListener : IEventListener, ISignatureConfigurable
 {
-    using System;
-    using System.Threading;
-    using System.Xml;
+    ///ThreadLocal<EventTarget> target = new ThreadLocal<EventTarget>();
+    SignatureConfig signatureConfig;
+    ////public void SetEventTarget(EventTarget target)
+    ////{
+    ////    this.target.Set(target);
+    ////}
 
-
-    /**
-     * This listener class is used, to modify the to be digested xml document,
-     * e.g. to register id attributes or Set prefixes for registered namespaces
-     */
-    public class SignatureMarshalListener : IEventListener, ISignatureConfigurable
+    public void handleEvent(IEvent e)
     {
-        ///ThreadLocal<EventTarget> target = new ThreadLocal<EventTarget>();
-        SignatureConfig signatureConfig;
-        ////public void SetEventTarget(EventTarget target)
-        ////{
-        ////    this.target.Set(target);
-        ////}
+        ////if (!(e is MutationEvent)) return;
+        ////MutationEvent mutEvt = (MutationEvent)e;
+        ////EventTarget et = mutEvt.Target;
+        ////if (!(et is XmlElement)) return;
+        ////handleElement((XmlElement)et);
+        throw new NotImplementedException();
+    }
 
-        public void handleEvent(IEvent e)
+    public void handleElement(XmlElement el)
+    {
+        //EventTarget target = this.target.Get();
+        //String packageId = signatureConfig.PackageSignatureId;
+        //if (el.HasAttribute("Id"))
+        //{
+        //    el.IdAttribute = (/*setter*/"Id", true);
+        //}
+
+        //SetListener(target, this, false);
+        //if (packageId.Equals(el.GetAttribute("Id")))
+        //{
+        //    el.AttributeNS = (/*setter*/XML_NS, "xmlns:mdssi", OO_DIGSIG_NS);
+        //}
+        //SetPrefix(el);
+        //SetListener(target, this, true);
+        throw new NotImplementedException();
+    }
+
+    // helper method to keep it in one place
+    ////public static void SetListener(EventTarget target, EventListener listener, bool enabled)
+    ////{
+    ////    String type = "DOMSubtreeModified";
+    ////    bool useCapture = false;
+    ////    if (enabled)
+    ////    {
+    ////        target.AddEventListener(type, listener, useCapture);
+    ////    }
+    ////    else
+    ////    {
+    ////        target.RemoveEventListener(type, listener, useCapture);
+    ////    }
+    ////}
+
+    protected void SetPrefix(XmlNode el)
+    {
+        String prefix = signatureConfig.GetNamespacePrefixes()[(el.NamespaceURI)];
+        if (prefix != null && el.Prefix == null)
         {
-            ////if (!(e is MutationEvent)) return;
-            ////MutationEvent mutEvt = (MutationEvent)e;
-            ////EventTarget et = mutEvt.Target;
-            ////if (!(et is XmlElement)) return;
-            ////handleElement((XmlElement)et);
-            throw new NotImplementedException();
+            el.Prefix = (/*setter*/prefix);
         }
 
-        public void handleElement(XmlElement el)
+        XmlNodeList nl = el.ChildNodes;
+        for (int i = 0; i < nl.Count; i++)
         {
-            //EventTarget target = this.target.Get();
-            //String packageId = signatureConfig.PackageSignatureId;
-            //if (el.HasAttribute("Id"))
-            //{
-            //    el.IdAttribute = (/*setter*/"Id", true);
-            //}
-
-            //SetListener(target, this, false);
-            //if (packageId.Equals(el.GetAttribute("Id")))
-            //{
-            //    el.AttributeNS = (/*setter*/XML_NS, "xmlns:mdssi", OO_DIGSIG_NS);
-            //}
-            //SetPrefix(el);
-            //SetListener(target, this, true);
-            throw new NotImplementedException();
+            SetPrefix(nl.Item(i));
         }
+    }
 
-        // helper method to keep it in one place
-        ////public static void SetListener(EventTarget target, EventListener listener, bool enabled)
-        ////{
-        ////    String type = "DOMSubtreeModified";
-        ////    bool useCapture = false;
-        ////    if (enabled)
-        ////    {
-        ////        target.AddEventListener(type, listener, useCapture);
-        ////    }
-        ////    else
-        ////    {
-        ////        target.RemoveEventListener(type, listener, useCapture);
-        ////    }
-        ////}
-
-        protected void SetPrefix(XmlNode el)
-        {
-            String prefix = signatureConfig.GetNamespacePrefixes()[(el.NamespaceURI)];
-            if (prefix != null && el.Prefix == null)
-            {
-                el.Prefix = (/*setter*/prefix);
-            }
-
-            XmlNodeList nl = el.ChildNodes;
-            for (int i = 0; i < nl.Count; i++)
-            {
-                SetPrefix(nl.Item(i));
-            }
-        }
-
-        public void SetSignatureConfig(SignatureConfig signatureConfig)
-        {
-            this.signatureConfig = signatureConfig;
-        }
+    public void SetSignatureConfig(SignatureConfig signatureConfig)
+    {
+        this.signatureConfig = signatureConfig;
     }
 }

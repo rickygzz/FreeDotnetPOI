@@ -24,95 +24,94 @@ using System.Collections.Generic;
 using NPOI.XSSF.UserModel;
 using System;
 
-namespace NPOI.XSSF.Model
+namespace NPOI.XSSF.Model;
+
+
+
+/**
+ * 
+ * This class : the Single Cell Tables Part (Open Office XML Part 4:
+ * chapter 3.5.2)
+ * 
+ *
+ * @author Roberto Manicardi
+ */
+public class SingleXmlCells : POIXMLDocumentPart
 {
 
 
-    /**
-     * 
-     * This class : the Single Cell Tables Part (Open Office XML Part 4:
-     * chapter 3.5.2)
-     * 
-     *
-     * @author Roberto Manicardi
-     */
-    public class SingleXmlCells : POIXMLDocumentPart
+    private CT_SingleXmlCells SingleXMLCells;
+
+    public SingleXmlCells()
+        : base()
     {
 
+        SingleXMLCells = new CT_SingleXmlCells();
+    }
 
-        private CT_SingleXmlCells SingleXMLCells;
+    public SingleXmlCells(PackagePart part)
+        : base(part)
+    {
+        ReadFrom(part.GetInputStream());
+    }
+    [Obsolete("deprecated in POI 3.14, scheduled for removal in POI 3.16")]
+    public SingleXmlCells(PackagePart part, PackageRelationship rel)
+         : this(part)
+    {
 
-        public SingleXmlCells()
-            : base()
+    }
+    public void ReadFrom(Stream is1)
+    {
+        try
         {
-
-            SingleXMLCells = new CT_SingleXmlCells();
+            SingleXmlCellsDocument doc = SingleXmlCellsDocument.Parse(is1);
+            SingleXMLCells = doc.GetSingleXmlCells();
         }
-
-        public SingleXmlCells(PackagePart part)
-            : base(part)
+        catch (XmlException e)
         {
-            ReadFrom(part.GetInputStream());
+            throw new IOException(e.Message);
         }
-        [Obsolete("deprecated in POI 3.14, scheduled for removal in POI 3.16")]
-        public SingleXmlCells(PackagePart part, PackageRelationship rel)
-             : this(part)
+    }
+
+    public XSSFSheet GetXSSFSheet()
+    {
+        return (XSSFSheet)GetParent();
+    }
+
+    protected void WriteTo(Stream out1)
+    {
+        SingleXmlCellsDocument doc = new SingleXmlCellsDocument();
+        doc.SetSingleXmlCells(SingleXMLCells);
+        doc.Save(out1);
+    }
+
+
+    protected internal override void Commit()
+    {
+        PackagePart part = GetPackagePart();
+        Stream out1 = part.GetOutputStream();
+        WriteTo(out1);
+        out1.Close();
+    }
+
+    public CT_SingleXmlCells GetCTSingleXMLCells()
+    {
+        return SingleXMLCells;
+    }
+
+    /**
+     * 
+     * @return all the SimpleXmlCell Contained in this SingleXmlCells element
+     */
+    public List<XSSFSingleXmlCell> GetAllSimpleXmlCell()
+    {
+        List<XSSFSingleXmlCell> list = new List<XSSFSingleXmlCell>();
+
+        foreach (CT_SingleXmlCell SingleXmlCell in SingleXMLCells.singleXmlCell)
         {
-
+            list.Add(new XSSFSingleXmlCell(SingleXmlCell, this));
         }
-        public void ReadFrom(Stream is1)
-        {
-            try
-            {
-                SingleXmlCellsDocument doc = SingleXmlCellsDocument.Parse(is1);
-                SingleXMLCells = doc.GetSingleXmlCells();
-            }
-            catch (XmlException e)
-            {
-                throw new IOException(e.Message);
-            }
-        }
-
-        public XSSFSheet GetXSSFSheet()
-        {
-            return (XSSFSheet)GetParent();
-        }
-
-        protected void WriteTo(Stream out1)
-        {
-            SingleXmlCellsDocument doc = new SingleXmlCellsDocument();
-            doc.SetSingleXmlCells(SingleXMLCells);
-            doc.Save(out1);
-        }
-
-
-        protected internal override void Commit()
-        {
-            PackagePart part = GetPackagePart();
-            Stream out1 = part.GetOutputStream();
-            WriteTo(out1);
-            out1.Close();
-        }
-
-        public CT_SingleXmlCells GetCTSingleXMLCells()
-        {
-            return SingleXMLCells;
-        }
-
-        /**
-         * 
-         * @return all the SimpleXmlCell Contained in this SingleXmlCells element
-         */
-        public List<XSSFSingleXmlCell> GetAllSimpleXmlCell()
-        {
-            List<XSSFSingleXmlCell> list = new List<XSSFSingleXmlCell>();
-
-            foreach (CT_SingleXmlCell SingleXmlCell in SingleXMLCells.singleXmlCell)
-            {
-                list.Add(new XSSFSingleXmlCell(SingleXmlCell, this));
-            }
-            return list;
-        }
+        return list;
     }
 }
 

@@ -14,18 +14,17 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 ==================================================================== */
-namespace NPOI.XSSF.Streaming.Properties
+namespace NPOI.XSSF.Streaming.Properties;
+
+public class HyperlinkProperty : Property
 {
-    public class HyperlinkProperty : Property
+    public HyperlinkProperty(object value) : base(value)
     {
-        public HyperlinkProperty(object value) : base(value)
-        {
 
-        }
+    }
 
-        public override int GetType()
-        {
-            return HYPERLINK;
-        }
+    public override int GetType()
+    {
+        return HYPERLINK;
     }
 }

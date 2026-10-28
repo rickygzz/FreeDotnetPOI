@@ -19,68 +19,67 @@ using NPOI.SS.Util;
 using NPOI.Util;
 using NPOI.XSSF.UserModel;
 
-namespace NPOI.XSSF.Streaming
+namespace NPOI.XSSF.Streaming;
+
+public class SXSSFCreationHelper : ICreationHelper
 {
-    public class SXSSFCreationHelper : ICreationHelper
+    private static POILogger logger = POILogFactory.GetLogger(typeof(SXSSFCreationHelper));
+
+    private SXSSFWorkbook wb;
+    private XSSFCreationHelper helper;
+
+    public SXSSFCreationHelper(SXSSFWorkbook workbook)
     {
-        private static POILogger logger = POILogFactory.GetLogger(typeof(SXSSFCreationHelper));
+        this.helper = new XSSFCreationHelper(workbook.XssfWorkbook);
+        this.wb = workbook;
+    }
 
-        private SXSSFWorkbook wb;
-        private XSSFCreationHelper helper;
+    public IClientAnchor CreateClientAnchor()
+    {
+        return helper.CreateClientAnchor();
+    }
 
-        public SXSSFCreationHelper(SXSSFWorkbook workbook)
-        {
-            this.helper = new XSSFCreationHelper(workbook.XssfWorkbook);
-            this.wb = workbook;
-        }
+    public IDataFormat CreateDataFormat()
+    {
+        return helper.CreateDataFormat();
+    }
 
-        public IClientAnchor CreateClientAnchor()
-        {
-            return helper.CreateClientAnchor();
-        }
+    public ExtendedColor CreateExtendedColor()
+    {
+        return helper.CreateExtendedColor();
+    }
 
-        public IDataFormat CreateDataFormat()
-        {
-            return helper.CreateDataFormat();
-        }
+    public IFormulaEvaluator CreateFormulaEvaluator()
+    {
+        return new SXSSFFormulaEvaluator(wb);
+    }
 
-        public ExtendedColor CreateExtendedColor()
-        {
-            return helper.CreateExtendedColor();
-        }
+    public IHyperlink CreateHyperlink(HyperlinkType type)
+    {
+        return helper.CreateHyperlink(type);
+    }
 
-        public IFormulaEvaluator CreateFormulaEvaluator()
-        {
-            return new SXSSFFormulaEvaluator(wb);
-        }
+    public IRichTextString CreateRichTextString(string text)
+    {
+        logger.Log(POILogger.INFO, "SXSSF doesn't support Rich Text Strings, any formatting information will be lost");
+        return new XSSFRichTextString(text);
+    }
 
-        public IHyperlink CreateHyperlink(HyperlinkType type)
-        {
-            return helper.CreateHyperlink(type);
-        }
+    //TODO: missing methods CreateExtendedColor()
 
-        public IRichTextString CreateRichTextString(string text)
-        {
-            logger.Log(POILogger.INFO, "SXSSF doesn't support Rich Text Strings, any formatting information will be lost");
-            return new XSSFRichTextString(text);
-        }
-
-        //TODO: missing methods CreateExtendedColor()
-
-        /**
-         * {@inheritDoc}
-         */
-        public AreaReference CreateAreaReference(string reference)
-        {
-            return new AreaReference(reference, wb.SpreadsheetVersion);
-        }
-        
-        /**
-         * {@inheritDoc}
-         */
-        public AreaReference CreateAreaReference(CellReference topLeft, CellReference bottomRight)
-        {
-            return new AreaReference(topLeft, bottomRight, wb.SpreadsheetVersion);
-        }
+    /**
+     * {@inheritDoc}
+     */
+    public AreaReference CreateAreaReference(string reference)
+    {
+        return new AreaReference(reference, wb.SpreadsheetVersion);
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    public AreaReference CreateAreaReference(CellReference topLeft, CellReference bottomRight)
+    {
+        return new AreaReference(topLeft, bottomRight, wb.SpreadsheetVersion);
     }
 }

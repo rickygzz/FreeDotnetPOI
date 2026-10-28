@@ -19,37 +19,36 @@
 using System;
 using System.Text;
 
-namespace NPOI.XSSF.Binary
+namespace NPOI.XSSF.Binary;
+
+/// <summary>
+/// </summary>
+/// @since 3.16-beta3
+internal class XSSFBRichStr
 {
-    /// <summary>
-    /// </summary>
-    /// @since 3.16-beta3
-    internal class XSSFBRichStr
+
+    public static XSSFBRichStr Build(byte[] bytes, int offset)
     {
 
-        public static XSSFBRichStr Build(byte[] bytes, int offset)
-        {
+        byte first = bytes[offset];
+        bool dwSizeStrRunExists = (first >> 7 & 1) == 1;//first bit == 1?
+        bool phoneticExists = (first >> 6 & 1) == 1;//second bit == 1?
+        StringBuilder sb = new StringBuilder();
 
-            byte first = bytes[offset];
-            bool dwSizeStrRunExists = (first >> 7 & 1) == 1;//first bit == 1?
-            bool phoneticExists = (first >> 6 & 1) == 1;//second bit == 1?
-            StringBuilder sb = new StringBuilder();
-
-            int read = XSSFBUtils.ReadXLWideString(bytes, offset+1, sb);
-            //TODO: parse phonetic strings.
-            return new XSSFBRichStr(sb.ToString(), "");
-        }
-
-        private String @string;
-        private String phoneticString;
-
-        public XSSFBRichStr(String @string, String phoneticString)
-        {
-            this.@string = @string;
-            this.phoneticString = phoneticString;
-        }
-
-        public String String => @string;
+        int read = XSSFBUtils.ReadXLWideString(bytes, offset+1, sb);
+        //TODO: parse phonetic strings.
+        return new XSSFBRichStr(sb.ToString(), "");
     }
+
+    private String @string;
+    private String phoneticString;
+
+    public XSSFBRichStr(String @string, String phoneticString)
+    {
+        this.@string = @string;
+        this.phoneticString = phoneticString;
+    }
+
+    public String String => @string;
 }
 

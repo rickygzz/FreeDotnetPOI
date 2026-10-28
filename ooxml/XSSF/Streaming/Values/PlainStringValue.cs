@@ -14,15 +14,14 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 ==================================================================== */
-namespace NPOI.XSSF.Streaming.Values
-{
-    public class PlainStringValue : StringValue
-    {
-        public string Value;
+namespace NPOI.XSSF.Streaming.Values;
 
-        public override bool IsRichText()
-        {
-            return false;
-        }
+public class PlainStringValue : StringValue
+{
+    public string Value;
+
+    public override bool IsRichText()
+    {
+        return false;
     }
 }
